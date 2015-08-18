@@ -1,45 +1,13 @@
-global.riot = require(process.env.RIOT || 'riot')
-var parsers = {
-  html: {
-    jade: function(html) {
-      return require('jade').render(html, {pretty: true, doctype: 'html'})
-    }
-  },
-  css: {
-    stylus: function(tag, css) {
-      var stylus = require('stylus')
-      try {
-        // optional nib support
-        return stylus(css).use(require('nib')()).import('nib').render()
-      } catch(e) {
-        return stylus.render(css)
-      }
-    }
-  },
-  js: {
-    none: function(js) {
-      return js
-    },
-    livescript: function(js) {
-      return require('livescript').compile(js, { bare: true, header: false })
-    },
-    typescript: function(js) {
-      return require('typescript-simple')(js)
-    },
-    es6: function(js) {
-      return require('babel').transform(js, { blacklist: ['useStrict'] }).code
-    },
-    coffee: function(js) {
-      return require('coffee-script').compile(js, { bare: true })
-    }
-  }
-}
+(function (root, factory) {
+    /* istanbul ignore next */
+    if (typeof define === 'function' && define.amd)
+      define(['riot'], factory)
+    else if (typeof exports === 'object')
+      factory(require('riot'))
+    else factory(root.riot)
+}(this, function (riot, undefined) {
 
-parsers.js.javascript = parsers.js.none
-// 4 the nostalgics
-parsers.js.coffeescript = parsers.js.coffee
-
-riot.parsers = parsers
+  var T_STRING = 'string'
 var BOOL_ATTR = ('allowfullscreen,async,autofocus,autoplay,checked,compact,controls,declare,default,'+
   'defaultchecked,defaultmuted,defaultselected,defer,disabled,draggable,enabled,formnovalidate,hidden,'+
   'indeterminate,inert,ismap,itemscope,loop,multiple,muted,nohref,noresize,noshade,novalidate,nowrap,open,'+
@@ -274,10 +242,139 @@ function compile(src, opts) {
   })
 
 }
-module.exports = {
-  compile: compile,
-  html: compileHTML,
-  style: compileCSS,
-  js: compileJS,
-  parsers: parsers
+/* istanbul ignore next */
+var parsers = {
+  html: {},
+  css: {},
+  js: {
+    coffee: function(js) {
+      return CoffeeScript.compile(js, { bare: true })
+    },
+    es6: function(js) {
+      return babel.transform(js, { blacklist: ['useStrict'] }).code
+    },
+    none: function(js) {
+      return js
+    }
+  }
 }
+
+// fix 913
+parsers.js.javascript = parsers.js.none
+// 4 the nostalgics
+parsers.js.coffeescript = parsers.js.coffee
+
+riot.parsers = parsers
+
+
+var doc = window.document,
+    promise,
+    ready
+
+
+function GET(url, fn) {
+  var req = new XMLHttpRequest()
+
+  req.onreadystatechange = function() {
+    if (req.readyState == 4 && (req.status == 200 || !req.status && req.responseText.length))
+      fn(req.responseText)
+  }
+  req.open('GET', url, true)
+  req.send('')
+}
+
+function unindent(src) {
+  var ident = /[ \t]+/.exec(src)
+  if (ident) src = src.replace(new RegExp('^' + ident[0], 'gm'), '')
+  return src
+}
+
+function globalEval(js) {
+  var node = doc.createElement('script'),
+      root = doc.documentElement
+
+  node.text = compile(js)
+  root.appendChild(node)
+  root.removeChild(node)
+}
+
+function compileScripts(fn) {
+  var scripts = doc.querySelectorAll('script[type="riot/tag"]'),
+      scriptsAmount = scripts.length
+
+  function done() {
+    promise.trigger('ready')
+    ready = true
+    if (fn) fn()
+  }
+
+  if (!scriptsAmount) {
+    done()
+  } else {
+    [].map.call(scripts, function(script) {
+      var url = script.getAttribute('src')
+
+      function compileTag(source) {
+        globalEval(source)
+        scriptsAmount--
+        if (!scriptsAmount) {
+          done()
+        }
+      }
+
+      return url ? GET(url, compileTag) : compileTag(unindent(script.innerHTML))
+    })
+  }
+}
+
+
+riot.compile = function(arg, fn) {
+
+  // string
+  if (typeof arg === T_STRING) {
+
+    // compile & return
+    if (arg.trim()[0] == '<') {
+      var js = unindent(compile(arg))
+      if (!fn) globalEval(js)
+      return js
+
+    // URL
+    } else {
+      return GET(arg, function(str) {
+        var js = unindent(compile(str))
+        globalEval(js)
+        if (fn) fn(js, str)
+      })
+    }
+  }
+
+  // must be a function
+  if (typeof arg !== 'function') arg = undefined
+
+  // all compiled
+  if (ready) return arg && arg()
+
+  // add to queue
+  if (promise) {
+    if (arg) promise.on('ready', arg)
+
+  // grab riot/tag elements + load & execute them
+  } else {
+    promise = riot.observable()
+    compileScripts(arg)
+  }
+
+}
+
+// reassign mount methods
+var mount = riot.mount
+
+riot.mount = function(a, b, c) {
+  var ret
+  riot.compile(function() { ret = mount(a, b, c) })
+  return ret
+}
+
+// @deprecated
+riot.mountTo = riot.mount}));

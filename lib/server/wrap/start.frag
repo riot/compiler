@@ -1,0 +1,1 @@
+global.riot = require(process.env.RIOT || 'riot')

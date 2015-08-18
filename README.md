@@ -5,7 +5,9 @@
 [![MIT License][license-image]][license-url]
 [![Coverage Status][coverage-image]][coverage-url]
 
-[Description](doc/index.md) - [API](doc/api.md)
+## Documentation
+
+- [API](doc/)
 
 ## Installation
 
