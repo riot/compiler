@@ -20,7 +20,7 @@ build:
 	  lib/shared/index.js \
 		lib/server/wrap/end.frag > index.js)
 
-test: eslint test-server
+test: test-server
 
 eslint:
 	# check code style
