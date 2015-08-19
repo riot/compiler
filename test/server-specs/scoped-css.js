@@ -66,7 +66,7 @@ describe('Scoped CSS', function() {
   })
 
   it('use a custom css parser to render the css', function() {
-    riot.parsers.css.myParser = function(tag, css) {
+    compiler.parsers.css.myParser = function(tag, css) {
       return css.replace(/@tag/, tag)
     }
     expect(render('@tag { color: red }', 'myParser'))

@@ -20,13 +20,12 @@
     "compiler"
   ],
   "devDependencies": {
-    "coveralls": "^2.11.3",
-    "eslint": "^1.0.0",
+    "coveralls": "^2.11.4",
+    "eslint": "^0.24.1",
     "expect.js": "^0.3.1",
-    "karma": "^0.13.3",
-    "karma-coverage": "^0.4.2",
-    "karma-mocha": "^0.2.0",
-    "karma-phantomjs-launcher": "^0.2.0"
+    "istanbul": "^0.3.18",
+    "mocha": "^2.2.5",
+    "shelljs": "^0.5.3"
   },
   "author": "Muut, Inc. and other contributors",
   "license": "MIT",
@@ -34,8 +33,5 @@
     "url": "https://github.com/riot/compiler/issues"
   },
   "homepage": "https://github.com/riot/compiler#readme",
-  "dependencies": {
-    "riot": "^2.2.4",
-    "shelljs": "^0.5.3"
-  }
+  "dependencies": {}
 }
