@@ -3,6 +3,8 @@ var fs = require('fs'),
 
 describe('Compile tags', function() {
 
+  var basedir = path.join(__dirname, 'fixtures')
+
   // adding some custom riot parsers
   // css
   compiler.parsers.css.myparser = function(tag, css) {
@@ -14,18 +16,20 @@ describe('Compile tags', function() {
   }
 
   function render(str) {
-    return compiler.compile(str, {})
+    return compiler.compile(str, { basedir: basedir })
   }
 
   function cat(dir, filename) {
     return fs.readFileSync(path.join(__dirname, dir, filename)).toString()
   }
 
-  function testFile(name, debug) {
+  function testFile(name) {
     var src = cat('fixtures', name + '.tag'),
         js = render(src)
 
-    if (debug) console.info(js)
+    /*#if DEBUG
+    if (console && console.info) console.info('//' + name + '\n`' + js + '`\n')
+    #endif*/
     expect(js).to.equal(cat('expect', name + '.js'))
   }
 
@@ -51,6 +55,10 @@ describe('Compile tags', function() {
 
   it('Preserves the object inside the tags', function() {
     testFile('box')
+  })
+
+  it('Include files', function() {
+    testFile('includes')
   })
 
 })

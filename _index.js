@@ -1,0 +1,7 @@
+//#  insert "lib/wrap/start.frag"
+  //-#insert "lib/parsers.js"
+  //-#insert "lib/regexps.js"
+  //-#insert "lib/brackets.js"
+  //#insert "lib/tmpl.js"
+  //-#insert "lib/core.js"
+//#  insert "lib/wrap/end.frag"

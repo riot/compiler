@@ -50,19 +50,19 @@ describe('Scoped CSS', function() {
   })
   it('not add my-tag to @font-face', function() {
     expect(render('@font-face { font-family: "FontAwesome" }'))
-        .to.equal('@font-face{ font-family: "FontAwesome" }')
+        .to.equal('@font-face { font-family: "FontAwesome" }')
   })
   it('not add my-tag to @media, and add it to the selector inside', function() {
     expect(render('@media (min-width: 500px) {\n  header {\n    text-align: left;\n  }\n}'))
-        .to.equal('@media (min-width: 500px){ my-tag header, [riot-tag="my-tag"] header{ text-align: left; } }')
+        .to.equal('@media (min-width: 500px) { my-tag header, [riot-tag="my-tag"] header{ text-align: left; } }')
   })
   it('not add my-tag to "from" and "to" in @keyframes', function() {
     expect(render('@keyframes fade { from { opacity: 1; } to { opacity: 0; } }'))
-        .to.equal('@keyframes fade{ from{ opacity: 1; } to{ opacity: 0; } }')
+        .to.equal('@keyframes fade { from{ opacity: 1; } to{ opacity: 0; } }')
   })
   it('not add my-tag to parsentage values in @keyframes', function() {
     expect(render('@keyframes fade { 10% { opacity: 1; } 85% { opacity: 0; } }'))
-        .to.equal('@keyframes fade{ 10%{ opacity: 1; } 85%{ opacity: 0; } }')
+        .to.equal('@keyframes fade { 10%{ opacity: 1; } 85%{ opacity: 0; } }')
   })
 
   it('use a custom css parser to render the css', function() {

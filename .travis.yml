@@ -8,7 +8,7 @@ branches:
     - dev
 
 before_install:
-  npm install babel && npm install jade && npm install coffee-script && npm install stylus && npm install nib && npm install
+  npm install babel-core && npm install jade && npm install coffee-script && npm install stylus && npm install nib && npm install
 
 after_success:
   make test-coveralls

@@ -4,5 +4,5 @@ engines:
 
 ratings:
   paths:
-  - "index.js"
+  - "dist/compiler.js"
 

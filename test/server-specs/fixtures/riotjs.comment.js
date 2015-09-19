@@ -9,5 +9,5 @@
    * BLOCK
    * COMMENT */
   change (e) {
-    alert('Hello!')
+    alert('Hello!')   //ANOTHER LINE COMMENT
   }

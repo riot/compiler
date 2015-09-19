@@ -68,7 +68,7 @@ var js = compiler.compile(my_tag.innerHTML, true)
 
 After `npm install riot` you can do following:
 
-```
+```js
 var riot = require('riot')
 
 var js = compiler.compile(tag)

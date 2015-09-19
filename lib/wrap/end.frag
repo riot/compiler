@@ -4,7 +4,7 @@
     html: compileHTML,
     style: compileCSS,
     js: compileJS,
-    parsers: parsers,
-    loadAndCompile: loadAndCompile
+    parsers: parsers /*,
+    loadAndCompile: loadAndCompile*/
   }
 }));
