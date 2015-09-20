@@ -482,5 +482,6 @@ module.exports = {
   html: compileHTML,
   style: compileCSS,
   js: compileJS,
-  parsers: parsers
+  parsers: parsers,
+  tmpl: tmpl
 }

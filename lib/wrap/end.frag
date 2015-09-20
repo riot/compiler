@@ -4,7 +4,8 @@
     html: compileHTML,
     style: compileCSS,
     js: compileJS,
-    parsers: parsers /*,
-    loadAndCompile: loadAndCompile*/
+    parsers: parsers,
+    /*loadAndCompile: loadAndCompile,*/
+    tmpl: tmpl // temporal, for perf.js
   }
 }));

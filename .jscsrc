@@ -85,6 +85,6 @@
     "checkTypes": "strictNativeCase",
     "checkRedundantAccess": "enforceLeadingUnderscore",
     "leadingUnderscoreAccess": true,
-    "requireNewlineAfterDescription": true
+    "requireNewlineAfterDescription": false
   }
 }

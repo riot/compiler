@@ -3,7 +3,6 @@ ISTANBUL = ./node_modules/.bin/istanbul
 ESLINT = ./node_modules/eslint/bin/eslint.js
 MOCHA = ./node_modules/mocha/bin/_mocha
 COVERALLS = ./node_modules/coveralls/bin/coveralls.js
-RMCOMMS = ./node_modules/rmcomms/bin/rmcomms-cli.js
 
 build:
 	@ $(shell cat \
@@ -15,7 +14,7 @@ build:
 		lib/core.js \
 		lib/wrap/end.frag > dist/compiler.js)
 
-test: build eslint
+test: eslint build
 	@ $(ISTANBUL) cover $(MOCHA) -- test/runner.js -R spec
 
 eslint:
