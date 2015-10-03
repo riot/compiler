@@ -483,5 +483,6 @@ module.exports = {
   style: compileCSS,
   js: compileJS,
   parsers: parsers,
+  brackets: brackets,
   tmpl: tmpl
 }

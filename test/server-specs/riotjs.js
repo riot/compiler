@@ -25,24 +25,35 @@ describe('riotjs', function() {
     var file = 'riotjs.method.js'
     expect(render(cat('fixtures', file))).to.equal(cat2(file))
   })
+
   it('skips comments', function() {
     var file = 'riotjs.comment.js'
     expect(render(cat('fixtures', file))).to.equal(cat2(file))
   })
+
   it('converts single line method into v5 style', function() {
     var file = 'riotjs.single-line-method.js'
     expect(render(cat('fixtures', file))).to.equal(cat2(file))
   })
+
+  it('converts Class methods into v5 style (alternate formats)', function() {
+    var file = 'riotjs.methods-alt.js'
+    expect(render(cat('fixtures', file))).to.equal(cat2(file))
+  })
+
   it('preserves the default object structure', function() {
     var file = 'riotjs.object.js'
     expect(render(cat('fixtures', file))).to.equal(cat2(file))
   })
+
   it('keeps try/catch as is #768', function() {
     var file = 'riotjs.try-catch.js'
     expect(render(cat('fixtures', file))).to.equal(cat2(file))
   })
+
   it('preserves non es6 methods #1043', function() {
     var file = 'riotjs.getter-setter.js'
     expect(render(cat('fixtures', file))).to.equal(cat2(file))
   })
+
 })

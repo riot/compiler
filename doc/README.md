@@ -38,7 +38,7 @@ compiler.compile('my/tags.tag', function() {
 
 Compiles and executes the given `tag`. For example:
 
-```
+```html
 <template id="my_tag">
   <my-tag>
     <p>Hello, World!</p>

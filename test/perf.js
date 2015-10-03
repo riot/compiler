@@ -2,7 +2,7 @@
 
 var compiler23 = require('../dist/compiler.js').compile,
     compiler22 = require('./v223/compiler223.js').compile,
-    tmpl23 = require('../dist/compiler.js').tmpl,
+    tmpl23 = require('riot-tmpl').tmpl,
     tmpl22 = require('./v223/compiler223.js').tmpl,
     path = require('path'),
     fs = require('fs')

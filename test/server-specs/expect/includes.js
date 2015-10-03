@@ -1,5 +1,5 @@
 // free indent
-riot.tag2('my-tag', '<p onclick="#@425738920#"></p><p foo="#@02220442150#"></p>', '', '', function(opts) {
+riot.tag2('my-tag', '<p onclick="{#425738920#}"></p><p foo="{#02220442150#}"></p>', '', '', function(opts) {
 // src: riotjs.object.js
   this.myObj = {
     foo: 'bar',
@@ -17,4 +17,4 @@ riot.tag2('my-tag', '<p onclick="#@425738920#"></p><p foo="#@02220442150#"></p>'
     }
     .bind (this)
 
-}, {"@425738920":function(G){return ("click"in this?this:G).click}, "@02220442150":function(G){return ("myObj"in this?this:G).myObj.foo < 'bar'}});
+}, {"#425738920":function(G,F){return ("click"in this?this:G).click}, "#02220442150":function(G,F){return ("myObj"in this?this:G).myObj.foo < 'bar'}});

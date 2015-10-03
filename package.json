@@ -25,7 +25,9 @@
     "eslint": "^0.24.1",
     "expect.js": "^0.3.1",
     "istanbul": "^0.3.18",
+    "jspreproc": "latest",
     "mocha": "^2.2.5",
+    "riot-tmpl": "latest",
     "shelljs": "^0.5.3"
   },
   "author": "Muut, Inc. and other contributors",
