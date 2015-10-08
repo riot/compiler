@@ -138,6 +138,22 @@ will be compiled to:
 
 ### <a name="html-parser"></a> compiler.parsers.html [html]
 
-Custom parsers that could be used to compile your tags html
+Custom parsers that could be used to compile your tags html.
 
+The predefined parsers are:
+#### html
+- `jade`
 
+#### css
+- `stylus`
+
+#### js
+- `none` or `javascript`
+- `livescript`
+- `typescript`
+- `es6` - (using `babel-core` or `babel`)
+- `coffee` or `coffeescript`
+
+## Changes
+
+In previous versions, escaped brackets were preserved, generating incorrect HTML or invalid JavaScript code. This version removes them at an early stage, after passing the tag to the html parser, but before that the JavaScript code and expressions are sent to the js parser.

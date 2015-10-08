@@ -18,6 +18,7 @@ test: build
 # riot-compiler is for inclusion in riot, it assume tmpl, brackets, and regEx are in the scope
 build: eslint
 	# rebuild all
+	@ mkdir -p $(DIST)
 	@ $(JSPP) lib/index.js > $(DIST)riot.compiler.js
 	@ $(JSPP) lib/index.js -D RIOT_CLI > $(DIST)compiler.js
 
@@ -25,7 +26,7 @@ eslint:
 	# check code style
 	@ $(ESLINT) -c ./.eslintrc lib
 
-test-coveralls:
+test-coveralls: build
 	@ RIOT_COV=1 cat ./coverage/lcov.info ./coverage/report-lcov/lcov.info | $(COVERALLS)
 
 test-mocha:
@@ -35,6 +36,6 @@ debug: build
 	@ node-debug $(MOCHA) test/runner.js
 
 perf: build
-	@ node test/perf.js
+	@ node --expose-gc test/perf.js
 
 .PHONY: build test eslint test-coveralls debug perf

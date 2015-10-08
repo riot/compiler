@@ -1,0 +1,6 @@
+coverage/
+dist/**
+**/test/**
+!**/test/*.js
+!**/test/server-specs/*.js
+!**/test/server-specs/parsers/*.js

@@ -1,36 +1,6 @@
 
-var regEx = require('riot-tmpl').regEx,
-  S_PCESRC = regEx.PCE_TEST.source
-
-function render(str, opts, pcex) {
-  return compiler.html(str, opts || {}, pcex)
-}
-
-function checkMatch(tagStr, testStr, rePCExpr, opts) {
-  var
-    pcex = [],    // pass to compiler.html to get pcexpr list
-    re = new RegExp(testStr
-                    .replace(/(?=[-[\]()*+?.^$|#{\\])/g, '\\')
-                    .replace(/@ID/g, S_PCESRC))
-
-  var result = render(tagStr, opts, pcex)
-  expect(result).to.match(re)
-
-  if (rePCExpr) {
-    if (!Array.isArray(rePCExpr)) rePCExpr = [rePCExpr]
-    var
-      len = rePCExpr.length,
-      err = ''
-
-    for (var i = 0; i < len && !err; ++i) {
-      if (!rePCExpr[i].test(pcex[i]))
-        err = 'Test failed for expr ' + rePCExpr[i] + '\n'
-    }
-    if (rePCExpr.length !== pcex.length)
-      err += 'pcex length expected to be ' + rePCExpr.length + '\n'
-    if (err)
-      throw new Error(err + 'pcex: [\n' + pcex.join(',\n') + '\n]')
-  }
+function render(str, opts) {
+  return compiler.html(str, opts || {})
 }
 
 describe('Compile HTML', function() {
@@ -38,48 +8,123 @@ describe('Compile HTML', function() {
   it('compiles void tag into separated: <x/> -> <x></x>', function() {
     expect(render('<p/>')).to.be('<p></p>')
     expect(render('<a><b/></a>')).to.be('<a><b></b></a>')
-    checkMatch('<my-tag value={ test }/>', '<my-tag value="@ID"></my-tag>')
+    expect(render('<my-tag value={ test }/>')).to.be('<my-tag value="{#test#}"></my-tag>')
   })
 
   it('adds the prefix `riot-` to some attributes', function() {
-    checkMatch('<img src={ a }>', '<img riot-src="@ID">')
+    expect(render('<img src={ a }>')).to.be('<img riot-src="{#a#}">')
   })
 
   it('adds the prefix `__` to boolean attributes', function() {
-    checkMatch('<a disabled={ a } nowrap="{ b }">', '<a __disabled="@ID" __nowrap="@ID">')
+    expect(render('<a disabled={ a } nowrap="{ b }">')).to.be('<a __disabled="{#a#}" __nowrap="{#b#}">')
   })
 
   it('adds double quotes to the attribute value', function() {
-    checkMatch('<a a={ a }>', '<a a="@ID">')
-    checkMatch("<a a='{ a }'>", '<a a="@ID">')
-    checkMatch('<a a={ a } b={ b }>', '<a a="@ID" b="@ID">')
-    checkMatch('<a id={ a }/>', '<a id="@ID"></a>')
-    checkMatch('<input id={ a }/>', '<input id="@ID">')
+    expect(render('<a a={ a }>')).to.be('<a a="{#a#}">')
+    expect(render("<a a='{ a }'>")).to.be('<a a="{#a#}">')
+    expect(render('<a a={ a } b={ b }>')).to.be('<a a="{#a#}" b="{#b#}">')
+    expect(render('<a id={ a }/>')).to.be('<a id="{#a#}"></a>')
+    expect(render('<input id={ a }/>')).to.be('<input id="{#a#}">')
   })
 
   it('keeps interpolations', function() {
-    checkMatch('<a href="a?b={ c }">', '<a href="a?b=@ID">', /\.c\b/)
-    checkMatch('<a id="{ a }b">', '<a id="@IDb">', /\.a\b/)
+    expect(render('<a href="a?b={ c }">')).to.be('<a href="a?b={#c#}">', /\.c\b/)
+    expect(render('<a id="{ a }b">')).to.be('<a id="{#a#}b">', /\.a\b/)
   })
 
   it('skips HTML comments', function() {
-    checkMatch('{ a }<!-- c -->', '@ID')
-    checkMatch('<!-- c -->{ a }', '@ID')
-    checkMatch('<!-- c -->{ a }<!-- c --><p/><!-- c -->', '@ID<p></p>')
-  })
-
-  it('unescape escaped riot brackets', function() {
-    checkMatch('{ "a" }', '@ID', /return "a"/)  // expressions now live only in js, '&quot;a&quot;' makes no sense
-    expect(render('<a a="\\{ a \\}">')).to.be('<a a="{ a }">')
-    expect(render('\\{ a \\}')).to.be('{ a }')
+    expect(render('{ a }<!-- c -->')).to.be('{#a#}')
+    expect(render('<!-- c -->{ a }')).to.be('{#a#}')
+    expect(render('<!-- c -->{ a }<!-- c --><p/><!-- c -->')).to.be('{#a#}<p></p>')
   })
 
   it('mormalizes line endings', function() {
     expect(render('<p>\r</p>\r\r\n<p>\n</p>', { whitespace: 1 })).to.be('<p>\\n</p>\\n\\n<p>\\n</p>')
   })
 
+  describe('Custom parser in expressions', function() {
 
-  describe('2.4', function () {
+    // custom parser in expressions
+    function parser(str) { return '@' + str }
+    function testParser(str, resStr) {
+      expect(compiler.html(str, { parser: parser, expr: true })).to.equal(resStr)
+    }
+
+    it('don\'t touch format before run parser, compact & trim after (2.3.0)', function() {
+      testParser('<a href={\na\r\n}>', '<a href="{#@ a#}">')
+      testParser('<a>{\tb\n }</a>', '<a>{#@\tb#}</a>')
+    })
+
+    it('plays with the custom parser', function() {
+      testParser('<a href={a}>', '<a href="{#@a#}">')
+      testParser('<a>{ b }</a>', '<a>{#@ b#}</a>')
+    })
+
+    it('plays with quoted values', function() {
+      testParser('<a href={ "a" }>', '<a href="{#@ &quot;a&quot;#}">')
+      testParser('<a>{"b"}</a>', '<a>{#@&quot;b&quot;#}</a>')
+    })
+
+    it('prefixing the expression with "^" prevents the parser (2.3.0)', function() {
+      testParser('<a href={^ a }>', '<a href="{#a#}">')
+      testParser('<a>{^ b }</a>', '<a>{#b#}</a>')
+    })
+
+    it('remove the last semi-colon', function() {
+      testParser('<a href={ a; }>', '<a href="{#@ a#}">')
+      testParser('<a>{ b ;}</a>', '<a>{#@ b#}</a>')
+    })
+
+  })
+
+  describe('2.3.0', function () {
+
+    // fix #827
+    it('fix to input type=number', function () {
+      expect(render('<input type=number>')).to.be('<input type="{#@001#}">')
+    })
+
+    it('normalizes attributes, all values in double quotes', function () {
+      expect(render('<a a={a} b=number c =\'x\'>')).to.be('<a a="{#a#}" b="number" c="x">')
+    })
+
+    it('lf/cr in attribute values are compacted to space', function () {
+      expect(render("<p\r\n a\t= ' {a}' b='{b}\n'\n\n>")).to.be('<p a=" {#a#}" b="{#b#} ">')
+      expect(render("<p\ta ='p:{}\r\n;'>")).to.be('<p a="p:{##} ;">')
+    })
+
+    it('double quotes in expressions are converted to `&quot;`', function () {
+      expect(render('<p x={ "a" } y="{2}">')).to.be('<p x="{#&quot;a&quot;#}" y="{#2#}">')
+      expect(render('<p x="{"a"}" y="{2}">')).to.be('<p x="{#&quot;a&quot;#}" y="{#2#}">')
+      expect(render('<p x=\'{"a"}\' y="{2}">')).to.be('<p x="{#&quot;a&quot;#}" y="{#2#}">')
+      expect(render('<p x="{""}">')).to.be('<p x="{#&quot;&quot;#}">')
+    })
+
+    it('single quotes in expressions are escaped', function () {
+      expect(render("<p x={ 'a' } y='{2}'>")).to.be('<p x="{#\'a\'#}" y="{#2#}">')
+      expect(render("<p x='{'a'}' y='{2}'>")).to.be('<p x="{#\'a\'#}" y="{#2#}">')
+      expect(render("<p x=\"{'a'}\" y='{2}'>")).to.be('<p x="{#\'a\'#}" y="{#2#}">')
+      expect(render("<p x='{''}'>")).to.be('<p x="{#\'\'#}">')
+    })
+
+    it('preserve `<` and `>` operators in expressions', function () {
+      expect(render('<p x={ a>b }></p>')).to.be('<p x="{#a>b#}"></p>')
+      expect(render('<p x={ a<b }></p>')).to.be('<p x="{#a<b#}"></p>')
+    })
+
+    it('unescape escaped custom or default riot brackets', function() {
+      expect(render('\\{ a }')).to.be('{ a }')
+      expect(render('<a a="\\{ a \\}">')).to.be('<a a="{ a }">')
+      expect(render('\\{ a \\}')).to.be('{ a }')
+      expect(render('<p>\\{}</p>')).to.be('<p>{}</p>')
+    })
+
+    it('escape internal brackets (only `{#` is nedeed)', function() {
+      expect(render('<p>\\{#</p>#}<p>')).to.be('<p>\\{#</p>#}<p>')
+      expect(render('<p x="\\{##}"></p>')).to.be('<p x="\\{##}"></p>')
+      expect(render('<p x="\\{#}"></p>')).to.be('<p x="\\{#}"></p>')
+      expect(render('<p>\\{# a #}</p>')).to.be('<p>\\{# a #}</p>')
+    })
 
     it('removed enumerated/unuseful attributes from the boolean list', function () {
       var att = [
@@ -88,85 +133,10 @@ describe('Compile HTML', function() {
         'pauseonexit', 'enabled', 'visible'
       ]
       for (var i = 0; i < att.length; ++i) {
-        expect(render('<p ' + att[i] + '={}>')).to.contain('<p ' + att[i] + '=')
+        expect(render('<p ' + att[i] + '={}>')).to.be('<p ' + att[i] + '="{##}">')
       }
     })
 
-    // fix #827
-    it('fix to input type=number is working', function () {
-      expect(render('<input type=number>')).to.be('<input type="' + regEx.E_NUMBER + '">')
-    })
-
-    it('preformatted `each` attribute', function () {
-      checkMatch('<p each={ item,i in items }>', ' each="item,i,@ID"', /\.items\b/)
-      checkMatch('<p EACH={i in items}>', ' each="i,,@ID"', /\.items\b/)
-      checkMatch('<p\teach=\'{ items }\'>', ' each="@ID"', /\.items\b/)
-      checkMatch('<p EACH="{\nitem in i}">', ' each="item,,@ID"', /\.i\b/)
-      checkMatch('<p each="0">', ' each="0"')
-    })
-
-    it('double quotes in expressions (double quotes inside double quotes)', function () {
-      checkMatch('<p attr1={ "a" } attr2="{2}">', '<p attr1="@ID" attr2="', [/"a"/, /2/])
-      checkMatch('<p attr1="{"a"}" attr2="{2}">', '<p attr1="@ID" attr2="', [/"a"/, /2/])
-      checkMatch('<p attr1=\'{"a"}\' attr2="{2}">', '<p attr1="@ID" attr2="', [/"a"/, /2/])
-      checkMatch('<p attr1="{""}">', '<p attr1="@ID">', /""/)
-    })
-
-    it('single quotes in expressions (single quotes inside single quotes)', function () {
-      checkMatch("<p attr1={ 'a' } attr2='{2}'>", '<p attr1="@ID" attr2="', [/'a'/, /2/])
-      checkMatch("<p attr1='{'a'}' attr2='{2}'>", '<p attr1="@ID" attr2="', [/'a'/, /2/])
-      checkMatch("<p attr1=\"{'a'}\" attr2='{2}'>", '<p attr1="@ID" attr2="', [/'a'/, /2/])
-      checkMatch("<p attr1='{''}'>", '<p attr1="@ID">', /''/)
-    })
-
-    it('`<` and `>` operators in expressions', function () {
-      checkMatch('<p attr1={ a>b }></p>', '<p attr1="@ID"></p>', /\.a>/)
-      checkMatch('<p attr1={ a<b }></p>', '<p attr1="@ID"></p>', /\.a</)
-    })
-
-    it('normalization of the attributes', function () {
-      checkMatch('<a a = {a} b\n=number \tc =\'x\' \n>', '<a a="@ID" b="number" c="x">')
-      checkMatch("<a\n a= ' { a }' b='{b}\n'/>", '<a a=" @ID" b="@ID "></a>')
-    })
-
-    it('do not duplicate the same precompiled expression (exact after trim)', function () {
-      var pcex = [],    // pass to compiler.html to get pcexpr list
-        result = render('<p a={a<b} b={ a<b } >', {}, pcex)
-      expect(pcex).to.have.length(1)
-      // this is different
-      pcex = []
-      result = render('<p a={ a < b } b={ a<b } >', {}, pcex)
-      expect(pcex).to.have.length(2)
-    })
-
-  })
-
-})
-
-describe('Custom parser in expressions', function() {
-
-  var opts = { parser: parser, expr: true }
-
-  // custom parser
-  function parser(str) { return '@' + str }
-
-  function wrapvar(v) {
-    return new RegExp(' @\\("' + v + '"in this\\?this:G\\)\\.' + v + '\\b')
-  }
-
-  it('with unquoted values', function() {
-    checkMatch('<a href={ a }>', '<a href="@ID">', wrapvar('a'), opts)
-    checkMatch('<a>{ b }</a>', '<a>@ID</a>', wrapvar('b'), opts)
-  })
-
-  it('quoted values are preserved', function() {
-    checkMatch('<a href={ "a" }>', '<a href="@ID">', / @"a"/, opts)
-    checkMatch('<a>{ "b" }</a>', '<a>@ID</a>', / @"b"/, opts)
-  })
-
-  it('prefixing the expression with "^" prevents the parser', function() {
-    checkMatch('<a href={^ "a" }>', '<a href="@ID">', / "a"/, opts)
-    checkMatch('<a>{^ "b" }</a>', '<a>@ID</a>', / "b"/, opts)
   })
 
 })

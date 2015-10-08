@@ -1,5 +1,5 @@
 // free indent
-  <my-tag><p onclick={ click }/><p foo={ myObj.foo < 'bar' }></p>
+  <includes><p onclick={ click }/><p foo={ myObj.foo < 'bar' }></p>
     <!-- included at compile-time --><script src="riotjs.object.js"></script>
     <script>      // tagged script
       click (e)   // free style, this comment does not break the parser
@@ -13,4 +13,4 @@
       bar( {} )
     }
     .bind (this)
-    </my-tag>
+    </includes>
