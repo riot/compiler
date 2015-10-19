@@ -1,59 +1,46 @@
-var fs = require('fs'),
-    path = require('path')
-
 describe('riotjs', function() {
-
-  function normalize(js) {
-    return js
-      .replace(/[ \t]+$/gm, '')     // trim all trailing whitespace
-      .replace(/\n{3,}/g, '\n\n')   // compact empty lines
-  }
+  var
+    path = require('path'),
+    fs = require('fs')
 
   function render(str) {
-    return normalize(compiler.js(str, {}))
+    return compiler.js(str, {})
   }
 
   function cat(dir, filename) {
-    return fs.readFileSync(path.join(__dirname, dir, filename)).toString()
+    return fs.readFileSync(path.join(__dirname, dir, filename), 'utf8')
   }
 
-  function cat2(filename) {
-    return normalize(cat('expect', filename))
+  function testFile(file, opts) {
+    expect(render(cat('fixtures', file))).to.be(cat('expect', file))
   }
 
   it('converts Class method into v5 style', function() {
-    var file = 'riotjs.method.js'
-    expect(render(cat('fixtures', file))).to.equal(cat2(file))
-  })
-
-  it('skips comments', function() {
-    var file = 'riotjs.comment.js'
-    expect(render(cat('fixtures', file))).to.equal(cat2(file))
-  })
-
-  it('converts single line method into v5 style', function() {
-    var file = 'riotjs.single-line-method.js'
-    expect(render(cat('fixtures', file))).to.equal(cat2(file))
+    testFile('riotjs.method.js')
   })
 
   it('converts Class methods into v5 style (alternate formats)', function() {
-    var file = 'riotjs.methods-alt.js'
-    expect(render(cat('fixtures', file))).to.equal(cat2(file))
+    testFile('riotjs.methods-alt.js')
+  })
+
+  it('skips comments', function() {
+    testFile('riotjs.comment.js')
+  })
+
+  it('converts single line method into v5 style', function() {
+    testFile('riotjs.single-line-method.js')
   })
 
   it('preserves the default object structure', function() {
-    var file = 'riotjs.object.js'
-    expect(render(cat('fixtures', file))).to.equal(cat2(file))
+    testFile('riotjs.object.js')
   })
 
   it('keeps try/catch as is #768', function() {
-    var file = 'riotjs.try-catch.js'
-    expect(render(cat('fixtures', file))).to.equal(cat2(file))
+    testFile('riotjs.try-catch.js')
   })
 
   it('preserves non es6 methods #1043', function() {
-    var file = 'riotjs.getter-setter.js'
-    expect(render(cat('fixtures', file))).to.equal(cat2(file))
+    testFile('riotjs.getter-setter.js')
   })
 
 })

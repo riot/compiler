@@ -1,130 +1,109 @@
 
-function render(str, opts) {
-  return compiler.html(str, opts || {})
-}
-
 describe('Compile HTML', function() {
 
+  function render(str, opts) {
+    return compiler.html(str, opts || {})
+  }
+
+  function testStr(str1, str2, opts) {
+    expect(render(str1, opts)).to.be(str2)
+  }
+
   it('compiles void tag into separated: <x/> -> <x></x>', function() {
-    expect(render('<p/>')).to.be('<p></p>')
-    expect(render('<a><b/></a>')).to.be('<a><b></b></a>')
-    expect(render('<my-tag value={ test }/>')).to.be('<my-tag value="{#test#}"></my-tag>')
+    testStr('<p/>', '<p></p>')
+    testStr('<a><b/></a>', '<a><b></b></a>')
+    testStr('<my-tag value={ test }/>', '<my-tag value="{test}"></my-tag>')
   })
 
   it('adds the prefix `riot-` to some attributes', function() {
-    expect(render('<img src={ a }>')).to.be('<img riot-src="{#a#}">')
+    testStr('<img src={ a }>', '<img riot-src="{a}">')
+    testStr('<p style="left:0; top={ n }">', '<p riot-style="left:0; top={n}">')
   })
 
-  it('adds the prefix `__` to boolean attributes', function() {
-    expect(render('<a disabled={ a } nowrap="{ b }">')).to.be('<a __disabled="{#a#}" __nowrap="{#b#}">')
+  it('adds the prefix `__` to boolean attributes with expressions', function() {
+    testStr('<a disabled={ a } nowrap="{ b }">', '<a __disabled="{a}" __nowrap="{b}">')
+    testStr('<a disabled readonly={}>', '<a disabled __readonly="{}">')
+    testStr('<a readonly=readonly autofocus={1}>', '<a readonly="readonly" __autofocus="{1}">')
   })
 
   it('adds double quotes to the attribute value', function() {
-    expect(render('<a a={ a }>')).to.be('<a a="{#a#}">')
-    expect(render("<a a='{ a }'>")).to.be('<a a="{#a#}">')
-    expect(render('<a a={ a } b={ b }>')).to.be('<a a="{#a#}" b="{#b#}">')
-    expect(render('<a id={ a }/>')).to.be('<a id="{#a#}"></a>')
-    expect(render('<input id={ a }/>')).to.be('<input id="{#a#}">')
+    testStr('<a a={ a }>', '<a a="{a}">')
+    testStr("<a a='{ a }'>", '<a a="{a}">')
+    testStr('<a a={ a } b={ b }>', '<a a="{a}" b="{b}">')
+    testStr('<a id={ a }/>', '<a id="{a}"></a>')
+    testStr('<input id={ a }/>', '<input id="{a}">')
   })
 
   it('keeps interpolations', function() {
-    expect(render('<a href="a?b={ c }">')).to.be('<a href="a?b={#c#}">', /\.c\b/)
-    expect(render('<a id="{ a }b">')).to.be('<a id="{#a#}b">', /\.a\b/)
+    testStr('<a href="a?b={ c }">', '<a href="a?b={c}">')
+    testStr('<a id="{ a }b">', '<a id="{a}b">')
   })
 
   it('skips HTML comments', function() {
-    expect(render('{ a }<!-- c -->')).to.be('{#a#}')
-    expect(render('<!-- c -->{ a }')).to.be('{#a#}')
-    expect(render('<!-- c -->{ a }<!-- c --><p/><!-- c -->')).to.be('{#a#}<p></p>')
+    testStr('{ a }<!-- c -->', '{a}')
+    testStr('<!-- c -->{ a }', '{a}')
+    testStr('<!-- c -->{ a }<!-- c --><p/><!-- c -->', '{a}<p></p>')
   })
 
-  it('mormalizes line endings', function() {
-    expect(render('<p>\r</p>\r\r\n<p>\n</p>', { whitespace: 1 })).to.be('<p>\\n</p>\\n\\n<p>\\n</p>')
+  it('option `whitespace` normalizes and preserves line endings', function() {
+    testStr('<p>a\r</p>\r\r\n<p>\n</p>', '<p>a\\n</p>\\n\\n<p>\\n</p>', { whitespace: 1 })
   })
 
-  describe('Custom parser in expressions', function() {
-
-    // custom parser in expressions
-    function parser(str) { return '@' + str }
-    function testParser(str, resStr) {
-      expect(compiler.html(str, { parser: parser, expr: true })).to.equal(resStr)
-    }
-
-    it('don\'t touch format before run parser, compact & trim after (2.3.0)', function() {
-      testParser('<a href={\na\r\n}>', '<a href="{#@ a#}">')
-      testParser('<a>{\tb\n }</a>', '<a>{#@\tb#}</a>')
-    })
-
-    it('plays with the custom parser', function() {
-      testParser('<a href={a}>', '<a href="{#@a#}">')
-      testParser('<a>{ b }</a>', '<a>{#@ b#}</a>')
-    })
-
-    it('plays with quoted values', function() {
-      testParser('<a href={ "a" }>', '<a href="{#@ &quot;a&quot;#}">')
-      testParser('<a>{"b"}</a>', '<a>{#@&quot;b&quot;#}</a>')
-    })
-
-    it('prefixing the expression with "^" prevents the parser (2.3.0)', function() {
-      testParser('<a href={^ a }>', '<a href="{#a#}">')
-      testParser('<a>{^ b }</a>', '<a>{#b#}</a>')
-    })
-
-    it('remove the last semi-colon', function() {
-      testParser('<a href={ a; }>', '<a href="{#@ a#}">')
-      testParser('<a>{ b ;}</a>', '<a>{#@ b#}</a>')
-    })
-
+  it('option `compact` removes line endings between tags', function() {
+    testStr('<p>a\r</p>\r\r\n<p>\n</p>', '<p>a </p><p></p>', { compact: 1 })
   })
 
   describe('2.3.0', function () {
 
-    // fix #827
-    it('fix to input type=number', function () {
-      expect(render('<input type=number>')).to.be('<input type="{#@001#}">')
+    it('fix #827 to input type=number', function () {
+      testStr('<input type=number>', '<input type="{\'number\'}">')
     })
 
     it('normalizes attributes, all values in double quotes', function () {
-      expect(render('<a a={a} b=number c =\'x\'>')).to.be('<a a="{#a#}" b="number" c="x">')
+      testStr('<a a={a} b=number c =\'x\'>', '<a a="{a}" b="number" c="x">')
     })
 
     it('lf/cr in attribute values are compacted to space', function () {
-      expect(render("<p\r\n a\t= ' {a}' b='{b}\n'\n\n>")).to.be('<p a=" {#a#}" b="{#b#} ">')
-      expect(render("<p\ta ='p:{}\r\n;'>")).to.be('<p a="p:{##} ;">')
+      testStr("<p\r\n a\t= ' {a}' b='{b}\n'\n\n>", '<p a=" {a}" b="{b} ">')
+      testStr("<p\ta ='p:{}\r\n;'>", '<p a="p:{} ;">')
     })
 
     it('double quotes in expressions are converted to `&quot;`', function () {
-      expect(render('<p x={ "a" } y="{2}">')).to.be('<p x="{#&quot;a&quot;#}" y="{#2#}">')
-      expect(render('<p x="{"a"}" y="{2}">')).to.be('<p x="{#&quot;a&quot;#}" y="{#2#}">')
-      expect(render('<p x=\'{"a"}\' y="{2}">')).to.be('<p x="{#&quot;a&quot;#}" y="{#2#}">')
-      expect(render('<p x="{""}">')).to.be('<p x="{#&quot;&quot;#}">')
+      testStr('<p x={ "a" } y="{2}">', '<p x="{&quot;a&quot;}" y="{2}">')
+      testStr('<p x="{"a"}" y="{2}">', '<p x="{&quot;a&quot;}" y="{2}">')
+      testStr('<p x=\'{"a"}\' y="{2}">', '<p x="{&quot;a&quot;}" y="{2}">')
+      testStr('<p x="{""}">', '<p x="{&quot;&quot;}">')
     })
 
     it('single quotes in expressions are escaped', function () {
-      expect(render("<p x={ 'a' } y='{2}'>")).to.be('<p x="{#\'a\'#}" y="{#2#}">')
-      expect(render("<p x='{'a'}' y='{2}'>")).to.be('<p x="{#\'a\'#}" y="{#2#}">')
-      expect(render("<p x=\"{'a'}\" y='{2}'>")).to.be('<p x="{#\'a\'#}" y="{#2#}">')
-      expect(render("<p x='{''}'>")).to.be('<p x="{#\'\'#}">')
+      testStr("<p x={ 'a' } y='{2}'>", '<p x="{\'a\'}" y="{2}">')
+      testStr("<p x='{'a'}' y='{2}'>", '<p x="{\'a\'}" y="{2}">')
+      testStr("<p x=\"{'a'}\" y='{2}'>", '<p x="{\'a\'}" y="{2}">')
+      testStr("<p x='{''}'>", '<p x="{\'\'}">')
     })
 
-    it('preserve `<` and `>` operators in expressions', function () {
-      expect(render('<p x={ a>b }></p>')).to.be('<p x="{#a>b#}"></p>')
-      expect(render('<p x={ a<b }></p>')).to.be('<p x="{#a<b#}"></p>')
+    it('preserves `<` and `>` operators in expressions', function () {
+      testStr('<p x={ a>b }></p>', '<p x="{a>b}"></p>')
+      testStr('<p x={ a<b }></p>', '<p x="{a<b}"></p>')
     })
 
-    it('unescape escaped custom or default riot brackets', function() {
-      expect(render('\\{ a }')).to.be('{ a }')
-      expect(render('<a a="\\{ a \\}">')).to.be('<a a="{ a }">')
-      expect(render('\\{ a \\}')).to.be('{ a }')
-      expect(render('<p>\\{}</p>')).to.be('<p>{}</p>')
+    // compile.html must preserve escaped brackets
+    it('preserves escaped riot brackets', function() {
+      testStr('\\{ a }', '\\{ a }')
+      testStr(' \\{ a \\}', '\\{ a \\}')   // trim is ok
+      testStr('<a a="\\{ a \\}">', '<a a="\\{ a \\}">')
+      testStr('<p>\\{}</p>', '<p>\\{}</p>')
     })
 
-    it('escape internal brackets (only `{#` is nedeed)', function() {
-      expect(render('<p>\\{#</p>#}<p>')).to.be('<p>\\{#</p>#}<p>')
-      expect(render('<p x="\\{##}"></p>')).to.be('<p x="\\{##}"></p>')
-      expect(render('<p x="\\{#}"></p>')).to.be('<p x="\\{#}"></p>')
-      expect(render('<p>\\{# a #}</p>')).to.be('<p>\\{# a #}</p>')
+    /*
+      don't needed in version for non precompiled expressions
+    it('escape internal brackets (only `{` is nedeed)', function() {
+      testStr('<p>\\{</p>}<p>', '<p>\\{</p>}<p>')
+      testStr('<p x="\\{}"></p>', '<p x="\\{}"></p>')
+      testStr('<p x="\\{}"></p>', '<p x="\\{}"></p>')
+      testStr('<p>\\{ a }</p>', '<p>\\{ a }</p>')
     })
+    */
 
     it('removed enumerated/unuseful attributes from the boolean list', function () {
       var att = [
@@ -133,7 +112,7 @@ describe('Compile HTML', function() {
         'pauseonexit', 'enabled', 'visible'
       ]
       for (var i = 0; i < att.length; ++i) {
-        expect(render('<p ' + att[i] + '={}>')).to.be('<p ' + att[i] + '="{##}">')
+        testStr('<p ' + att[i] + '={}>', '<p ' + att[i] + '="{}">')
       }
     })
 

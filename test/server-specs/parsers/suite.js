@@ -1,109 +1,191 @@
-describe('All the tags get compiler as expected', function() {
+//
+// Parsers Suite
+//
+/*eslint-env node, mocha */
+var
+  path = require('path'),
+  fs = require('fs')
+var
+  basedir = __dirname,
+  jsdir = path.join(basedir, 'js'),
+  have = compiler.parsers._get
 
+function cat(dir, filename) {
+  return fs.readFileSync(path.join(dir, filename), 'utf8')
+}
 
-  it('test html', function() {
+function normalize(str) {
+  var
+    n = str.search(/[^\n]/)
+  if (n < 0) return ''
+  if (n > 0) str = str.slice(n)
+  n = str.search(/\n+$/)
+  return ~n ? str.slice(0, n) : str
+}
 
-    function test(str, resStr) {
-      expect(compiler.html(str, {})).to.be(resStr)
-    }
+function testParser(name, opts) {
+  var
+    file = name + (opts.type ? '.' + opts.type : ''),
+    str1 = cat(basedir, file + '.tag'),
+    str2 = cat(jsdir, file + '.js')
 
-    function testParser(str, resStr) {
-      expect(compiler.html(str, { parser: parser, expr: true })).to.be(resStr)
-    }
+  expect(normalize(compiler.compile(str1, opts || {}))).to.be(normalize(str2))
+}
 
-    // custom javscript parser
-    function parser(str) {
-      return '@' + str
-    }
+describe('HTML parsers', function () {
 
-    test('<p/>', '<p></p>')
-    test('<a a={ a }>', '<a a="{#a#}">')
-    test("<a a='{ a }'>", '<a a="{#a#}">')
-    test('<a a={ a } b={ b }>', '<a a="{#a#}" b="{#b#}">')
-    test('<a href="a?b={ c }">', '<a href="a?b={#c#}">')
-    test('<a id="{ a }b">', '<a id="{#a#}b">')
-    test('<input id={ a }/>', '<input id="{#a#}">')
-    test('<a id={ a }/>', '<a id="{#a#}"></a>')
-    test('<a><b/></a>', '<a><b></b></a>')
+  function testStr(str, resStr, opts) {
+    expect(compiler.html(str, opts || {})).to.be(resStr)
+  }
 
-    test('{ a }<!-- c -->', '{#a#}')
-    test('<!-- c -->{ a }', '{#a#}')
-    test('<!-- c -->{ a }<!-- c --><p/><!-- c -->', '{#a#}<p></p>')
-    test('<a loop={ a } disabled="{ b }" visible>', '<a __loop="{#a#}" __disabled="{#b#}" visible>')
-
-    test('{ "a" }', '{#&quot;a&quot;#}')
-    test('\\{ a \\}', '{ a }')
-
-    testParser('<a href={ a }>', '<a href="{#@ a#}">')
-    testParser('<a>{ b }</a>', '<a>{#@ b#}</a>')
-
-  })
-
-  describe('test custom parsers', function() {
-
-    this.timeout(10000)
-
-    function test(name, opts) {
-
-      var type = opts.type,
-        dir = 'test/server-specs/parsers',
-        basename = name + (type ? '.' + type : ''),
-        src = cat(dir + '/' + basename + '.tag'),
-        should = cat(dir + '/js/' + basename + '.js')
-
-      expect(compiler.compile(src, opts).trim()).to.be(should)
-
-    }
-
-    // complex.tag
-    it('complex tag structure', function() {
-      test('complex', {})
-    })
-    // test.tag
-    /*it('javascript (root container)', function() {
-      test('test', { expr: true })
-    })*/
-    // test-alt.tag
-    it('javascript (comment hack)', function() {
-      test('test-alt', { expr: true })
-    })
-    // test.coffee.tag
-    it('coffeescript', function() {
-      test('test', { type: 'coffee', expr: true })
-    })
-    // test.es6.tag
-    it('es6 (babeljs)', function() {
-      test('test', { type: 'es6' })
-    })
-    // test-attr.es6.tag
-    it('es6 with shorthands (fix #1090)', function() {
-      test('test-attr', { type: 'es6', expr: true })
-    })
-    // test.livescript.tag
-    it('livescript', function() {
-      test('test', { type: 'livescript' })
-    })
+  if (have('jade')) {
     // test.jade.tag & slide.jade.tag
-    it('jade', function() {
-      test('test.jade', { template: 'jade' })
-      test('slide.jade', { template: 'jade' })
+    it('jade', function () {
+      testParser('test.jade', { template: 'jade' })
+      testParser('slide.jade', { template: 'jade' })
     })
-    // style.tag
-    it('default style', function() {
-      test('style', {})
+  }
+
+  describe('Custom parser in expressions', function () {
+    var opts = {
+      parser: function (str) { return '@' + str },
+      expr: true
+    }
+
+    it('don\'t touch format before run parser, compact & trim after (2.3.0)', function () {
+      testStr('<a href={\na\r\n}>', '<a href="{@ a}">', opts)
+      testStr('<a>{\tb\n }</a>', '<a>{@\tb}</a>', opts)
     })
-    // stylus.tag
-    it('stylus', function() {
-      test('stylus', {})
+
+    it('plays with the custom parser', function () {
+      testStr('<a href={a}>', '<a href="{@a}">', opts)
+      testStr('<a>{ b }</a>', '<a>{@ b}</a>', opts)
     })
-    // style.escoped.tag
-    it('scoped styles', function() {
-      test('style.scoped', {})
+
+    it('plays with quoted values', function () {
+      testStr('<a href={ "a" }>', '<a href="{@ &quot;a&quot;}">', opts)
+      testStr('<a>{"b"}</a>', '<a>{@&quot;b&quot;}</a>', opts)
     })
-    // brackets.tag
-    it('different brackets', function() {
-      test('brackets', { brackets: '${ }' })
+
+    it('remove the last semi-colon', function () {
+      testStr('<a href={ a; }>', '<a href="{@ a}">', opts)
+      testStr('<a>{ b ;}</a>', '<a>{@ b}</a>', opts)
+    })
+
+    it('prefixing the expression with "^" prevents the parser (2.3.0)', function () {
+      testStr('<a href={^ a }>', '<a href="{a}">', opts)
+      testStr('<a>{^ b }</a>', '<a>{b}</a>', opts)
     })
 
   })
+
+})
+
+
+describe('JavaScript parsers', function () {
+
+  this.timeout(12000)
+
+  // complex.tag
+  it('complex tag structure', function () {
+    testParser('complex', {})
+  })
+
+  // testParser.tag
+  it('javascript (root container)', function () {
+    testParser('test', { expr: true })
+  })
+
+  // testParser-alt.tag
+  it('javascript (comment hack)', function () {
+    testParser('test-alt', { expr: true })
+  })
+
+  it('mixed javascript & coffee-script', function () {
+    testParser('test', { type: 'javascript' })
+  })
+
+  if (have('coffee')) {
+    // testParser.coffee.tag
+    it('coffeescript', function () {
+      testParser('test', { type: 'coffee', expr: true })
+    })
+  }
+
+  if (have('livescript')) {
+    // testParser.livescript.tag
+    it('livescript', function () {
+      testParser('test', { type: 'livescript' })
+    })
+  }
+
+  if (have('typescript')) {
+    // testParser.livescript.tag
+    it('typescript', function () {
+      testParser('test', { type: 'typescript' })
+    })
+  }
+
+  if (have('es6')) {
+    // testParser.es6.tag
+    it('es6 (babel-core or babel)', function () {
+      testParser('test', { type: 'es6' })
+    })
+    // testParser-attr.es6.tag
+    it('es6 with shorthands (fix #1090)', function () {
+      testParser('test-attr', { type: 'es6', expr: true })
+    })
+  }
+
+})
+
+
+describe('Style parsers', function () {
+
+  // style.tag
+  it('default style', function () {
+    testParser('style', {})
+  })
+
+  // style.escoped.tag
+  it('scoped styles', function () {
+    testParser('style.scoped', {})
+  })
+
+  if (have('stylus')) {
+    // stylus.tag
+    it('stylus', function () {
+      testParser('stylus', {})
+    })
+  }
+
+  // brackets.tag
+  it('different brackets', function () {
+    testParser('brackets', { brackets: '${ }' })
+  })
+
+})
+
+describe('Other', function () {
+
+  it('Unknown HTML template throws error', function () {
+    var
+      str1 = cat(basedir, 'test.tag')
+
+    expect(compiler.compile).withArgs(str1, {template: 'unknown'}).to.throwError()
+  })
+
+  it('Unknown JS & CSS parsers throws error', function () {
+    var
+      str1 = cat(basedir, 'test.tag'),
+      str2 = [
+        '<error>',
+        "<style type='unknown'>p{top:0}</style>",
+        '</error>'
+      ].join('\n')
+
+    expect(compiler.compile).withArgs(str1, {type: 'unknown'}).to.throwError()
+    expect(compiler.compile).withArgs(str2).to.throwError()
+  })
+
 })

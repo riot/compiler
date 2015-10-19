@@ -1,13 +1,14 @@
 # jspp flags
-#JSPP_FLAGS = "-D DEBUG"
-JSPP_FLAGS =
+JSPP_FLAGS = -F istanbul --custom-filter "@module\b"
+JSPP_RIOT_FLAGS = $(JSPP_FLAGS) -D RIOT
+JSPP_NODE_FLAGS = $(JSPP_FLAGS) -D NODE --indent 2s
 
 # Command line paths
 ISTANBUL = ./node_modules/.bin/istanbul
 ESLINT = ./node_modules/eslint/bin/eslint.js
 MOCHA = ./node_modules/mocha/bin/_mocha
 COVERALLS = ./node_modules/coveralls/bin/coveralls.js
-JSPP = ./node_modules/.bin/jspp $(JSPP_FLAGS)
+JSPP = ./node_modules/jspreproc/bin/jspp.js
 
 # folders
 DIST = "./dist/"
@@ -19,8 +20,8 @@ test: build
 build: eslint
 	# rebuild all
 	@ mkdir -p $(DIST)
-	@ $(JSPP) lib/index.js > $(DIST)riot.compiler.js
-	@ $(JSPP) lib/index.js -D RIOT_CLI > $(DIST)compiler.js
+	@ $(JSPP) $(JSPP_RIOT_FLAGS) lib/index.js > $(DIST)riot.compiler.js
+	@ $(JSPP) $(JSPP_NODE_FLAGS) lib/index.js > $(DIST)compiler.js
 
 eslint:
 	# check code style

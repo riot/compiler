@@ -1,4 +1,4 @@
-riot.tag2('kids', '<h3 each="{#name in kids#}">{#name#}</h3>', '', '', function(opts) {
+riot.tag2('kids', '<h3 each="{name in kids}">{name}</h3>', '', '', function(opts) {
 var kids;
 kids = [
   {
@@ -12,4 +12,4 @@ kids = [
     name: 'Joe'
   }
 ];
-});
+}, '{ }');

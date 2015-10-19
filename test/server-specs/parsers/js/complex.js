@@ -1,3 +1,4 @@
+
 var outer = 'js'
 
 riot.tag2('tag', '<p></p>', '', '', function(opts) {

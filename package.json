@@ -1,11 +1,18 @@
 {
   "name": "riot-compiler",
-  "version": "2.3.0-beta.1",
+  "version": "2.3.0-beta.2",
   "description": "Compiler for riot .tag files",
   "main": "dist/compiler.js",
   "directories": {
-    "lib": "lib"
+    "lib": "lib",
+    "doc": "doc"
   },
+  "files": [
+    "lib",
+    "doc",
+    "dist/*.js",
+    "test/**"
+  ],
   "scripts": {
     "test": "make test",
     "prepublish": "make build"
@@ -21,7 +28,7 @@
     "compiler"
   ],
   "dependencies": {
-    "riot-tmpl": "2.3.0-beta.1"
+    "riot-tmpl": "2.3.0-beta.2"
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
