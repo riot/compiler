@@ -1,9 +1,12 @@
 {
   "name": "riot-compiler",
-  "main": "index.js",
+  "main": "lib/compiler.js",
   "homepage": "https://github.com/riot/compiler",
   "authors": ["Muut, Inc. and other contributors"],
   "description": "Compiler for riot .tag files",
+  "dependencies": {
+    "riot-tmpl": "git://github.com/riot/tmpl#dev"
+  },
   "keywords": [
     "riot",
     "virtualdom",
@@ -15,8 +18,6 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "test",
-    "tests",
-    "fullsrc"
+    "test"
   ]
 }

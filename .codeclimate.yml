@@ -6,3 +6,6 @@ ratings:
   paths:
   - "dist/compiler.js"
 
+exclude_paths:
+  - "test/**/*"
+  - "lib/**/*"
