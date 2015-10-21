@@ -1,16 +1,16 @@
 
 /**
  * Compiler for riot custom tags
- * @module compiler
- * @version "0"
+ * @version 2.3.0-beta.3
  */
 
-// lib/parsers.js
-
+/**
+ * @module parsers
+ */
 var parsers = (function () {
-  'use strict'
+  'use strict'  //eslint-disable-line
 
-  var _mods = {'none': 'none'}
+  var _mods = {}
 
   function _try(name) {
     if (!(name in _mods)) {
@@ -24,23 +24,24 @@ var parsers = (function () {
     return _mods[name]
   }
 
-  function _get(name) {
-    var req = name
-    switch (name) {
-      case 'es6':
-      case 'babel':
-        return _try('babel-core') || _try('babel')
-      case 'javascript':
-        return _mods.none
-      case 'typescript':
-        req += '-simple'
-        break
-      case 'coffee':
-      case 'coffeescript':
-        req = 'coffee-script'
-        break
-      default:
-        break
+  function _get(req) {
+    switch (req) {
+    case 'es6':
+    case 'babel':
+      // istanbul ignore next: not both
+      return _try('babel-core') || _try('babel')
+    case 'none':
+    case 'javascript':
+      return 'none'
+    case 'typescript':
+      req += '-simple'
+      break
+    case 'coffee':
+    case 'coffeescript':
+      req = 'coffee-script'
+      break
+    default:
+      break
     }
     return _try(req)
   }
@@ -58,12 +59,12 @@ var parsers = (function () {
 
   var _css = {
     stylus: function (tag, css) {
-      var stylus = _req('stylus'),
-          nib = _req('nib')
-      if (nib)
-        return stylus(css).use(nib()).import('nib').render()
-      else
-        return stylus.render(css)
+      var
+        stylus = _req('stylus'),
+        nib = _req('nib')
+      // istanbul ignore next: not both
+      return nib ?
+        stylus(css).use(nib()).import('nib').render() : stylus.render(css)
     }
   }
 
@@ -98,10 +99,11 @@ var parsers = (function () {
 
 })()
 
-// lib/core.js
-
+/**
+ * @module compiler
+ */
 var compile = (function () {
-  'use strict'
+  'use strict'  //eslint-disable-line
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -144,10 +146,11 @@ var compile = (function () {
   }
 
   function parseAttrs(str) {
-    var list = [],
-        match,
-        k, v,
-        DQ = '"'
+    var
+      list = [],
+      match,
+      k, v,
+      DQ = '"'
     HTML_ATTR.lastIndex = 0
 
     while (match = HTML_ATTR.exec(str)) {
@@ -250,17 +253,18 @@ var compile = (function () {
 
   var
 
-      JS_RMCOMMS = _regEx(
-      '(' + brackets.S_QBLOCKS + ')|' + brackets.R_MLCOMMS.source + '|//[^\r\n]*',
-      'g'),
+    JS_RMCOMMS = _regEx(
+    '(' + brackets.S_QBLOCKS + ')|' + brackets.R_MLCOMMS.source + '|//[^\r\n]*',
+    'g'),
 
-      JS_ES6SIGN = /^([ \t]*)([$_A-Za-z][$\w]*)\s*(\([^()]*\)\s*{)/m
+    JS_ES6SIGN = /^([ \t]*)([$_A-Za-z][$\w]*)\s*(\([^()]*\)\s*{)/m
 
   function riotjs(js) {
-    var match,
-        toes5,
-        parts = [],
-        pos
+    var
+      match,
+      toes5,
+      parts = [],
+      pos
 
     js = js.replace(JS_RMCOMMS, function (m, q) { return q ? m : ' ' })
 
@@ -282,9 +286,10 @@ var compile = (function () {
     return parts.length ? parts.join('') + js : js
 
     function skipBlock(str) {
-      var re = _regEx('([{}])|' + brackets.S_QBLOCKS, 'g'),
-          level = 1,
-          match
+      var
+        re = _regEx('([{}])|' + brackets.S_QBLOCKS, 'g'),
+        level = 1,
+        match
 
       while (level && (match = re.exec(str))) {
         if (match[1])
@@ -330,7 +335,7 @@ var compile = (function () {
   }
 
   function compileCSS(style, tag, type, scoped) {
-    // istanbul ignore else
+
     if (type) {
       if (type === 'scoped-css') {
         scoped = true
@@ -338,6 +343,7 @@ var compile = (function () {
       else if (parsers.css[type]) {
         style = parsers.css[type](tag, style)
       }
+      // istanbul ignore else: fallback to nothing
       else if (type !== 'css') {
         throw new Error('CSS parser not found: "' + type + '"')
       }
@@ -470,15 +476,18 @@ var compile = (function () {
 
 })()
 
-// lib/browser.js
-
+/**
+ * Compilation for the Browser
+ * @module riot.compile
+ */
 riot.compile = (function () {
-  'use strict'
+  'use strict'  //eslint-disable-line
 
-  var doc = typeof window === 'object' ? window.document : null,
-      promise,
-      ready,
-      forEach = Array.prototype.forEach
+  var
+    doc = typeof window === 'object' ? window.document : null,
+    promise,
+    ready,
+    forEach = Array.prototype.forEach
 
   function GET(url, callback) {
     var req = new XMLHttpRequest()

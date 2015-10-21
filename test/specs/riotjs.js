@@ -1,4 +1,4 @@
-describe('riotjs', function() {
+describe('riotjs', function () {
   var
     path = require('path'),
     fs = require('fs')
@@ -15,31 +15,31 @@ describe('riotjs', function() {
     expect(render(cat('fixtures', file))).to.be(cat('expect', file))
   }
 
-  it('converts Class method into v5 style', function() {
+  it('converts Class method into v5 style', function () {
     testFile('riotjs.method.js')
   })
 
-  it('converts Class methods into v5 style (alternate formats)', function() {
+  it('converts Class methods into v5 style (alternate formats)', function () {
     testFile('riotjs.methods-alt.js')
   })
 
-  it('skips comments', function() {
+  it('skips comments', function () {
     testFile('riotjs.comment.js')
   })
 
-  it('converts single line method into v5 style', function() {
+  it('converts single line method into v5 style', function () {
     testFile('riotjs.single-line-method.js')
   })
 
-  it('preserves the default object structure', function() {
+  it('preserves the default object structure', function () {
     testFile('riotjs.object.js')
   })
 
-  it('keeps try/catch as is #768', function() {
+  it('keeps try/catch as is #768', function () {
     testFile('riotjs.try-catch.js')
   })
 
-  it('preserves non es6 methods #1043', function() {
+  it('preserves non es6 methods #1043', function () {
     testFile('riotjs.getter-setter.js')
   })
 

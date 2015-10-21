@@ -1,7 +1,7 @@
-var fs = require('fs'),
-    path = require('path')
-
 describe('Compile tags', function() {
+  var
+    path = require('path'),
+    fs = require('fs')
 
   //var basedir = path.join(__dirname, 'fixtures')
 
@@ -24,12 +24,10 @@ describe('Compile tags', function() {
   }
 
   function testFile(name) {
-    var src = cat('fixtures', name + '.tag'),
-        js = render(src, name + '.tag')
+    var
+      src = cat('fixtures', name + '.tag'),
+      js = render(src, name + '.tag')
 
-    //#if DEBUG
-    //if (console && console.info) console.info('//' + name + '\n`' + js + '`\n')
-    //#endif
     expect(js).to.equal(cat('expect', name + '.js'))
   }
 
@@ -37,7 +35,7 @@ describe('Compile tags', function() {
     testFile('timetable')
   })
 
-  it('Mixed JS and Tags', function() {
+  it('Mixing JavaScript and custom tags', function() {
     testFile('mixed-js')
   })
 
@@ -62,7 +60,8 @@ describe('Compile tags', function() {
   })
 
   it('detect some fake closing html tags', function () {
-    testFile('html-block')
+    testFile('html-block1')
+    testFile('html-block2')
   })
 
   /*
@@ -71,19 +70,25 @@ describe('Compile tags', function() {
   })
   */
 
+  it('dealing with unclosed es6 methods', function () {
+    testFile('unclosed-es6')
+  })
+
   it('with attributes in the root', function () {
-    var src = cat('fixtures', 'root-attribs.tag'),
-        js = compiler.compile(src)        // no name, no options
+    var
+      src = cat('fixtures', 'root-attribs.tag'),
+      js = compiler.compile(src)        // no name, no options
     expect(js).to.equal(cat('expect', 'root-attribs.js'))
   })
 
   it('do not change internet urls', function () {
-    var js = compiler.compile('<url/>', {}, 'http://github.com'),
-        str = [
-          '//src: http://github.com',
-          "riot.tag2('url', '', '', '', function(opts) {",
-          '});'
-        ].join('\n')
+    var
+      js = compiler.compile('<url/>', {}, 'http://github.com'),
+      str = [
+        '//src: http://github.com',
+        "riot.tag2('url', '', '', '', function(opts) {",
+        '});'
+      ].join('\n')
 
     expect(js).to.equal(str)
   })

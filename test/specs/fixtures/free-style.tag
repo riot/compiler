@@ -10,7 +10,7 @@
     </script>
 
 
-    <script type = 'javascript'>click(0)
+    <script type= javascript>click(0)
     </script>
     <script
       charset = "utf8"

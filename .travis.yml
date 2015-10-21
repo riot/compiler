@@ -1,17 +1,28 @@
 language: node_js
+
 node_js:
-   - "0.12.0"
+  - "4.2"
+  - "0.12.0"
 
 branches:
   only:
     - master
     - dev
 
-before_install:
-  npm install coffee-script && npm install babel-core && npm install livescript && npm install typescript-simple && npm install jade && npm install stylus && npm install nib && npm install
+install:
+  - npm i jade
+  - npm i babel-core
+  - npm i coffee-script
+  - npm i livescript
+  - npm i typescript-simple
+  - npm i stylus
+  - npm i nib
+  - npm i node-sass
+  - npm i
 
-after_success:
-  make test-coveralls
+after_success: make send-coverage
 
 notifications:
   email: false
+
+sudo: false

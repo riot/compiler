@@ -7,8 +7,14 @@ var
   fs = require('fs')
 var
   basedir = __dirname,
-  jsdir = path.join(basedir, 'js'),
-  have = compiler.parsers._get
+  jsdir = path.join(basedir, 'js')
+
+function have(mod) {
+  if (compiler.parsers._get(mod))
+    return true
+  console.error('\tnot installed locally: ' + mod)
+  return false
+}
 
 function cat(dir, filename) {
   return fs.readFileSync(path.join(dir, filename), 'utf8')
@@ -34,17 +40,19 @@ function testParser(name, opts) {
 
 describe('HTML parsers', function () {
 
+  this.timeout(5000)
+
   function testStr(str, resStr, opts) {
     expect(compiler.html(str, opts || {})).to.be(resStr)
   }
 
-  if (have('jade')) {
-    // test.jade.tag & slide.jade.tag
-    it('jade', function () {
+  // test.jade.tag & slide.jade.tag
+  it('jade', function () {
+    if (have('jade')) {
       testParser('test.jade', { template: 'jade' })
       testParser('slide.jade', { template: 'jade' })
-    })
-  }
+    }
+  })
 
   describe('Custom parser in expressions', function () {
     var opts = {
@@ -84,11 +92,14 @@ describe('HTML parsers', function () {
 
 describe('JavaScript parsers', function () {
 
-  this.timeout(12000)
+  this.timeout(8000)
 
   // complex.tag
   it('complex tag structure', function () {
-    testParser('complex', {})
+    if (have('none')) {   // testing none, for coverage too
+      testParser('complex', {})
+    }
+    else expect().fail('parsers.js must have a "none" property')
   })
 
   // testParser.tag
@@ -101,46 +112,62 @@ describe('JavaScript parsers', function () {
     testParser('test-alt', { expr: true })
   })
 
-  it('mixed javascript & coffee-script', function () {
-    testParser('test', { type: 'javascript' })
+  it('mixed riotjs and javascript types', function () {
+    if (have('javascript')) {   // for js, for coverage too
+      testParser('mixed-js', {})
+    }
+    else expect().fail('parsers.js must have a "javascript" property')
   })
 
-  if (have('coffee')) {
-    // testParser.coffee.tag
-    it('coffeescript', function () {
+  // testParser.coffee.tag
+  it('coffeescript', function () {
+    if (have('coffee-script')) {
       testParser('test', { type: 'coffee', expr: true })
-    })
-  }
+    }
+  })
 
-  if (have('livescript')) {
-    // testParser.livescript.tag
-    it('livescript', function () {
+  // testParser.livescript.tag
+  it('livescript', function () {
+    if (have('livescript')) {
       testParser('test', { type: 'livescript' })
-    })
-  }
+    }
+  })
 
-  if (have('typescript')) {
-    // testParser.livescript.tag
-    it('typescript', function () {
+  // testParser.livescript.tag
+  it('typescript', function () {
+    if (have('typescript-simple')) {
       testParser('test', { type: 'typescript' })
-    })
-  }
+    }
+  })
 
-  if (have('es6')) {
-    // testParser.es6.tag
-    it('es6 (babel-core or babel)', function () {
+  // testParser.es6.tag
+  it('es6 (babel-core or babel)', function () {
+    if (have('babel')) {
       testParser('test', { type: 'es6' })
-    })
-    // testParser-attr.es6.tag
-    it('es6 with shorthands (fix #1090)', function () {
+    }
+  })
+
+  // testParser-attr.es6.tag
+  it('es6 with shorthands (fix #1090)', function () {
+    if (have('babel')) {
       testParser('test-attr', { type: 'es6', expr: true })
-    })
-  }
+    }
+  })
 
 })
 
 
 describe('Style parsers', function () {
+
+  this.timeout(5000)
+
+  function _sass(tag, css) {
+    return '' + require('node-sass').renderSync({
+      data: css,
+      indentedSyntax: true,
+      omitSourceMapUrl: true,
+      outputStyle: 'compact' }).css
+  }
 
   // style.tag
   it('default style', function () {
@@ -152,30 +179,37 @@ describe('Style parsers', function () {
     testParser('style.scoped', {})
   })
 
-  if (have('stylus')) {
-    // stylus.tag
-    it('stylus', function () {
+  // stylus.tag
+  it('stylus', function () {
+    if (have('stylus')) {
       testParser('stylus', {})
-    })
-  }
+    }
+  })
 
-  // brackets.tag
-  it('different brackets', function () {
-    testParser('brackets', { brackets: '${ }' })
+  // sass.tag
+  it('sass, indented 2, margin 0 (custom parser)', function () {
+    if (have('node-sass')) {
+      compiler.parsers.css.sass = _sass
+      testParser('sass', {})
+    }
+  })
+
+  it('Mixing CSS blocks with different type', function () {
+    testParser('mixed-css', {})
   })
 
 })
 
 describe('Other', function () {
 
-  it('Unknown HTML template throws error', function () {
+  it('Unknown HTML template parser throws an error', function () {
     var
       str1 = cat(basedir, 'test.tag')
 
     expect(compiler.compile).withArgs(str1, {template: 'unknown'}).to.throwError()
   })
 
-  it('Unknown JS & CSS parsers throws error', function () {
+  it('Unknown JS & CSS parsers throws an error', function () {
     var
       str1 = cat(basedir, 'test.tag'),
       str2 = [
@@ -186,6 +220,11 @@ describe('Other', function () {
 
     expect(compiler.compile).withArgs(str1, {type: 'unknown'}).to.throwError()
     expect(compiler.compile).withArgs(str2).to.throwError()
+  })
+
+  // brackets.tag
+  it('using different brackets', function () {
+    testParser('brackets', { brackets: '${ }' })
   })
 
 })
