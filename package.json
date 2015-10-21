@@ -1,0 +1,47 @@
+{
+  "name": "riot-compiler",
+  "version": "2.3.0-beta.4",
+  "description": "Compiler for riot .tag files",
+  "main": "dist/compiler.js",
+  "directories": {
+    "lib": "lib",
+    "doc": "doc"
+  },
+  "files": [
+    "lib",
+    "doc",
+    "dist/*.js",
+    "test/**"
+  ],
+  "scripts": {
+    "test": "make test",
+    "prepublish": "make build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/riot/compiler.git"
+  },
+  "keywords": [
+    "riot",
+    "virtualdom",
+    "tag",
+    "compiler"
+  ],
+  "dependencies": {
+    "riot-tmpl": "2.3.0-beta.4"
+  },
+  "devDependencies": {
+    "coveralls": "^2.11.4",
+    "eslint": "^1.7.2",
+    "expect.js": "^0.3.1",
+    "istanbul": "^0.4.0",
+    "jspreproc": "^0.2.3",
+    "mocha": "^2.3.3"
+  },
+  "author": "Muut, Inc. and other contributors",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/riot/compiler/issues"
+  },
+  "homepage": "https://github.com/riot/compiler#readme"
+}
