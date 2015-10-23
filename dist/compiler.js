@@ -1,4 +1,4 @@
-/* riot-compiler 2.3.0-beta.4, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler 2.3.0-beta.5, @license MIT, (c) 2015 Muut Inc. + contributors */
 ;(function (root, factory) {
 
   /* istanbul ignore else */

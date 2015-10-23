@@ -1,7 +1,7 @@
 
 /**
  * Compiler for riot custom tags
- * @version 2.3.0-beta.4
+ * @version 2.3.0-beta.5
  */
 
 /**
