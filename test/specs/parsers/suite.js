@@ -40,7 +40,7 @@ function testParser(name, opts) {
 
 describe('HTML parsers', function () {
 
-  this.timeout(5000)
+  this.timeout(10000)
 
   function testStr(str, resStr, opts) {
     expect(compiler.html(str, opts || {})).to.be(resStr)
@@ -92,7 +92,7 @@ describe('HTML parsers', function () {
 
 describe('JavaScript parsers', function () {
 
-  this.timeout(8000)
+  this.timeout(10000)
 
   // complex.tag
   it('complex tag structure', function () {
@@ -142,7 +142,7 @@ describe('JavaScript parsers', function () {
 
   // testParser.es6.tag
   it('es6 (babel-core or babel)', function () {
-    if (have('babel')) {
+    if (have('es6')) {
       testParser('test', { type: 'es6' })
     }
   })
@@ -159,9 +159,9 @@ describe('JavaScript parsers', function () {
 
 describe('Style parsers', function () {
 
-  this.timeout(5000)
+  this.timeout(10000)
 
-  function _sass(tag, css) {
+  function _sass(css, tag) {
     return '' + require('node-sass').renderSync({
       data: css,
       indentedSyntax: true,

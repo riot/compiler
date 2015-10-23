@@ -14,23 +14,8 @@ var
 
 var
   basedir = path.join(__dirname, 'specs', 'fixtures'),
-  tags = ['box', 'input-last', 'mixed-js', 'same', 'scoped', 'timetable']
-var
-  data = { num: 1, str: 'string', date: new Date(), bool: true, item: null },
-  exprList = [
-    ['{ date }', data.date],
-    ['{ num === 0 ? 0 : num }', data.num],
-    ['<p>{str}</p>', '<p>string</p>'],
-    [' "{ str.slice(0, 3).replace(/t/, \'T\') }" ', ' "sTr" '],
-    ['{this.num}', 1],
-    ['{ !bool }', false],
-    ['{}', undefined]
-  ],
-  csList = [
-    ['{ foo: num }', 'foo'],
-    ['{ foo: num, bar: item }', 'foo'],
-    ['{ foo: date.getFullYear() > 2000, bar: str==this.str }', 'foo bar']
-  ]
+  tags = ['box', 'input-last', 'mixed-js', 'same', 'scoped', 'timetable', 'treeview'],
+  data = { num: 1, str: 'string', date: new Date(), bool: true, item: null }
 
 var files = tags.map(function (f) {
   f = path.join(basedir, f + '.tag')

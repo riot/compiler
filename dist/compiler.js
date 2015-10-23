@@ -1,4 +1,4 @@
-/* riot-compiler 2.3.0-beta.3, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler 2.3.0-beta.4, @license MIT, (c) 2015 Muut Inc. + contributors */
 ;(function (root, factory) {
 
   /* istanbul ignore else */
@@ -15,52 +15,52 @@
 })(this, function (_tmpl) {
   'use strict'  // eslint-disable-line
 
-  var brackets = _tmpl.brackets
-
   /**
    * @module parsers
    */
   var parsers = (function () {
-
     var _mods = {}
 
     function _try(name) {
-      if (!(name in _mods)) {
+      var req
+
+      function fn(name) {
         try {
-          _mods[name] = require.resolve(name)
+          _mods[name] = require(name)
         }
         catch (e) {
-          _mods[name] = ''
+          _mods[name] = null
         }
+        return _mods[name]
       }
-      return _mods[name]
-    }
 
-    function _get(req) {
-      switch (req) {
+      switch (name) {
       case 'es6':
+      // istanbul ignore next: we have babel-core in test
       case 'babel':
-        // istanbul ignore next: not both
-        return _try('babel-core') || _try('babel')
+        if (req = fn('babel-core'))
+          return req
+        req = 'babel'
+        break
       case 'none':
       case 'javascript':
-        return 'none'
+        return _js.none
       case 'typescript':
-        req += '-simple'
+        req = name + '-simple'
         break
       case 'coffee':
       case 'coffeescript':
         req = 'coffee-script'
         break
       default:
+        req = name
         break
       }
-      return _try(req)
+      return fn(req)
     }
 
     function _req(name) {
-      var req = _get(name)
-      return req ? require(req) : null
+      return name in _mods ? _mods[name] : _try(name)
     }
 
     var _html = {
@@ -70,13 +70,13 @@
     }
 
     var _css = {
-      stylus: function (tag, css) {
+      stylus: function (css) {
         var
-          stylus = _req('stylus'),
-          nib = _req('nib')
-        // istanbul ignore next: not both
+          stylus = _req('stylus'), nib = _req('nib')
+        /* istanbul ignore next: can't run both */
         return nib ?
-          stylus(css).use(nib()).import('nib').render() : stylus.render(css)
+          stylus(css).use(nib()).import('nib').render() :
+          stylus.render(css)
       }
     }
 
@@ -84,30 +84,28 @@
       none: function (js) {
         return js
       },
-
       livescript: function (js) {
         return _req('livescript').compile(js, {bare: true, header: false})
       },
-
       typescript: function (js) {
         return _req('typescript')(js).replace(/\r\n?/g, '\n')
       },
-
       es6: function (js) {
         return _req('es6').transform(js, {
           blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
         }).code
       },
-
       coffee: function (js) {
         return _req('coffee').compile(js, {bare: true})
       }
     }
 
+    _css.babel = _css.es6
+
     _js.javascript   = _js.none
     _js.coffeescript = _js.coffee
 
-    return {html: _html, css: _css, js: _js, _get: _get}
+    return {html: _html, css: _css, js: _js, _get: _req}
 
   })()
 
@@ -116,6 +114,8 @@
    */
 
     function _regEx(str, opt) { return new RegExp(str, opt) }
+
+    var brackets = _tmpl.brackets   //eslint-disable-line no-redeclare
 
     var
 
@@ -318,12 +318,12 @@
       if (!parser)
         throw new Error('JS parser not found: "' + type + '"')
 
-      return parser(js, opts).replace(TRIM_TRAIL, '')
+      return parser(js).replace(TRIM_TRAIL, '')
     }
 
     var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
 
-    function scopedCSS(tag, style) {
+    function scopedCSS(style, tag) {
       var scope = ':scope'
 
       return style.replace(CSS_SELECTOR, function (m, p1, p2) {
@@ -353,7 +353,7 @@
           scoped = true
         }
         else if (parsers.css[type]) {
-          style = parsers.css[type](tag, style)
+          style = parsers.css[type](style, tag)
         }
         // istanbul ignore else: fallback to nothing
         else if (type !== 'css') {
@@ -363,7 +363,7 @@
 
       style = style.replace(brackets.R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
 
-      return scoped ? scopedCSS(tag, style) : style
+      return scoped ? scopedCSS(style, tag) : style
     }
 
     var TYPE_ATTR = /\stype\s*=\s*(?:['"]([^'"]+)['"]|(\S+))/i
@@ -389,27 +389,25 @@
       var
         i, k, js = '', len = str.length
 
-      if (len && str[len - 1] !== '>') {
-        k = str.indexOf('<')
-        if (k < 0 || (i = str.lastIndexOf('>\n')) < 0 || k > i)
-          return ['', str]
+      k = str.indexOf('<')
+      if (k < 0 || (i = str.lastIndexOf('>\n')) < 0 || k > i)
+        return ['', str]
 
-        i += 2
-        js = str.slice(i)
-        str = str.slice(0, i)
-        if (str[i - 3] !== '/') {
+      i += 2
+      js = str.slice(i)
+      str = str.slice(0, i)
+      if (str[i - 3] !== '/') {
 
-          if (str.match(END_TAGS)) {
-            var s = RegExp.rightContext
-            if (s) {
-              js = s + js
-              str = str.slice(0, len - js.length)
-            }
+        if (str.match(END_TAGS)) {
+          var s = RegExp.rightContext
+          if (s) {
+            js = s + js
+            str = str.slice(0, len - js.length)
           }
-          else {
-            js = str + js
-            str = ''
-          }
+        }
+        else {
+          js = str + js
+          str = ''
         }
       }
       return [str, js]
@@ -425,11 +423,13 @@
     }
 
     var
-      CUST_TAG = /^[ \t]*<([-\w]+)\s*([^'"\/>]*(?:(?:\/[^>]|"[^"]*"|'[^']*')[^'"\/>]*)*)(?:\/|>\n?([^<]*(?:<(?!\/\1\s*>[ \t]*$)[^<]*)*)<\/\1\s*)>[ \t]*$/gim,
+
+      CUST_TAG = /^<([-\w]+)(?:\s+([^'"\/>]+(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\s\S]*)^<\/\1\s*>)/gim,
       STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
       SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
 
     function compile(src, opts, url) {
+      var label
 
       if (!opts) opts = {}
 
@@ -438,10 +438,9 @@
       if (opts.template)
         src = compileTemplate(opts.template, src)
 
-      url = url ?
-        '//src: ' + (/:\/\//.test(url) ? url : path.relative('.', url)) + '\n' : ''
+      label = url ? '//src: ' + path.relative('.', url) + '\n' : ''
 
-      return url + src
+      return label + src
         .replace(/\r\n?/g, '\n')
         .replace(CUST_TAG, function (_, tagName, attribs, body) {
 
@@ -456,8 +455,7 @@
           if (attribs)
             attribs = restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex)
 
-          body = body && body.replace(HTML_COMMENT, '')
-          if (body) {
+          if (body && (body = body.replace(HTML_COMMENT, '')) && /\S/.test(body)) {
 
             body = body.replace(STYLE, function (_, _attrs, _style) {
               var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs)
@@ -478,7 +476,7 @@
               html = compileHTML(body, opts, pcex, 1)
 
             body = blocks[1]
-            if (body && /\S/.test(body))
+            if (/\S/.test(body))
               jscode += (jscode ? '\n' : '') + compileJS(body, opts)
           }
 

@@ -1,6 +1,6 @@
 // free indent
 
-  <free-style><p onclick={ click }/>
+<free-style><p onclick={ click }/>
 
     // also test compactation of empty lines
 
@@ -26,6 +26,7 @@
     {
       bar( {} )
     }
-    .bind (this)</free-style>
+    .bind (this)
+</free-style>
 
 // done

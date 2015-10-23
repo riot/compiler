@@ -59,9 +59,13 @@ describe('Compile tags', function() {
     testFile('free-style')
   })
 
-  it('detect some fake closing html tags', function () {
+  it('Detect some fake closing html tags', function () {
     testFile('html-block1')
     testFile('html-block2')
+  })
+
+  it('The treeview question', function () {
+    testFile('treeview')
   })
 
   /*
@@ -70,27 +74,24 @@ describe('Compile tags', function() {
   })
   */
 
-  it('dealing with unclosed es6 methods', function () {
+  it('Dealing with unclosed es6 methods', function () {
     testFile('unclosed-es6')
   })
 
-  it('with attributes in the root', function () {
+  it('With attributes in the root', function () {
     var
       src = cat('fixtures', 'root-attribs.tag'),
       js = compiler.compile(src)        // no name, no options
     expect(js).to.equal(cat('expect', 'root-attribs.js'))
   })
 
-  it('do not change internet urls', function () {
-    var
-      js = compiler.compile('<url/>', {}, 'http://github.com'),
-      str = [
-        '//src: http://github.com',
-        "riot.tag2('url', '', '', '', function(opts) {",
-        '});'
-      ].join('\n')
+  it('Empty tag', function () {
+    testFile('empty')
+  })
 
-    expect(js).to.equal(str)
+  it('The url name is optional', function () {
+    var js = compiler.compile('<url/>', {})
+    expect(js).to.equal("riot.tag2('url', '', '', '', function(opts) {\n});")
   })
 
 })
