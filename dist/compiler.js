@@ -96,8 +96,6 @@
       }
     }
 
-    _css.babel = _css.es6
-
     _js.javascript   = _js.none
     _js.coffeescript = _js.coffee
 
