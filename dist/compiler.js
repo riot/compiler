@@ -24,9 +24,9 @@
     function _try(name) {
       var req
 
-      function fn(name) {
+      function fn(r) {
         try {
-          _mods[name] = require(name)
+          _mods[name] = require(r)
         }
         catch (e) {
           _mods[name] = null
@@ -38,10 +38,7 @@
       case 'es6':
       // istanbul ignore next: we have babel-core in test
       case 'babel':
-        if (req = fn('babel-core'))
-          return req
-        req = 'babel'
-        break
+        return fn('babel-core') || fn('babel')
       case 'none':
       case 'javascript':
         return _js.none
@@ -70,13 +67,12 @@
     }
 
     var _css = {
-      stylus: function (css) {
+      stylus: function (tag, css) {
         var
           stylus = _req('stylus'), nib = _req('nib')
         /* istanbul ignore next: can't run both */
         return nib ?
-          stylus(css).use(nib()).import('nib').render() :
-          stylus.render(css)
+          stylus(css).use(nib()).import('nib').render() : stylus.render(css)
       }
     }
 
@@ -323,7 +319,7 @@
 
     var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
 
-    function scopedCSS(style, tag) {
+    function scopedCSS(tag, style) {
       var scope = ':scope'
 
       return style.replace(CSS_SELECTOR, function (m, p1, p2) {
@@ -353,7 +349,7 @@
           scoped = true
         }
         else if (parsers.css[type]) {
-          style = parsers.css[type](style, tag)
+          style = parsers.css[type](tag, style)
         }
         // istanbul ignore else: fallback to nothing
         else if (type !== 'css') {
@@ -363,7 +359,7 @@
 
       style = style.replace(brackets.R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
 
-      return scoped ? scopedCSS(style, tag) : style
+      return scoped ? scopedCSS(tag, style) : style
     }
 
     var TYPE_ATTR = /\stype\s*=\s*(?:['"]([^'"]+)['"]|(\S+))/i

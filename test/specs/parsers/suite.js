@@ -161,7 +161,7 @@ describe('Style parsers', function () {
 
   this.timeout(10000)
 
-  function _sass(css, tag) {
+  function _sass(tag, css) {
     return '' + require('node-sass').renderSync({
       data: css,
       indentedSyntax: true,

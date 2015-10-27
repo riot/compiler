@@ -37,13 +37,12 @@ var parsers = (function () {
   }
 
   var _css = {
-    stylus: function (css) {
+    stylus: function (tag, css) {
       var
         stylus = _req('stylus'), nib = _req('nib')
       /* istanbul ignore next: can't run both */
       return nib ?
-        stylus(css).use(nib()).import('nib').render() :
-        stylus.render(css)
+        stylus(css).use(nib()).import('nib').render() : stylus.render(css)
     }
   }
 
@@ -291,7 +290,7 @@ var compile = (function () {
 
   var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
 
-  function scopedCSS(style, tag) {
+  function scopedCSS(tag, style) {
     var scope = ':scope'
 
     return style.replace(CSS_SELECTOR, function (m, p1, p2) {
@@ -321,7 +320,7 @@ var compile = (function () {
         scoped = true
       }
       else if (parsers.css[type]) {
-        style = parsers.css[type](style, tag)
+        style = parsers.css[type](tag, style)
       }
       // istanbul ignore else: fallback to nothing
       else if (type !== 'css') {
@@ -331,7 +330,7 @@ var compile = (function () {
 
     style = style.replace(brackets.R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
 
-    return scoped ? scopedCSS(style, tag) : style
+    return scoped ? scopedCSS(tag, style) : style
   }
 
   var TYPE_ATTR = /\stype\s*=\s*(?:['"]([^'"]+)['"]|(\S+))/i
