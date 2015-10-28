@@ -78,6 +78,10 @@ describe('Compile tags', function() {
     testFile('unclosed-es6')
   })
 
+  it('Compatibility with one line tags', function () {
+    testFile('oneline')
+  })
+
   it('With attributes in the root', function () {
     var
       src = cat('fixtures', 'root-attribs.tag'),

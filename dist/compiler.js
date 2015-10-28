@@ -417,8 +417,7 @@
     }
 
     var
-
-      CUST_TAG = /^<([-\w]+)(?:\s+([^'"\/>]+(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\s\S]*)^<\/\1\s*>)/gim,
+      CUST_TAG = /^<([-\w]+)(?:\s+([^'"\/>]+(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\s\S]*)^<\/\1\s*>|>(.*)<\/\1\s*>)/gim,
       STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
       SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
 
@@ -436,7 +435,7 @@
 
       return label + src
         .replace(/\r\n?/g, '\n')
-        .replace(CUST_TAG, function (_, tagName, attribs, body) {
+        .replace(CUST_TAG, function (_, tagName, attribs, body, body2) {
 
           var
             jscode = '',
@@ -449,29 +448,36 @@
           if (attribs)
             attribs = restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex)
 
+          if (body2) body = body2
+
           if (body && (body = body.replace(HTML_COMMENT, '')) && /\S/.test(body)) {
 
-            body = body.replace(STYLE, function (_, _attrs, _style) {
-              var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs)
-              styles += (styles ? ' ' : '') +
-                compileCSS(_style, tagName, getType(_attrs), scoped)
-              return ''
-            })
+            if (body2)
+              html = compileHTML(body2, opts, pcex, 1)
+            else {
 
-            body = body.replace(SCRIPT, function (_, _attrs, _script) {
-              jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs)
-              return ''
-            })
+              body = body.replace(STYLE, function (_, _attrs, _style) {
+                var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs)
+                styles += (styles ? ' ' : '') +
+                  compileCSS(_style, tagName, getType(_attrs), scoped)
+                return ''
+              })
 
-            var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
+              body = body.replace(SCRIPT, function (_, _attrs, _script) {
+                jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs)
+                return ''
+              })
 
-            body = blocks[0]
-            if (body)
-              html = compileHTML(body, opts, pcex, 1)
+              var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
 
-            body = blocks[1]
-            if (/\S/.test(body))
-              jscode += (jscode ? '\n' : '') + compileJS(body, opts)
+              body = blocks[0]
+              if (body)
+                html = compileHTML(body, opts, pcex, 1)
+
+              body = blocks[1]
+              if (/\S/.test(body))
+                jscode += (jscode ? '\n' : '') + compileJS(body, opts)
+            }
           }
 
           return mktag(tagName, html, styles, attribs, jscode, pcex)

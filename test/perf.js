@@ -14,7 +14,7 @@ var
 
 var
   basedir = path.join(__dirname, 'specs', 'fixtures'),
-  tags = ['box', 'input-last', 'mixed-js', 'same', 'scoped', 'timetable', 'treeview'],
+  tags = ['box', 'empty', 'input-last', 'mixed-js', 'same', 'scoped', 'timetable', 'treeview', 'oneline'],
   data = { num: 1, str: 'string', date: new Date(), bool: true, item: null }
 
 var files = tags.map(function (f) {
