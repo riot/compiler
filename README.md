@@ -21,7 +21,7 @@
 
 ### For babel users
 
-From v2.3.0-beta.6, `compiler.parsers.css.es6` supports `babel-core` only, and its new API, you need also `npm install babel-preset-es2015` for this works. Temporal support for babel version 5.8.x is through the `compiler.parsers.css.babel` (`<script type="babel">`). It is recommended that you update your installation of babel as soon as possible.
+Because changes in their API, support for babel-core through `compiler.parsers.css.es6` or a `babel` is a pending decision, a new beta version will include the final interface for babel. 
 
 
 [travis-image]:https://img.shields.io/travis/riot/compiler.svg?style=flat-square
