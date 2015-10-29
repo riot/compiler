@@ -1,4 +1,4 @@
-/* riot-compiler 2.3.0-beta.5, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler 2.3.0-beta.6, @license MIT, (c) 2015 Muut Inc. + contributors */
 ;(function (root, factory) {
 
   /* istanbul ignore else */
@@ -35,9 +35,8 @@
 
       switch (name) {
       case 'es6':
-      // istanbul ignore next: we have babel-core in test
-      case 'babel':
-        return fn('babel-core') || fn('babel')
+        req = 'babel-core'
+        break
       case 'none':
       case 'javascript':
         return _js.none
@@ -87,6 +86,11 @@
       },
       es6: function (js) {
         return _req('es6').transform(js, {
+          presets: ['es2015'], ast: false, sourceMaps: false, comments: false
+        }).code
+      },
+      babel: /* istanbul ignore next */ function (js) {
+        return _req('babel').transform(js, {
           blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
         }).code
       },
@@ -95,7 +99,6 @@
       }
     }
 
-    _js.babel        = _js.es6
     _js.javascript   = _js.none
     _js.coffeescript = _js.coffee
 
@@ -349,7 +352,6 @@
       else if (parsers.css[type]) {
         style = parsers.css[type](tag, style)
       }
-      // istanbul ignore else: fallback to nothing
       else if (type !== 'css') {
         throw new Error('CSS parser not found: "' + type + '"')
       }
