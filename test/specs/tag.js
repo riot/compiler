@@ -1,9 +1,7 @@
-describe('Compile tags', function() {
-  var
-    path = require('path'),
-    fs = require('fs')
+var fs = require('fs'),
+  path = require('path')
 
-  //var basedir = path.join(__dirname, 'fixtures')
+describe('Compile tags', function() {
 
   // adding some custom riot parsers
   // css
@@ -16,7 +14,7 @@ describe('Compile tags', function() {
   }
 
   function render(str, name) {
-    return compiler.compile(str, /*{ basedir: basedir }*/{}, name)
+    return compiler.compile(str, {}, name)
   }
 
   function cat(dir, filename) {
@@ -24,8 +22,7 @@ describe('Compile tags', function() {
   }
 
   function testFile(name) {
-    var
-      src = cat('fixtures', name + '.tag'),
+    var src = cat('fixtures', name + '.tag'),
       js = render(src, name + '.tag')
 
     expect(js).to.equal(cat('expect', name + '.js'))
@@ -55,13 +52,12 @@ describe('Compile tags', function() {
     testFile('box')
   })
 
-  it('More freedom in the format (v2.3)', function() {
+  it('Flexible method style (v2.3)', function() {
     testFile('free-style')
   })
 
   it('Detect some fake closing html tags', function () {
-    testFile('html-block1')
-    testFile('html-block2')
+    testFile('html-blocks')
   })
 
   it('The treeview question', function () {

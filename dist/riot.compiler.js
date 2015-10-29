@@ -1,7 +1,7 @@
 
 /**
  * Compiler for riot custom tags
- * @version 2.3.0-beta.5
+ * @version 2.3.0-beta.6
  */
 
 /**
@@ -58,6 +58,11 @@ var parsers = (function () {
     },
     es6: function (js) {
       return _req('es6').transform(js, {
+        presets: ['es2015'], ast: false, sourceMaps: false, comments: false
+      }).code
+    },
+    babel: /* istanbul ignore next */ function (js) {
+      return _req('babel').transform(js, {
         blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
       }).code
     },
@@ -66,7 +71,6 @@ var parsers = (function () {
     }
   }
 
-  _js.babel        = _js.es6
   _js.javascript   = _js.none
   _js.coffeescript = _js.coffee
 
@@ -321,7 +325,6 @@ var compile = (function () {
       else if (parsers.css[type]) {
         style = parsers.css[type](tag, style)
       }
-      // istanbul ignore else: fallback to nothing
       else if (type !== 'css') {
         throw new Error('CSS parser not found: "' + type + '"')
       }
