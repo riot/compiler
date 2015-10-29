@@ -19,6 +19,11 @@
 
 `$ bower install riot-compiler --save`
 
+### For babel users
+
+From v2.3.0-beta.6, `compiler.parsers.css.es6` supports `babel-core` only, and its new API, you need also `npm install babel-preset-es2015` for this works. Temporal support for babel version 5.8.x is through the `compiler.parsers.css.babel` (`<script type="babel">`). It is recommended that you update your installation of babel as soon as possible.
+
+
 [travis-image]:https://img.shields.io/travis/riot/compiler.svg?style=flat-square
 [travis-url]:https://travis-ci.org/riot/compiler
 [license-image]:http://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
