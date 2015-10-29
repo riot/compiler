@@ -1,54 +1,33 @@
 
 /**
  * Compiler for riot custom tags
- * @version 2.3.0-beta.3
+ * @version 2.3.0-beta.5
  */
 
 /**
  * @module parsers
  */
 var parsers = (function () {
-  'use strict'  //eslint-disable-line
-
   var _mods = {}
 
-  function _try(name) {
-    if (!(name in _mods)) {
-      try {
-        _mods[name] = require.resolve(name)
-      }
-      catch (e) {
-        _mods[name] = ''
-      }
-    }
-    return _mods[name]
-  }
+  function _try(name, req) {   //eslint-disable-line no-redeclare
 
-  function _get(req) {
-    switch (req) {
-    case 'es6':
-    case 'babel':
-      // istanbul ignore next: not both
-      return _try('babel-core') || _try('babel')
-    case 'none':
-    case 'javascript':
-      return 'none'
-    case 'typescript':
-      req += '-simple'
-      break
+    switch (name) {
     case 'coffee':
-    case 'coffeescript':
-      req = 'coffee-script'
+      req = 'CoffeeScript'
+      break
+    case 'es6':
+      req = 'babel'
       break
     default:
+      if (!req) req = name
       break
     }
-    return _try(req)
+    return _mods[name] = window[req]
   }
 
-  function _req(name) {
-    var req = _get(name)
-    return req ? require(req) : null
+  function _req(name, req) {
+    return name in _mods ? _mods[name] : _try(name, req)
   }
 
   var _html = {
@@ -60,9 +39,8 @@ var parsers = (function () {
   var _css = {
     stylus: function (tag, css) {
       var
-        stylus = _req('stylus'),
-        nib = _req('nib')
-      // istanbul ignore next: not both
+        stylus = _req('stylus'), nib = _req('nib')
+      /* istanbul ignore next: can't run both */
       return nib ?
         stylus(css).use(nib()).import('nib').render() : stylus.render(css)
     }
@@ -72,38 +50,38 @@ var parsers = (function () {
     none: function (js) {
       return js
     },
-
     livescript: function (js) {
       return _req('livescript').compile(js, {bare: true, header: false})
     },
-
     typescript: function (js) {
       return _req('typescript')(js).replace(/\r\n?/g, '\n')
     },
-
     es6: function (js) {
       return _req('es6').transform(js, {
         blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
       }).code
     },
-
     coffee: function (js) {
       return _req('coffee').compile(js, {bare: true})
     }
   }
 
+  _js.babel        = _js.es6
   _js.javascript   = _js.none
   _js.coffeescript = _js.coffee
 
-  return {html: _html, css: _css, js: _js, _get: _get}
+  return {html: _html, css: _css, js: _js, _req: _req}
 
 })()
+
+riot.parsers = parsers
 
 /**
  * @module compiler
  */
 var compile = (function () {
-  'use strict'  //eslint-disable-line
+
+  var brackets = riot.util.brackets
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -202,7 +180,7 @@ var compile = (function () {
           expr = jsfn(expr, opts).replace(/[\r\n]+/g, ' ').trim()
           if (expr.slice(-1) === ';') expr = expr.slice(0, -1)
         }
-        list[i] = "\u0001" + (pcex.push(expr.trim()) - 1) + _bp[1]
+        list[i] = '\u0001' + (pcex.push(expr.trim()) - 1) + _bp[1]
       }
       html = list.join('')
     }
@@ -306,7 +284,7 @@ var compile = (function () {
     if (!parser)
       throw new Error('JS parser not found: "' + type + '"')
 
-    return parser(js, opts).replace(TRIM_TRAIL, '')
+    return parser(js).replace(TRIM_TRAIL, '')
   }
 
   var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
@@ -377,27 +355,25 @@ var compile = (function () {
     var
       i, k, js = '', len = str.length
 
-    if (len && str[len - 1] !== '>') {
-      k = str.indexOf('<')
-      if (k < 0 || (i = str.lastIndexOf('>\n')) < 0 || k > i)
-        return ['', str]
+    k = str.indexOf('<')
+    if (k < 0 || (i = str.lastIndexOf('>\n')) < 0 || k > i)
+      return ['', str]
 
-      i += 2
-      js = str.slice(i)
-      str = str.slice(0, i)
-      if (str[i - 3] !== '/') {
+    i += 2
+    js = str.slice(i)
+    str = str.slice(0, i)
+    if (str[i - 3] !== '/') {
 
-        if (str.match(END_TAGS)) {
-          var s = RegExp.rightContext
-          if (s) {
-            js = s + js
-            str = str.slice(0, len - js.length)
-          }
+      if (str.match(END_TAGS)) {
+        var s = RegExp.rightContext
+        if (s) {
+          js = s + js
+          str = str.slice(0, len - js.length)
         }
-        else {
-          js = str + js
-          str = ''
-        }
+      }
+      else {
+        js = str + js
+        str = ''
       }
     }
     return [str, js]
@@ -413,11 +389,12 @@ var compile = (function () {
   }
 
   var
-    CUST_TAG = /^[ \t]*<([-\w]+)\s*([^'"\/>]*(?:(?:\/[^>]|"[^"]*"|'[^']*')[^'"\/>]*)*)(?:\/|>\n?([^<]*(?:<(?!\/\1\s*>[ \t]*$)[^<]*)*)<\/\1\s*)>[ \t]*$/gim,
+    CUST_TAG = /^<([-\w]+)(?:\s+([^'"\/>]+(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\s\S]*)^<\/\1\s*>|>(.*)<\/\1\s*>)/gim,
     STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
     SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
 
   function compile(src, opts, url) {
+    var label
 
     if (!opts) opts = {}
 
@@ -426,12 +403,11 @@ var compile = (function () {
     if (opts.template)
       src = compileTemplate(opts.template, src)
 
-    url = url ?
-      '//src: ' + (/:\/\//.test(url) ? url : path.relative('.', url)) + '\n' : ''
+    label = url ? '//src: ' + url + '\n' : ''
 
-    return url + src
+    return label + src
       .replace(/\r\n?/g, '\n')
-      .replace(CUST_TAG, function (_, tagName, attribs, body) {
+      .replace(CUST_TAG, function (_, tagName, attribs, body, body2) {
 
         var
           jscode = '',
@@ -444,139 +420,43 @@ var compile = (function () {
         if (attribs)
           attribs = restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex)
 
-        body = body && body.replace(HTML_COMMENT, '')
-        if (body) {
+        if (body2) body = body2
 
-          body = body.replace(STYLE, function (_, _attrs, _style) {
-            var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs)
-            styles += (styles ? ' ' : '') +
-              compileCSS(_style, tagName, getType(_attrs), scoped)
-            return ''
-          })
+        if (body && (body = body.replace(HTML_COMMENT, '')) && /\S/.test(body)) {
 
-          body = body.replace(SCRIPT, function (_, _attrs, _script) {
-            jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs)
-            return ''
-          })
+          if (body2)
+            html = compileHTML(body2, opts, pcex, 1)
+          else {
 
-          var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
+            body = body.replace(STYLE, function (_, _attrs, _style) {
+              var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs)
+              styles += (styles ? ' ' : '') +
+                compileCSS(_style, tagName, getType(_attrs), scoped)
+              return ''
+            })
 
-          body = blocks[0]
-          if (body)
-            html = compileHTML(body, opts, pcex, 1)
+            body = body.replace(SCRIPT, function (_, _attrs, _script) {
+              jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs)
+              return ''
+            })
 
-          body = blocks[1]
-          if (body && /\S/.test(body))
-            jscode += (jscode ? '\n' : '') + compileJS(body, opts)
+            var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
+
+            body = blocks[0]
+            if (body)
+              html = compileHTML(body, opts, pcex, 1)
+
+            body = blocks[1]
+            if (/\S/.test(body))
+              jscode += (jscode ? '\n' : '') + compileJS(body, opts)
+          }
         }
 
         return mktag(tagName, html, styles, attribs, jscode, pcex)
       })
   }
 
-})()
-
-/**
- * Compilation for the Browser
- * @module riot.compile
- */
-riot.compile = (function () {
-  'use strict'  //eslint-disable-line
-
-  var
-    doc = typeof window === 'object' ? window.document : null,
-    promise,
-    ready,
-    forEach = Array.prototype.forEach
-
-  function GET(url, callback) {
-    var req = new XMLHttpRequest()
-
-    req.onreadystatechange = function () {
-      if (req.readyState === 4) {
-        if (req.status === 200 || !req.status && req.responseText.length)
-          callback(req.responseText, url)
-      }
-    }
-    req.open('GET', url, true)
-    req.send('')
-  }
-
-  function unindent(src) {
-    var ident = src.match(/^[ \t]+/)
-    if (ident) src = src.replace(new RegExp('^' + ident[0], 'gm'), '')
-    return src
-  }
-
-  function globalEval(js) {
-    var
-      node = doc.createElement('script'),
-      root = doc.documentElement
-
-    node.text = js
-    root.appendChild(node)
-    root.removeChild(node)
-  }
-
-  function compileScripts(callback) {
-    var
-      scripts = doc.querySelectorAll('script[type="riot/tag"]'),
-      scriptsAmount = scripts.length
-
-    function done() {
-      promise.trigger('ready')
-      ready = true
-      if (callback) callback()
-    }
-
-    function compileTag(source, url) {
-      globalEval(compile(source, url))
-      if (!--scriptsAmount) done()
-    }
-
-    if (scriptsAmount) {
-      forEach.call(scripts, function (script) {
-        var url = script.getAttribute('src')
-        url ? GET(url, compileTag) : compileTag(script.innerHTML, url)
-      })
-    }
-    else done()
-  }
-
-  return function _loadAndCompile(arg, fn) {
-
-    if (typeof arg === 'string') {
-
-      if (/^\s*</.test(arg)) {
-
-        var js = unindent(compile(arg))
-        if (!fn) globalEval(js)
-        return js
-
-      } else {
-
-        return GET(arg, function (str, url) {
-          var js = unindent(compile(str, url))
-          globalEval(js)
-          if (fn) fn(js, str)
-        })
-      }
-    }
-
-    fn = typeof arg !== 'function' ? undefined : arg
-
-    if (ready)
-      return fn && fn()
-
-    if (promise) {
-      if (fn)
-        promise.on('ready', fn)
-
-    } else {
-      promise = riot.observable()
-      compileScripts(fn)
-    }
-  }
+  return compile
 
 })()
 

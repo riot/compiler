@@ -9,10 +9,10 @@ var
   basedir = __dirname,
   jsdir = path.join(basedir, 'js')
 
-function have(mod) {
-  if (compiler.parsers._get(mod))
+function have(mod, req) {
+  if (compiler.parsers._req(mod, req))
     return true
-  console.error('\tnot installed locally: ' + mod)
+  console.error('\tnot installed locally: ' + (req || mod) + ' alias "' + mod + '"')
   return false
 }
 
@@ -40,7 +40,7 @@ function testParser(name, opts) {
 
 describe('HTML parsers', function () {
 
-  this.timeout(5000)
+  this.timeout(10000)
 
   function testStr(str, resStr, opts) {
     expect(compiler.html(str, opts || {})).to.be(resStr)
@@ -48,7 +48,7 @@ describe('HTML parsers', function () {
 
   // test.jade.tag & slide.jade.tag
   it('jade', function () {
-    if (have('jade')) {
+    if (have('jade') && have('coffee')) {
       testParser('test.jade', { template: 'jade' })
       testParser('slide.jade', { template: 'jade' })
     }
@@ -92,7 +92,7 @@ describe('HTML parsers', function () {
 
 describe('JavaScript parsers', function () {
 
-  this.timeout(8000)
+  this.timeout(10000)
 
   // complex.tag
   it('complex tag structure', function () {
@@ -121,7 +121,7 @@ describe('JavaScript parsers', function () {
 
   // testParser.coffee.tag
   it('coffeescript', function () {
-    if (have('coffee-script')) {
+    if (have('coffee')) {
       testParser('test', { type: 'coffee', expr: true })
     }
   })
@@ -135,14 +135,14 @@ describe('JavaScript parsers', function () {
 
   // testParser.livescript.tag
   it('typescript', function () {
-    if (have('typescript-simple')) {
+    if (have('typescript')) {
       testParser('test', { type: 'typescript' })
     }
   })
 
   // testParser.es6.tag
   it('es6 (babel-core or babel)', function () {
-    if (have('babel')) {
+    if (have('es6')) {
       testParser('test', { type: 'es6' })
     }
   })
@@ -159,10 +159,10 @@ describe('JavaScript parsers', function () {
 
 describe('Style parsers', function () {
 
-  this.timeout(5000)
+  this.timeout(10000)
 
   function _sass(tag, css) {
-    return '' + require('node-sass').renderSync({
+    return '' + compiler.parsers._req('sass').renderSync({
       data: css,
       indentedSyntax: true,
       omitSourceMapUrl: true,
@@ -188,7 +188,7 @@ describe('Style parsers', function () {
 
   // sass.tag
   it('sass, indented 2, margin 0 (custom parser)', function () {
-    if (have('node-sass')) {
+    if (have('sass', 'node-sass')) {
       compiler.parsers.css.sass = _sass
       testParser('sass', {})
     }

@@ -1,6 +1,6 @@
 {
   "name": "riot-compiler",
-  "version": "2.3.0-beta.4",
+  "version": "2.3.0-beta.5",
   "description": "Compiler for riot .tag files",
   "main": "dist/compiler.js",
   "directories": {
@@ -28,14 +28,14 @@
     "compiler"
   ],
   "dependencies": {
-    "riot-tmpl": "2.3.0-beta.4"
+    "riot-tmpl": "^2.3.0-beta.8"
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
-    "eslint": "^1.7.2",
+    "eslint": "^1.7.3",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.0",
-    "jspreproc": "^0.2.3",
+    "jspreproc": "^0.2.4",
     "mocha": "^2.3.3"
   },
   "author": "Muut, Inc. and other contributors",
