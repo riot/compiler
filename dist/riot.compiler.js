@@ -10,8 +10,8 @@
 var parsers = (function () {
   var _mods = {}
 
-  function _try(name) {   //eslint-disable-line no-redeclare
-    var req
+  function _try(name, req) {   //eslint-disable-line no-redeclare
+
     switch (name) {
     case 'coffee':
       req = 'CoffeeScript'
@@ -20,14 +20,14 @@ var parsers = (function () {
       req = 'babel'
       break
     default:
-      req = name
+      if (!req) req = name
       break
     }
-    return _mods[name] = (window || global)[req]
+    return _mods[name] = window[req]
   }
 
-  function _req(name) {
-    return name in _mods ? _mods[name] : _try(name)
+  function _req(name, req) {
+    return name in _mods ? _mods[name] : _try(name, req)
   }
 
   var _html = {
@@ -66,10 +66,11 @@ var parsers = (function () {
     }
   }
 
+  _js.babel        = _js.es6
   _js.javascript   = _js.none
   _js.coffeescript = _js.coffee
 
-  return {html: _html, css: _css, js: _js, _get: _req}
+  return {html: _html, css: _css, js: _js, _req: _req}
 
 })()
 
@@ -80,9 +81,9 @@ riot.parsers = parsers
  */
 var compile = (function () {
 
-  function _regEx(str, opt) { return new RegExp(str, opt) }
-
   var brackets = riot.util.brackets
+
+  function _regEx(str, opt) { return new RegExp(str, opt) }
 
   var
 
@@ -179,7 +180,7 @@ var compile = (function () {
           expr = jsfn(expr, opts).replace(/[\r\n]+/g, ' ').trim()
           if (expr.slice(-1) === ';') expr = expr.slice(0, -1)
         }
-        list[i] = "\u0001" + (pcex.push(expr.trim()) - 1) + _bp[1]
+        list[i] = '\u0001' + (pcex.push(expr.trim()) - 1) + _bp[1]
       }
       html = list.join('')
     }
