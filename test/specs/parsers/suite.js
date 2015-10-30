@@ -92,7 +92,7 @@ describe('HTML parsers', function () {
 
 describe('JavaScript parsers', function () {
 
-  this.timeout(20000) // first call to babel-core is slooooow!
+  this.timeout(25000) // first call to babel-core is slooooow!
 
   // complex.tag
   it('complex tag structure', function () {
@@ -148,11 +148,12 @@ describe('JavaScript parsers', function () {
   })
 
   // testParser.es6.tag
+  /*
   it('new css.babel parser (babel-core 6.0.2+)', function () {
     if (have('babel')) {
       testParser('test', { type: 'babel' })
     }
-  })
+  })*/
 
   // testParser-attr.es6.tag
   it('babel with shorthands (fix #1090)', function () {

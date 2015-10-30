@@ -1,7 +1,7 @@
 
 /**
  * Compiler for riot custom tags
- * @version 2.3.0-beta.6
+ * @version 2.3.0
  */
 
 /**
@@ -56,7 +56,7 @@ var parsers = (function () {
     typescript: function (js) {
       return _req('typescript')(js).replace(/\r\n?/g, '\n')
     },
-    es6: /* istanbul ignore next */ function (js) {
+    es6: function (js) {
       return _req('es6').transform(js, {
         blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
       }).code

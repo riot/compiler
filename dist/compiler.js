@@ -1,4 +1,4 @@
-/* riot-compiler 2.3.0-beta.6, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler 2.3.0, @license MIT, (c) 2015 Muut Inc. + contributors */
 ;(function (root, factory) {
 
   /* istanbul ignore else */
@@ -87,7 +87,7 @@
       typescript: function (js) {
         return _req('typescript')(js).replace(/\r\n?/g, '\n')
       },
-      es6: /* istanbul ignore next */ function (js) {
+      es6: function (js) {
         return _req('es6').transform(js, {
           blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
         }).code
