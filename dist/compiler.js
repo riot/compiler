@@ -1,4 +1,4 @@
-/* riot-compiler 2.3.0-beta.6, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler 2.3.0, @license MIT, (c) 2015 Muut Inc. + contributors */
 ;(function (root, factory) {
 
   /* istanbul ignore else */
@@ -35,6 +35,9 @@
 
       switch (name) {
       case 'es6':
+        req = 'babel'
+        break
+      case 'babel':
         req = 'babel-core'
         break
       case 'none':
@@ -86,12 +89,12 @@
       },
       es6: function (js) {
         return _req('es6').transform(js, {
-          presets: ['es2015'], ast: false, sourceMaps: false, comments: false
+          blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
         }).code
       },
-      babel: /* istanbul ignore next */ function (js) {
+      babel: function (js) {
         return _req('babel').transform(js, {
-          blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
+          presets: ['es2015'], ast: false, sourceMaps: false, comments: false
         }).code
       },
       coffee: function (js) {

@@ -1,7 +1,7 @@
 
 /**
  * Compiler for riot custom tags
- * @version 2.3.0-beta.6
+ * @version 2.3.0
  */
 
 /**
@@ -58,12 +58,12 @@ var parsers = (function () {
     },
     es6: function (js) {
       return _req('es6').transform(js, {
-        presets: ['es2015'], ast: false, sourceMaps: false, comments: false
+        blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
       }).code
     },
-    babel: /* istanbul ignore next */ function (js) {
+    babel: function (js) {
       return _req('babel').transform(js, {
-        blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
+        presets: ['es2015'], ast: false, sourceMaps: false, comments: false
       }).code
     },
     coffee: function (js) {
