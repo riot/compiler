@@ -3,7 +3,7 @@
 
   <h3>{ test }</h3>
 
-  var type = 'JavaScript'
+  const type = 'JavaScript'
   this.test = `This is ${type}`
 
 </babel>
