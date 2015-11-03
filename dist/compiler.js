@@ -21,7 +21,7 @@
   var parsers = (function () {
     var _mods = {}
 
-    function _try(name, req) {
+    function _try(name, req) {  //eslint-disable-line complexity
 
       function fn(r) {
         try {
@@ -35,8 +35,9 @@
 
       switch (name) {
       case 'es6':
-        req = 'babel'
-        break
+      /* istanbul ignore next */
+        return fn('babel') || fn('babel-core')
+      /* istanbul ignore next */
       case 'babel':
         req = 'babel-core'
         break
@@ -50,6 +51,11 @@
       case 'coffeescript':
         req = 'coffee-script'
         break
+      /* istanbul ignore next */
+      case 'scss':
+      case 'sass':
+        req = 'node-sass'
+        break
       default:
         if (!req) req = name
         break
@@ -62,13 +68,37 @@
     }
 
     var _html = {
-      jade: function (html) {
-        return _req('jade').render(html, {pretty: true, doctype: 'html'})
+      jade: function (html, opts) {
+        return _req('jade').render(html, extend({pretty: true, doctype: 'html'}, opts))
       }
     }
 
     var _css = {
-      stylus: function (tag, css) {
+      sass: function(tag, css, opts) {
+        var sass = _req('sass')
+
+        return sass.renderSync(extend({
+          data: css,
+          indentedSyntax: true,
+          omitSourceMapUrl: true,
+          outputStyle: 'compact'
+        }, opts)).css + ''
+      },
+      less: function(tag, css, opts) {
+        var less = _req('less'),
+          ret
+
+        less.render(css, extend({
+          sync: true,
+          compress: true
+        }, opts), function (err, result) {
+          // istanbul ignore next
+          if (err) throw err
+          ret = result.css
+        })
+        return ret
+      },
+      stylus: function (tag, css, opts) {
         var
           stylus = _req('stylus'), nib = _req('nib')
         /* istanbul ignore next: can't run both */
@@ -78,30 +108,31 @@
     }
 
     var _js = {
-      none: function (js) {
+      none: function (js, opts) {
         return js
       },
-      livescript: function (js) {
-        return _req('livescript').compile(js, {bare: true, header: false})
+      livescript: function (js, opts) {
+        return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
       },
-      typescript: function (js) {
-        return _req('typescript')(js).replace(/\r\n?/g, '\n')
+      typescript: function (js, opts) {
+        return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
       },
-      es6: function (js) {
-        return _req('es6').transform(js, {
-          blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
-        }).code.replace(/"use strict";[\r\n]+/, '')
+      es6: function (js, opts) {
+        return _req('es6').transform(js, extend({
+          blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
+        }, opts)).code
       },
-      babel: function (js) {
-        return _req('babel').transform(js, {
+      babel: /* istanbul ignore next */ function (js, opts) {
+        return _req('babel').transform(js, extend({
           presets: ['es2015'], ast: false, sourceMaps: false, comments: false
-        }).code.replace(/"use strict";[\r\n]+/, '')
+        }, opts)).code.replace(/"use strict";[\r\n]+/, '')
       },
-      coffee: function (js) {
-        return _req('coffee').compile(js, {bare: true})
+      coffee: function (js, opts) {
+        return _req('coffee').compile(js, extend({bare: true}, opts))
       }
     }
 
+    _css.scss   = _css.sass
     _js.javascript   = _js.none
     _js.coffeescript = _js.coffee
 
@@ -155,6 +186,16 @@
 
     return 'riot.tag2(' + q(name) + c + q(html) + c + q(css) + c + q(attrs) +
            ', function(opts) {\n' + js + s
+  }
+
+  function extend(obj, props) {
+    for (var prop in props) {
+      /* istanbul ignore next */
+      if (props.hasOwnProperty(prop)) {
+        obj[prop] = props[prop]
+      }
+    }
+    return obj
   }
 
   function parseAttrs(str) {
@@ -310,14 +351,14 @@
     }
   }
 
-  function compileJS(js, opts, type) {
+  function compileJS(js, opts, type, parserOpts) {
     if (!type) type = opts.type
 
     var parser = opts.parser || (type ? parsers.js[type] : riotjs)
     if (!parser)
       throw new Error('JS parser not found: "' + type + '"')
 
-    return parser(js).replace(TRIM_TRAIL, '')
+    return parser(js, parserOpts).replace(TRIM_TRAIL, '')
   }
 
   var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
@@ -345,14 +386,14 @@
     })
   }
 
-  function compileCSS(style, tag, type, scoped) {
+  function compileCSS(style, tag, type, scoped, opts) {
 
     if (type) {
       if (type === 'scoped-css') {
         scoped = true
       }
       else if (parsers.css[type]) {
-        style = parsers.css[type](tag, style)
+        style = parsers.css[type](tag, style, opts)
       }
       else if (type !== 'css') {
         throw new Error('CSS parser not found: "' + type + '"')
@@ -375,10 +416,31 @@
     return str ? str.replace('text/', '') : ''
   }
 
-  function getCode(code, opts, attrs) {
-    var type = getType(attrs)
+  function getAttr(str, name) {
 
-    return compileJS(code, opts, type)
+    if (str) {
+      var
+        re = _regEx(TYPE_ATTR.source.replace('type', name), 'i'),
+        match = str && str.match(re)
+      /* istanbul ignore next */
+      str = match && (match[1] || match[2])
+    }
+    return str || ''
+  }
+
+  function getParserOptions(attrs) {
+    var opts = getAttr(attrs, 'options')
+
+    /* istanbul ignore next */
+    if (opts) opts = JSON.parse(parserOpts)
+    return opts
+  }
+
+  function getCode(code, opts, attrs) {
+    var type = getType(attrs),
+      parserOpts = getParserOptions(attrs)
+
+    return compileJS(code, opts, type, parserOpts)
   }
 
   var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
@@ -386,6 +448,7 @@
   function splitBlocks(str) {
     var k, m
 
+    /* istanbul ignore next: this if() can't be true, but just in case... */
     if (str[str.length - 1] === '>')
       return [str, '']
 
@@ -401,13 +464,13 @@
     return ['', str]
   }
 
-  function compileTemplate(lang, html) {
+  function compileTemplate(lang, html, opts) {
     var parser = parsers.html[lang]
 
     if (!parser)
       throw new Error('Template parser not found: "' + lang + '"')
 
-    return parser(html)
+    return parser(html, opts)
   }
 
   var
@@ -423,7 +486,7 @@
     _bp = brackets.array(opts.brackets)
 
     if (opts.template)
-      src = compileTemplate(opts.template, src)
+      src = compileTemplate(opts.template, src, opts.templateOptions)
 
     label = url ? '//src: ' + path.relative('.', url) + '\n' : ''
 
@@ -453,7 +516,7 @@
             body = body.replace(STYLE, function (_, _attrs, _style) {
               var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs)
               styles += (styles ? ' ' : '') +
-                compileCSS(_style, tagName, getType(_attrs), scoped)
+                compileCSS(_style, tagName, getType(_attrs), scoped, getParserOptions(_attrs))
               return ''
             })
 
