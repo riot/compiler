@@ -59,12 +59,12 @@ var parsers = (function () {
     es6: function (js) {
       return _req('es6').transform(js, {
         blacklist: ['useStrict', 'react'], sourceMaps: false, comments: false
-      }).code
+      }).code.replace(/"use strict";[\r\n]+/, '')
     },
     babel: function (js) {
       return _req('babel').transform(js, {
         presets: ['es2015'], ast: false, sourceMaps: false, comments: false
-      }).code
+      }).code.replace(/"use strict";[\r\n]+/, '')
     },
     coffee: function (js) {
       return _req('coffee').compile(js, {bare: true})
@@ -177,14 +177,13 @@ var compile = (function () {
 
       for (var i = 1; i < list.length; i += 2) {
         expr = list[i]
-        if (expr[0] === '^') {
+        if (expr[0] === '^')
           expr = expr.slice(1)
-        }
         else if (jsfn) {
-          expr = jsfn(expr, opts).replace(/[\r\n]+/g, ' ').trim()
-          if (expr.slice(-1) === ';') expr = expr.slice(0, -1)
+          expr = jsfn(expr, opts)
+          if (/;\s*$/.test(expr)) expr = expr.slice(0, expr.search(/;\s*$/))
         }
-        list[i] = '\u0001' + (pcex.push(expr.trim()) - 1) + _bp[1]
+        list[i] = '\u0001' + (pcex.push(expr.replace(/[\r\n]+/g, ' ').trim()) - 1) + _bp[1]
       }
       html = list.join('')
     }
@@ -352,34 +351,24 @@ var compile = (function () {
     return compileJS(code, opts, type)
   }
 
-  var END_TAGS = /\/>\n|<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/g
+  var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
 
   function splitBlocks(str) {
-    var
-      i, k, js = '', len = str.length
+    var k, m
 
-    k = str.indexOf('<')
-    if (k < 0 || (i = str.lastIndexOf('>\n')) < 0 || k > i)
-      return ['', str]
+    if (str[str.length - 1] === '>')
+      return [str, '']
 
-    i += 2
-    js = str.slice(i)
-    str = str.slice(0, i)
-    if (str[i - 3] !== '/') {
-
-      if (str.match(END_TAGS)) {
-        var s = RegExp.rightContext
-        if (s) {
-          js = s + js
-          str = str.slice(0, len - js.length)
-        }
+    k = str.lastIndexOf('<')
+    while (~k) {
+      if (m = str.slice(k).match(END_TAGS)) {
+        k += m.index + m[0].length
+        return [str.slice(0, k), str.slice(k)]
       }
-      else {
-        js = str + js
-        str = ''
-      }
+      k = str.lastIndexOf('<', k -1)
     }
-    return [str, js]
+
+    return ['', str]
   }
 
   function compileTemplate(lang, html) {

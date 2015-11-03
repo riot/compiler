@@ -156,11 +156,12 @@ describe('JavaScript parsers', function () {
   })*/
 
   // testParser-attr.es6.tag
+  /*
   it('babel with shorthands (fix #1090)', function () {
-    if (have('babel')) {
-      testParser('test-attr', { type: 'babel', expr: true })
+    if (have('es6')) {
+      testParser('test-attr', { type: 'es6', expr: true })
     }
-  })
+  })*/
 
 })
 

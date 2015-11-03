@@ -94,4 +94,8 @@ describe('Compile tags', function() {
     expect(js).to.equal("riot.tag2('url', '', '', '', function(opts) {\n});")
   })
 
+  it('In shorthands newlines are converted to spaces #1306', function () {
+    testFile('so-input')
+  })
+
 })
