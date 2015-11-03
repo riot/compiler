@@ -20,6 +20,7 @@ install:
   - npm i stylus
   - npm i nib
   - npm i node-sass
+  - npm i less
   - npm i
 
 after_success: make send-coverage

@@ -157,8 +157,8 @@ describe('JavaScript parsers', function () {
 
   // testParser-attr.es6.tag
   it('babel with shorthands (fix #1090)', function () {
-    if (have('babel')) {
-      testParser('test-attr', { type: 'babel', expr: true })
+    if (have('es6')) {
+      testParser('test-attr', { type: 'es6', expr: true })
     }
   })
 
@@ -195,10 +195,24 @@ describe('Style parsers', function () {
   })
 
   // sass.tag
+  it('sass, indented 2, margin 0', function () {
+    if (have('sass')) {
+      testParser('sass', {})
+    }
+  })
+
+  // sass.tag
   it('sass, indented 2, margin 0 (custom parser)', function () {
     if (have('sass', 'node-sass')) {
       compiler.parsers.css.sass = _sass
       testParser('sass', {})
+    }
+  })
+
+  // sass.tag
+  it('less', function () {
+    if (have('less')) {
+      testParser('less', {})
     }
   })
 
