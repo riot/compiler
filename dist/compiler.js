@@ -35,6 +35,7 @@
 
       switch (name) {
       case 'es6':
+      /* istanbul ignore next */
         return fn('babel') || fn('babel-core')
       /* istanbul ignore next */
       case 'babel':
@@ -50,6 +51,8 @@
       case 'coffeescript':
         req = 'coffee-script'
         break
+      /* istanbul ignore next */
+      case 'scss':
       case 'sass':
         req = 'node-sass'
         break
@@ -119,7 +122,7 @@
           blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
         }, opts)).code
       },
-      babel: function (js, opts) {
+      babel: /* istanbul ignore next */ function (js, opts) {
         return _req('babel').transform(js, extend({
           presets: ['es2015'], ast: false, sourceMaps: false, comments: false
         }, opts)).code.replace(/"use strict";[\r\n]+/, '')
@@ -187,6 +190,7 @@
 
   function extend(obj, props) {
     for (var prop in props) {
+      /* istanbul ignore next */
       if (props.hasOwnProperty(prop)) {
         obj[prop] = props[prop]
       }
@@ -418,6 +422,7 @@
       var
         re = _regEx(TYPE_ATTR.source.replace('type', name), 'i'),
         match = str && str.match(re)
+      /* istanbul ignore next */
       str = match && (match[1] || match[2])
     }
     return str || ''
@@ -426,6 +431,7 @@
   function getParserOptions(attrs) {
     var opts = getAttr(attrs, 'options')
 
+    /* istanbul ignore next */
     if (opts) opts = JSON.parse(parserOpts)
     return opts
   }
@@ -442,6 +448,7 @@
   function splitBlocks(str) {
     var k, m
 
+    /* istanbul ignore next: this if() can't be true, but just in case... */
     if (str[str.length - 1] === '>')
       return [str, '']
 

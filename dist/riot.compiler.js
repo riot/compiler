@@ -61,7 +61,7 @@ var parsers = (function () {
         blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
       }, opts)).code
     },
-    babel: function (js, opts) {
+    babel: /* istanbul ignore next */ function (js, opts) {
       return _req('babel').transform(js, extend({
         presets: ['es2015'], ast: false, sourceMaps: false, comments: false
       }, opts)).code.replace(/"use strict";[\r\n]+/, '')
@@ -130,6 +130,7 @@ var compile = (function () {
 
   function extend(obj, props) {
     for (var prop in props) {
+      /* istanbul ignore next */
       if (props.hasOwnProperty(prop)) {
         obj[prop] = props[prop]
       }
@@ -361,6 +362,7 @@ var compile = (function () {
       var
         re = _regEx(TYPE_ATTR.source.replace('type', name), 'i'),
         match = str && str.match(re)
+      /* istanbul ignore next */
       str = match && (match[1] || match[2])
     }
     return str || ''
@@ -369,6 +371,7 @@ var compile = (function () {
   function getParserOptions(attrs) {
     var opts = getAttr(attrs, 'options')
 
+    /* istanbul ignore next */
     if (opts) opts = JSON.parse(parserOpts)
     return opts
   }
@@ -385,6 +388,7 @@ var compile = (function () {
   function splitBlocks(str) {
     var k, m
 
+    /* istanbul ignore next: this if() can't be true, but just in case... */
     if (str[str.length - 1] === '>')
       return [str, '']
 

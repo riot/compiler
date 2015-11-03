@@ -92,6 +92,12 @@ describe('HTML parsers', function () {
 
 describe('JavaScript parsers', function () {
 
+  function _babel(js) {
+    return compiler.parsers._req('babelcore').transform(js, {
+      blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
+      }).code
+  }
+
   this.timeout(25000) // first call to babel-core is slooooow!
 
   // complex.tag
@@ -147,18 +153,18 @@ describe('JavaScript parsers', function () {
     }
   })
 
-  // testParser.es6.tag
-  /*
-  it('new css.babel parser (babel-core 6.0.2+)', function () {
-    if (have('babel')) {
-      testParser('test', { type: 'babel' })
-    }
-  })*/
-
   // testParser-attr.es6.tag
   it('babel with shorthands (fix #1090)', function () {
     if (have('es6')) {
       testParser('test-attr', { type: 'es6', expr: true })
+    }
+  })
+
+  // test.babel-core.tag
+  it('css.babel-core as custom parser (babel-core 5.8)', function () {
+    if (have('babelcore', 'babel-core')) {
+      compiler.parsers.js.babelcore = _babel
+      testParser('test', { type: 'babelcore' })
     }
   })
 
@@ -242,6 +248,7 @@ describe('Other', function () {
 
     expect(compiler.compile).withArgs(str1, {type: 'unknown'}).to.throwError()
     expect(compiler.compile).withArgs(str2).to.throwError()
+    expect(have('unknown')).to.be(false)
   })
 
   // brackets.tag

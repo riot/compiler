@@ -12,8 +12,7 @@ branches:
 install:
   - npm i jade
   - npm i babel@5.8
-  - npm i babel-core
-  - npm i babel-preset-es2015
+  - npm i babel-core@5.8
   - npm i coffee-script
   - npm i livescript
   - npm i typescript-simple
