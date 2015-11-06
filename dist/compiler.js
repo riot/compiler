@@ -84,6 +84,16 @@
           outputStyle: 'compact'
         }, opts)).css + ''
       },
+      scss: function(tag, css, opts) {
+        var sass = _req('sass')
+
+        return sass.renderSync(extend({
+          data: css,
+          indentedSyntax: false,
+          omitSourceMapUrl: true,
+          outputStyle: 'compact'
+        }, opts)).css + ''
+      },
       less: function(tag, css, opts) {
         var less = _req('less'),
           ret
@@ -132,7 +142,6 @@
       }
     }
 
-    _css.scss   = _css.sass
     _js.javascript   = _js.none
     _js.coffeescript = _js.coffee
 

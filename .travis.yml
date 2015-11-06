@@ -20,6 +20,7 @@ install:
   - npm i nib
   - npm i node-sass
   - npm i less
+  - npm i postcss autoprefixer
   - npm i
 
 after_success: make send-coverage

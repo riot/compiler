@@ -71,7 +71,6 @@ var parsers = (function () {
     }
   }
 
-  _css.scss   = _css.sass
   _js.javascript   = _js.none
   _js.coffeescript = _js.coffee
 

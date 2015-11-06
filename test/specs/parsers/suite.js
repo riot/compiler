@@ -175,12 +175,9 @@ describe('Style parsers', function () {
 
   this.timeout(12000)
 
-  function _sass(tag, css) {
-    return '' + compiler.parsers._req('sass').renderSync({
-      data: css,
-      indentedSyntax: true,
-      omitSourceMapUrl: true,
-      outputStyle: 'compact' }).css
+  // custom parser
+  compiler.parsers.css.postcss = function(tag, css, opts) {
+    return require('postcss')([require('autoprefixer')]).process(css).css
   }
 
   // style.tag
@@ -207,15 +204,21 @@ describe('Style parsers', function () {
     }
   })
 
-  // sass.tag
-  it('sass, indented 2, margin 0 (custom parser)', function () {
-    if (have('sass', 'node-sass')) {
-      compiler.parsers.css.sass = _sass
-      testParser('sass', {})
+  // scss.tag
+  it('scss, indented 2, margin 0', function () {
+    if (have('scss', 'node-sass')) {
+      testParser('scss', {})
     }
   })
 
-  // sass.tag
+  // scss.tag
+  it('custom parser using postcss + autoprefixer', function () {
+    if (have('postcss', 'postcss')) {
+      testParser('postcss', {})
+    }
+  })
+
+  // less.tag
   it('less', function () {
     if (have('less')) {
       testParser('less', {})
