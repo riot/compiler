@@ -92,10 +92,8 @@ describe('HTML parsers', function () {
 
 describe('JavaScript parsers', function () {
 
-  function _babel(js) {
-    return compiler.parsers._req('babelcore').transform(js, {
-      blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
-      }).code
+  function _custom(js) {
+    return 'var foo'
   }
 
   this.timeout(25000) // first call to babel-core is slooooow!
@@ -147,7 +145,7 @@ describe('JavaScript parsers', function () {
   })
 
   // testParser.es6.tag
-  it('es6 (for babel 5.8.x)', function () {
+  it('es6', function () {
     if (have('es6')) {
       testParser('test', { type: 'es6' })
     }
@@ -160,12 +158,12 @@ describe('JavaScript parsers', function () {
     }
   })
 
-  // test.babel-core.tag
-  it('css.babel-core as custom parser (babel-core 5.8)', function () {
-    if (have('babelcore', 'babel-core')) {
-      compiler.parsers.js.babelcore = _babel
-      testParser('test', { type: 'babelcore' })
-    }
+  // test.random.tag
+  it('custom js parser', function () {
+
+    compiler.parsers.js.custom = _custom
+    testParser('test', { type: 'custom' })
+
   })
 
 })

@@ -56,22 +56,20 @@ var parsers = (function () {
     typescript: function (js, opts) {
       return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
     },
-    es6: function (js, opts) {
-      return _req('es6').transform(js, extend({
-        blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
-      }, opts)).code
-    },
     babel: /* istanbul ignore next */ function (js, opts) {
-      js = 'function __parser_babel_wrapper__(){' + js + '}';
-      return _req('babel').transform(js, extend({
-        presets: ['es2015'], ast: false, sourceMaps: false, comments: false
-      }, opts)).code.replace(/"use strict";[\r\n]+/, '').slice(38, -2);
+      js = 'function __parser_babel_wrapper__(){' + js + '}'
+      return _req('babel').transform(js,
+        extend({
+          presets: ['es2015']
+        }, opts)
+      ).code.replace(/["']use strict["'];[\r\n]+/, '').slice(38, -2)
     },
     coffee: function (js, opts) {
       return _req('coffee').compile(js, extend({bare: true}, opts))
     }
   }
 
+  _js.es6 = _js.babel
   _js.javascript   = _js.none
   _js.coffeescript = _js.coffee
 
