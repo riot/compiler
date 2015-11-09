@@ -28,6 +28,10 @@ describe('Compile tags', function() {
     expect(js).to.equal(cat('expect', name + '.js'))
   }
 
+  it('Preserves this in babel templates', function () {
+    testFile('babel-this')
+  })
+
   it('Timetable tag', function() {
     testFile('timetable')
   })
