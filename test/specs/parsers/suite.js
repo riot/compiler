@@ -144,17 +144,17 @@ describe('JavaScript parsers', function () {
     }
   })
 
-  // testParser.es6.tag
-  it('es6', function () {
+  // testParser.babel.tag
+  it('babel', function () {
     if (have('es6')) {
-      testParser('test', { type: 'es6' })
+      testParser('test', { type: 'babel' })
     }
   })
 
-  // testParser-attr.es6.tag
+  // testParser-attr.babel.tag
   it('babel with shorthands (fix #1090)', function () {
     if (have('es6')) {
-      testParser('test-attr', { type: 'es6', expr: true })
+      testParser('test-attr', { type: 'babel', expr: true })
     }
   })
 

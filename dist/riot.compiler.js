@@ -56,7 +56,12 @@ var parsers = (function () {
     typescript: function (js, opts) {
       return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
     },
-    babel: /* istanbul ignore next */ function (js, opts) {
+    es6: /* istanbul ignore next */ function (js, opts) {
+      return _req('es6').transform(js, extend({
+        blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
+      }, opts)).code
+    },
+    babel: function (js, opts) {
       js = 'function __parser_babel_wrapper__(){' + js + '}'
       return _req('babel').transform(js,
         extend({
@@ -69,7 +74,6 @@ var parsers = (function () {
     }
   }
 
-  _js.es6 = _js.babel
   _js.javascript   = _js.none
   _js.coffeescript = _js.coffee
 
