@@ -92,10 +92,8 @@ describe('HTML parsers', function () {
 
 describe('JavaScript parsers', function () {
 
-  function _babel(js) {
-    return compiler.parsers._req('babelcore').transform(js, {
-      blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
-      }).code
+  function _custom(js) {
+    return 'var foo'
   }
 
   this.timeout(25000) // first call to babel-core is slooooow!
@@ -146,26 +144,26 @@ describe('JavaScript parsers', function () {
     }
   })
 
-  // testParser.es6.tag
-  it('es6 (for babel 5.8.x)', function () {
+  // testParser.babel.tag
+  it('babel', function () {
     if (have('es6')) {
-      testParser('test', { type: 'es6' })
+      testParser('test', { type: 'babel' })
     }
   })
 
-  // testParser-attr.es6.tag
-  it('babel with shorthands (fix #1090)', function () {
-    if (have('es6')) {
-      testParser('test-attr', { type: 'es6', expr: true })
+  // testParser-attr.babel.tag
+  it('coffee with shorthands (fix #1090)', function () {
+    if (have('coffee')) {
+      testParser('test-attr', { type: 'coffee', expr: true })
     }
   })
 
-  // test.babel-core.tag
-  it('css.babel-core as custom parser (babel-core 5.8)', function () {
-    if (have('babelcore', 'babel-core')) {
-      compiler.parsers.js.babelcore = _babel
-      testParser('test', { type: 'babelcore' })
-    }
+  // test.random.tag
+  it('custom js parser', function () {
+
+    compiler.parsers.js.custom = _custom
+    testParser('test', { type: 'custom' })
+
   })
 
 })
@@ -175,12 +173,9 @@ describe('Style parsers', function () {
 
   this.timeout(12000)
 
-  function _sass(tag, css) {
-    return '' + compiler.parsers._req('sass').renderSync({
-      data: css,
-      indentedSyntax: true,
-      omitSourceMapUrl: true,
-      outputStyle: 'compact' }).css
+  // custom parser
+  compiler.parsers.css.postcss = function(tag, css, opts) {
+    return require('postcss')([require('autoprefixer')]).process(css).css
   }
 
   // style.tag
@@ -207,15 +202,21 @@ describe('Style parsers', function () {
     }
   })
 
-  // sass.tag
-  it('sass, indented 2, margin 0 (custom parser)', function () {
-    if (have('sass', 'node-sass')) {
-      compiler.parsers.css.sass = _sass
-      testParser('sass', {})
+  // scss.tag
+  it('scss, indented 2, margin 0', function () {
+    if (have('scss', 'node-sass')) {
+      testParser('scss', {})
     }
   })
 
-  // sass.tag
+  // scss.tag
+  it('custom parser using postcss + autoprefixer', function () {
+    if (have('postcss', 'postcss')) {
+      testParser('postcss', {})
+    }
+  })
+
+  // less.tag
   it('less', function () {
     if (have('less')) {
       testParser('less', {})

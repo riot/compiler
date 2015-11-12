@@ -1,5 +1,3 @@
 riot.tag2('babelcore', '<h3>{test}</h3>', '', '', function(opts) {
-
-var type = 'JavaScript';
-this.test = 'This is ' + type;
+var foo
 }, '{ }');
