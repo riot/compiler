@@ -1,4 +1,4 @@
-//src: free-style.tag
+//src: test/specs/fixtures/free-style.tag
 // free indent
 
 riot.tag2('free-style', '<p onclick="{click}"></p>', '', '', function(opts) {

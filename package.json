@@ -1,6 +1,6 @@
 {
   "name": "riot-compiler",
-  "version": "2.3.0",
+  "version": "2.3.1-beta.1",
   "description": "Compiler for riot .tag files",
   "main": "dist/compiler.js",
   "directories": {
@@ -14,8 +14,7 @@
     "test/**"
   ],
   "scripts": {
-    "test": "make test",
-    "prepublish": "make build"
+    "test": "make test"
   },
   "repository": {
     "type": "git",

@@ -1,7 +1,7 @@
 
 /**
  * Compiler for riot custom tags
- * @version 2.3.0-beta.8
+ * @version 2.3.0
  */
 
 /**
@@ -292,6 +292,7 @@ var compile = (function () {
   }
 
   function compileJS(js, opts, type, parserOpts) {
+    if (!js) return ''
     if (!type) type = opts.type
 
     var parser = opts.parser || (type ? parsers.js[type] : riotjs)
@@ -345,13 +346,13 @@ var compile = (function () {
     return scoped ? scopedCSS(tag, style) : style
   }
 
-  var TYPE_ATTR = /\stype\s*=\s*(?:['"]([^'"]+)['"]|(\S+))/i
+  var TYPE_ATTR = /\stype\s*=\s*(?:"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|(\S+))/i
 
   function getType(str) {
 
     if (str) {
       var match = str.match(TYPE_ATTR)
-      str = match && (match[1] || match[2])
+      str = match && (match[1] || match[2] || match[3])
     }
     return str ? str.replace('text/', '') : ''
   }
@@ -363,7 +364,7 @@ var compile = (function () {
         re = _regEx(TYPE_ATTR.source.replace('type', name), 'i'),
         match = str && str.match(re)
       /* istanbul ignore next */
-      str = match && (match[1] || match[2])
+      str = match && (match[1] || match[2] || match[3])
     }
     return str || ''
   }
@@ -371,12 +372,11 @@ var compile = (function () {
   function getParserOptions(attrs) {
     var opts = getAttr(attrs, 'options')
 
-    /* istanbul ignore next */
-    if (opts) opts = JSON.parse(parserOpts)
+    if (opts) opts = JSON.parse(opts.replace(/\\"/g, '"'))
     return opts
   }
 
-  function getCode(code, opts, attrs) {
+  function getCode(code, opts, attrs, url) {
     var type = getType(attrs),
       parserOpts = getParserOptions(attrs)
 

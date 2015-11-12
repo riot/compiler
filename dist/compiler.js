@@ -1,4 +1,4 @@
-/* riot-compiler 2.3.0-beta.8, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler 2.3.0, @license MIT, (c) 2015 Muut Inc. + contributors */
 ;(function (root, factory) {
 
   /* istanbul ignore else */
@@ -352,6 +352,7 @@
   }
 
   function compileJS(js, opts, type, parserOpts) {
+    if (!js) return ''
     if (!type) type = opts.type
 
     var parser = opts.parser || (type ? parsers.js[type] : riotjs)
@@ -405,13 +406,13 @@
     return scoped ? scopedCSS(tag, style) : style
   }
 
-  var TYPE_ATTR = /\stype\s*=\s*(?:['"]([^'"]+)['"]|(\S+))/i
+  var TYPE_ATTR = /\stype\s*=\s*(?:"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|(\S+))/i
 
   function getType(str) {
 
     if (str) {
       var match = str.match(TYPE_ATTR)
-      str = match && (match[1] || match[2])
+      str = match && (match[1] || match[2] || match[3])
     }
     return str ? str.replace('text/', '') : ''
   }
@@ -423,7 +424,7 @@
         re = _regEx(TYPE_ATTR.source.replace('type', name), 'i'),
         match = str && str.match(re)
       /* istanbul ignore next */
-      str = match && (match[1] || match[2])
+      str = match && (match[1] || match[2] || match[3])
     }
     return str || ''
   }
@@ -431,15 +432,21 @@
   function getParserOptions(attrs) {
     var opts = getAttr(attrs, 'options')
 
-    /* istanbul ignore next */
-    if (opts) opts = JSON.parse(parserOpts)
+    if (opts) opts = JSON.parse(opts.replace(/\\"/g, '"'))
     return opts
   }
 
-  function getCode(code, opts, attrs) {
+  function getCode(code, opts, attrs, url) {
     var type = getType(attrs),
       parserOpts = getParserOptions(attrs)
 
+    var src = getAttr(attrs, 'src')
+    if (src && url) {
+      var
+        charset = getAttr(attrs, 'charset'),
+        file = path.resolve(path.dirname(url), src)
+      code = require('fs').readFileSync(file, {encoding: charset || 'utf8'})
+    }
     return compileJS(code, opts, type, parserOpts)
   }
 
@@ -488,7 +495,9 @@
     if (opts.template)
       src = compileTemplate(opts.template, src, opts.templateOptions)
 
-    label = url ? '//src: ' + path.relative('.', url) + '\n' : ''
+    label = url ? (path.isAbsolute(url) ? path.relative('.', url) : url) : ''   //eslint-disable-line no-extra-parens
+    if (label)
+      label = '//src: ' + label.replace(/\\/g, '/') + '\n'
 
     return label + src
       .replace(/\r\n?/g, '\n')
@@ -521,7 +530,7 @@
             })
 
             body = body.replace(SCRIPT, function (_, _attrs, _script) {
-              jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs)
+              jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
               return ''
             })
 

@@ -1,4 +1,4 @@
-//src: treeview.tag
+//src: test/specs/fixtures/treeview.tag
 riot.tag2('treeview', '<ul id="treeview"> <li> <treeitem data="{treedata}"></treeitem> </li> </ul>', '', '', function(opts) {
   this.treedata = {
     name: 'My Tree',

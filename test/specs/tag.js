@@ -2,6 +2,11 @@ var fs = require('fs'),
   path = require('path')
 
 describe('Compile tags', function() {
+  // in Windows __dirname is the real path, path.relative uses symlink
+  var
+    basepath = path.resolve(__dirname, '../..'),
+    fixtures = path.relative(basepath, path.join(__dirname, 'fixtures')),
+    expected = path.relative(basepath, path.join(__dirname, 'expect'))
 
   // adding some custom riot parsers
   // css
@@ -14,18 +19,18 @@ describe('Compile tags', function() {
   }
 
   function render(str, name) {
-    return compiler.compile(str, {}, name)
+    return compiler.compile(str, {}, path.join(fixtures, name))
   }
 
   function cat(dir, filename) {
-    return fs.readFileSync(path.join(__dirname, dir, filename)).toString()
+    return fs.readFileSync(path.join(dir, filename)).toString()
   }
 
   function testFile(name) {
-    var src = cat('fixtures', name + '.tag'),
+    var src = cat(fixtures, name + '.tag'),
       js = render(src, name + '.tag')
 
-    expect(js).to.equal(cat('expect', name + '.js'))
+    expect(js).to.equal(cat(expected, name + '.js'))
   }
 
   it('Timetable tag', function() {
@@ -64,11 +69,9 @@ describe('Compile tags', function() {
     testFile('treeview')
   })
 
-  /*
-  it('Include files (v2.3)', function() {
+  it('Included files (v2.3.1)', function() {
     testFile('includes')
   })
-  */
 
   it('Dealing with unclosed es6 methods', function () {
     testFile('unclosed-es6')
@@ -80,9 +83,19 @@ describe('Compile tags', function() {
 
   it('With attributes in the root', function () {
     var
-      src = cat('fixtures', 'root-attribs.tag'),
+      src = cat(fixtures, 'root-attribs.tag'),
       js = compiler.compile(src)        // no name, no options
-    expect(js).to.equal(cat('expect', 'root-attribs.js'))
+    expect(js).to.equal(cat(expected, 'root-attribs.js'))
+  })
+
+  it('script/style attributes with values type object', function () {
+    var
+      src = cat(fixtures, 'script-attribs.tag'),
+      js = compiler.compile(src, { parser: testOpts })
+
+      function testOpts(src, opts) {
+        expect(opts).to.eql({ val: true })
+      }
   })
 
   it('Empty tag', function () {
