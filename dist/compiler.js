@@ -431,7 +431,6 @@
       var
         re = _regEx('\\s' + name + MISC_ATTR, 'i'),
         match = str.match(re)
-
       str = match && match[1]
       if (str)
         return /^['"]/.test(str) ? str.slice(1, -1) : str
