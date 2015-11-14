@@ -88,14 +88,18 @@ describe('Compile tags', function() {
     expect(js).to.equal(cat(expected, 'root-attribs.js'))
   })
 
-  it('script/style attributes with values type object', function () {
+  it('Parsing the options attribute in script tags', function () {
     var
-      src = cat(fixtures, 'script-attribs.tag'),
+      src = cat(fixtures, 'script-options.tag'),
       js = compiler.compile(src, { parser: testOpts })
 
-      function testOpts(src, opts) {
-        expect(opts).to.eql({ val: true })
-      }
+    function testOpts(src, opts) {
+      expect(opts).to.eql({ val: true })
+    }
+  })
+
+  it('The `whitespace` option preserves newlines and tabs', function () {
+    testFile('empty')
   })
 
   it('Empty tag', function () {
@@ -109,6 +113,32 @@ describe('Compile tags', function() {
 
   it('In shorthands newlines are converted to spaces #1306', function () {
     testFile('so-input')
+  })
+
+  it('the `entities` option give access to the compiled parts', function () {
+    var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {entities: true})
+      resarr = [
+        [ 'treeview',
+          /^<ul id="treeview"> <li> <treeitem data="\{treedata}">/,
+          '', '',
+          /\s+this.treedata = {/
+        ],
+        [ 'treeitem',
+          /^<div class="\{bold: isFolder\(\)}" onclick="\{toggle}"/,
+          '', '',
+          /\s+var self = this\s+self.name = opts.data.name/
+        ]
+      ]
+    expect(parts.length).to.be(2)
+    for (var i = 0; i < 2; ++i) {
+      var a = resarr[i]
+      expect(parts[i]).to.be.an('object')
+      expect(parts[i].tagName).to.be(a[0])
+      expect(parts[i].html).to.match(a[1])
+      expect(parts[i].css).to.be(a[2])
+      expect(parts[i].attribs).to.be(a[3])
+      expect(parts[i].js).to.match(a[4])
+    }
   })
 
 })

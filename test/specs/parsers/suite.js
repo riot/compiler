@@ -106,12 +106,12 @@ describe('JavaScript parsers', function () {
     else expect().fail('parsers.js must have a "none" property')
   })
 
-  // testParser.tag
+  // test.tag
   it('javascript (root container)', function () {
     testParser('test', { expr: true })
   })
 
-  // testParser-alt.tag
+  // test-alt.tag
   it('javascript (comment hack)', function () {
     testParser('test-alt', { expr: true })
   })
@@ -123,35 +123,42 @@ describe('JavaScript parsers', function () {
     else expect().fail('parsers.js must have a "javascript" property')
   })
 
-  // testParser.coffee.tag
+  // test.coffee.tag
   it('coffeescript', function () {
     if (have('coffee')) {
       testParser('test', { type: 'coffee', expr: true })
     }
   })
 
-  // testParser.livescript.tag
+  // test.livescript.tag
   it('livescript', function () {
     if (have('livescript')) {
       testParser('test', { type: 'livescript' })
     }
   })
 
-  // testParser.livescript.tag
+  // test.livescript.tag
   it('typescript', function () {
     if (have('typescript')) {
       testParser('test', { type: 'typescript' })
     }
   })
 
-  // testParser.babel.tag
-  it('babel', function () {
+  // test.es6.tag
+  it('es6', function () {
     if (have('es6')) {
+      testParser('test', { type: 'es6' })
+    }
+  })
+
+  // test.babel.tag
+  it('babel', function () {
+    if (have('babel')) {
       testParser('test', { type: 'babel' })
     }
   })
 
-  // testParser-attr.babel.tag
+  // test-attr.babel.tag
   it('coffee with shorthands (fix #1090)', function () {
     if (have('coffee')) {
       testParser('test-attr', { type: 'coffee', expr: true })
@@ -206,6 +213,13 @@ describe('Style parsers', function () {
   it('scss, indented 2, margin 0', function () {
     if (have('scss', 'node-sass')) {
       testParser('scss', {})
+    }
+  })
+
+  // testing the options attribute on the style tag
+  it('custom style options', function () {
+    if (have('sass', 'node-sass')) {
+      testParser('sass.options', {})
     }
   })
 

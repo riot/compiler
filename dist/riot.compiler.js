@@ -56,7 +56,7 @@ var parsers = (function () {
     typescript: function (js, opts) {
       return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
     },
-    es6: /* istanbul ignore next */ function (js, opts) {
+    es6: function (js, opts) {
       return _req('es6').transform(js, extend({
         blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
       }, opts)).code
@@ -120,11 +120,7 @@ var compile = (function () {
       c = ', ',
       s = '}' + (pcex.length ? ', ' + q(_bp[8]) : '') + ');'
 
-    if (/\S/.test(js)) {
-      js = js.replace(/\n{3,}/g, '\n\n')
-      if (js.slice(-1) !== '\n') s = '\n' + s
-    }
-    else js = ''
+    if (js && js.slice(-1) !== '\n') s = '\n' + s
 
     return 'riot.tag2(' + q(name) + c + q(html) + c + q(css) + c + q(attrs) +
            ', function(opts) {\n' + js + s
@@ -132,7 +128,6 @@ var compile = (function () {
 
   function extend(obj, props) {
     for (var prop in props) {
-      /* istanbul ignore next */
       if (props.hasOwnProperty(prop)) {
         obj[prop] = props[prop]
       }
@@ -348,13 +343,15 @@ var compile = (function () {
     return scoped ? scopedCSS(tag, style) : style
   }
 
-  var TYPE_ATTR = /\stype\s*=\s*(?:"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|(\S+))/i
+  var
+    TYPE_ATTR = /\stype\s*=\s*(?:(['"])(.+?)\1|(\S+))/i,
+    MISC_ATTR = /\s*=\s*("(?:\\[\S\s]|[^"\\]*)*"|'(?:\\[\S\s]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
 
   function getType(str) {
 
     if (str) {
       var match = str.match(TYPE_ATTR)
-      str = match && (match[1] || match[2] || match[3])
+      str = match && (match[2] || match[3])
     }
     return str ? str.replace('text/', '') : ''
   }
@@ -363,28 +360,47 @@ var compile = (function () {
 
     if (str) {
       var
-        re = _regEx(TYPE_ATTR.source.replace('type', name), 'i'),
-        match = str && str.match(re)
-      /* istanbul ignore next */
-      str = match && (match[1] || match[2] || match[3])
+        re = _regEx('\\s' + name + MISC_ATTR, 'i'),
+        match = str.match(re)
+
+      str = match && match[1]
+      if (str)
+        return /^['"]/.test(str) ? str.slice(1, -1) : str
     }
-    return str || ''
+    return ''
   }
 
+  // get the parser options from the options attribute
   function getParserOptions(attrs) {
     var opts = getAttr(attrs, 'options')
-
-    if (opts) opts = JSON.parse(opts.replace(/\\"/g, '"'))
+    // convert the string into a valid js object
+    if (opts) opts = JSON.parse(opts)
     return opts
   }
 
+  // Runs the custom or default parser on the received JavaScript code.
+  // The CLI version can read code from the file system (experimental)
   function getCode(code, opts, attrs, url) {
     var type = getType(attrs),
       parserOpts = getParserOptions(attrs)
 
+    //#if READ_JS_SRC
+    var src = getAttr(attrs, 'src')
+    if (src && url) {
+      var
+        charset = getAttr(attrs, 'charset'),
+        file = path.resolve(path.dirname(url), src)
+      code = require('fs').readFileSync(file, {encoding: charset || 'utf8'})
+    }
+    //#endif
     return compileJS(code, opts, type, parserOpts)
   }
 
+  // Matches HTML tag ending a line. This regex still can be fooled by code as:
+  // ```js
+  // x <y && y >
+  //  z
+  // ```
   var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
 
   function splitBlocks(str) {
@@ -394,7 +410,7 @@ var compile = (function () {
     if (str[str.length - 1] === '>')
       return [str, '']
 
-    k = str.lastIndexOf('<')
+    k = str.lastIndexOf('<')    // first probable open tag
     while (~k) {
       if (m = str.slice(k).match(END_TAGS)) {
         k += m.index + m[0].length
@@ -406,6 +422,7 @@ var compile = (function () {
     return ['', str]
   }
 
+  // Runs the external HTML parser for the entire tag file
   function compileTemplate(lang, html, opts) {
     var parser = parsers.html[lang]
 
@@ -415,13 +432,21 @@ var compile = (function () {
     return parser(html, opts)
   }
 
+  /*
+    CUST_TAG regex don't allow unquoted expressions containing the `>` operator.
+    STYLE and SCRIPT disallows the operator `>` at all.
+
+    The beta.4 CUST_TAG regex is fast, with RegexBuddy I get 76 steps and 14 backtracks on
+    the test/specs/fixtures/treeview.tag :) but fails with nested tags of the same name :(
+    With a greedy * operator, we have ~500 and 200bt, it is acceptable. So let's fix this.
+   */
   var
     CUST_TAG = /^<([-\w]+)(?:\s+([^'"\/>]+(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\s\S]*)^<\/\1\s*>|>(.*)<\/\1\s*>)/gim,
     STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
     SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
 
   function compile(src, opts, url) {
-    var label
+    var label, parts = []
 
     if (!opts) opts = {}
 
@@ -432,7 +457,7 @@ var compile = (function () {
 
     label = url ? '//src: ' + url + '\n' : ''
 
-    return label + src
+    src = label + src
       .replace(/\r\n?/g, '\n')
       .replace(CUST_TAG, function (_, tagName, attribs, body, body2) {
 
@@ -444,8 +469,8 @@ var compile = (function () {
 
         tagName = tagName.toLowerCase()
 
-        if (attribs)
-          attribs = restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex)
+        attribs = !attribs ? '' :
+          restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex)
 
         if (body2) body = body2
 
@@ -479,8 +504,23 @@ var compile = (function () {
           }
         }
 
+        jscode = /\S/.test(jscode) ? jscode.replace(/\n{3,}/g, '\n\n') : ''
+
+        if (opts.entities) {
+          parts.push({
+            tagName: tagName,
+            html: html,
+            css: styles,
+            attribs: attribs,
+            js: jscode
+          })
+          return ''
+        }
+
         return mktag(tagName, html, styles, attribs, jscode, pcex)
       })
+
+    return opts.entities ? parts : src
   }
 
   return compile
