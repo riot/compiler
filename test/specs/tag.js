@@ -2,6 +2,11 @@ var fs = require('fs'),
   path = require('path')
 
 describe('Compile tags', function() {
+  // in Windows __dirname is the real path, path.relative uses symlink
+  var
+    basepath = path.resolve(__dirname, '../..'),
+    fixtures = path.relative(basepath, path.join(__dirname, 'fixtures')),
+    expected = path.relative(basepath, path.join(__dirname, 'expect'))
 
   // adding some custom riot parsers
   // css
@@ -14,18 +19,18 @@ describe('Compile tags', function() {
   }
 
   function render(str, name) {
-    return compiler.compile(str, {}, name)
+    return compiler.compile(str, {}, path.join(fixtures, name))
   }
 
   function cat(dir, filename) {
-    return fs.readFileSync(path.join(__dirname, dir, filename)).toString()
+    return fs.readFileSync(path.join(dir, filename)).toString()
   }
 
   function testFile(name) {
-    var src = cat('fixtures', name + '.tag'),
+    var src = cat(fixtures, name + '.tag'),
       js = render(src, name + '.tag')
 
-    expect(js).to.equal(cat('expect', name + '.js'))
+    expect(js).to.equal(cat(expected, name + '.js'))
   }
 
   it('Timetable tag', function() {
@@ -64,11 +69,9 @@ describe('Compile tags', function() {
     testFile('treeview')
   })
 
-  /*
-  it('Include files (v2.3)', function() {
+  it('Included files (v2.3.1)', function() {
     testFile('includes')
   })
-  */
 
   it('Dealing with unclosed es6 methods', function () {
     testFile('unclosed-es6')
@@ -80,9 +83,23 @@ describe('Compile tags', function() {
 
   it('With attributes in the root', function () {
     var
-      src = cat('fixtures', 'root-attribs.tag'),
+      src = cat(fixtures, 'root-attribs.tag'),
       js = compiler.compile(src)        // no name, no options
-    expect(js).to.equal(cat('expect', 'root-attribs.js'))
+    expect(js).to.equal(cat(expected, 'root-attribs.js'))
+  })
+
+  it('Parsing the options attribute in script tags', function () {
+    var
+      src = cat(fixtures, 'script-options.tag'),
+      js = compiler.compile(src, { parser: testOpts })
+
+    function testOpts(src, opts) {
+      expect(opts).to.eql({ val: true })
+    }
+  })
+
+  it('The `whitespace` option preserves newlines and tabs', function () {
+    testFile('empty')
   })
 
   it('Empty tag', function () {
@@ -96,6 +113,32 @@ describe('Compile tags', function() {
 
   it('In shorthands newlines are converted to spaces #1306', function () {
     testFile('so-input')
+  })
+
+  it('the `entities` option give access to the compiled parts', function () {
+    var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {entities: true})
+      resarr = [
+        [ 'treeview',
+          /^<ul id="treeview"> <li> <treeitem data="\{treedata}">/,
+          '', '',
+          /\s+this.treedata = {/
+        ],
+        [ 'treeitem',
+          /^<div class="\{bold: isFolder\(\)}" onclick="\{toggle}"/,
+          '', '',
+          /\s+var self = this\s+self.name = opts.data.name/
+        ]
+      ]
+    expect(parts.length).to.be(2)
+    for (var i = 0; i < 2; ++i) {
+      var a = resarr[i]
+      expect(parts[i]).to.be.an('object')
+      expect(parts[i].tagName).to.be(a[0])
+      expect(parts[i].html).to.match(a[1])
+      expect(parts[i].css).to.be(a[2])
+      expect(parts[i].attribs).to.be(a[3])
+      expect(parts[i].js).to.match(a[4])
+    }
   })
 
 })

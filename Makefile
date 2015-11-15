@@ -7,6 +7,12 @@ JSPP_NODE_FLAGS = $(JSPP_FLAGS) -D NODE --indent 2
 # Code Climate only accepts the first job of default branch
 TESTCOVER = $(TRAVIS_BRANCH) $(TRAVIS_NODE_VERSION)
 
+# if no "v" var given, default to package version
+v ?= $(shell node -pe "require('./package.json').version")
+
+# expand variable (so we can use it on branches w/o package.json)
+VERSION := $(v)
+
 # Command line paths
 COVERALLS = ./node_modules/coveralls/bin/coveralls.js
 ESLINT    = ./node_modules/eslint/bin/eslint.js
@@ -25,6 +31,7 @@ build: eslint
 	@ mkdir -p $(DIST)
 	@ $(JSPP) $(JSPP_RIOT_FLAGS) lib/index.js > $(DIST)riot.compiler.js
 	@ $(JSPP) $(JSPP_NODE_FLAGS) lib/index.js > $(DIST)compiler.js
+	@ sed -i '' 's/WIP/v$(VERSION)/' dist/*compiler.js
 
 eslint:
 	# check code style

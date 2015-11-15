@@ -1,4 +1,4 @@
-//src: html-blocks.tag
+//src: test/specs/fixtures/html-blocks.tag
 // <y && y> can be confused with a closing html tag
 
 riot.tag2('html-block1', '', '', '', function(opts) {
