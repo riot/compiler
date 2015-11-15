@@ -31,7 +31,10 @@ build: eslint
 	@ mkdir -p $(DIST)
 	@ $(JSPP) $(JSPP_RIOT_FLAGS) lib/index.js > $(DIST)riot.compiler.js
 	@ $(JSPP) $(JSPP_NODE_FLAGS) lib/index.js > $(DIST)compiler.js
-	@ sed -i '' 's/WIP/v$(VERSION)/' dist/*compiler.js
+
+bump:
+	# Bump a new release
+	@ sed -i '' 's/WIP/v$(VERSION)/' $(DIST)*compiler.js
 
 eslint:
 	# check code style
