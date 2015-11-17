@@ -1,7 +1,7 @@
 
 /**
  * Compiler for riot custom tags
- * @version v2.3.11
+ * @version WIP
  */
 
 /**
@@ -299,7 +299,7 @@ var compile = (function () {
     return parser(js, parserOpts).replace(TRIM_TRAIL, '')
   }
 
-  var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
+  var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
 
   function scopedCSS(tag, style) {
     var scope = ':scope'

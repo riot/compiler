@@ -64,6 +64,10 @@ describe('Scoped CSS', function() {
     expect(render('@keyframes fade { 10% { opacity: 1; } 85% { opacity: 0; } }'))
         .to.equal('@keyframes fade { 10% { opacity: 1; } 85% { opacity: 0; } }')
   })
+  it('compile empty style', function() {
+    expect(render('h1 {} h2 { font-size: 130% }'))
+        .to.equal('my-tag h1,[riot-tag="my-tag"] h1 {} my-tag h2,[riot-tag="my-tag"] h2 { font-size: 130% }')
+  })
 
   it('use a custom css parser to render the css', function() {
     compiler.parsers.css.myParser = function(tag, css) {

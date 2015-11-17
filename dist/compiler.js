@@ -1,4 +1,4 @@
-/* riot-compiler v2.3.11, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
 ;(function (root, factory) {
 
   /* istanbul ignore else */
@@ -368,7 +368,7 @@
     return parser(js, parserOpts).replace(TRIM_TRAIL, '')
   }
 
-  var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
+  var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
 
   function scopedCSS(tag, style) {
     var scope = ':scope'
