@@ -192,8 +192,6 @@ describe('Style parsers', function () {
 
   // style.escoped.tag
   it('scoped styles', function () {
-    var str = compiler.compile(cat(basedir, 'style.scoped.tag'))
-    fs.writeFileSync('out_.js', str)
     testParser('style.scoped', {})
   })
 
