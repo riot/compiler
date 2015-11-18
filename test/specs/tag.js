@@ -99,7 +99,20 @@ describe('Compile tags', function() {
   })
 
   it('The `whitespace` option preserves newlines and tabs', function () {
-    testFile('empty')
+    var src = [
+        '<whitespace>',
+        '\t<p>xyz',
+        '\t  cc',
+        '\t    ss</p>',
+        '</whitespace>'
+      ].join('\n'),
+      str = compiler.compile(src, {whitespace: true})
+
+    expect(str).to.be('riot.tag2(\'whitespace\', \'\t<p>xyz\\n\t  cc\\n\t    ss</p>\\n\', \'\', \'\', function(opts) {\n});')
+  })
+
+  it('Whitespace within <pre> tags is always preserved', function () {
+    testFile('pre')
   })
 
   it('Empty tag', function () {
@@ -113,6 +126,10 @@ describe('Compile tags', function() {
 
   it('In shorthands newlines are converted to spaces #1306', function () {
     testFile('so-input')
+  })
+
+  it('Multiline tags must be open/closed with the same indentation, which is removed', function () {
+    testFile('indentation')
   })
 
   it('the `entities` option give access to the compiled parts', function () {
