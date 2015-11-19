@@ -8,6 +8,7 @@
 - New attribute `options` for `script` and `style` tags will append/overwrite attributes in the default configuration object of the parser at tag level.
 - Fix [riot#1261](https://github.com/riot/riot/issues/1261): `<pre>` tag does not preserve neither `\n` nor `\t`.
   Now whitespace within `<pre>` tags is always preserved.
+- Fix [riot#1358](https://github.com/riot/riot/issues/1358): Empty style in tag (scoped) breaks.
 
 ## v2.3.11
 
