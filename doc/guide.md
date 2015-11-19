@@ -3,7 +3,7 @@
 ## Indentation
 
 In v2.3.12 the compiler handles a more consistent and flexible indentation in both inline and external tag definitions.
-You can use any tabs or spaces you want. The compiler uses this to find the closing tag and unindent the content, so the closing tag must have _exactly_ the same indentation of the opening tag.
+The opening tag must begin a line. You can use any tabs or spaces you want. The compiler uses this to find the closing tag and unindent the content, so the closing tag must have _exactly_ the same indentation of the opening tag.
 
 HTML comments and trailing whitespace are removed from the entire tag content (JavaScript comments are removed in the JavaScript block only, so you can not use comment in expressions).
 
@@ -23,8 +23,8 @@ generates:
 ```js
 // This JS comment is at column 0, out of the tag
 riot.tag2('treeitem', '<pre>one\n  two\n</pre> <treeitem> </treeitem>', '', '', function(opts) {
-  click(e) {}   // JavaScript code is unindented by 2 spaces
-});
+  click(e) {}
+});     // the closing tag is indented by 2 spaces, this comment must be JS
 ```
 note the `<pre>` content, this is unindented by 2 too.
 
@@ -37,9 +37,9 @@ In the html, including quoted text, newlines are converted to spaces and compact
 
 No matter which options are used, newlines are normalized to `\n` and trailing spaces are removed.
 
-## Options
+## Compilation options
 
-The compile and riot.compile functions can take an additional parameter specifing various settings. This is a plain JavaScript object with one or more of following options as properties.
+The `compile` and `riot.compile` functions can take an additional parameter specifing various settings. This is a plain JavaScript object with one or more of following options as properties.
 
 | option      | module  | type    | description |
 | ----------- |:------: |:------: | ----------- |
@@ -52,50 +52,54 @@ The compile and riot.compile functions can take an additional parameter specifin
 | style       | css     | string  | CSS pre-processor. Built-in support for: jade
 
 
-## Options as attributes
+## Parser options
 
-In addition to the `type` attribute, script and style tags can include additional configuration in the `options` and `compile` attributes, at tag level.
+In addition to the `type` attribute, script and style tags can include additional configuration at tag level through the `options` attribute.
 
-**NOTE:** These attributes are not expressions, are [JSON](http://json.org/) objects and must comply with the [JSON specs](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf), i.e. suitable for `JSON.parse`.
+**NOTE:** This attribute is not an expression, it is a [JSON](http://json.org/) object and must comply with the [JSON specs](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf), i.e. suitable for `JSON.parse`.
 
 The `options` attribute specify options for the JS or CSS parser.
 
 Example:
 ```html
 <my-tag>
-  <style type='' options='{}'>
+  <style type='myCSSparser' options='{"option": true}'>
+    p {color: "red"}
   </style>
   <p>Red</p>
+
+  <script type="myJSparser" options='{"option": "yes"}'>
+    this.clock = function (e) {}.bind(this)
+  </script>
 </my-tag>
 ```
-will ...
 
-The `compile` attribute specify options for the compiler, and must be defined in the root tag.
-
-Example:
-```html
-<my-tag compile='{ "whitespace": true }'>
-  <pre>This is
-    multiline
-    text.
-  </pre>
-</my-tag>
-```
-will compile my-tag with the whitespace option, even if whitespace is not enabled in the global options
 
 ## The untagged JS block
 
-Where the html ends?
+Where the html ends? or where should I put my JS?
+The first action taken by the compiler is send the received source to any htm parser. After that,
+it normalizes line endings to `\n` and removes _html_ comments.
+Once prepared the source, searches for tags, separate the parts (closing/opening tag, root
+attributes, and content). In the content, search the `<style>` blocks, removes and sends their
+content to the CSS parser. Next, it does the same for the `<script>` tags.
+This is done in the entire content.
 
+In the remaining source, look for the last html tag (ending a line). If found, this marks the
+end of the html and the beginning of the JavaScript code. If not found, all remaining is
+considered JavaScript.
+
+So, you can put html comments, `style`, and `script` blocks anywhere inside the tag.
+The only restriction is that the untagged JavaScript code must finish the content.
 
 ## Multiple JavaScript blocks
 
-Different types.
-Merged with any untagged JS block
+Each JavaScript block in the tag can have different `type` attributes.
+Once parsed, all blocks will be merged by the compiler.
 
 ## Loading JavaScript from the file system
 
-The `src` attribute of `script` tags inside a riot tag, allows load source files from the file system.
+The `src` attribute of the `script` tags inside a riot tag, allows load source files from the file system.
 The filename in `src` can be absolute or relative to the tag being compiled.
 It can be combined with the `charset` attribute. `charset` defaults to `utf8` and the JavaScript type defaults to the `type` option specified in the options passed to the compiler.
 
@@ -111,6 +115,7 @@ this.title = "my title"
   <script src="js/data.js" type="es6"></script>
 </my-tag>
 ```
+
 is equivalent to
 ```html
 <my-tag>

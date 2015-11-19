@@ -198,6 +198,7 @@
 
   function extend(obj, props) {
     for (var prop in props) {
+      /* istanbul ignore next */
       if (props.hasOwnProperty(prop)) {
         obj[prop] = props[prop]
       }
