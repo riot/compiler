@@ -180,8 +180,9 @@
   var path = require('path')
 
   function q(s) {
-
-    return "'" + (s ? s.replace(/\\/g, '\\\\').replace(/'/g, "\\'") : '') + "'"
+    return "'" + (s ? s
+      .replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '\\r') :
+      '') + "'"
   }
 
   function mktag(name, html, css, attrs, js, pcex) {
@@ -191,7 +192,7 @@
 
     if (js && js.slice(-1) !== '\n') s = '\n' + s
 
-    return 'riot.tag2(' + q(name) + c + q(html) + c + q(css) + c + q(attrs) +
+    return 'riot.tag2(\'' + name + "'" + c + q(html) + c + q(css) + c + q(attrs) +
            ', function(opts) {\n' + js + s
   }
 
@@ -285,7 +286,7 @@
 
     if (!intc) {
       _bp = brackets.array(opts.brackets)
-      html = html.replace(HTML_COMMENT, '').replace(TRIM_TRAIL, '')
+      html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT, '').replace(TRIM_TRAIL, '')
     }
     if (!pcex) pcex = []
 
@@ -301,8 +302,15 @@
         return '<' + name + ends + '>'
       })
 
-    html = opts.whitespace ?
-           html.replace(/\r\n?|\n/g, '\\n') : html.trim().replace(/\s+/g, ' ')
+    if (!opts.whitespace) {
+      var p = [],
+        pre = /<pre(?:\s+[^'">]+(?:(?:"[^"]*"|'[^']*')[^'">]*)*|\s*)>[\s\S]*<\/pre\s*>/gi
+
+      html = html.replace(pre, function (q) {
+        return '\u0002' + (p.push(q) - 1) + '~' }).trim().replace(/\s+/g, ' ')
+      if (p.length)
+        html = html.replace(/\u0002(\d+)~/g, function (q, n) { return p[n] })
+    }
 
     if (opts.compact) html = html.replace(/> <([-\w\/])/g, '><$1')
 
@@ -394,6 +402,7 @@
   }
 
   function compileCSS(style, tag, type, scoped, opts) {
+    if (!type) type = opts.style
 
     if (type) {
       if (type === 'scoped-css') {
@@ -509,7 +518,7 @@
     With a greedy * operator, we have ~500 and 200bt, it is acceptable. So let's fix this.
    */
   var
-    CUST_TAG = /^<([-\w]+)(?:\s+([^'"\/>]+(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\s\S]*)^<\/\1\s*>|>(.*)<\/\1\s*>)/gim,
+    CUST_TAG = /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\s\S]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/gim,
     STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
     SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
 
@@ -530,7 +539,7 @@
 
     src = label + src
       .replace(/\r\n?/g, '\n')
-      .replace(CUST_TAG, function (_, tagName, attribs, body, body2) {
+      .replace(CUST_TAG, function (_, indent, tagName, attribs, body, body2) {
 
         var
           jscode = '',
@@ -540,8 +549,7 @@
 
         tagName = tagName.toLowerCase()
 
-        attribs = !attribs ? '' :
-          restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex)
+        attribs = !attribs ? '' : restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex)
 
         if (body2) body = body2
 
@@ -550,6 +558,7 @@
           if (body2)
             html = compileHTML(body2, opts, pcex, 1)
           else {
+            body = body.replace(_regEx('^' + indent, 'gm'), '')
 
             body = body.replace(STYLE, function (_, _attrs, _style) {
               var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs)
