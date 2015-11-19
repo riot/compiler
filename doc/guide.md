@@ -1,5 +1,33 @@
 # Compiler Guide (complement, WIP)
 
+## Indentation
+
+In v2.3.12 the compiler handles a more consistent and flexible indentation in both inline and external tag definitions.
+You can use any tabs or spaces you want. The compiler uses this to find the closing tag and unindent the content, so the closing tag must have _exactly_ the same indentation of the opening tag.
+
+HTML comments and trailing whitespace are removed from the entire tag content (JavaScript comments are removed in the JavaScript block only, so you can not use comment in expressions).
+
+Example:
+```html
+// This JS comment is at column 0, out of the tag
+  <treeitem>      <!-- the openning tag is indentent by 2 spaces -->
+    <pre>one      <!-- here in the html block you can't use... -->
+    two</pre>     <!-- ...JavaScript comments -->
+    <treeitem>    <!-- this nested tag is indented by 4 spaces... -->
+    </treeitem>   <!-- ...so the compiler ignore it -->
+    click(e) {}   <!-- JavaScript code is indented by 4 spaces -->
+  </treeitem>     // the closing tag is indented by 2 spaces, this comment must be JS
+```
+
+generates:
+```js
+// This JS comment is at column 0, out of the tag
+riot.tag2('treeitem', '<pre>one\n  two\n</pre> <treeitem> </treeitem>', '', '', function(opts) {
+  click(e) {}   // JavaScript code is unindented by 2 spaces
+});
+```
+note the `<pre>` content, this is unindented by 2 too.
+
 ## Backslashes and Whitespace
 
 From the perspective of the riot compiler and `tmpl`, backslashes in the template are characters with no special meaning. The compiler preserves them in the HTML and expressions, with one exception: backslashes used to escape riot brackets are temporarily removed when the expression is passed to a parser, and finally removed at runtime, before evaluating the expression.

@@ -34,7 +34,7 @@ build: eslint
 
 bump:
 	# Bump a new release
-	#@ sed -i '' 's/WIP/v$(VERSION)/' $(DIST)*compiler.js
+	@ sed -i 's/WIP/v$(VERSION)/' $(DIST)*compiler.js
 
 eslint:
 	# check code style

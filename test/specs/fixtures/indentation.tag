@@ -1,4 +1,4 @@
-  <indentation>
+  <indentation>  <!-- ignored comment -->
   <h1>Indentation</h1>
   <pre>xyz
     cc
@@ -8,4 +8,4 @@
     </ul>
 click(e) {
 }
-  </indentation>
+  </indentation>  // ignored comment

@@ -1,6 +1,6 @@
 {
   "name": "riot-compiler",
-  "version": "2.3.11",
+  "version": "2.3.12",
   "description": "Compiler for riot .tag files",
   "main": "dist/compiler.js",
   "directories": {
@@ -28,7 +28,7 @@
     "compiler"
   ],
   "dependencies": {
-    "riot-tmpl": "^2.3.0"
+    "riot-tmpl": "^2.3.12"
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
