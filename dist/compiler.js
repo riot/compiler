@@ -1,4 +1,4 @@
-/* riot-compiler v2.3.12, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
 ;(function (root, factory) {
 
   /* istanbul ignore else */
@@ -403,7 +403,6 @@
   }
 
   function compileCSS(style, tag, type, scoped, opts) {
-    if (!type) type = opts.style
 
     if (type) {
       if (type === 'scoped-css') {
@@ -562,9 +561,10 @@
             body = body.replace(_regEx('^' + indent, 'gm'), '')
 
             body = body.replace(STYLE, function (_, _attrs, _style) {
-              var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs)
+              var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
+                csstype = getType(_attrs) || opts.style
               styles += (styles ? ' ' : '') +
-                compileCSS(_style, tagName, getType(_attrs), scoped, getParserOptions(_attrs))
+                compileCSS(_style, tagName, csstype, scoped, getParserOptions(_attrs))
               return ''
             })
 
