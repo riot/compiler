@@ -1,7 +1,7 @@
 
 /**
  * Compiler for riot custom tags
- * @version WIP
+ * @version v2.3.13
  */
 
 /**
