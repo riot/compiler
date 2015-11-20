@@ -19,11 +19,17 @@
 
 `$ bower install riot-compiler --save`
 
-### For babel users
 
-Due to recent changes in the babel API, from v2.3.0-beta.7 we are supporting `babel` versions previous to 6.0.2 through `parsers.css.es6` (`<script type="es6">`), new versions are not compatible with the node API.
+### Read more in the [doc folder](doc/) and the [CHANGELOG](CHANGELOG.md)
 
-For `babel-core`, please use the new `parsers.css.babel` (`<script type="babel">`). You must `npm install babel-preset-es2015` too, for this works.
+_Please note: the documentation is a work in progress. Contributions are welcome._
+
+#### For babel users
+
+Due to changes in the babel API, from our v2.3.0-beta.7 we are separating the babel support in the following types:
+
+* es6 - For `babel` and `babel-core` v5.8.x and below
+* babel - For `babel-core` v6.x - You must `npm install babel-preset-es2015` too, for this works.
 
 
 [travis-image]:https://img.shields.io/travis/riot/compiler.svg?style=flat-square

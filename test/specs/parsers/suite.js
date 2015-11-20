@@ -241,6 +241,22 @@ describe('Style parsers', function () {
     testParser('mixed-css', {})
   })
 
+  it('The style option for setting the CSS parser (v2.3.13)', function () {
+    var
+      source = [
+        '<style-option>',
+        '  <style>',
+        '    p {top:0}',
+        '  </style>',
+        '</style-option>'
+      ].join('\n'),
+      result
+
+    compiler.parsers.css.myParser2 = function (t, s) { return s.replace(/\bp\b/g, 'P') }
+    result = compiler.compile(source, {style: 'myParser2'})
+    expect(result).to.contain('P {top:0}')
+  })
+
 })
 
 describe('Other', function () {

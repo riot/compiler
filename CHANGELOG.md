@@ -39,3 +39,5 @@ Enhancements
 - Better recognition of expressions. Now you can use almost any character, even in unquoted expressions (expressions containing the `>` operator needs to be enclosed in quotes) - [riot#744](https://github.com/riot/riot/issues/744)
 - If the first character inside an expression is `^`, the expression is not passed to any parser. This is some sort of type=none at expression level - [riot#543](https://github.com/riot/riot/issues/543) and [riot#1090](https://github.com/riot/riot/issues/1090)
 - Type es6 now supports babel-core - [riot#1039](https://github.com/riot/riot/issues/1039)
+- New logic for scoped style blocks, if a style contains the ":scoped" selector, this is replaced by the name of the root element, if not, the name is prepended - [riot#912](https://github.com/riot/riot/issues/912)
+- `type="scoped-css"` for `style` tags is deprecated, use only `scoped` or `scoped="scoped"`

@@ -1,7 +1,7 @@
 
 /**
  * Compiler for riot custom tags
- * @version v2.3.12
+ * @version WIP
  */
 
 /**
@@ -334,7 +334,6 @@ var compile = (function () {
   }
 
   function compileCSS(style, tag, type, scoped, opts) {
-    if (!type) type = opts.style
 
     if (type) {
       if (type === 'scoped-css') {
@@ -490,9 +489,10 @@ var compile = (function () {
             body = body.replace(_regEx('^' + indent, 'gm'), '')
 
             body = body.replace(STYLE, function (_, _attrs, _style) {
-              var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs)
+              var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
+                csstype = getType(_attrs) || opts.style
               styles += (styles ? ' ' : '') +
-                compileCSS(_style, tagName, getType(_attrs), scoped, getParserOptions(_attrs))
+                compileCSS(_style, tagName, csstype, scoped, getParserOptions(_attrs))
               return ''
             })
 
