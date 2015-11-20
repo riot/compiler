@@ -96,7 +96,7 @@ describe('JavaScript parsers', function () {
     return 'var foo'
   }
 
-  this.timeout(25000) // first call to babel-core is slooooow!
+  this.timeout(30000) // first call to babel-core is slooooow!
 
   // complex.tag
   it('complex tag structure', function () {
