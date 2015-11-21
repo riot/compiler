@@ -1,4 +1,11 @@
-# COMPILER CHANGES
+# Compiler Changes
+
+## v2.3.13
+
+- Fixed the `style` option for setting the CSS parser through the `options` object.
+- Fixed an issue in preservation of line endings in the generated html markup.
+- Fixed tests, coverage is 100% again.
+- Updated [doc/guide.md](https://github.com/riot/compiler/blob/master/doc/guide.md) and [doc/attributes.md](https://github.com/riot/compiler/blob/master/doc/attrbutes.md) with the latest features.
 
 ## v2.3.12
 
@@ -27,7 +34,6 @@ This is a complete rewrite and the first solo version of the compiler.
 - Unlike previous versions, backslashes are removed from the expressions (before being sent to any parser).
   Outside of expressions, all backslashes are preserved.
 - Double quotes inside expressions are converted to `&quot;`, to avoid issues with HTML markup
-
 - Fix [riot#1207](https://github.com/riot/riot/issues/1207): Riot compiler/parser breaks indentation.
 - Fix [riot#1120](https://github.com/riot/riot/issues/1120): Double quotes break Riot attributes
 
