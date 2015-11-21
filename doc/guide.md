@@ -129,7 +129,7 @@ The `compile` and `riot.compile` functions can take an additional parameter spec
 | template    | html    | string  | HTML pre-processor. Built-in support for: jade
 | type        | js      | string  | JavaScript pre-processor. Built-in support for: es6, babel, coffeescript, typescript, livescript, none
 | style       | css     | string  | CSS pre-processor. Built-in support for: jade
-| entities    | compile | boolean | Split teh tag in its raw parts
+| entities    | compile | boolean | Split the tag in its raw parts
 
 ### The `entities` option
 
