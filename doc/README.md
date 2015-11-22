@@ -148,6 +148,7 @@ The predefined parsers are:
 #### css
 - `less`
 - `sass`
+- `scss`
 - `stylus`
 
 #### js
