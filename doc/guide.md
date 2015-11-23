@@ -160,7 +160,7 @@ will set `arr` to be:
 ]
 ```
 
-Be aware that the `html` and `js` properties can contain raw line endings --i.e. unescaped.
+Be aware that the `html` and `js` properties can contain raw line endings --i.e. unescaped `\r` and/or `\n`.
 
 
 ## Parser options
