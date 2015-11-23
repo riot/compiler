@@ -124,7 +124,7 @@ The `compile` and `riot.compile` functions can take an additional parameter spec
 | ----------- |:------: |:------: | ----------- |
 | brackets    | html    | string  | Change brackets used for expressions. Defaults to `{ }` in the server, current custom brackets in the browser
 | expr        | html    | boolean | Run expressions through the parser defined with the `type` option
-| compact     | html    | boolean | Remove spaces between tags (minify `</p> <p>` to `</p><p>`)
+| compact     | html    | boolean | Remove spaces between tags (minify `<p> </p> <p> </p>` to `<p></p><p></p>`)
 | whitespace  | html    | boolean | Preserve newlines and tabs. newlines are normalized anyway
 | template    | html    | string  | HTML pre-processor. Built-in support for: jade
 | type        | js      | string  | JavaScript pre-processor. Built-in support for: es6, babel, coffeescript, typescript, livescript, none
