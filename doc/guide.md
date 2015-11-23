@@ -128,7 +128,7 @@ The `compile` and `riot.compile` functions can take an additional parameter spec
 | whitespace  | html    | boolean | Preserve newlines and tabs. newlines are normalized anyway
 | template    | html    | string  | HTML pre-processor. Built-in support for: jade
 | type        | js      | string  | JavaScript pre-processor. Built-in support for: es6, babel, coffeescript, typescript, livescript, none
-| style       | css     | string  | CSS pre-processor. Built-in support for: jade
+| style       | css     | string  | CSS pre-processor. Built-in support for: sass, scss, less
 | entities    | compile | boolean | Split the tag in its raw parts
 
 ### The `entities` option
