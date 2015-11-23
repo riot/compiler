@@ -2,7 +2,7 @@
 
 ## Indentation
 
-In v2.3.12 the compiler handles a more consistent and flexible indentation in both inline and external tag definitions.
+From v2.3.13, the compiler handles a more consistent and flexible indentation in both inline and external tag definitions.
 The opening tag must begin a line. You can use any tabs or spaces you want. The compiler uses this to find the closing tag and unindent the content, so the closing tag must have _exactly_ the same indentation of the opening tag.
 
 HTML comments and trailing whitespace are removed from the entire tag content, JavaScript comments are removed from the JavaScript block only, so you can not use comments in expressions.
@@ -211,7 +211,7 @@ The only restriction is that the untagged JavaScript code must finish the conten
 Each JavaScript block in the tag can have different `type` attributes.
 Once parsed, all blocks will be merged by the compiler.
 
-### Loading JavaScript from the file system
+### Loading JavaScript from the file system (v2.3.13)
 
 The `src` attribute of the `script` tags inside a riot tag, allows load source files from the file system.
 The filename in `src` can be absolute or relative to the tag being compiled.
