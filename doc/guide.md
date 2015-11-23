@@ -217,7 +217,17 @@ The `src` attribute of the `script` tags inside a riot tag, allows load source f
 The filename in `src` can be absolute or relative to the tag being compiled.
 It can be combined with the `charset` attribute. `charset` defaults to `utf8` and the JavaScript type defaults to the `type` option specified in the options passed to the compiler.
 
+For this feature to work, you need to pass a third parameter to the `compile` function: the name of the file being compiled.
+
 Example:
+```
+var compile = require('riot-compile'),
+    fs = require('fs')
+var source = fs.readFileSync(full_filename, 'utf8')
+var result = compiler.compile(source, options, full_filename)
+```
+
+So, if we have a mytag.tag and a js/data.js file...
 ```js
 // ./js/data.js file
 this.title = "my title"
@@ -230,7 +240,7 @@ this.title = "my title"
 </my-tag>
 ```
 
-is equivalent to
+the result is equivalent to
 ```html
 <my-tag>
   <p>{ title }</p>

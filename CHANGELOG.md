@@ -10,7 +10,7 @@
 ## v2.3.12
 
 - Gets rid of the zero-indentation restriction for custom tags, now you can indent these tags, but the opening and closing tag must have exactly the same indentation (length and type). All the tag will be unindented by this amount.
-- Support for `src` and `charset` attributes in `<script>` tags for reading JavaScript sources from the file system - [riot#507](https://github.com/riot/riot/issues/507)
+- Support for `src` and `charset` attributes in `<script>` tags for reading JavaScript sources from the file system - [riot#1116](https://github.com/riot/riot/issues/1116), [riot#507](https://github.com/riot/riot/issues/507)
 - The `compile` function can return separate parts by setting the new `entities` option. These parts has unescaped newlines.
 - New attribute `options` for `script` and `style` tags will append/overwrite attributes in the default configuration object of the parser at tag level.
 - Fix [riot#1261](https://github.com/riot/riot/issues/1261): `<pre>` tag does not preserve neither `\n` nor `\t`.
@@ -20,9 +20,10 @@
 ## v2.3.11
 
 - New type="babel" supports babel-core v6.x. You must `npm install babel-preset-es2015` too, for this works.
-  Use type="es6" for babel and babel-core v5.8.x and bellow.
+  Use type="es6" for babel and babel-core v5.8.x and bellow - [riot#1039](https://github.com/riot/riot/issues/1039)
 - Fix [riot#1306](https://github.com/riot/riot/issues/1306): Compiler preserves newlines in class objects, causing "Unterminated String Constant" errors.
 - Fix [riot#1314](https://github.com/riot/riot/issues/1314): `settings.brackets` no longer works.
+- Fix [riot#1309](https://github.com/riot/riot/issues/1309) Tag renders js instead of content when no attributes present.
 
 ## v2.3.0
 
@@ -39,11 +40,12 @@ This is a complete rewrite and the first solo version of the compiler.
 
 Enhancements
 
+- The compiler loads the brackets in runtime on each tag, allowing use of different brackets. [riot#1122](https://github.com/riot/riot/issues/1122) related.
 - Multiple `<script>` blocks. These can have different types and are merged with the untagged script block, if any.
 - More flexible formats in ES6 style method definitions.
 - In the JavaScript, trailing whitespace are removed and multiple empty lines are combined into one.
 - Better recognition of expressions. Now you can use almost any character, even in unquoted expressions (expressions containing the `>` operator needs to be enclosed in quotes) - [riot#744](https://github.com/riot/riot/issues/744)
-- If the first character inside an expression is `^`, the expression is not passed to any parser. This is some sort of type=none at expression level - [riot#543](https://github.com/riot/riot/issues/543) and [riot#1090](https://github.com/riot/riot/issues/1090)
+- If the first character inside an expression is `^`, the expression is not passed to any parser. This is some sort of type=none at expression level - [riot#543](https://github.com/riot/riot/issues/543), [riot#1090](https://github.com/riot/riot/issues/1090)
 - Type es6 now supports babel-core - [riot#1039](https://github.com/riot/riot/issues/1039)
 - New logic for scoped style blocks, if a style contains the ":scoped" selector, this is replaced by the name of the root element, if not, the name is prepended - [riot#912](https://github.com/riot/riot/issues/912)
 - `type="scoped-css"` for `style` tags is deprecated, use only `scoped` or `scoped="scoped"`

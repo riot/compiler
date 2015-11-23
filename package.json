@@ -32,11 +32,11 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
-    "eslint": "^1.7.3",
+    "eslint": "^1.10.1",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.0",
     "jspreproc": "^0.2.4",
-    "mocha": "^2.3.3"
+    "mocha": "^2.3.4"
   },
   "author": "Muut, Inc. and other contributors",
   "license": "MIT",
