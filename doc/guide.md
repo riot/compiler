@@ -220,7 +220,7 @@ It can be combined with the `charset` attribute. `charset` defaults to `utf8` an
 For this feature to work, you need to pass a third parameter to the `compile` function: the name of the file being compiled.
 
 Example:
-```
+```js
 var compile = require('riot-compile'),
     fs = require('fs')
 var source = fs.readFileSync(full_filename, 'utf8')
