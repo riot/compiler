@@ -523,9 +523,12 @@
     SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
 
   function compile(src, opts, url) {
-    var label, parts = []
+    var label, exclude, parts = []
 
     if (!opts) opts = {}
+
+    exclude = opts.exclude || false
+    function included(s) { return !exclude || exclude.indexOf(s) < 0 }
 
     _bp = brackets.array(opts.brackets)
 
@@ -549,39 +552,48 @@
 
         tagName = tagName.toLowerCase()
 
-        attribs = !attribs ? '' : restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex)
+        attribs = attribs && included('attribs') ?
+          restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex) : ''
 
         if (body2) body = body2
 
         if (body && (body = body.replace(HTML_COMMENT, '')) && /\S/.test(body)) {
 
           if (body2)
-            html = compileHTML(body2, opts, pcex, 1)
+            html = included('html') ? compileHTML(body2, opts, pcex, 1) : ''
           else {
             body = body.replace(_regEx('^' + indent, 'gm'), '')
 
-            body = body.replace(STYLE, function (_, _attrs, _style) {
-              var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
-                csstype = getType(_attrs) || opts.style
-              styles += (styles ? ' ' : '') +
-                compileCSS(_style, tagName, csstype, scoped, getParserOptions(_attrs))
-              return ''
-            })
+            if (included('css')) {
+              body = body.replace(STYLE, function (_, _attrs, _style) {
+                var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
+                  csstype = getType(_attrs) || opts.style
+                styles += (styles ? ' ' : '') +
+                  compileCSS(_style, tagName, csstype, scoped, getParserOptions(_attrs))
+                return ''
+              })
+            }
 
-            body = body.replace(SCRIPT, function (_, _attrs, _script) {
-              jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
-              return ''
-            })
+            if (included('js')) {
+              body = body.replace(SCRIPT, function (_, _attrs, _script) {
+                jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
+                return ''
+              })
+            }
 
             var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
 
-            body = blocks[0]
-            if (body)
-              html = compileHTML(body, opts, pcex, 1)
+            if (included('html')) {
+              body = blocks[0]
+              if (body)
+                html = compileHTML(body, opts, pcex, 1)
+            }
 
-            body = blocks[1]
-            if (/\S/.test(body))
-              jscode += (jscode ? '\n' : '') + compileJS(body, opts)
+            if (included('js')) {
+              body = blocks[1]
+              if (/\S/.test(body))
+                jscode += (jscode ? '\n' : '') + compileJS(body, opts)
+            }
           }
         }
 

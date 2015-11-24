@@ -132,8 +132,8 @@ describe('Compile tags', function() {
     testFile('indentation')
   })
 
-  it('the `entities` option give access to the compiled parts', function () {
-    var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {entities: true})
+  it('The `entities` option give access to the compiled parts', function () {
+    var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {entities: true}),
       resarr = [
         [ 'treeview',
           /^<ul id="treeview"> <li> <treeitem data="\{treedata}">/,
@@ -156,6 +156,27 @@ describe('Compile tags', function() {
       expect(parts[i].attribs).to.be(a[3])
       expect(parts[i].js).to.match(a[4])
     }
+  })
+
+  it('The `exclude` option to ignore parts of the tag', function () {
+    var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {
+      entities: true,
+      exclude: ['html', 'js']
+    })
+    expect(parts[0].html + parts[1].html).to.be('')
+    expect(parts[0].js + parts[1].js).to.be('')
+
+    parts = compiler.compile(cat(fixtures, 'scoped.tag'), {
+      entities: true,
+      exclude: ['css']
+    })
+    expect(parts[0].css).to.be('')
+
+    parts = compiler.compile(cat(fixtures, 'root-attribs.tag'), {
+      entities: true,
+      exclude: ['attribs']
+    })
+    expect(parts[0].attribs).to.be('')
   })
 
 })

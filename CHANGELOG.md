@@ -1,5 +1,9 @@
 # Compiler Changes
 
+## v2.3.14
+
+- Option `exclude` for ignore parts of the tag: ['html', 'css', 'attribs', 'js']
+
 ## v2.3.13
 
 - Fixed the `style` option for setting the CSS parser through the `options` object.
