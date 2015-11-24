@@ -27,9 +27,8 @@ Boolean attributes are ignored (i.e. not rendered) when the expression value is 
 
 ## Recognized attributes
 
-There's no official documentation with a full list of boolean attributes, but we collect
-that information from different sources.
-Currently riot v2.3.x recognizes these boolean attributes:
+There's no official list with all the boolean attributes, but we collect that information from different sources.
+Currently riot v2.3.x recognizes these:
 
 * allowfullscreen - `<iframe>` - WHATWG HTML Living Standard, not in W3C HTML5
 * checked   - `<input>` - for type "radio" or "checkbox"
@@ -49,10 +48,10 @@ Currently riot v2.3.x recognizes these boolean attributes:
 * autofocus
 * autoplay  - `<audio>`/`<video>`
 * controls  - `<audio>`/`<video>`
-* default   - `<track>`/`<menuitem>` - menuitem is not yet supported by browsers
+* default   - `<track>`/`<menuitem>` (menuitem is not yet supported by browsers)
 * formnovalidate
 * hidden
-* inert     - deprecated
+* inert     - [dropped](https://html5.org/r/8536) from the spec, will be removed from future versions
 * itemscope - for html5 Microdata
 * loop      - `<audio>`/`<video>`
 * multiple
@@ -61,12 +60,10 @@ Currently riot v2.3.x recognizes these boolean attributes:
 * open      - `<details>`/`<dialog>`
 * required
 * sortable  - html 5.1
-* typemustmatch
+* typemustmatch - `<object>`
 
 **WARNING:** Please don't use expressions in the `loop` attribute within `<img>` tags.
 In images, `loop` is not a boolean attribute. This will fix soon.
-
-The `inert` attribute [was dropped](https://html5.org/r/8536) from the html5 spec in 2014.
 
 Tested with [the w3c Validator](https://validator.w3.org/nu)
 
