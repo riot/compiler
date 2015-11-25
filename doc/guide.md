@@ -35,12 +35,12 @@ Note the `<pre>` content, this is unindented by 2 too.
 Riot can handle one-line tag definitions like this:
 
 ```html
-<oleline attrib="x"/>
+<oneline attrib="x"/>
 ```
 
 or this:
 ```html
-<oleline attrib="x"><p><!-- --></p></oneline>
+<oneline attrib="x"><p><!-- --></p></oneline>
 ```
 
 As multiline tags, these can be indentent by any tabs or spaces, but can not contain `style`/`script` tags nor untagged JavaScript code, only html markup.
