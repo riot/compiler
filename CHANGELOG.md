@@ -2,7 +2,9 @@
 
 ## v2.3.14
 
-- Option `exclude` for ignore parts of the tag: ['html', 'css', 'attribs', 'js']
+- Option `exclude` for ignore parts of the tag. This is an array with one or more of 'html', 'css', 'attribs', 'js'.
+- Removed `inert` from the boolean attributes list, this html5 attribute was dropped from the specs.
+- Fixed normalization of root attributes, was not working as expected. Example updated.
 
 ## v2.3.13
 
@@ -27,7 +29,7 @@
   Use type="es6" for babel and babel-core v5.8.x and bellow - [riot#1039](https://github.com/riot/riot/issues/1039)
 - Fix [riot#1306](https://github.com/riot/riot/issues/1306): Compiler preserves newlines in class objects, causing "Unterminated String Constant" errors.
 - Fix [riot#1314](https://github.com/riot/riot/issues/1314): `settings.brackets` no longer works.
-- Fix [riot#1309](https://github.com/riot/riot/issues/1309) Tag renders js instead of content when no attributes present.
+- Fix [riot#1309](https://github.com/riot/riot/issues/1309): Tag renders js instead of content when no attributes present.
 
 ## v2.3.0
 
@@ -38,7 +40,7 @@ This is a complete rewrite and the first solo version of the compiler.
   so the compiler generates all but ignores the brackets if there are no generated expressions.
 - Unlike previous versions, backslashes are removed from the expressions (before being sent to any parser).
   Outside of expressions, all backslashes are preserved.
-- Double quotes inside expressions are converted to `&quot;`, to avoid issues with HTML markup
+- Double quotes inside expressions are converted to `&quot;`, to avoid issues with HTML markup.
 - Fix [riot#1207](https://github.com/riot/riot/issues/1207): Riot compiler/parser breaks indentation.
 - Fix [riot#1120](https://github.com/riot/riot/issues/1120): Double quotes break Riot attributes
 

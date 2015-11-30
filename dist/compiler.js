@@ -151,11 +151,11 @@
 
   })()
 
-/**
- * @module compiler
- */
+  var brackets = _tmpl.brackets
 
-  var brackets = _tmpl.brackets   //eslint-disable-line no-redeclare
+  /**
+   * @module compiler
+   */
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -163,7 +163,7 @@
 
     BOOL_ATTRS = _regEx(
       '^(?:disabled|checked|readonly|required|allowfullscreen|auto(?:focus|play)|' +
-      'compact|controls|default|formnovalidate|hidden|inert|ismap|itemscope|loop|' +
+      'compact|controls|default|formnovalidate|hidden|ismap|itemscope|loop|' +
       'multiple|muted|no(?:resize|shade|validate|wrap)?|open|reversed|seamless|' +
       'selected|sortable|truespeed|typemustmatch)$'),
 
@@ -213,6 +213,8 @@
       k, v,
       DQ = '"'
     HTML_ATTR.lastIndex = 0
+
+    str = str.replace(/\s+/g, ' ')
 
     while (match = HTML_ATTR.exec(str)) {
 
@@ -461,7 +463,6 @@
     var type = getType(attrs),
       parserOpts = getParserOptions(attrs)
 
-    //#if READ_JS_SRC
     var src = getAttr(attrs, 'src')
     if (src && url) {
       var
@@ -469,7 +470,6 @@
         file = path.resolve(path.dirname(url), src)
       code = require('fs').readFileSync(file, {encoding: charset || 'utf8'})
     }
-    //#endif
     return compileJS(code, opts, type, parserOpts)
   }
 

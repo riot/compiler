@@ -51,7 +51,6 @@ Currently riot v2.3.x recognizes these:
 * default   - `<track>`/`<menuitem>` (menuitem is not yet supported by browsers)
 * formnovalidate
 * hidden
-* inert     - [dropped](https://html5.org/r/8536) from the spec, will be removed from future versions
 * itemscope - for html5 Microdata
 * loop      - `<audio>`/`<video>`
 * multiple
@@ -77,6 +76,7 @@ This unused or non-boolean attributes, recognized in previous versions, are remo
 * defaultChecked - it is a property, not attribute
 * defer - `<script>` - riot does not handle this, only IE8+ honors this attribute
 * draggable - not boolean, this is an enumerated attribute: true, false, auto
+* inert - this proposed html5 attribute was [dropped](https://html5.org/r/8536) from the spec
 * enabled - not in the HTML spec
 * indeterminate - boolean attr, but can't be set with markup
 * nohref - `<area>` - deprecated, same effect as NOT including a `href` attribute

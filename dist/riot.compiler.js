@@ -83,9 +83,9 @@ var parsers = (function () {
 
 riot.parsers = parsers
 
-/**
- * @module compiler
- */
+  /**
+   * @module compiler
+   */
 var compile = (function () {
 
   var brackets = riot.util.brackets
@@ -96,7 +96,7 @@ var compile = (function () {
 
     BOOL_ATTRS = _regEx(
       '^(?:disabled|checked|readonly|required|allowfullscreen|auto(?:focus|play)|' +
-      'compact|controls|default|formnovalidate|hidden|inert|ismap|itemscope|loop|' +
+      'compact|controls|default|formnovalidate|hidden|ismap|itemscope|loop|' +
       'multiple|muted|no(?:resize|shade|validate|wrap)?|open|reversed|seamless|' +
       'selected|sortable|truespeed|typemustmatch)$'),
 
@@ -144,6 +144,8 @@ var compile = (function () {
       k, v,
       DQ = '"'
     HTML_ATTR.lastIndex = 0
+
+    str = str.replace(/\s+/g, ' ')
 
     while (match = HTML_ATTR.exec(str)) {
 
@@ -392,7 +394,6 @@ var compile = (function () {
     var type = getType(attrs),
       parserOpts = getParserOptions(attrs)
 
-    //#if READ_JS_SRC
     var src = getAttr(attrs, 'src')
     if (src && url) {
       var
@@ -400,7 +401,6 @@ var compile = (function () {
         file = path.resolve(path.dirname(url), src)
       code = require('fs').readFileSync(file, {encoding: charset || 'utf8'})
     }
-    //#endif
     return compileJS(code, opts, type, parserOpts)
   }
 
@@ -504,7 +504,7 @@ var compile = (function () {
 
             if (included('js')) {
               body = body.replace(SCRIPT, function (_, _attrs, _script) {
-                jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs)
+                jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
                 return ''
               })
             }
@@ -544,6 +544,11 @@ var compile = (function () {
     return opts.entities ? parts : src
   }
 
+  riot.util.compile = {
+    html: compileHTML,
+    style: compileCSS,
+    js: compileJS
+  }
   return compile
 
 })()

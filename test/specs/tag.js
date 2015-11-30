@@ -26,10 +26,14 @@ describe('Compile tags', function() {
     return fs.readFileSync(path.join(dir, filename)).toString()
   }
 
-  function testFile(name) {
+  function testFile(name, save) {
     var src = cat(fixtures, name + '.tag'),
       js = render(src, name + '.tag')
 
+    if (save)
+      fs.writeFile(path.join(expected, name + '_out.js'), js, function (err) {
+        if (err) throw err
+      })
     expect(js).to.equal(cat(expected, name + '.js'))
   }
 
@@ -115,6 +119,10 @@ describe('Compile tags', function() {
     testFile('pre')
   })
 
+  it('Whitespace is compacted in other parts', function() {
+    testFile('whitespace')
+  })
+
   it('Empty tag', function () {
     testFile('empty')
   })
@@ -177,6 +185,10 @@ describe('Compile tags', function() {
       exclude: ['attribs']
     })
     expect(parts[0].attribs).to.be('')
+  })
+
+  it('Output an expression without evaluation by escaping the opening brace', function () {
+    testFile('print-brackets')
   })
 
 })
