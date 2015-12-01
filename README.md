@@ -29,7 +29,7 @@ _Please note: the documentation is a work in progress. Contributions are welcome
 Due to changes in the babel API, from our v2.3.0-beta.7 we are separating the babel support in the following types:
 
 * es6 - For `babel` and `babel-core` v5.8.x and below
-* babel - For `babel-core` v6.x - You must `npm install babel-preset-es2015` too, for this works.
+* babel - For `babel-core` v6.x - You must `npm install babel-preset-es2015` too, for this to work.
 
 
 [travis-image]:  https://img.shields.io/travis/riot/compiler.svg?style=flat-square
