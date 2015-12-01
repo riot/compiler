@@ -1,7 +1,11 @@
 # Compiler Changes
 
+## v2.3.15
+- Regression for fix [riot#1120](https://github.com/riot/riot/issues/1120), browsers behavior is inconsistent, `tmpl` can parse double-quotes within expressions.
+
 ## v2.3.14
 
+- The prefix `__` for boolean attributes is not used anymore. This IE8 hack and it is not neccessary for current supported versions.
 - Option `exclude` for ignore parts of the tag. This is an array with one or more of 'html', 'css', 'attribs', 'js'.
 - Removed `inert` from the boolean attributes list, this html5 attribute was dropped from the specs.
 - Fixed normalization of root attributes, was not working as expected. Example updated.
