@@ -68,11 +68,11 @@ describe('Compile HTML', function() {
       testStr("<p\ta ='p:{}\r\n;'>", '<p a="p:{} ;">')
     })
 
-    it('double quotes in expressions are converted to `&quot;`', function () {
-      testStr('<p x={ "a" } y="{2}">', '<p x="{&quot;a&quot;}" y="{2}">')
-      testStr('<p x="{"a"}" y="{2}">', '<p x="{&quot;a&quot;}" y="{2}">')
-      testStr('<p x=\'{"a"}\' y="{2}">', '<p x="{&quot;a&quot;}" y="{2}">')
-      testStr('<p x="{""}">', '<p x="{&quot;&quot;}">')
+    it('nested double quotes are supported in expressions', function () {
+      testStr('<p x={ "a" } y="{2}">', '<p x="{"a"}" y="{2}">')
+      testStr('<p x="{"a"}" y="{2}">', '<p x="{"a"}" y="{2}">')
+      testStr('<p x=\'{"a"}\' y="{2}">', '<p x="{"a"}" y="{2}">')
+      testStr('<p x="{""}">', '<p x="{""}">')
     })
 
     it('single quotes in expressions are escaped', function () {
