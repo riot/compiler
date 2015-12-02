@@ -206,7 +206,7 @@ var compile = (function () {
     if (pcex.length) {
       html = html
         .replace(/\u0001(\d+)/g, function (_, d) {
-          return _bp[0] + pcex[d].replace(/"/g, '&quot;')
+          return _bp[0] + pcex[d]
         })
     }
     return html
@@ -427,6 +427,8 @@ var compile = (function () {
       k = str.lastIndexOf('<', k -1)
     }
 
+    // TODO 2.4.0 make untagged content html, update the guide too
+    //return [str, '']          // no closing tag found, assume html text
     return ['', str]
   }
 
@@ -487,8 +489,10 @@ var compile = (function () {
 
         if (body && (body = body.replace(HTML_COMMENT, '')) && /\S/.test(body)) {
 
-          if (body2)
+          if (body2) {
+            /* istanbul ignore next */
             html = included('html') ? compileHTML(body2, opts, pcex, 1) : ''
+          }
           else {
             body = body.replace(_regEx('^' + indent, 'gm'), '')
 

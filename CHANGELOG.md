@@ -1,7 +1,7 @@
 # Compiler Changes
 
 ## v2.3.15
-- Regression for fix [riot#1120](https://github.com/riot/riot/issues/1120), browsers behavior is inconsistent, `tmpl` can parse double-quotes within expressions.
+- Correction for fix [riot#1120](https://github.com/riot/riot/issues/1120), `tmpl` can parse double-quotes within expressions, encoding the quotes generates issues.
 
 ## v2.3.14
 

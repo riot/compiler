@@ -71,8 +71,8 @@ describe('HTML parsers', function () {
     })
 
     it('plays with quoted values', function () {
-      testStr('<a href={ "a" }>', '<a href="{@ &quot;a&quot;}">', opts)
-      testStr('<a>{"b"}</a>', '<a>{@&quot;b&quot;}</a>', opts)
+      testStr('<a href={ "a" }>', '<a href="{@ "a"}">', opts)
+      testStr('<a>{"b"}</a>', '<a>{@"b"}</a>', opts)
     })
 
     it('remove the last semi-colon', function () {
