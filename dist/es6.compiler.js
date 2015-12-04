@@ -1,94 +1,97 @@
-
-/**
- * @module parsers
- */
-var parsers = (function () {
-  var _mods = {}
-
-  function _try(name, req) {  //eslint-disable-line complexity
-    var parser
-
-    switch (name) {
-    case 'coffee':
-      req = 'CoffeeScript'
-      break
-    case 'es6':
-      req = 'babel'
-      break
-    default:
-      if (!req) req = name
-      break
-    }
-    parser = window[req]
-
-    if (!parser)
-      throw new Error(req + ' parser not found.')
-
-    return parser
-  }
-
-  function _req(name, req) {
-    return name in _mods ? _mods[name] : _try(name, req)
-  }
-
-  var _html = {
-    jade: function (html, opts) {
-      return _req('jade').render(html, extend({pretty: true, doctype: 'html'}, opts))
-    }
-  }
-
-  var _css = {
-    stylus: function (tag, css, opts) {
-      var
-        stylus = _req('stylus'), nib = _req('nib')
-      /* istanbul ignore next: can't run both */
-      return nib ?
-        stylus(css).use(nib()).import('nib').render() : stylus.render(css)
-    }
-  }
-
-  var _js = {
-    none: function (js, opts) {
-      return js
-    },
-    livescript: function (js, opts) {
-      return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
-    },
-    typescript: function (js, opts) {
-      return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
-    },
-    es6: function (js, opts) {
-      return _req('es6').transform(js, extend({
-        blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
-      }, opts)).code
-    },
-    babel: function (js, opts) {
-      js = 'function __parser_babel_wrapper__(){' + js + '}'
-      return _req('babel').transform(js,
-        extend({
-          presets: ['es2015']
-        }, opts)
-      ).code.replace(/["']use strict["'];[\r\n]+/, '').slice(38, -2)
-    },
-    coffee: function (js, opts) {
-      return _req('coffee').compile(js, extend({bare: true}, opts))
-    }
-  }
-
-  _js.javascript   = _js.none
-  _js.coffeescript = _js.coffee
-
-  return {html: _html, css: _css, js: _js, _req: _req}
-
-})()
-
-riot.parsers = parsers
-
 /**
  * Compiler for riot custom tags
  * @version WIP
  */
-var compile = (function () {
+export default (function () {
+
+  import brackets from 'riot-tmpl'
+
+  /**
+   * @module parsers
+   */
+  var parsers = (function () {
+    var _mods = {}
+
+    function _try(name, req) {  //eslint-disable-line complexity
+      var parser
+
+      switch (name) {
+      case 'coffee':
+        req = 'CoffeeScript'
+        break
+      case 'es6':
+        req = 'babel'
+        break
+      default:
+        if (!req) req = name
+        break
+      }
+      parser = window[req]
+
+      if (!parser)
+        throw new Error(req + ' parser not found.')
+
+      return parser
+    }
+
+    function _req(name, req) {
+      return name in _mods ? _mods[name] : _try(name, req)
+    }
+
+    var _html = {
+      jade: function (html, opts) {
+        return _req('jade').render(html, extend({pretty: true, doctype: 'html'}, opts))
+      }
+    }
+
+    var _css = {
+      stylus: function (tag, css, opts) {
+        var
+          stylus = _req('stylus'), nib = _req('nib')
+        /* istanbul ignore next: can't run both */
+        return nib ?
+          stylus(css).use(nib()).import('nib').render() : stylus.render(css)
+      }
+    }
+
+    var _js = {
+      none: function (js, opts) {
+        return js
+      },
+      livescript: function (js, opts) {
+        return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
+      },
+      typescript: function (js, opts) {
+        return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
+      },
+      es6: function (js, opts) {
+        return _req('es6').transform(js, extend({
+          blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
+        }, opts)).code
+      },
+      babel: function (js, opts) {
+        js = 'function __parser_babel_wrapper__(){' + js + '}'
+        return _req('babel').transform(js,
+          extend({
+            presets: ['es2015']
+          }, opts)
+        ).code.replace(/["']use strict["'];[\r\n]+/, '').slice(38, -2)
+      },
+      coffee: function (js, opts) {
+        return _req('coffee').compile(js, extend({bare: true}, opts))
+      }
+    }
+
+    _js.javascript   = _js.none
+    _js.coffeescript = _js.coffee
+
+    return {html: _html, css: _css, js: _js, _req: _req}
+
+  })()
+
+  /**
+   * @module compiler
+   */
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -537,12 +540,12 @@ var compile = (function () {
     return opts.entities ? parts : src
   }
 
-  riot.util.compiler = {
+  return {
     compile: compile,
     html: compileHTML,
     style: compileCSS,
-    js: compileJS
+    js: compileJS,
+    parsers: parsers
   }
-  return compile
 
 })()

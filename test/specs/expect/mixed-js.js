@@ -1,4 +1,4 @@
-//src: test/specs/fixtures/mixed-js.tag
+//# sourceURL=test/specs/fixtures/mixed-js.tag
 function foo() {
   alert('1 < 2')
 }

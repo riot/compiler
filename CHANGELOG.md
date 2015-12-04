@@ -1,7 +1,10 @@
 # Compiler Changes
 
 ## v2.3.15
-- Correction for fix [riot#1120](https://github.com/riot/riot/issues/1120), `tmpl` can parse double-quotes within expressions, encoding the quotes generates issues.
+
+- Added dist/es6.compiler.js which uses es6 exports.
+- Update devDependencies, including jspreproc v0.2.5 with an important fix.
+- Partial regression of fix [riot#1120](https://github.com/riot/riot/issues/1120), `tmpl` can parse double-quotes within expressions, encoding double-quotes generates issues.
 
 ## v2.3.14
 

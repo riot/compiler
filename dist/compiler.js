@@ -22,6 +22,7 @@
     var _mods = {}
 
     function _try(name, req) {  //eslint-disable-line complexity
+      var parser
 
       function fn(r) {
         try {
@@ -59,7 +60,9 @@
         if (!req) req = name
         break
       }
-      return fn(req)
+      parser = fn(req)
+
+      return parser
     }
 
     function _req(name, req) {
@@ -444,21 +447,18 @@
         match = str.match(re)
       str = match && match[1]
       if (str)
-        return /^['"]/.test(str) ? str.slice(1, -1) : str
+        return (/^['"]/).test(str) ? str.slice(1, -1) : str
     }
     return ''
   }
 
-  // get the parser options from the options attribute
   function getParserOptions(attrs) {
     var opts = getAttr(attrs, 'options')
-    // convert the string into a valid js object
+
     if (opts) opts = JSON.parse(opts)
     return opts
   }
 
-  // Runs the custom or default parser on the received JavaScript code.
-  // The CLI version can read code from the file system (experimental)
   function getCode(code, opts, attrs, url) {
     var type = getType(attrs),
       parserOpts = getParserOptions(attrs)
@@ -473,11 +473,6 @@
     return compileJS(code, opts, type, parserOpts)
   }
 
-  // Matches HTML tag ending a line. This regex still can be fooled by code as:
-  // ```js
-  // x <y && y >
-  //  z
-  // ```
   var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
 
   function splitBlocks(str) {
@@ -487,7 +482,7 @@
     if (str[str.length - 1] === '>')
       return [str, '']
 
-    k = str.lastIndexOf('<')    // first probable open tag
+    k = str.lastIndexOf('<')
     while (~k) {
       if (m = str.slice(k).match(END_TAGS)) {
         k += m.index + m[0].length
@@ -496,12 +491,9 @@
       k = str.lastIndexOf('<', k -1)
     }
 
-    // TODO 2.4.0 make untagged content html, update the guide too
-    //return [str, '']          // no closing tag found, assume html text
     return ['', str]
   }
 
-  // Runs the external HTML parser for the entire tag file
   function compileTemplate(lang, html, opts) {
     var parser = parsers.html[lang]
 
@@ -511,36 +503,32 @@
     return parser(html, opts)
   }
 
-  /*
-    CUST_TAG regex don't allow unquoted expressions containing the `>` operator.
-    STYLE and SCRIPT disallows the operator `>` at all.
-
-    The beta.4 CUST_TAG regex is fast, with RegexBuddy I get 76 steps and 14 backtracks on
-    the test/specs/fixtures/treeview.tag :) but fails with nested tags of the same name :(
-    With a greedy * operator, we have ~500 and 200bt, it is acceptable. So let's fix this.
-   */
   var
     CUST_TAG = /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\s\S]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/gim,
     STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
     SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
 
   function compile(src, opts, url) {
-    var label, exclude, parts = []
+    var
+      SRC_PREFIX = '//# sourceURL=',
+      label = '',
+      parts = [],
+      exclude
 
     if (!opts) opts = {}
 
     exclude = opts.exclude || false
-    function included(s) { return !exclude || exclude.indexOf(s) < 0 }
+    function included(s) { return !(exclude && ~exclude.indexOf(s)) }
 
     _bp = brackets.array(opts.brackets)
 
     if (opts.template)
       src = compileTemplate(opts.template, src, opts.templateOptions)
 
-    /* istanbul ignore next */
-    label = !url ? '' : path.isAbsolute(url) ? path.relative('.', url) : url
-    if (label)
-      label = '//src: ' + label.replace(/\\/g, '/') + '\n'
+    if (url && src.indexOf(SRC_PREFIX) < 0) {
+      label = path.isAbsolute(url) ? path.relative('.', url) : url
+      label = SRC_PREFIX + label.replace(/\\/g, '/') + '\n'
+    }
 
     src = label + src
       .replace(/\r\n?/g, '\n')
@@ -628,4 +616,3 @@
     parsers: parsers
   }
 })
-
