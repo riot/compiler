@@ -1,4 +1,4 @@
-//# sourceURL=test/specs/fixtures/empty.tag
+//src: test/specs/fixtures/empty.tag
 riot.tag2('empty1', '', '', '', function(opts) {
 });
 

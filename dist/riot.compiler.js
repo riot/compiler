@@ -104,7 +104,7 @@ var compile = (function () {
 
     VOID_TAGS  = /^(?:input|img|br|wbr|hr|area|base|col|embed|keygen|link|meta|param|source|track)$/,
 
-    HTML_ATTR  = /\s*([-\w:\.\xA0-\xFF]+)\s*(?:=\s*('[^']+'|"[^"]+"|\S+))?/g,
+    HTML_ATTR  = /\s*([-\w:\xA0-\xFF]+)\s*(?:=\s*('[^']+'|"[^"]+"|\S+))?/g,
 
     TRIM_TRAIL = /[ \t]+$/gm,
 
@@ -213,7 +213,7 @@ var compile = (function () {
   }
 
   var
-    HTML_COMMENT = /<!--(?!>)[\S\s]*?-->/g,
+    HTML_COMMENT = /<!--(?!>)[^]*?-->/g,
     HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g
 
   function compileHTML(html, opts, pcex, intc) {
@@ -238,7 +238,7 @@ var compile = (function () {
 
     if (!opts.whitespace) {
       var p = [],
-        pre = /<pre(?:\s+[^'">]+(?:(?:"[^"]*"|'[^']*')[^'">]*)*|\s*)>[\s\S]*<\/pre\s*>/gi
+        pre = /<pre(?:\s+[^'">]+(?:(?:"[^"]*"|'[^']*')[^'">]*)*|\s*)>[^]*<\/pre\s*>/gi
 
       html = html.replace(pre, function (q) {
         return '\u0002' + (p.push(q) - 1) + '~' }).trim().replace(/\s+/g, ' ')
@@ -356,7 +356,7 @@ var compile = (function () {
 
   var
     TYPE_ATTR = /\stype\s*=\s*(?:(['"])(.+?)\1|(\S+))/i,
-    MISC_ATTR = /\s*=\s*("(?:\\[\S\s]|[^"\\]*)*"|'(?:\\[\S\s]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
+    MISC_ATTR = /\s*=\s*("(?:\\[^]|[^"\\]*)*"|'(?:\\[^]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
 
   function getType(str) {
 
@@ -394,15 +394,7 @@ var compile = (function () {
     return compileJS(code, opts, type, parserOpts)
   }
 
-  /* istanbul ignore next */
-  var __a
-  function getAbsoluteURL(url) {
-    if (!__a) __a = document.createElement('a')
-    __a.href = url
-    return __a.href
-  }
-
-  var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
+  var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][^]*?)?)?)>\n/
 
   function splitBlocks(str) {
     var k, m
@@ -433,14 +425,14 @@ var compile = (function () {
   }
 
   var
-    CUST_TAG = /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\s\S]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/gim,
+    CUST_TAG = _regEx(
+      /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@Q|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([^]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
+      .source.replace('@Q', brackets.R_STRINGS.source), 'gim'),
     STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
     SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
 
   function compile(src, opts, url) {
     var
-      SRC_PREFIX = '//# sourceURL=',
-      label = '',
       parts = [],
       exclude
 
@@ -454,12 +446,7 @@ var compile = (function () {
     if (opts.template)
       src = compileTemplate(opts.template, src, opts.templateOptions)
 
-    if (url && src.indexOf(SRC_PREFIX) < 0) {
-      /* istanbul ignore next */
-      label = SRC_PREFIX + getAbsoluteURL(url) + '\n'
-    }
-
-    src = label + src
+    src = src
       .replace(/\r\n?/g, '\n')
       .replace(CUST_TAG, function (_, indent, tagName, attribs, body, body2) {
 
@@ -534,7 +521,9 @@ var compile = (function () {
         return mktag(tagName, html, styles, attribs, jscode, pcex)
       })
 
-    return opts.entities ? parts : src
+    if (opts.entities) return parts
+
+    return src
   }
 
   riot.util.compiler = {

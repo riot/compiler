@@ -1,4 +1,4 @@
-//# sourceURL=test/specs/fixtures/includes.tag
+//src: test/specs/fixtures/includes.tag
 // free indent
 riot.tag2('includes', '<p onclick="{click}"></p>', '', '', function(opts) {
   this.myObj = {
