@@ -19,7 +19,7 @@ describe('Compile tags', function() {
   }
 
   function render(str, name) {
-    return compiler.compile(str, {}, path.join(fixtures, name))
+    return compiler.compile(str, { debug: true }, path.join(fixtures, name))
   }
 
   function cat(dir, filename) {

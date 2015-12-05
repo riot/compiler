@@ -35,7 +35,7 @@ function testParser(name, opts) {
     str1 = cat(basedir, file + '.tag'),
     str2 = cat(jsdir, file + '.js')
 
-  expect(normalize(compiler.compile(str1, opts || {}))).to.be(normalize(str2))
+  expect(normalize(compiler.compile(str1, opts || {}, basedir + '/' + file + '.tag'))).to.be(normalize(str2))
 }
 
 describe('HTML parsers', function () {
