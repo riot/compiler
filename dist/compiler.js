@@ -1,19 +1,5 @@
 /* riot-compiler WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
-;(function (root, factory) {
-
-  /* istanbul ignore else */
-  if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('riot-tmpl'))
-  }
-  else if (typeof define === 'function' && define.amd) {
-    define(['riot-tmpl'], factory)
-  }
-  else if (root) {
-    root.compiler = factory(root.riot.util)
-  }
-
-})(this, function (_tmpl) {
-  'use strict'  // eslint-disable-line
+'use strict'  // eslint-disable-line
 
   /**
    * @module parsers
@@ -157,11 +143,11 @@
 
   })()
 
-  var brackets = _tmpl.brackets
+var brackets = require('riot-tmpl').brackets
 
-  /**
-   * @module compiler
-   */
+/**
+ * @module compiler
+ */
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -614,11 +600,10 @@
     return src
   }
 
-  return {
-    compile: compile,
-    html: compileHTML,
-    style: compileCSS,
-    js: compileJS,
-    parsers: parsers
-  }
-})
+module.exports = {
+  compile: compile,
+  html: compileHTML,
+  style: compileCSS,
+  js: compileJS,
+  parsers: parsers
+}
