@@ -70,13 +70,17 @@
     }
 
     var _html = {
-      jade: function (html, opts) {
-        return _req('jade').render(html, extend({pretty: true, doctype: 'html'}, opts))
+      jade: function (html, opts, url) {
+        return _req('jade').render(html, extend({
+          pretty: true,
+          filename: url,
+          doctype: 'html'
+        }, opts))
       }
     }
 
     var _css = {
-      sass: function(tag, css, opts) {
+      sass: function(tag, css, opts, url) {
         var sass = _req('sass')
 
         return sass.renderSync(extend({
@@ -86,7 +90,7 @@
           outputStyle: 'compact'
         }, opts)).css + ''
       },
-      scss: function(tag, css, opts) {
+      scss: function(tag, css, opts, url) {
         var sass = _req('sass')
 
         return sass.renderSync(extend({
@@ -96,7 +100,7 @@
           outputStyle: 'compact'
         }, opts)).css + ''
       },
-      less: function(tag, css, opts) {
+      less: function(tag, css, opts, url) {
         var less = _req('less'),
           ret
 
@@ -110,7 +114,7 @@
         })
         return ret
       },
-      stylus: function (tag, css, opts) {
+      stylus: function (tag, css, opts, url) {
         var
           stylus = _req('stylus'), nib = _req('nib')
         /* istanbul ignore next: can't run both */
@@ -120,29 +124,28 @@
     }
 
     var _js = {
-      none: function (js, opts) {
+      none: function (js, opts, url) {
         return js
       },
-      livescript: function (js, opts) {
+      livescript: function (js, opts, url) {
         return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
       },
-      typescript: function (js, opts) {
+      typescript: function (js, opts, url) {
         return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
       },
-      es6: function (js, opts) {
+      es6: function (js, opts, url) {
         return _req('es6').transform(js, extend({
           blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
         }, opts)).code
       },
-      babel: function (js, opts) {
-        js = 'function __parser_babel_wrapper__(){' + js + '}'
+      babel: function (js, opts, url) {
         return _req('babel').transform(js,
           extend({
-            presets: ['es2015']
+            filename: url
           }, opts)
-        ).code.replace(/["']use strict["'];[\r\n]+/, '').slice(38, -2)
+        ).code
       },
-      coffee: function (js, opts) {
+      coffee: function (js, opts, url) {
         return _req('coffee').compile(js, extend({bare: true}, opts))
       }
     }
@@ -285,10 +288,10 @@
   }
 
   var
-    HTML_COMMENT = /<!--(?!>)[^]*?-->/g,
+    HTML_COMMENT = /<!--(?!>)[\S\s]*?-->/g,
     HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g
 
-  function compileHTML(html, opts, pcex, intc) {
+  function compileHTML(html, opts, pcex, intc ) {
 
     if (!intc) {
       _bp = brackets.array(opts.brackets)
@@ -371,7 +374,7 @@
     }
   }
 
-  function compileJS(js, opts, type, parserOpts) {
+  function compileJS(js, opts, type, parserOpts, url) {
     if (!js) return ''
     if (!type) type = opts.type
 
@@ -379,7 +382,7 @@
     if (!parser)
       throw new Error('JS parser not found: "' + type + '"')
 
-    return parser(js, parserOpts).replace(TRIM_TRAIL, '')
+    return parser(js, parserOpts, url).replace(TRIM_TRAIL, '')
   }
 
   var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
@@ -472,7 +475,7 @@
         code = require('fs').readFileSync(file, charset || 'utf8')
       }
     }
-    return compileJS(code, opts, type, parserOpts)
+    return compileJS(code, opts, type, parserOpts, url)
   }
 
   var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][^]*?)?)?)>\n/
@@ -548,7 +551,7 @@
 
           if (body2) {
             /* istanbul ignore next */
-            html = included('html') ? compileHTML(body2, opts, pcex, 1) : ''
+            html = included('html') ? compileHTML(body2, opts, pcex, 1, url) : ''
           }
           else {
             body = body.replace(_regEx('^' + indent, 'gm'), '')
@@ -558,7 +561,7 @@
                 var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
                   csstype = getType(_attrs) || opts.style
                 styles += (styles ? ' ' : '') +
-                  compileCSS(_style, tagName, csstype, scoped, getParserOptions(_attrs))
+                  compileCSS(_style, tagName, csstype, scoped, getParserOptions(_attrs), url)
                 return ''
               })
             }
@@ -581,7 +584,7 @@
             if (included('js')) {
               body = blocks[1]
               if (/\S/.test(body))
-                jscode += (jscode ? '\n' : '') + compileJS(body, opts)
+                jscode += (jscode ? '\n' : '') + compileJS(body, opts, null, null, url)
             }
           }
         }
@@ -604,7 +607,7 @@
 
     if (opts.entities) return parts
 
-    if (url) {
+    if (url && opts.debug) {
 
       if (path.isAbsolute(url)) url = path.relative('.', url)
       src = '//src: ' + url.replace(/\\/g, '/') + '\n' + src
