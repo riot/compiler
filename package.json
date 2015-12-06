@@ -3,6 +3,7 @@
   "version": "2.3.15",
   "description": "Compiler for riot .tag files",
   "main": "dist/compiler.js",
+  "jsnext:main": "dist/es6.compiler.js",
   "directories": {
     "lib": "lib",
     "doc": "doc"
