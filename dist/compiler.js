@@ -1,147 +1,147 @@
 /* riot-compiler WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
 'use strict'  // eslint-disable-line
 
-  /**
-   * @module parsers
-   */
-  var parsers = (function () {
-    var _mods = {}
+/**
+ * @module parsers
+ */
+var parsers = (function () {
+  var _mods = {}
 
-    function _try(name, req) {  //eslint-disable-line complexity
-      var parser
+  function _try(name, req) {  //eslint-disable-line complexity
+    var parser
 
-      function fn(r) {
-        try {
-          _mods[name] = require(r)
-        }
-        catch (e) {
-          _mods[name] = null
-        }
-        return _mods[name]
+    function fn(r) {
+      try {
+        _mods[name] = require(r)
       }
-
-      switch (name) {
-      case 'es6':
-      /* istanbul ignore next */
-        return fn('babel') || fn('babel-core')
-      case 'babel':
-        req = 'babel-core'
-        break
-      case 'none':
-      case 'javascript':
-        return _js.none
-      case 'typescript':
-        req = name + '-simple'
-        break
-      case 'coffee':
-      case 'coffeescript':
-        req = 'coffee-script'
-        break
-      /* istanbul ignore next */
-      case 'scss':
-      case 'sass':
-        req = 'node-sass'
-        break
-      default:
-        if (!req) req = name
-        break
+      catch (e) {
+        _mods[name] = null
       }
-      parser = fn(req)
-
-      return parser
+      return _mods[name]
     }
 
-    function _req(name, req) {
-      return name in _mods ? _mods[name] : _try(name, req)
+    switch (name) {
+    case 'es6':
+    /* istanbul ignore next */
+      return fn('babel') || fn('babel-core')
+    case 'babel':
+      req = 'babel-core'
+      break
+    case 'none':
+    case 'javascript':
+      return _js.none
+    case 'typescript':
+      req = name + '-simple'
+      break
+    case 'coffee':
+    case 'coffeescript':
+      req = 'coffee-script'
+      break
+    /* istanbul ignore next */
+    case 'scss':
+    case 'sass':
+      req = 'node-sass'
+      break
+    default:
+      if (!req) req = name
+      break
     }
+    parser = fn(req)
 
-    var _html = {
-      jade: function (html, opts, url) {
-        return _req('jade').render(html, extend({
-          pretty: true,
-          filename: url,
-          doctype: 'html'
-        }, opts))
-      }
+    return parser
+  }
+
+  function _req(name, req) {
+    return name in _mods ? _mods[name] : _try(name, req)
+  }
+
+  var _html = {
+    jade: function (html, opts, url) {
+      return _req('jade').render(html, extend({
+        pretty: true,
+        filename: url,
+        doctype: 'html'
+      }, opts))
     }
+  }
 
-    var _css = {
-      sass: function(tag, css, opts, url) {
-        var sass = _req('sass')
+  var _css = {
+    sass: function(tag, css, opts, url) {
+      var sass = _req('sass')
 
-        return sass.renderSync(extend({
-          data: css,
-          indentedSyntax: true,
-          omitSourceMapUrl: true,
-          outputStyle: 'compact'
-        }, opts)).css + ''
-      },
-      scss: function(tag, css, opts, url) {
-        var sass = _req('sass')
+      return sass.renderSync(extend({
+        data: css,
+        indentedSyntax: true,
+        omitSourceMapUrl: true,
+        outputStyle: 'compact'
+      }, opts)).css + ''
+    },
+    scss: function(tag, css, opts, url) {
+      var sass = _req('sass')
 
-        return sass.renderSync(extend({
-          data: css,
-          indentedSyntax: false,
-          omitSourceMapUrl: true,
-          outputStyle: 'compact'
-        }, opts)).css + ''
-      },
-      less: function(tag, css, opts, url) {
-        var less = _req('less'),
-          ret
+      return sass.renderSync(extend({
+        data: css,
+        indentedSyntax: false,
+        omitSourceMapUrl: true,
+        outputStyle: 'compact'
+      }, opts)).css + ''
+    },
+    less: function(tag, css, opts, url) {
+      var less = _req('less'),
+        ret
 
-        less.render(css, extend({
-          sync: true,
-          compress: true
-        }, opts), function (err, result) {
-          // istanbul ignore next
-          if (err) throw err
-          ret = result.css
-        })
-        return ret
-      },
-      stylus: function (tag, css, opts, url) {
-        var
-          stylus = _req('stylus'), nib = _req('nib')
-        /* istanbul ignore next: can't run both */
-        return nib ?
-          stylus(css).use(nib()).import('nib').render() : stylus.render(css)
-      }
+      less.render(css, extend({
+        sync: true,
+        compress: true
+      }, opts), function (err, result) {
+        // istanbul ignore next
+        if (err) throw err
+        ret = result.css
+      })
+      return ret
+    },
+    stylus: function (tag, css, opts, url) {
+      var
+        stylus = _req('stylus'), nib = _req('nib')
+      /* istanbul ignore next: can't run both */
+      return nib ?
+        stylus(css).use(nib()).import('nib').render() : stylus.render(css)
     }
+  }
 
-    var _js = {
-      none: function (js, opts, url) {
-        return js
-      },
-      livescript: function (js, opts, url) {
-        return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
-      },
-      typescript: function (js, opts, url) {
-        return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
-      },
-      es6: function (js, opts, url) {
-        return _req('es6').transform(js, extend({
-          blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
-        }, opts)).code
-      },
-      babel: function (js, opts, url) {
-        return _req('babel').transform(js,
-          extend({
-            filename: url
-          }, opts)
-        ).code
-      },
-      coffee: function (js, opts, url) {
-        return _req('coffee').compile(js, extend({bare: true}, opts))
-      }
+  var _js = {
+    none: function (js, opts, url) {
+      return js
+    },
+    livescript: function (js, opts, url) {
+      return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
+    },
+    typescript: function (js, opts, url) {
+      return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
+    },
+    es6: function (js, opts, url) {
+      return _req('es6').transform(js, extend({
+        blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
+      }, opts)).code
+    },
+    babel: function (js, opts, url) {
+      return _req('babel').transform(js,
+        extend({
+          filename: url
+        }, opts)
+      ).code
+    },
+    coffee: function (js, opts, url) {
+      return _req('coffee').compile(js, extend({bare: true}, opts))
     }
+  }
 
-    _js.javascript   = _js.none
-    _js.coffeescript = _js.coffee
+  _js.javascript   = _js.none
+  _js.coffeescript = _js.coffee
 
-    return {html: _html, css: _css, js: _js, _req: _req}
+  return {html: _html, css: _css, js: _js, _req: _req}
 
-  })()
+})()
 
 var brackets = require('riot-tmpl').brackets
 
