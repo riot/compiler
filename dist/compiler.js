@@ -499,13 +499,13 @@
     return ['', str]
   }
 
-  function compileTemplate(lang, html, opts) {
+  function compileTemplate(lang, html, opts, url) {
     var parser = parsers.html[lang]
 
     if (!parser)
       throw new Error('Template parser not found: "' + lang + '"')
 
-    return parser(html, opts)
+    return parser(html, opts, url)
   }
 
   var
@@ -528,7 +528,7 @@
     _bp = brackets.array(opts.brackets)
 
     if (opts.template)
-      src = compileTemplate(opts.template, src, opts.templateOptions)
+      src = compileTemplate(opts.template, src, opts.templateOptions, url)
 
     src = src
       .replace(/\r\n?/g, '\n')
@@ -608,7 +608,6 @@
     if (opts.entities) return parts
 
     if (url && opts.debug) {
-
       if (path.isAbsolute(url)) url = path.relative('.', url)
       src = '//src: ' + url.replace(/\\/g, '/') + '\n' + src
     }

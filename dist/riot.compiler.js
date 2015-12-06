@@ -432,13 +432,13 @@ var compile = (function () {
     return ['', str]
   }
 
-  function compileTemplate(lang, html, opts) {
+  function compileTemplate(lang, html, opts, url) {
     var parser = parsers.html[lang]
 
     if (!parser)
       throw new Error('Template parser not found: "' + lang + '"')
 
-    return parser(html, opts)
+    return parser(html, opts, url)
   }
 
   var
@@ -461,7 +461,7 @@ var compile = (function () {
     _bp = brackets.array(opts.brackets)
 
     if (opts.template)
-      src = compileTemplate(opts.template, src, opts.templateOptions)
+      src = compileTemplate(opts.template, src, opts.templateOptions, url)
 
     src = src
       .replace(/\r\n?/g, '\n')
