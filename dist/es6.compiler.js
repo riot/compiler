@@ -211,8 +211,11 @@ var parsers = (function () {
         if (expr[0] === '^')
           expr = expr.slice(1)
         else if (jsfn) {
+          var israw = expr[0] === '='
+          if (israw) expr = expr.slice(1)
           expr = jsfn(expr, opts)
           if (/;\s*$/.test(expr)) expr = expr.slice(0, expr.search(/;\s*$/))
+          if (israw) expr = '=' + expr
         }
         list[i] = '\u0001' + (pcex.push(expr.replace(/[\r\n]+/g, ' ').trim()) - 1) + _bp[1]
       }
@@ -225,7 +228,15 @@ var parsers = (function () {
     if (pcex.length) {
       html = html
         .replace(/\u0001(\d+)/g, function (_, d) {
-          return _bp[0] + pcex[d]
+          var expr = pcex[d]
+          if (expr[0] === '=')
+            expr = expr.replace(brackets.R_STRINGS, function (qs) {
+              return qs
+
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+            })
+          return _bp[0] + expr
         })
     }
     return html
