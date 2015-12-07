@@ -594,6 +594,7 @@ var brackets = require('riot-tmpl').brackets
     if (opts.entities) return parts
 
     if (url && opts.debug) {
+      /* istanbul ignore if */
       if (path.isAbsolute(url)) url = path.relative('.', url)
       src = '//src: ' + url.replace(/\\/g, '/') + '\n' + src
     }
