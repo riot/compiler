@@ -106,7 +106,7 @@ This example shows the behavior with the default options on different parts of a
 
 will generate this:
 ```js
-riot.tag2('my-tag', '<p></p>', 'p { display: none; }', 'style=" top:0; left:0" expr="{{ foo:&quot;bar&quot; }}"', function(opts) {
+riot.tag2('my-tag', '<p></p>', 'p { display: none; }', 'style=" top:0; left:0" expr="{{ foo:"bar" }}"', function(opts) {
   this.click = function(e)
   {}.bind(this)
 }, '{ }');

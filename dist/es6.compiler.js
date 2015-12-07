@@ -1,5 +1,9 @@
-/* riot-compiler WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
-'use strict'  // eslint-disable-line
+/**
+ * Compiler for riot custom tags
+ * @version WIP
+ */
+
+import { brackets } from 'riot-tmpl'
 
 /**
  * @module parsers
@@ -10,43 +14,21 @@ var parsers = (function () {
   function _try(name, req) {  //eslint-disable-line complexity
     var parser
 
-    function fn(r) {
-      try {
-        _mods[name] = require(r)
-      }
-      catch (e) {
-        _mods[name] = null
-      }
-      return _mods[name]
-    }
-
     switch (name) {
-    case 'es6':
-    /* istanbul ignore next */
-      return fn('babel') || fn('babel-core')
-    case 'babel':
-      req = 'babel-core'
-      break
-    case 'none':
-    case 'javascript':
-      return _js.none
-    case 'typescript':
-      req = name + '-simple'
-      break
     case 'coffee':
-    case 'coffeescript':
-      req = 'coffee-script'
+      req = 'CoffeeScript'
       break
-    /* istanbul ignore next */
-    case 'scss':
-    case 'sass':
-      req = 'node-sass'
+    case 'es6':
+      req = 'babel'
       break
     default:
       if (!req) req = name
       break
     }
-    parser = fn(req)
+    parser = window[req]
+
+    if (!parser)
+      throw new Error(req + ' parser not found.')
 
     return parser
   }
@@ -66,26 +48,6 @@ var parsers = (function () {
   }
 
   var _css = {
-    sass: function(tag, css, opts, url) {
-      var sass = _req('sass')
-
-      return sass.renderSync(extend({
-        data: css,
-        indentedSyntax: true,
-        omitSourceMapUrl: true,
-        outputStyle: 'compact'
-      }, opts)).css + ''
-    },
-    scss: function(tag, css, opts, url) {
-      var sass = _req('sass')
-
-      return sass.renderSync(extend({
-        data: css,
-        indentedSyntax: false,
-        omitSourceMapUrl: true,
-        outputStyle: 'compact'
-      }, opts)).css + ''
-    },
     less: function(tag, css, opts, url) {
       var less = _req('less'),
         ret
@@ -143,8 +105,6 @@ var parsers = (function () {
 
 })()
 
-var brackets = require('riot-tmpl').brackets
-
 /**
  * @module compiler
  */
@@ -168,8 +128,6 @@ var brackets = require('riot-tmpl').brackets
     TRIM_TRAIL = /[ \t]+$/gm,
 
     _bp = null
-
-  var path = require('path')
 
   function q(s) {
     return "'" + (s ? s
@@ -463,15 +421,6 @@ var brackets = require('riot-tmpl').brackets
     var type = getType(attrs),
       parserOpts = getParserOptions(attrs)
 
-    if (url) {
-      var src = getAttr(attrs, 'src')
-      if (src) {
-        var
-          charset = getAttr(attrs, 'charset'),
-          file = path.resolve(path.dirname(url), src)
-        code = require('fs').readFileSync(file, charset || 'utf8')
-      }
-    }
     return compileJS(code, opts, type, parserOpts, url)
   }
 
@@ -604,17 +553,14 @@ var brackets = require('riot-tmpl').brackets
 
     if (opts.entities) return parts
 
-    if (url && opts.debug) {
-      if (path.isAbsolute(url)) url = path.relative('.', url)
-      src = '//src: ' + url.replace(/\\/g, '/') + '\n' + src
-    }
     return src
   }
 
-module.exports = {
-  compile: compile,
-  html: compileHTML,
-  style: compileCSS,
-  js: compileJS,
-  parsers: parsers
+export default {
+  compile,
+  compileHTML,
+  compileCSS,
+  compileJS,
+  parsers
 }
+
