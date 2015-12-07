@@ -287,4 +287,9 @@ describe('Other', function () {
     testParser('brackets', { brackets: '${ }' })
   })
 
+  it('raw-html', function () {
+    var str = compiler.compile(cat(basedir, 'raw-html.tag'))
+    fs.writeFile('_out.js', str)
+  })
+
 })
