@@ -116,6 +116,12 @@ describe('Compile HTML', function() {
       }
     })
 
+    it('raw html detection through the `=` flag', function () {
+      testStr(
+        '<p>{= \'<\' + myElem + \' style="color: \' + myColor + \';">\\n Click me</\' + myElem + \'>\'}</p>',
+        '<p>{= \'&lt;\' + myElem + \' style="color: \' + myColor + \';"&gt;\\n Clic mek&lt;/\' + myElem + \'&gt;\'}</p>')
+    })
+
   })
 
 })

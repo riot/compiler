@@ -229,13 +229,15 @@ var parsers = (function () {
       html = html
         .replace(/\u0001(\d+)/g, function (_, d) {
           var expr = pcex[d]
-          if (expr[0] === '=')
+          if (expr[0] === '=') {
+            console.log(expr)
             expr = expr.replace(brackets.R_STRINGS, function (qs) {
               return qs
 
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
             })
+          }
           return _bp[0] + expr
         })
     }
