@@ -19,17 +19,21 @@ describe('Compile tags', function() {
   }
 
   function render(str, name) {
-    return compiler.compile(str, {}, path.join(fixtures, name))
+    return compiler.compile(str, { debug: true }, path.join(fixtures, name))
   }
 
   function cat(dir, filename) {
     return fs.readFileSync(path.join(dir, filename)).toString()
   }
 
-  function testFile(name) {
+  function testFile(name, save) {
     var src = cat(fixtures, name + '.tag'),
       js = render(src, name + '.tag')
 
+    if (save)
+      fs.writeFile(path.join(expected, name + '_out.js'), js, function (err) {
+        if (err) throw err
+      })
     expect(js).to.equal(cat(expected, name + '.js'))
   }
 
@@ -115,6 +119,10 @@ describe('Compile tags', function() {
     testFile('pre')
   })
 
+  it('Whitespace is compacted in other parts', function() {
+    testFile('whitespace')
+  })
+
   it('Empty tag', function () {
     testFile('empty')
   })
@@ -132,8 +140,8 @@ describe('Compile tags', function() {
     testFile('indentation')
   })
 
-  it('the `entities` option give access to the compiled parts', function () {
-    var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {entities: true})
+  it('The `entities` option give access to the compiled parts', function () {
+    var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {entities: true}),
       resarr = [
         [ 'treeview',
           /^<ul id="treeview"> <li> <treeitem data="\{treedata}">/,
@@ -156,6 +164,31 @@ describe('Compile tags', function() {
       expect(parts[i].attribs).to.be(a[3])
       expect(parts[i].js).to.match(a[4])
     }
+  })
+
+  it('The `exclude` option to ignore parts of the tag', function () {
+    var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {
+      entities: true,
+      exclude: ['html', 'js']
+    })
+    expect(parts[0].html + parts[1].html).to.be('')
+    expect(parts[0].js + parts[1].js).to.be('')
+
+    parts = compiler.compile(cat(fixtures, 'scoped.tag'), {
+      entities: true,
+      exclude: ['css']
+    })
+    expect(parts[0].css).to.be('')
+
+    parts = compiler.compile(cat(fixtures, 'root-attribs.tag'), {
+      entities: true,
+      exclude: ['attribs']
+    })
+    expect(parts[0].attribs).to.be('')
+  })
+
+  it('Output an expression without evaluation by escaping the opening brace', function () {
+    testFile('print-brackets')
   })
 
 })

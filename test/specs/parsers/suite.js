@@ -35,7 +35,7 @@ function testParser(name, opts) {
     str1 = cat(basedir, file + '.tag'),
     str2 = cat(jsdir, file + '.js')
 
-  expect(normalize(compiler.compile(str1, opts || {}))).to.be(normalize(str2))
+  expect(normalize(compiler.compile(str1, opts || {}, basedir + '/' + file + '.tag'))).to.be(normalize(str2))
 }
 
 describe('HTML parsers', function () {
@@ -71,8 +71,8 @@ describe('HTML parsers', function () {
     })
 
     it('plays with quoted values', function () {
-      testStr('<a href={ "a" }>', '<a href="{@ &quot;a&quot;}">', opts)
-      testStr('<a>{"b"}</a>', '<a>{@&quot;b&quot;}</a>', opts)
+      testStr('<a href={ "a" }>', '<a href="{@ "a"}">', opts)
+      testStr('<a>{"b"}</a>', '<a>{@"b"}</a>', opts)
     })
 
     it('remove the last semi-colon', function () {
