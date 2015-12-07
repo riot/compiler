@@ -2,7 +2,8 @@
 #JSPP_DEBUG = -D DEBUG
 JSPP_FLAGS = -F istanbul -F eslint --custom-filter "\s@(module|version)\b" --headers ""
 JSPP_RIOT_FLAGS = $(JSPP_FLAGS) -D RIOT
-JSPP_NODE_FLAGS = $(JSPP_FLAGS) -D NODE --indent 2
+JSPP_NODE_FLAGS = $(JSPP_FLAGS) -D NODE
+JSPP_ES6_FLAGS  = $(JSPP_FLAGS)
 
 # Code Climate only accepts the first job of default branch
 TESTCOVER = $(TRAVIS_BRANCH) $(TRAVIS_NODE_VERSION)
@@ -29,8 +30,9 @@ test: build test-mocha
 build: eslint
 	# rebuild all
 	@ mkdir -p $(DIST)
-	@ $(JSPP) $(JSPP_RIOT_FLAGS) lib/index.js > $(DIST)riot.compiler.js
-	@ $(JSPP) $(JSPP_NODE_FLAGS) lib/index.js > $(DIST)compiler.js
+	@ $(JSPP) $(JSPP_RIOT_FLAGS) lib/_riot.js > $(DIST)riot.compiler.js
+	@ $(JSPP) $(JSPP_NODE_FLAGS) lib/_node.js > $(DIST)compiler.js
+	@ $(JSPP) $(JSPP_ES6_FLAGS)  lib/_es6.js  > $(DIST)es6.compiler.js
 
 bump:
 	# Bump a new release

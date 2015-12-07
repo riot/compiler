@@ -1,164 +1,153 @@
 /* riot-compiler WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
-;(function (root, factory) {
+'use strict'  // eslint-disable-line
 
-  /* istanbul ignore else */
-  if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('riot-tmpl'))
+/**
+ * @module parsers
+ */
+var parsers = (function () {
+  var _mods = {}
+
+  function _try(name, req) {  //eslint-disable-line complexity
+    var parser
+
+    function fn(r) {
+      try {
+        _mods[name] = require(r)
+      }
+      catch (e) {
+        _mods[name] = null
+      }
+      return _mods[name]
+    }
+
+    switch (name) {
+    case 'es6':
+    /* istanbul ignore next */
+      return fn('babel') || fn('babel-core')
+    case 'babel':
+      req = 'babel-core'
+      break
+    case 'none':
+    case 'javascript':
+      return _js.none
+    case 'typescript':
+      req = name + '-simple'
+      break
+    case 'coffee':
+    case 'coffeescript':
+      req = 'coffee-script'
+      break
+    /* istanbul ignore next */
+    case 'scss':
+    case 'sass':
+      req = 'node-sass'
+      break
+    default:
+      if (!req) req = name
+      break
+    }
+    parser = fn(req)
+
+    return parser
   }
-  else if (typeof define === 'function' && define.amd) {
-    define(['riot-tmpl'], factory)
-  }
-  else if (root) {
-    root.compiler = factory(root.riot.util)
+
+  function _req(name, req) {
+    return name in _mods ? _mods[name] : _try(name, req)
   }
 
-})(this, function (_tmpl) {
-  'use strict'  // eslint-disable-line
-
-  /**
-   * @module parsers
-   */
-  var parsers = (function () {
-    var _mods = {}
-
-    function _try(name, req) {  //eslint-disable-line complexity
-
-      function fn(r) {
-        try {
-          _mods[name] = require(r)
-        }
-        catch (e) {
-          _mods[name] = null
-        }
-        return _mods[name]
-      }
-
-      switch (name) {
-      case 'es6':
-      /* istanbul ignore next */
-        return fn('babel') || fn('babel-core')
-      case 'babel':
-        req = 'babel-core'
-        break
-      case 'none':
-      case 'javascript':
-        return _js.none
-      case 'typescript':
-        req = name + '-simple'
-        break
-      case 'coffee':
-      case 'coffeescript':
-        req = 'coffee-script'
-        break
-      /* istanbul ignore next */
-      case 'scss':
-      case 'sass':
-        req = 'node-sass'
-        break
-      default:
-        if (!req) req = name
-        break
-      }
-      return fn(req)
+  var _html = {
+    jade: function (html, opts, url) {
+      return _req('jade').render(html, extend({
+        pretty: true,
+        filename: url,
+        doctype: 'html'
+      }, opts))
     }
+  }
 
-    function _req(name, req) {
-      return name in _mods ? _mods[name] : _try(name, req)
+  var _css = {
+    sass: function(tag, css, opts, url) {
+      var sass = _req('sass')
+
+      return sass.renderSync(extend({
+        data: css,
+        indentedSyntax: true,
+        omitSourceMapUrl: true,
+        outputStyle: 'compact'
+      }, opts)).css + ''
+    },
+    scss: function(tag, css, opts, url) {
+      var sass = _req('sass')
+
+      return sass.renderSync(extend({
+        data: css,
+        indentedSyntax: false,
+        omitSourceMapUrl: true,
+        outputStyle: 'compact'
+      }, opts)).css + ''
+    },
+    less: function(tag, css, opts, url) {
+      var less = _req('less'),
+        ret
+
+      less.render(css, extend({
+        sync: true,
+        compress: true
+      }, opts), function (err, result) {
+        // istanbul ignore next
+        if (err) throw err
+        ret = result.css
+      })
+      return ret
+    },
+    stylus: function (tag, css, opts, url) {
+      var
+        stylus = _req('stylus'), nib = _req('nib')
+      /* istanbul ignore next: can't run both */
+      return nib ?
+        stylus(css).use(nib()).import('nib').render() : stylus.render(css)
     }
+  }
 
-    var _html = {
-      jade: function (html, opts, url) {
-        return _req('jade').render(html, extend({
-          pretty: true,
-          filename: url,
-          doctype: 'html'
-        }, opts))
-      }
+  var _js = {
+    none: function (js, opts, url) {
+      return js
+    },
+    livescript: function (js, opts, url) {
+      return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
+    },
+    typescript: function (js, opts, url) {
+      return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
+    },
+    es6: function (js, opts, url) {
+      return _req('es6').transform(js, extend({
+        blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
+      }, opts)).code
+    },
+    babel: function (js, opts, url) {
+      return _req('babel').transform(js,
+        extend({
+          filename: url
+        }, opts)
+      ).code
+    },
+    coffee: function (js, opts, url) {
+      return _req('coffee').compile(js, extend({bare: true}, opts))
     }
+  }
 
-    var _css = {
-      sass: function(tag, css, opts, url) {
-        var sass = _req('sass')
+  _js.javascript   = _js.none
+  _js.coffeescript = _js.coffee
 
-        return sass.renderSync(extend({
-          data: css,
-          indentedSyntax: true,
-          omitSourceMapUrl: true,
-          outputStyle: 'compact'
-        }, opts)).css + ''
-      },
-      scss: function(tag, css, opts, url) {
-        var sass = _req('sass')
+  return {html: _html, css: _css, js: _js, _req: _req}
 
-        return sass.renderSync(extend({
-          data: css,
-          indentedSyntax: false,
-          omitSourceMapUrl: true,
-          outputStyle: 'compact'
-        }, opts)).css + ''
-      },
-      less: function(tag, css, opts, url) {
-        var less = _req('less'),
-          ret
+})()
 
-        less.render(css, extend({
-          sync: true,
-          compress: true
-        }, opts), function (err, result) {
-          // istanbul ignore next
-          if (err) throw err
-          ret = result.css
-        })
-        return ret
-      },
-      stylus: function (tag, css, opts, url) {
-        var
-          stylus = _req('stylus'), nib = _req('nib')
-        /* istanbul ignore next: can't run both */
-        return nib ?
-          stylus(css).use(nib()).import('nib').render() : stylus.render(css)
-      }
-    }
+var brackets = require('riot-tmpl').brackets
 
-    var _js = {
-      none: function (js, opts, url) {
-        return js
-      },
-      livescript: function (js, opts, url) {
-        return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
-      },
-      typescript: function (js, opts, url) {
-        return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
-      },
-      es6: function (js, opts, url) {
-        return _req('es6').transform(js, extend({
-          blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
-        }, opts)).code
-      },
-      babel: function (js, opts, url) {
-        return _req('babel').transform(js,
-          extend({
-            filename: url
-          }, opts)
-        ).code
-      },
-      coffee: function (js, opts, url) {
-        return _req('coffee').compile(js, extend({bare: true}, opts))
-      }
-    }
-
-    _js.javascript   = _js.none
-    _js.coffeescript = _js.coffee
-
-    return {html: _html, css: _css, js: _js, _req: _req}
-
-  })()
-
-  var brackets = _tmpl.brackets
-
-  /**
-   * @module compiler
-   */
+/**
+ * @module compiler
+ */
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -174,7 +163,7 @@
 
     VOID_TAGS  = /^(?:input|img|br|wbr|hr|area|base|col|embed|keygen|link|meta|param|source|track)$/,
 
-    HTML_ATTR  = /\s*([-\w:\.\xA0-\xFF]+)\s*(?:=\s*('[^']+'|"[^"]+"|\S+))?/g,
+    HTML_ATTR  = /\s*([-\w:\xA0-\xFF]+)\s*(?:=\s*('[^']+'|"[^"]+"|\S+))?/g,
 
     TRIM_TRAIL = /[ \t]+$/gm,
 
@@ -288,7 +277,7 @@
     HTML_COMMENT = /<!--(?!>)[\S\s]*?-->/g,
     HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g
 
-  function compileHTML(html, opts, pcex, intc, url) {
+  function compileHTML(html, opts, pcex, intc ) {
 
     if (!intc) {
       _bp = brackets.array(opts.brackets)
@@ -310,7 +299,7 @@
 
     if (!opts.whitespace) {
       var p = [],
-        pre = /<pre(?:\s+[^'">]+(?:(?:"[^"]*"|'[^']*')[^'">]*)*|\s*)>[\s\S]*<\/pre\s*>/gi
+        pre = /<pre(?:\s+[^'">]+(?:(?:"[^"]*"|'[^']*')[^'">]*)*|\s*)>[^]*<\/pre\s*>/gi
 
       html = html.replace(pre, function (q) {
         return '\u0002' + (p.push(q) - 1) + '~' }).trim().replace(/\s+/g, ' ')
@@ -428,7 +417,7 @@
 
   var
     TYPE_ATTR = /\stype\s*=\s*(?:(['"])(.+?)\1|(\S+))/i,
-    MISC_ATTR = /\s*=\s*("(?:\\[\S\s]|[^"\\]*)*"|'(?:\\[\S\s]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
+    MISC_ATTR = /\s*=\s*("(?:\\[^]|[^"\\]*)*"|'(?:\\[^]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
 
   function getType(str) {
 
@@ -447,41 +436,35 @@
         match = str.match(re)
       str = match && match[1]
       if (str)
-        return /^['"]/.test(str) ? str.slice(1, -1) : str
+        return (/^['"]/).test(str) ? str.slice(1, -1) : str
     }
     return ''
   }
 
-  // get the parser options from the options attribute
   function getParserOptions(attrs) {
     var opts = getAttr(attrs, 'options')
-    // convert the string into a valid js object
+
     if (opts) opts = JSON.parse(opts)
     return opts
   }
 
-  // Runs the custom or default parser on the received JavaScript code.
-  // The CLI version can read code from the file system (experimental)
   function getCode(code, opts, attrs, url) {
     var type = getType(attrs),
       parserOpts = getParserOptions(attrs)
 
-    var src = getAttr(attrs, 'src')
-    if (src && url) {
-      var
-        charset = getAttr(attrs, 'charset'),
-        file = path.resolve(path.dirname(url), src)
-      code = require('fs').readFileSync(file, {encoding: charset || 'utf8'})
+    if (url) {
+      var src = getAttr(attrs, 'src')
+      if (src) {
+        var
+          charset = getAttr(attrs, 'charset'),
+          file = path.resolve(path.dirname(url), src)
+        code = require('fs').readFileSync(file, charset || 'utf8')
+      }
     }
     return compileJS(code, opts, type, parserOpts, url)
   }
 
-  // Matches HTML tag ending a line. This regex still can be fooled by code as:
-  // ```js
-  // x <y && y >
-  //  z
-  // ```
-  var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
+  var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][^]*?)?)?)>\n/
 
   function splitBlocks(str) {
     var k, m
@@ -490,7 +473,7 @@
     if (str[str.length - 1] === '>')
       return [str, '']
 
-    k = str.lastIndexOf('<')    // first probable open tag
+    k = str.lastIndexOf('<')
     while (~k) {
       if (m = str.slice(k).match(END_TAGS)) {
         k += m.index + m[0].length
@@ -499,55 +482,41 @@
       k = str.lastIndexOf('<', k -1)
     }
 
-    // TODO 2.4.0 make untagged content html, update the guide too
-    //return [str, '']          // no closing tag found, assume html text
     return ['', str]
   }
 
-  // Runs the external HTML parser for the entire tag file
-  function compileTemplate(lang, html, opts) {
+  function compileTemplate(lang, html, opts, url) {
     var parser = parsers.html[lang]
 
     if (!parser)
       throw new Error('Template parser not found: "' + lang + '"')
 
-    return parser(html, opts)
+    return parser(html, opts, url)
   }
 
-  /*
-    CUST_TAG regex don't allow unquoted expressions containing the `>` operator.
-    STYLE and SCRIPT disallows the operator `>` at all.
-
-    The beta.4 CUST_TAG regex is fast, with RegexBuddy I get 76 steps and 14 backtracks on
-    the test/specs/fixtures/treeview.tag :) but fails with nested tags of the same name :(
-    With a greedy * operator, we have ~500 and 200bt, it is acceptable. So let's fix this.
-   */
   var
-    CUST_TAG = /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\s\S]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/gim,
+    CUST_TAG = _regEx(
+      /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@Q|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([^]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
+      .source.replace('@Q', brackets.R_STRINGS.source), 'gim'),
     STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
     SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
 
   function compile(src, opts, url) {
-    var label, exclude, parts = []
+    var
+      parts = [],
+      exclude
 
     if (!opts) opts = {}
 
     exclude = opts.exclude || false
-    function included(s) { return !exclude || exclude.indexOf(s) < 0 }
+    function included(s) { return !(exclude && ~exclude.indexOf(s)) }
 
     _bp = brackets.array(opts.brackets)
 
     if (opts.template)
-      src = compileTemplate(opts.template, src, opts.templateOptions)
+      src = compileTemplate(opts.template, src, opts.templateOptions, url)
 
-    if (opts.debug && url) {
-      /* istanbul ignore next */
-      label = path.isAbsolute(url) ? path.relative('.', url) : url
-      if (label)
-        label = '//src: ' + label.replace(/\\/g, '/') + '\n'
-    } else label = ''
-
-    src = label + src
+    src = src
       .replace(/\r\n?/g, '\n')
       .replace(CUST_TAG, function (_, indent, tagName, attribs, body, body2) {
 
@@ -595,7 +564,7 @@
             if (included('html')) {
               body = blocks[0]
               if (body)
-                html = compileHTML(body, opts, pcex, 1, url)
+                html = compileHTML(body, opts, pcex, 1)
             }
 
             if (included('js')) {
@@ -622,15 +591,19 @@
         return mktag(tagName, html, styles, attribs, jscode, pcex)
       })
 
-    return opts.entities ? parts : src
+    if (opts.entities) return parts
+
+    if (url && opts.debug) {
+      if (path.isAbsolute(url)) url = path.relative('.', url)
+      src = '//src: ' + url.replace(/\\/g, '/') + '\n' + src
+    }
+    return src
   }
 
-  return {
-    compile: compile,
-    html: compileHTML,
-    style: compileCSS,
-    js: compileJS,
-    parsers: parsers
-  }
-})
-
+module.exports = {
+  compile: compile,
+  html: compileHTML,
+  style: compileCSS,
+  js: compileJS,
+  parsers: parsers
+}

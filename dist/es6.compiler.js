@@ -1,3 +1,9 @@
+/**
+ * Compiler for riot custom tags
+ * @version WIP
+ */
+
+import { brackets } from 'riot-tmpl'
 
 /**
  * @module parsers
@@ -99,13 +105,9 @@ var parsers = (function () {
 
 })()
 
-riot.parsers = parsers
-
 /**
- * Compiler for riot custom tags
- * @version WIP
+ * @module compiler
  */
-var compile = (function () {
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -543,12 +545,11 @@ var compile = (function () {
     return src
   }
 
-  riot.util.compiler = {
-    compile: compile,
-    html: compileHTML,
-    style: compileCSS,
-    js: compileJS
-  }
-  return compile
+export default {
+  compile,
+  compileHTML,
+  compileCSS,
+  compileJS,
+  parsers
+}
 
-})()
