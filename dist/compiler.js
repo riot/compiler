@@ -555,22 +555,18 @@ var brackets = require('riot-tmpl').brackets
           else {
             body = body.replace(_regEx('^' + indent, 'gm'), '')
 
-            if (included('css')) {
-              body = body.replace(STYLE, function (_, _attrs, _style) {
-                var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
-                  csstype = getType(_attrs) || opts.style
-                styles += (styles ? ' ' : '') +
-                  compileCSS(_style, tagName, csstype, scoped, getParserOptions(_attrs), url)
-                return ''
-              })
-            }
+            body = body.replace(STYLE, included('css') ? function (_, _attrs, _style) {
+              var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
+                csstype = getType(_attrs) || opts.style
+              styles += (styles ? ' ' : '') +
+                compileCSS(_style, tagName, csstype, scoped, getParserOptions(_attrs), url)
+              return ''
+            } : '')
 
-            if (included('js')) {
-              body = body.replace(SCRIPT, function (_, _attrs, _script) {
-                jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
-                return ''
-              })
-            }
+            body = body.replace(SCRIPT, included('js') ? function (_, _attrs, _script) {
+              jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
+              return ''
+            } : '')
 
             var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
 
@@ -607,6 +603,7 @@ var brackets = require('riot-tmpl').brackets
     if (opts.entities) return parts
 
     if (url && opts.debug) {
+      /* istanbul ignore if */
       if (path.isAbsolute(url)) url = path.relative('.', url)
       src = '//src: ' + url.replace(/\\/g, '/') + '\n' + src
     }
