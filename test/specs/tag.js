@@ -168,9 +168,31 @@ describe('Compile tags', function() {
 
   it('The `exclude` option to ignore parts of the tag', function () {
     var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {
-      entities: true,
+        entities: true,
+        exclude: ['html', 'js']
+      }),
+      dummyTag = [
+        '<my-tag>',
+        '<p>{ hi }</p>',
+        'this.hi = "hi"',
+        '<style scoped>',
+        ' :scope { color: red; }',
+        '</style>',
+        '</my-tag>'
+      ].join('\n')
+
+    expect(compiler.compile(dummyTag, {
+      exclude: ['html']
+    })).to.be("riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"] { color: red; }', '', function(opts) {\nthis.hi = \"hi\"\n\n});")
+
+    expect(compiler.compile(dummyTag, {
       exclude: ['html', 'js']
-    })
+    })).to.be("riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"] { color: red; }', '', function(opts) {\n});")
+
+    expect(compiler.compile(dummyTag, {
+      exclude: ['css']
+    })).to.be("riot.tag2('my-tag', '<p>{hi}</p>', '', '', function(opts) {\nthis.hi = \"hi\"\n\n}, '{ }');")
+
     expect(parts[0].html + parts[1].html).to.be('')
     expect(parts[0].js + parts[1].js).to.be('')
 
@@ -178,6 +200,7 @@ describe('Compile tags', function() {
       entities: true,
       exclude: ['css']
     })
+    expect(parts[0].html).to.not.match(/style/)
     expect(parts[0].css).to.be('')
 
     parts = compiler.compile(cat(fixtures, 'root-attribs.tag'), {
