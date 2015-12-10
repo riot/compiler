@@ -109,7 +109,7 @@ var compile = (function () {
 
   // istanbul ignore next
   if (!brackets.version) {
-    throw new Error('This compiler version requires riot-tmpl v2.3.15 or above')
+    throw new Error('This compiler version requires riot-tmpl v2.3.16 or above')
   }
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
