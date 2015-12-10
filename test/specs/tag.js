@@ -214,4 +214,8 @@ describe('Compile tags', function() {
     testFile('print-brackets')
   })
 
+  it('Escaping raw html in expressions through the `=` flag', function () {
+    testFile('raw-html')
+  })
+
 })
