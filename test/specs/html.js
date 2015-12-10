@@ -68,7 +68,7 @@ describe('Compile HTML', function() {
       testStr("<p\ta ='p:{}\r\n;'>", '<p a="p:{} ;">')
     })
 
-    it('double quotes in expressions are converted to `&quot;`', function () {
+    it('nested double quotes are supported in expressions', function () {
       testStr('<p x={ "a" } y="{2}">', '<p x="{"a"}" y="{2}">')
       testStr('<p x="{"a"}" y="{2}">', '<p x="{"a"}" y="{2}">')
       testStr('<p x=\'{"a"}\' y="{2}">', '<p x="{"a"}" y="{2}">')
@@ -114,6 +114,15 @@ describe('Compile HTML', function() {
       for (var i = 0; i < att.length; ++i) {
         testStr('<p ' + att[i] + '={}>', '<p ' + att[i] + '="{}">')
       }
+    })
+
+    it('raw html detection through the `=` flag', function () {
+      testStr(
+        '<p>{= \'<\' + myElem + \' style="color: \' + myColor + \';">\\n Click me</\' + myElem + \'>\'}</p>',
+        '<p>{= \'&lt;\' + myElem + \' style="color: \' + myColor + \';"&gt;\\n Click me&lt;/\' + myElem + \'&gt;\'}</p>')
+        testStr(
+          '<ul><li>{= ["foo", "bar"].join(\'<br/>\') }</li></ul>',
+          '<ul><li>{= ["foo", "bar"].join(\'&lt;br/&gt;\')}</li></ul>')
     })
 
   })

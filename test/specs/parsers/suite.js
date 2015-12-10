@@ -6,8 +6,8 @@ var
   path = require('path'),
   fs = require('fs')
 var
-  basedir = __dirname,
-  jsdir = path.join(basedir, 'js')
+  fixtures = __dirname,
+  expected = path.join(fixtures, 'js')
 
 function have(mod, req) {
   if (compiler.parsers._req(mod, req))
@@ -29,13 +29,18 @@ function normalize(str) {
   return ~n ? str.slice(0, n) : str
 }
 
-function testParser(name, opts) {
+function testParser(name, opts, save) {
   var
     file = name + (opts.type ? '.' + opts.type : ''),
-    str1 = cat(basedir, file + '.tag'),
-    str2 = cat(jsdir, file + '.js')
+    str1 = cat(fixtures, file + '.tag'),
+    str2 = cat(expected, file + '.js')
+    js = compiler.compile(str1, opts || {}, path.join(fixtures, file + '.tag'))
 
-  expect(normalize(compiler.compile(str1, opts || {}, basedir + '/' + file + '.tag'))).to.be(normalize(str2))
+  if (save)
+    fs.writeFile(path.join(expected, file + '_out.js'), js, function (err) {
+      if (err) throw err
+    })
+  expect(normalize(js)).to.be(normalize(str2))
 }
 
 describe('HTML parsers', function () {
@@ -237,11 +242,11 @@ describe('Style parsers', function () {
     }
   })
 
-  it('Mixing CSS blocks with different type', function () {
+  it('mixing CSS blocks with different type', function () {
     testParser('mixed-css', {})
   })
 
-  it('The style option for setting the CSS parser (v2.3.13)', function () {
+  it('the style option for setting the CSS parser (v2.3.13)', function () {
     var
       source = [
         '<style-option>',
@@ -261,16 +266,16 @@ describe('Style parsers', function () {
 
 describe('Other', function () {
 
-  it('Unknown HTML template parser throws an error', function () {
+  it('unknown HTML template parser throws an error', function () {
     var
-      str1 = cat(basedir, 'test.tag')
+      str1 = cat(fixtures, 'test.tag')
 
     expect(compiler.compile).withArgs(str1, {template: 'unknown'}).to.throwError()
   })
 
-  it('Unknown JS & CSS parsers throws an error', function () {
+  it('unknown JS & CSS parsers throws an error', function () {
     var
-      str1 = cat(basedir, 'test.tag'),
+      str1 = cat(fixtures, 'test.tag'),
       str2 = [
         '<error>',
         "<style type='unknown'>p{top:0}</style>",
@@ -285,6 +290,14 @@ describe('Other', function () {
   // brackets.tag
   it('using different brackets', function () {
     testParser('brackets', { brackets: '${ }' })
+  })
+
+  it('emiting raw html through the `=` flag, with parser', function () {
+    // custom parser
+    compiler.parsers.js.rawhtml = function(js) {
+      return js.replace(/"/g, '&quot;').replace(/'/g, '"')
+    }
+    testParser('raw', { type: 'rawhtml', expr: true })
   })
 
 })

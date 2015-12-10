@@ -1,44 +1,52 @@
 # Compiler Changes
 
-## v2.3.15
+### v2.3.16
 
-- Added dist/es6.compiler.js which uses es6 exports.
+- Regression of optimized regexes not working in IE9/10.
+- Fix #36 : removed the excluded strings from the ouput.
+- Fix: avoid changing the global brackets when the compiler is called with other brackets (requires riot-tmpl v2.3.15).
+- Preparation for recognize the raw-html flag `=` (can change in the final implementation).
+- A new property `version` (string) is included in the compiler set.
+
+### v2.3.15 (unpublished from npm)
+
+- Preparation for use as ES6 module through [rollup.js](http://rollupjs.org/)
 - Update devDependencies, including jspreproc v0.2.5 with an important fix.
 - Partial regression of fix [riot#1120](https://github.com/riot/riot/issues/1120), `tmpl` can parse double-quotes within expressions, encoding double-quotes generates issues.
 
-## v2.3.14
+### v2.3.14
 
 - The prefix `__` for boolean attributes is not used anymore. This IE8 hack and it is not neccessary for current supported versions.
 - Option `exclude` for ignore parts of the tag. This is an array with one or more of 'html', 'css', 'attribs', 'js'.
 - Removed `inert` from the boolean attributes list, this html5 attribute was dropped from the specs.
 - Fixed normalization of root attributes, was not working as expected. Example updated.
 
-## v2.3.13
+### v2.3.13
 
 - Fixed the `style` option for setting the CSS parser through the `options` object.
 - Fixed an issue in preservation of line endings in the generated html markup.
 - Fixed tests, coverage is 100% again.
 - Updated [doc/guide.md](https://github.com/riot/compiler/blob/master/doc/guide.md) and [doc/attributes.md](https://github.com/riot/compiler/blob/master/doc/attrbutes.md) with the latest features.
 
-## v2.3.12
+### v2.3.12
 
 - Gets rid of the zero-indentation restriction for custom tags, now you can indent these tags, but the opening and closing tag must have exactly the same indentation (length and type). All the tag will be unindented by this amount.
 - Support for `src` and `charset` attributes in `<script>` tags for reading JavaScript sources from the file system - [riot#1116](https://github.com/riot/riot/issues/1116), [riot#507](https://github.com/riot/riot/issues/507)
 - The `compile` function can return separate parts by setting the new `entities` option. These parts has unescaped newlines.
 - New attribute `options` for `script` and `style` tags will append/overwrite attributes in the default configuration object of the parser at tag level.
-- Fix [riot#1261](https://github.com/riot/riot/issues/1261): `<pre>` tag does not preserve neither `\n` nor `\t`.
+- Fix [riot#1261](https://github.com/riot/riot/issues/1261) : `<pre>` tag does not preserve neither `\n` nor `\t`.
   Now whitespace within `<pre>` tags is always preserved.
-- Fix [riot#1358](https://github.com/riot/riot/issues/1358): Empty style in tag (scoped) breaks.
+- Fix [riot#1358](https://github.com/riot/riot/issues/1358) : Empty style in tag (scoped) breaks.
 
-## v2.3.11
+### v2.3.11
 
 - New type="babel" supports babel-core v6.x. You must `npm install babel-preset-es2015` too, for this works.
   Use type="es6" for babel and babel-core v5.8.x and bellow - [riot#1039](https://github.com/riot/riot/issues/1039)
-- Fix [riot#1306](https://github.com/riot/riot/issues/1306): Compiler preserves newlines in class objects, causing "Unterminated String Constant" errors.
-- Fix [riot#1314](https://github.com/riot/riot/issues/1314): `settings.brackets` no longer works.
-- Fix [riot#1309](https://github.com/riot/riot/issues/1309): Tag renders js instead of content when no attributes present.
+- Fix [riot#1306](https://github.com/riot/riot/issues/1306) : Compiler preserves newlines in class objects, causing "Unterminated String Constant" errors.
+- Fix [riot#1314](https://github.com/riot/riot/issues/1314) : `settings.brackets` no longer works.
+- Fix [riot#1309](https://github.com/riot/riot/issues/1309) : Tag renders js instead of content when no attributes present.
 
-## v2.3.0
+### v2.3.0
 
 This is a complete rewrite and the first solo version of the compiler.
 
@@ -48,8 +56,8 @@ This is a complete rewrite and the first solo version of the compiler.
 - Unlike previous versions, backslashes are removed from the expressions (before being sent to any parser).
   Outside of expressions, all backslashes are preserved.
 - Double quotes inside expressions are converted to `&quot;`, to avoid issues with HTML markup.
-- Fix [riot#1207](https://github.com/riot/riot/issues/1207): Riot compiler/parser breaks indentation.
-- Fix [riot#1120](https://github.com/riot/riot/issues/1120): Double quotes break Riot attributes
+- Fix [riot#1207](https://github.com/riot/riot/issues/1207) : Riot compiler/parser breaks indentation.
+- Fix [riot#1120](https://github.com/riot/riot/issues/1120) : Double quotes break Riot attributes
 
 Enhancements
 

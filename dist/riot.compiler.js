@@ -107,6 +107,11 @@ riot.parsers = parsers
  */
 var compile = (function () {
 
+  // istanbul ignore next
+  if (!brackets.version) {
+    throw new Error('This compiler version requires riot-tmpl v2.3.16 or above')
+  }
+
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
   var
@@ -123,9 +128,7 @@ var compile = (function () {
 
     HTML_ATTR  = /\s*([-\w:\xA0-\xFF]+)\s*(?:=\s*('[^']+'|"[^"]+"|\S+))?/g,
 
-    TRIM_TRAIL = /[ \t]+$/gm,
-
-    _bp = null
+    TRIM_TRAIL = /[ \t]+$/gm
 
   function q(s) {
     return "'" + (s ? s
@@ -136,7 +139,7 @@ var compile = (function () {
   function mktag(name, html, css, attrs, js, pcex) {
     var
       c = ', ',
-      s = '}' + (pcex.length ? ', ' + q(_bp[8]) : '') + ');'
+      s = '}' + (pcex.length ? ', ' + q(pcex._bp[8]) : '') + ');'
 
     if (js && js.slice(-1) !== '\n') s = '\n' + s
 
@@ -154,12 +157,14 @@ var compile = (function () {
     return obj
   }
 
-  function parseAttrs(str) {
+  function parseAttrs(str, pcex) {
     var
       list = [],
       match,
       k, v,
+      _bp = pcex._bp,
       DQ = '"'
+
     HTML_ATTR.lastIndex = 0
 
     str = str.replace(/\s+/g, ' ')
@@ -197,11 +202,12 @@ var compile = (function () {
   }
 
   function splitHtml(html, opts, pcex) {
+    var _bp = pcex._bp
 
     if (html && _bp[4].test(html)) {
       var
         jsfn = opts.expr && (opts.parser || opts.type) ? compileJS : 0,
-        list = brackets.split(html),
+        list = brackets.split(html, 0, _bp),
         expr
 
       for (var i = 1; i < list.length; i += 2) {
@@ -209,8 +215,10 @@ var compile = (function () {
         if (expr[0] === '^')
           expr = expr.slice(1)
         else if (jsfn) {
-          expr = jsfn(expr, opts)
-          if (/;\s*$/.test(expr)) expr = expr.slice(0, expr.search(/;\s*$/))
+          var israw = expr[0] === '='
+          expr = jsfn(israw ? expr.slice(1) : expr, opts).trim()
+          if (expr.slice(-1) === ';') expr = expr.slice(0, -1)
+          if (israw) expr = '=' + expr
         }
         list[i] = '\u0001' + (pcex.push(expr.replace(/[\r\n]+/g, ' ').trim()) - 1) + _bp[1]
       }
@@ -223,7 +231,15 @@ var compile = (function () {
     if (pcex.length) {
       html = html
         .replace(/\u0001(\d+)/g, function (_, d) {
-          return _bp[0] + pcex[d]
+          var expr = pcex[d]
+          if (expr[0] === '=') {
+            expr = expr.replace(brackets.R_STRINGS, function (qs) {
+              return qs
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+            })
+          }
+          return pcex._bp[0] + expr
         })
     }
     return html
@@ -231,15 +247,18 @@ var compile = (function () {
 
   var
     HTML_COMMENT = /<!--(?!>)[\S\s]*?-->/g,
-    HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g
+    HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g,
+    PRE_TAG = _regEx(
+      /<pre(?:\s+[^'">]+(?:(?:@Q)[^'">]*)*|\s*)?>([\S\s]*?)<\/pre\s*>/
+      .source.replace('@Q', brackets.R_STRINGS.source), 'gi')
 
-  function compileHTML(html, opts, pcex, intc ) {
+  function compileHTML(html, opts, pcex  ) {
 
-    if (!intc) {
-      _bp = brackets.array(opts.brackets)
+    var intf = (pcex || (pcex = []))._intflag
+    if (!intf)
       html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT, '').replace(TRIM_TRAIL, '')
-    }
-    if (!pcex) pcex = []
+
+    if (!pcex._bp) pcex._bp = brackets.array(opts.brackets)
 
     html = splitHtml(html, opts, pcex)
       .replace(HTML_TAGS, function (_, name, attr, ends) {
@@ -248,19 +267,22 @@ var compile = (function () {
 
         ends = ends && !VOID_TAGS.test(name) ? '></' + name : ''
 
-        if (attr) name += ' ' + parseAttrs(attr)
+        if (attr) name += ' ' + parseAttrs(attr, pcex)
 
         return '<' + name + ends + '>'
       })
 
     if (!opts.whitespace) {
-      var p = [],
-        pre = /<pre(?:\s+[^'">]+(?:(?:"[^"]*"|'[^']*')[^'">]*)*|\s*)>[^]*<\/pre\s*>/gi
-
-      html = html.replace(pre, function (q) {
-        return '\u0002' + (p.push(q) - 1) + '~' }).trim().replace(/\s+/g, ' ')
-      if (p.length)
-        html = html.replace(/\u0002(\d+)~/g, function (q, n) { return p[n] })
+      if (/<pre[\s>]/.test(html)) {
+        var p = []
+        html = html.replace(PRE_TAG, function (q)
+          { return p.push(q) && '\u0002' }).trim().replace(/\s+/g, ' ')
+        // istanbul ignore else
+        if (p.length)
+          html = html.replace(/\u0002/g, function (_) { return p.shift() })
+      }
+      else
+        html = html.trim().replace(/\s+/g, ' ')
     }
 
     if (opts.compact) html = html.replace(/> <([-\w\/])/g, '><$1')
@@ -269,11 +291,7 @@ var compile = (function () {
   }
 
   var
-
-    JS_RMCOMMS = _regEx(
-    '(' + brackets.S_QBLOCKS + ')|' + brackets.R_MLCOMMS.source + '|//[^\r\n]*',
-    'g'),
-
+    JS_RMCOMMS = _regEx('(' + brackets.S_QBLOCKS + ')|' + brackets.R_MLCOMMS.source + '|//[^\r\n]*', 'g'),
     JS_ES6SIGN = /^([ \t]*)([$_A-Za-z][$\w]*)\s*(\([^()]*\)\s*{)/m
 
   function riotjs(js) {
@@ -373,7 +391,7 @@ var compile = (function () {
 
   var
     TYPE_ATTR = /\stype\s*=\s*(?:(['"])(.+?)\1|(\S+))/i,
-    MISC_ATTR = /\s*=\s*("(?:\\[^]|[^"\\]*)*"|'(?:\\[^]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
+    MISC_ATTR = /\s*=\s*("(?:\\[\S\s]|[^"\\]*)*"|'(?:\\[\S\s]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
 
   function getType(str) {
 
@@ -411,14 +429,13 @@ var compile = (function () {
     return compileJS(code, opts, type, parserOpts, url)
   }
 
-  var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][^]*?)?)?)>\n/
+  var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
 
   function splitBlocks(str) {
     var k, m
 
     /* istanbul ignore next: this if() can't be true, but just in case... */
-    if (str[str.length - 1] === '>')
-      return [str, '']
+    if (str[str.length - 1] === '>') return [str, '']
 
     k = str.lastIndexOf('<')
     while (~k) {
@@ -428,11 +445,10 @@ var compile = (function () {
       }
       k = str.lastIndexOf('<', k -1)
     }
-
     return ['', str]
   }
 
-  function compileTemplate(lang, html, opts, url) {
+  function compileTemplate(html, url, lang, opts) {
     var parser = parsers.html[lang]
 
     if (!parser)
@@ -443,7 +459,7 @@ var compile = (function () {
 
   var
     CUST_TAG = _regEx(
-      /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@Q|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([^]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
+      /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@Q|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
       .source.replace('@Q', brackets.R_STRINGS.source), 'gim'),
     STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
     SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
@@ -458,10 +474,10 @@ var compile = (function () {
     exclude = opts.exclude || false
     function included(s) { return !(exclude && ~exclude.indexOf(s)) }
 
-    _bp = brackets.array(opts.brackets)
+    var _bp = brackets.array(opts.brackets)
 
     if (opts.template)
-      src = compileTemplate(opts.template, src, opts.templateOptions, url)
+      src = compileTemplate(src, url, opts.template, opts.templateOptions)
 
     src = src
       .replace(/\r\n?/g, '\n')
@@ -473,10 +489,13 @@ var compile = (function () {
           html = '',
           pcex = []
 
+        pcex._bp = _bp
+        pcex._intflag = 1
+
         tagName = tagName.toLowerCase()
 
         attribs = attribs && included('attribs') ?
-          restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex) : ''
+          restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex), pcex), pcex) : ''
 
         if (body2) body = body2
 
@@ -543,7 +562,8 @@ var compile = (function () {
     compile: compile,
     html: compileHTML,
     style: compileCSS,
-    js: compileJS
+    js: compileJS,
+    version: 'WIP'
   }
   return compile
 
