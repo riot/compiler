@@ -3,7 +3,7 @@
   <p>{= [address1,address2].join('<br>') }</p>
 
   <p onclick={ swap }>
-    {= '<' + myElem + ' style="color: ' + myColor + ';">\n  Click\n</' + myElem + '><br/>\n<b>me</b>' }
+    {= '<' + myElem + ' style="color: ' + myColor + ';">\n  Click\n</' + myElem + '><br>\n<b>me</b>' }
   </p>
 
   this.address1 = '1234 Peachtree'

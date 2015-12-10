@@ -125,9 +125,7 @@ var parsers = (function () {
 
     HTML_ATTR  = /\s*([-\w:\xA0-\xFF]+)\s*(?:=\s*('[^']+'|"[^"]+"|\S+))?/g,
 
-    TRIM_TRAIL = /[ \t]+$/gm,
-
-    _bp = null
+    TRIM_TRAIL = /[ \t]+$/gm
 
   function q(s) {
     return "'" + (s ? s
@@ -138,7 +136,7 @@ var parsers = (function () {
   function mktag(name, html, css, attrs, js, pcex) {
     var
       c = ', ',
-      s = '}' + (pcex.length ? ', ' + q(_bp[8]) : '') + ');'
+      s = '}' + (pcex.length ? ', ' + q(pcex._bp[8]) : '') + ');'
 
     if (js && js.slice(-1) !== '\n') s = '\n' + s
 
@@ -148,7 +146,7 @@ var parsers = (function () {
 
   function extend(obj, props) {
     for (var prop in props) {
-      /* istanbul ignore next */
+
       if (props.hasOwnProperty(prop)) {
         obj[prop] = props[prop]
       }
@@ -156,12 +154,14 @@ var parsers = (function () {
     return obj
   }
 
-  function parseAttrs(str) {
+  function parseAttrs(str, pcex) {
     var
       list = [],
       match,
       k, v,
+      _bp = pcex._bp,
       DQ = '"'
+
     HTML_ATTR.lastIndex = 0
 
     str = str.replace(/\s+/g, ' ')
@@ -199,11 +199,12 @@ var parsers = (function () {
   }
 
   function splitHtml(html, opts, pcex) {
+    var _bp = pcex._bp
 
     if (html && _bp[4].test(html)) {
       var
         jsfn = opts.expr && (opts.parser || opts.type) ? compileJS : 0,
-        list = brackets.split(html),
+        list = brackets.split(html, 0, _bp),
         expr
 
       for (var i = 1; i < list.length; i += 2) {
@@ -212,9 +213,8 @@ var parsers = (function () {
           expr = expr.slice(1)
         else if (jsfn) {
           var israw = expr[0] === '='
-          if (israw) expr = expr.slice(1)
-          expr = jsfn(expr, opts)
-          if (/;\s*$/.test(expr)) expr = expr.slice(0, expr.search(/;\s*$/))
+          expr = jsfn(israw ? expr.slice(1) : expr, opts).trim()
+          if (expr.slice(-1) === ';') expr = expr.slice(0, -1)
           if (israw) expr = '=' + expr
         }
         list[i] = '\u0001' + (pcex.push(expr.replace(/[\r\n]+/g, ' ').trim()) - 1) + _bp[1]
@@ -230,15 +230,13 @@ var parsers = (function () {
         .replace(/\u0001(\d+)/g, function (_, d) {
           var expr = pcex[d]
           if (expr[0] === '=') {
-            console.log(expr)
             expr = expr.replace(brackets.R_STRINGS, function (qs) {
               return qs
-
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
             })
           }
-          return _bp[0] + expr
+          return pcex._bp[0] + expr
         })
     }
     return html
@@ -246,15 +244,18 @@ var parsers = (function () {
 
   var
     HTML_COMMENT = /<!--(?!>)[\S\s]*?-->/g,
-    HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g
+    HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g,
+    PRE_TAG = _regEx(
+      /<pre(?:\s+[^'">]+(?:(?:@Q)[^'">]*)*|\s*)?>([^]*?)<\/pre\s*>/
+      .source.replace('@Q', brackets.R_STRINGS.source), 'gi')
 
-  function compileHTML(html, opts, pcex, intc ) {
+  function compileHTML(html, opts, pcex  ) {
 
-    if (!intc) {
-      _bp = brackets.array(opts.brackets)
+    var intf = (pcex || (pcex = []))._intflag
+    if (!intf)
       html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT, '').replace(TRIM_TRAIL, '')
-    }
-    if (!pcex) pcex = []
+
+    if (!pcex._bp) pcex._bp = brackets.array(opts.brackets)
 
     html = splitHtml(html, opts, pcex)
       .replace(HTML_TAGS, function (_, name, attr, ends) {
@@ -263,19 +264,21 @@ var parsers = (function () {
 
         ends = ends && !VOID_TAGS.test(name) ? '></' + name : ''
 
-        if (attr) name += ' ' + parseAttrs(attr)
+        if (attr) name += ' ' + parseAttrs(attr, pcex)
 
         return '<' + name + ends + '>'
       })
 
     if (!opts.whitespace) {
-      var p = [],
-        pre = /<pre(?:\s+[^'">]+(?:(?:"[^"]*"|'[^']*')[^'">]*)*|\s*)>[^]*<\/pre\s*>/gi
-
-      html = html.replace(pre, function (q) {
-        return '\u0002' + (p.push(q) - 1) + '~' }).trim().replace(/\s+/g, ' ')
-      if (p.length)
-        html = html.replace(/\u0002(\d+)~/g, function (q, n) { return p[n] })
+      if (/<pre[\s>]/.test(html)) {
+        var p = []
+        html = html.replace(PRE_TAG, function (q)
+          { return p.push(q) && '\u0002' }).trim().replace(/\s+/g, ' ')
+        if (p.length)
+          html = html.replace(/\u0002/g, function (_) { return p.shift() })
+      }
+      else
+        html = html.trim().replace(/\s+/g, ' ')
     }
 
     if (opts.compact) html = html.replace(/> <([-\w\/])/g, '><$1')
@@ -447,7 +450,7 @@ var parsers = (function () {
     return ['', str]
   }
 
-  function compileTemplate(lang, html, opts, url) {
+  function compileTemplate(html, url, lang, opts) {
     var parser = parsers.html[lang]
 
     if (!parser)
@@ -473,10 +476,10 @@ var parsers = (function () {
     exclude = opts.exclude || false
     function included(s) { return !(exclude && ~exclude.indexOf(s)) }
 
-    _bp = brackets.array(opts.brackets)
+    var _bp = brackets.array(opts.brackets)
 
     if (opts.template)
-      src = compileTemplate(opts.template, src, opts.templateOptions, url)
+      src = compileTemplate(src, url, opts.template, opts.templateOptions)
 
     src = src
       .replace(/\r\n?/g, '\n')
@@ -488,10 +491,13 @@ var parsers = (function () {
           html = '',
           pcex = []
 
+        pcex._bp = _bp
+        pcex._intflag = 1
+
         tagName = tagName.toLowerCase()
 
         attribs = attribs && included('attribs') ?
-          restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex)), pcex) : ''
+          restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex), pcex), pcex) : ''
 
         if (body2) body = body2
 
