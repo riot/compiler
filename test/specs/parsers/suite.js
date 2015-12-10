@@ -44,7 +44,7 @@ function testParser(name, opts, save) {
 }
 
 describe('HTML parsers', function () {
-/*
+
   this.timeout(12000)
 
   function testStr(str, resStr, opts) {
@@ -91,12 +91,12 @@ describe('HTML parsers', function () {
     })
 
   })
-*/
+
 })
 
 
 describe('JavaScript parsers', function () {
-/*
+
   function _custom(js) {
     return 'var foo'
   }
@@ -177,12 +177,12 @@ describe('JavaScript parsers', function () {
     testParser('test', { type: 'custom' })
 
   })
-*/
+
 })
 
 
 describe('Style parsers', function () {
-/*
+
   this.timeout(12000)
 
   // custom parser
@@ -261,7 +261,7 @@ describe('Style parsers', function () {
     result = compiler.compile(source, {style: 'myParser2'})
     expect(result).to.contain('P {top:0}')
   })
-*/
+
 })
 
 describe('Other', function () {

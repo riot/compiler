@@ -107,6 +107,11 @@ riot.parsers = parsers
  */
 var compile = (function () {
 
+  // istanbul ignore next
+  if (!brackets.version) {
+    throw new Error('This compiler version requires riot-tmpl v2.3.15 or above')
+  }
+
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
   var
@@ -144,7 +149,7 @@ var compile = (function () {
 
   function extend(obj, props) {
     for (var prop in props) {
-
+      /* istanbul ignore next */
       if (props.hasOwnProperty(prop)) {
         obj[prop] = props[prop]
       }
@@ -244,7 +249,7 @@ var compile = (function () {
     HTML_COMMENT = /<!--(?!>)[\S\s]*?-->/g,
     HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g,
     PRE_TAG = _regEx(
-      /<pre(?:\s+[^'">]+(?:(?:@Q)[^'">]*)*|\s*)?>([^]*?)<\/pre\s*>/
+      /<pre(?:\s+[^'">]+(?:(?:@Q)[^'">]*)*|\s*)?>([\S\s]*?)<\/pre\s*>/
       .source.replace('@Q', brackets.R_STRINGS.source), 'gi')
 
   function compileHTML(html, opts, pcex  ) {
@@ -272,6 +277,7 @@ var compile = (function () {
         var p = []
         html = html.replace(PRE_TAG, function (q)
           { return p.push(q) && '\u0002' }).trim().replace(/\s+/g, ' ')
+        // istanbul ignore else
         if (p.length)
           html = html.replace(/\u0002/g, function (_) { return p.shift() })
       }
@@ -285,11 +291,7 @@ var compile = (function () {
   }
 
   var
-
-    JS_RMCOMMS = _regEx(
-    '(' + brackets.S_QBLOCKS + ')|' + brackets.R_MLCOMMS.source + '|//[^\r\n]*',
-    'g'),
-
+    JS_RMCOMMS = _regEx('(' + brackets.S_QBLOCKS + ')|' + brackets.R_MLCOMMS.source + '|//[^\r\n]*', 'g'),
     JS_ES6SIGN = /^([ \t]*)([$_A-Za-z][$\w]*)\s*(\([^()]*\)\s*{)/m
 
   function riotjs(js) {
@@ -389,7 +391,7 @@ var compile = (function () {
 
   var
     TYPE_ATTR = /\stype\s*=\s*(?:(['"])(.+?)\1|(\S+))/i,
-    MISC_ATTR = /\s*=\s*("(?:\\[^]|[^"\\]*)*"|'(?:\\[^]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
+    MISC_ATTR = /\s*=\s*("(?:\\[\S\s]|[^"\\]*)*"|'(?:\\[\S\s]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
 
   function getType(str) {
 
@@ -427,14 +429,13 @@ var compile = (function () {
     return compileJS(code, opts, type, parserOpts, url)
   }
 
-  var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][^]*?)?)?)>\n/
+  var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
 
   function splitBlocks(str) {
     var k, m
 
     /* istanbul ignore next: this if() can't be true, but just in case... */
-    if (str[str.length - 1] === '>')
-      return [str, '']
+    if (str[str.length - 1] === '>') return [str, '']
 
     k = str.lastIndexOf('<')
     while (~k) {
@@ -444,7 +445,6 @@ var compile = (function () {
       }
       k = str.lastIndexOf('<', k -1)
     }
-
     return ['', str]
   }
 
@@ -459,7 +459,7 @@ var compile = (function () {
 
   var
     CUST_TAG = _regEx(
-      /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@Q|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([^]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
+      /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@Q|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
       .source.replace('@Q', brackets.R_STRINGS.source), 'gim'),
     STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
     SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
@@ -562,7 +562,8 @@ var compile = (function () {
     compile: compile,
     html: compileHTML,
     style: compileCSS,
-    js: compileJS
+    js: compileJS,
+    version: 'WIP'
   }
   return compile
 
