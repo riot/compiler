@@ -1,4 +1,4 @@
-/* riot-compiler v2.3.16-beta, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
 'use strict'  // eslint-disable-line
 
 /**
@@ -623,5 +623,5 @@ module.exports = {
   style: compileCSS,
   js: compileJS,
   parsers: parsers,
-  version: 'v2.3.16-beta'
+  version: 'WIP'
 }

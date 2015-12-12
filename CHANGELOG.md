@@ -4,7 +4,7 @@
 
 - Regression of optimized regexes not working in IE9/10.
 - Fix #36 : removed the excluded strings from the ouput.
-- Fix: avoid changing the global brackets when the compiler is called with other brackets (requires riot-tmpl v2.3.15).
+- Fix: avoid changing the global brackets when the compiler is called with other brackets (requires riot-tmpl v2.3.17).
 - Preparation for recognize the raw-html flag `=` (can change in the final implementation).
 - A new property `version` (string) is included in the compiler set.
 
