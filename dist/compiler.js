@@ -523,6 +523,8 @@ function compile(src, opts, url) {
 
   if (!opts) opts = {}
 
+  url = url || process.cwd()
+
   exclude = opts.exclude || false
   function included(s) { return !(exclude && ~exclude.indexOf(s)) }
 

@@ -29,7 +29,7 @@
     "compiler"
   ],
   "dependencies": {
-    "riot-tmpl": "^2.3.16"
+    "riot-tmpl": "^2.3.17"
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
