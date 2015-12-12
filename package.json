@@ -1,6 +1,6 @@
 {
   "name": "riot-compiler",
-  "version": "2.3.16",
+  "version": "2.3.16-beta",
   "description": "Compiler for riot .tag files",
   "main": "dist/compiler.js",
   "jsnext:main": "dist/es6.compiler.js",
