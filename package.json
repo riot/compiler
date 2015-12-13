@@ -1,6 +1,6 @@
 {
   "name": "riot-compiler",
-  "version": "2.3.16-beta",
+  "version": "2.3.18",
   "description": "Compiler for riot .tag files",
   "main": "dist/compiler.js",
   "jsnext:main": "dist/es6.compiler.js",
@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "test": "make test",
-    "prepublish": "make build bump"
+    "prepublish": "make build && node bump"
   },
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
     "compiler"
   ],
   "dependencies": {
-    "riot-tmpl": "^2.3.17"
+    "riot-tmpl": "^2.3.18"
   },
   "devDependencies": {
     "coveralls": "^2.11.4",

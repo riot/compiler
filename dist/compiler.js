@@ -1,4 +1,4 @@
-/* riot-compiler WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler v2.3.18, @license MIT, (c) 2015 Muut Inc. + contributors */
 'use strict'  // eslint-disable-line
 
 /**
@@ -150,7 +150,7 @@ var brackets = require('riot-tmpl').brackets
 
 // istanbul ignore next
 if (!brackets.version) {
-  throw new Error('This compiler version requires riot-tmpl v2.3.16 or above')
+  throw new Error('This compiler version requires riot-tmpl v2.3.18 or above')
 }
 
 function _regEx(str, opt) { return new RegExp(str, opt) }
@@ -469,6 +469,7 @@ function getCode(code, opts, attrs, url) {
   var type = getType(attrs),
     parserOpts = getParserOptions(attrs)
 
+  // istanbul ignore else
   if (url) {
     var src = getAttr(attrs, 'src')
     if (src) {
@@ -523,7 +524,7 @@ function compile(src, opts, url) {
 
   if (!opts) opts = {}
 
-  url = url || process.cwd()
+  url = url || process.cwd() + '/.'
 
   exclude = opts.exclude || false
   function included(s) { return !(exclude && ~exclude.indexOf(s)) }
@@ -623,5 +624,5 @@ module.exports = {
   style: compileCSS,
   js: compileJS,
   parsers: parsers,
-  version: 'WIP'
+  version: 'v2.3.18'
 }
