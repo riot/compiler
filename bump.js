@@ -25,19 +25,12 @@ fs.readdirSync(fpath).forEach(function (name) {
     name = path.join(fpath, name)
     console.log(name)
 
-    fs.readFile(name, 'utf8', function (err, src) {
-      if (err) throw err
-      fs.writeFile(name, src.replace(re, version), 'utf8', function (err) {
-        throw err
-      })
-    })
+    var src = fs.readFileSync(name, 'utf8')
+    fs.writeFileSync(name, src.replace(re, version), 'utf8')
     count++
   }
 })
 
-process.on('exit', function (code) {
-  if (!count) {
-    console.log('Error: There\'s no .js files in %s', fpath)
-  }
-  if (code) process.exit(code)
-})
+if (!count) {
+  console.error('Error: There\'s no .js files in %s', fpath)
+}

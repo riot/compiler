@@ -103,13 +103,13 @@ riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version WIP
+ * @version v2.3.18
  */
 var compile = (function () {
 
   // istanbul ignore next
   if (!brackets.version) {
-    throw new Error('This compiler version requires riot-tmpl v2.3.16 or above')
+    throw new Error('This compiler version requires riot-tmpl v2.3.18 or above')
   }
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
@@ -563,7 +563,7 @@ var compile = (function () {
     html: compileHTML,
     style: compileCSS,
     js: compileJS,
-    version: 'WIP'
+    version: 'v2.3.18'
   }
   return compile
 
