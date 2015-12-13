@@ -469,6 +469,7 @@ function getCode(code, opts, attrs, url) {
   var type = getType(attrs),
     parserOpts = getParserOptions(attrs)
 
+  // istanbul ignore else
   if (url) {
     var src = getAttr(attrs, 'src')
     if (src) {
@@ -523,7 +524,7 @@ function compile(src, opts, url) {
 
   if (!opts) opts = {}
 
-  url = url || process.cwd()
+  url = url || process.cwd() + '/.'
 
   exclude = opts.exclude || false
   function included(s) { return !(exclude && ~exclude.indexOf(s)) }

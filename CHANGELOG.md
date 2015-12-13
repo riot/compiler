@@ -1,12 +1,13 @@
 # Compiler Changes
 
-### v2.3.16
+### v2.3.18
 
 - Regression of optimized regexes not working in IE9/10.
 - Fix #36 : removed the excluded strings from the ouput.
 - Fix: avoid changing the global brackets when the compiler is called with other brackets (requires riot-tmpl v2.3.15).
 - Preparation for recognize the raw-html flag `=` (can change in the final implementation).
 - A new property `version` (string) is included in the compiler set.
+- Fixes to travis CI and the bump routine
 
 ### v2.3.15 (unpublished from npm)
 
