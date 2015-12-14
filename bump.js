@@ -16,6 +16,8 @@ var
   count  = 0,
   re = RegExp('\\b' + repStr.replace(/(?=[[\]()*+?.^$|])/g, '\\') + '\\b', 'g')
 
+process.exitCode = 0
+
 version = 'v' + version
 console.log('bump %s for %s', version, path.join(fpath, '*.js'))
 
@@ -25,12 +27,21 @@ fs.readdirSync(fpath).forEach(function (name) {
     name = path.join(fpath, name)
     console.log(name)
 
-    var src = fs.readFileSync(name, 'utf8')
-    fs.writeFileSync(name, src.replace(re, version), 'utf8')
+    fs.readFile(name, 'utf8', function (err, src) {
+      if (err) throw err
+      fs.writeFile(name, src.replace(re, version), 'utf8', function (err2) {
+        if (err2) throw err2
+      })
+    })
     count++
   }
 })
 
 if (!count) {
   console.error('Error: There\'s no .js files in %s', fpath)
+  process.exitCode = 1
 }
+
+process.on('exit', function (code) {
+  if (code) process.exit(code)
+})

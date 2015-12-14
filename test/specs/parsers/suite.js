@@ -76,8 +76,8 @@ describe('HTML parsers', function () {
     })
 
     it('plays with quoted values', function () {
-      testStr('<a href={ "a" }>', '<a href="{@ "a"}">', opts)
-      testStr('<a>{"b"}</a>', '<a>{@"b"}</a>', opts)
+      testStr('<a href={ "a" }>', '<a href="{@ \u2057a\u2057}">', opts)
+      testStr('<a>{"b"}</a>', '<a>{@\u2057b\u2057}</a>', opts)
     })
 
     it('remove the last semi-colon', function () {
@@ -295,7 +295,7 @@ describe('Other', function () {
   it('emiting raw html through the `=` flag, with parser', function () {
     // custom parser
     compiler.parsers.js.rawhtml = function(js) {
-      return js.replace(/"/g, '&quot;').replace(/'/g, '"')
+      return js.replace(/"/g, '&quot;')
     }
     testParser('raw', { type: 'rawhtml', expr: true })
   })

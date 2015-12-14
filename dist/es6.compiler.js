@@ -1,6 +1,6 @@
 /**
  * Compiler for riot custom tags
- * @version v2.3.18
+ * @version WIP
  */
 
 import { brackets } from 'riot-tmpl'
@@ -108,11 +108,6 @@ var parsers = (function () {
 /**
  * @module compiler
  */
-
-// istanbul ignore next
-if (!brackets.version) {
-  throw new Error('This compiler version requires riot-tmpl v2.3.18 or above')
-}
 
 function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -241,7 +236,7 @@ function restoreExpr(html, pcex) {
               .replace(/>/g, '&gt;')
           })
         }
-        return pcex._bp[0] + expr
+        return pcex._bp[0] + expr.replace(/"/g, '\u2057')
       })
   }
   return html
@@ -560,7 +555,7 @@ function compile(src, opts, url) {
   return src
 }
 
-var version = 'v2.3.18'
+var version = 'WIP'
 
 export default {
   compile,

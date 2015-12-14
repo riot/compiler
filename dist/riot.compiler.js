@@ -103,14 +103,9 @@ riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version v2.3.18
+ * @version WIP
  */
 var compile = (function () {
-
-  // istanbul ignore next
-  if (!brackets.version) {
-    throw new Error('This compiler version requires riot-tmpl v2.3.18 or above')
-  }
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -239,7 +234,7 @@ var compile = (function () {
                 .replace(/>/g, '&gt;')
             })
           }
-          return pcex._bp[0] + expr
+          return pcex._bp[0] + expr.replace(/"/g, '\u2057')
         })
     }
     return html
@@ -563,7 +558,7 @@ var compile = (function () {
     html: compileHTML,
     style: compileCSS,
     js: compileJS,
-    version: 'v2.3.18'
+    version: 'WIP'
   }
   return compile
 

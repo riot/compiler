@@ -1,4 +1,4 @@
-/* riot-compiler v2.3.18, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
 'use strict'  // eslint-disable-line
 
 /**
@@ -142,16 +142,201 @@ var parsers = (function () {
 
 })()
 
-var brackets = require('riot-tmpl').brackets
+/**
+ * @module brackets
+ *
+ * `brackets         ` Returns a string or regex based on its parameter
+ * `brackets.settings` Mirrors the `riot.settings` object (use brackets.set in new code)
+ * `brackets.set     ` Change the current riot brackets
+ */
+
+var brackets = (function (UNDEF) {
+
+  var
+    REGLOB  = 'g',
+
+    MLCOMMS = /\/\*[^*]*\*+(?:[^*\/][^*]*\*+)*\//g,
+    STRINGS = /"[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'/g,
+
+    S_QBSRC = STRINGS.source + '|' +
+      /(?:\breturn\s+|(?:[$\w\)\]]|\+\+|--)\s*(\/)(?![*\/]))/.source + '|' +
+      /\/(?=[^*\/])[^[\/\\]*(?:(?:\[(?:\\.|[^\]\\]*)*\]|\\.)[^[\/\\]*)*?(\/)[gim]*/.source,
+
+    DEFAULT = '{ }',
+
+    FINDBRACES = {
+      '(': RegExp('([()])|'   + S_QBSRC, REGLOB),
+      '[': RegExp('([[\\]])|' + S_QBSRC, REGLOB),
+      '{': RegExp('([{}])|'   + S_QBSRC, REGLOB)
+    }
+
+  var
+    cachedBrackets = UNDEF,
+    _regex,
+    _pairs = []
+
+  function _loopback(re) { return re }
+
+  function _rewrite(re, bp) {
+    // istanbul ignore next
+    if (!bp) bp = _pairs
+    return new RegExp(
+      re.source.replace(/{/g, bp[2]).replace(/}/g, bp[3]), re.global ? REGLOB : ''
+    )
+  }
+
+  function _create(pair) {
+    var
+      cvt,
+      arr = pair.split(' ')
+
+    if (pair === DEFAULT) {
+      arr[2] = arr[0]
+      arr[3] = arr[1]
+      cvt = _loopback
+    }
+    else {
+      // istanbul ignore next
+      if (arr.length !== 2 || /[\x00-\x1F<>a-zA-Z0-9'",;\\]/.test(pair)) {
+        throw new Error('Unsupported brackets "' + pair + '"')
+      }
+      arr = arr.concat(pair.replace(/(?=[[\]()*+?.^$|])/g, '\\').split(' '))
+      cvt = _rewrite
+    }
+    // istanbul ignore next
+    arr[4] = cvt(arr[1].length > 1 ? /{[\S\s]*?}/ : /{[^}]*}/, arr)
+    arr[5] = cvt(/\\({|})/g, arr)
+    arr[6] = cvt(/(\\?)({)/g, arr)
+    arr[7] = RegExp('(\\\\?)(?:([[({])|(' + arr[3] + '))|' + S_QBSRC, REGLOB)
+    arr[8] = pair
+    return arr
+  }
+
+   // istanbul ignore next
+  function _reset(pair) {
+    if (!pair) pair = DEFAULT
+
+    if (pair !== _pairs[8]) {
+      _pairs = _create(pair)
+      _regex = pair === DEFAULT ? _loopback : _rewrite
+      _pairs[9] = _regex(/^\s*{\^?\s*([$\w]+)(?:\s*,\s*(\S+))?\s+in\s+(\S.*)\s*}/)
+      _pairs[10] = _regex(/(^|[^\\]){=[\S\s]*?}/)
+      _brackets._rawOffset = _pairs[0].length
+    }
+    cachedBrackets = pair
+  }
+
+   // istanbul ignore next
+  function _brackets(reOrIdx) {
+    return reOrIdx instanceof RegExp ? _regex(reOrIdx) : _pairs[reOrIdx]
+  }
+
+  _brackets.split = function split(str, tmpl, _bp) {
+    // istanbul ignore next: _bp is for the compiler
+    if (!_bp) _bp = _pairs
+
+    var
+      parts = [],
+      match,
+      isexpr,
+      start,
+      pos,
+      re = _bp[6]
+
+    isexpr = start = re.lastIndex = 0
+
+    while (match = re.exec(str)) {
+
+      pos = match.index
+
+      if (isexpr) {
+
+        if (match[2]) {
+          re.lastIndex = skipBraces(match[2], re.lastIndex)
+          continue
+        }
+
+        if (!match[3])
+          continue
+      }
+
+      if (!match[1]) {
+        unescapeStr(str.slice(start, pos))
+        start = re.lastIndex
+        re = _bp[6 + (isexpr ^= 1)]
+        re.lastIndex = start
+      }
+    }
+
+    if (str && start < str.length) {
+      unescapeStr(str.slice(start))
+    }
+
+    return parts
+
+    function unescapeStr(str) {
+      if (tmpl || isexpr)
+        parts.push(str && str.replace(_bp[5], '$1'))
+      else
+        parts.push(str)
+    }
+
+    function skipBraces(ch, pos) {
+      var
+        match,
+        recch = FINDBRACES[ch],
+        level = 1
+      recch.lastIndex = pos
+
+      while (match = recch.exec(str)) {
+        // istanbul ignore next
+        if (match[1] &&
+          !(match[1] === ch ? ++level : --level)) break
+      }
+      // istanbul ignore next
+      return match ? recch.lastIndex : str.length
+    }
+  }
+
+  _brackets.array = function array(pair) {
+    return _create(pair || cachedBrackets)
+  }
+
+  var _settings
+  // istanbul ignore next
+  function _setSettings(o) {
+    var b
+    o = o || {}
+    b = o.brackets
+    Object.defineProperty(o, 'brackets', {
+      set: _reset,
+      get: function () { return cachedBrackets },
+      enumerable: true
+    })
+    _settings = o
+    _reset(b)
+  }
+  // istanbul ignore next
+  Object.defineProperty(_brackets, 'settings', {
+    set: _setSettings,
+    get: function () { return _settings }
+  })
+
+  /* istanbul ignore next: in the node version riot is not in the scope */
+  _brackets.settings = typeof riot !== 'undefined' && riot.settings || {}
+  _brackets.set = _reset
+
+  _brackets.R_STRINGS = STRINGS
+  _brackets.R_MLCOMMS = MLCOMMS
+  _brackets.S_QBLOCKS = S_QBSRC
+
+  return _brackets
+
+})()
 
 /**
  * @module compiler
  */
-
-// istanbul ignore next
-if (!brackets.version) {
-  throw new Error('This compiler version requires riot-tmpl v2.3.18 or above')
-}
 
 function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -282,7 +467,7 @@ function restoreExpr(html, pcex) {
               .replace(/>/g, '&gt;')
           })
         }
-        return pcex._bp[0] + expr
+        return pcex._bp[0] + expr.replace(/"/g, '\u2057')
       })
   }
   return html
@@ -624,5 +809,5 @@ module.exports = {
   style: compileCSS,
   js: compileJS,
   parsers: parsers,
-  version: 'v2.3.18'
+  version: 'WIP'
 }

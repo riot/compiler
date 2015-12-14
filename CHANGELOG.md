@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v2.3.19
+- Fixing issues with double quotes.
+- Removed dependency on riot-tmpl, now we are using a local version of `brackets` for node builds.
+
 ### v2.3.18
 
 - Regression of optimized regexes not working in IE9/10.
