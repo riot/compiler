@@ -292,16 +292,18 @@ There are functions in the node.js build that allow you to compile certain sourc
 | --------- | ---- | -----------
 | source    | string | html markup, without styles nor JavaScript code
 | compilerOptions | object | optional. Used properties: `brackets`, `withespace`, `compact`, `type`, `expr`
-| compiledExpressions | Array | optional. See below.
+| expressions | Array | optional. See below.
 
-`compiledExpressions` is interesting, on return it holds, in order of appearance, trimmed and without brackets, the expressions found in the html. If you set `type` and `expr` in the `compilerOptions` parameter, the expressions will be compiled.
+The `expressions` parameter is interesting, on return it holds, in order of appearance, trimmed and without brackets, the expressions found in the html. If you set `type` and `expr` in the `compilerOptions` parameter, the expressions will be compiled.
+
+**Note** `expressions` is exposed for debugging purposes, but not dependent on it, its format may be altered in future versions.
 
 #### css(source, parserName, extraOptions)
 
 | parameter | type | description
 | --------- | ---- | -----------
 | source    | string | styles
-| parserName   | string/function | optional, can be omited. If string, must be one of `parsers.js`
+| parserName   | string | optional, can be omited. Must be one of `parsers.js`
 | extraOptions | Object | optional, can be omited. Used properties: `tagName`, `parserOpts`, `url`, and `scoped`
 
 `tagName`, `parserOpts`, `url` are passed to the given parser.
