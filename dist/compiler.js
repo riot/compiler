@@ -1,11 +1,31 @@
-/* riot-compiler v2.3.18, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler v2.3.19, @license MIT, (c) 2015 Muut Inc. + contributors */
 'use strict'  // eslint-disable-line
 
 /**
  * @module parsers
  */
 var parsers = (function () {
-  var _mods = {}
+  var _mods = {
+    none: function (js) {
+      return js
+    }
+  }
+  _mods.javascript = _mods.none
+
+  var _modnames = {
+    es6: 'babel',
+    babel: 'babel-core',
+    javascript: 'none',
+    typescript: 'typescript-simple',
+    coffee: 'coffee-script',
+    coffeescript: 'coffee-script',
+    scss: 'node-sass',
+    sass: 'node-sass'
+  }
+
+  function _modname(name) {
+    return _modnames[name] || name
+  }
 
   function _try(name, req) {  //eslint-disable-line complexity
     var parser
@@ -20,32 +40,11 @@ var parsers = (function () {
       return _mods[name]
     }
 
-    switch (name) {
-    case 'es6':
-      /* istanbul ignore next */
+    /* istanbul ignore next */
+    if (name === 'es6')
       return fn('babel') || fn('babel-core')
-    case 'babel':
-      req = 'babel-core'
-      break
-    case 'none':
-    case 'javascript':
-      return _js.none
-    case 'typescript':
-      req = name + '-simple'
-      break
-    case 'coffee':
-    case 'coffeescript':
-      req = 'coffee-script'
-      break
-    case 'scss':
-    case 'sass':
-      req = 'node-sass'
-      break
-    default:
-      if (!req) req = name
-      break
-    }
-    parser = fn(req)
+
+    parser = fn(req || _modname(name))
 
     return parser
   }
@@ -76,9 +75,9 @@ var parsers = (function () {
       }, opts)).css + ''
     },
     scss: function(tag, css, opts, url) {
-      var sass = _req('sass')
+      var scss = _req('scss')
 
-      return sass.renderSync(extend({
+      return scss.renderSync(extend({
         data: css,
         indentedSyntax: false,
         omitSourceMapUrl: true,
@@ -109,9 +108,6 @@ var parsers = (function () {
   }
 
   var _js = {
-    none: function (js, opts, url) {
-      return js
-    },
     livescript: function (js, opts, url) {
       return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
     },
@@ -124,34 +120,174 @@ var parsers = (function () {
       }, opts)).code
     },
     babel: function (js, opts, url) {
+      // istanbul ignore next: url empty if comming from expression
       return _req('babel').transform(js,
         extend({
-          filename: url
+          filename: url || ''
         }, opts)
       ).code
     },
     coffee: function (js, opts, url) {
       return _req('coffee').compile(js, extend({bare: true}, opts))
-    }
+    },
+    none: _mods.none
   }
 
   _js.javascript   = _js.none
   _js.coffeescript = _js.coffee
 
-  return {html: _html, css: _css, js: _js, _req: _req}
+  return {
+    html: _html,
+    css: _css,
+    js: _js,
+    _modname: _modname,
+    _req: _req}
 
 })()
 
-var brackets = require('riot-tmpl').brackets
+/**
+ * @module brackets
+ *
+ * `brackets         ` Returns a string or regex based on its parameter
+ * `brackets.settings` Mirrors the `riot.settings` object (use brackets.set in new code)
+ * `brackets.set     ` Change the current riot brackets
+ */
+
+var brackets = (function () {
+
+  var
+    REGLOB  = 'g',
+
+    MLCOMMS = /\/\*[^*]*\*+(?:[^*\/][^*]*\*+)*\//g,
+    STRINGS = /"[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'/g,
+
+    S_QBSRC = STRINGS.source + '|' +
+      /(?:\breturn\s+|(?:[$\w\)\]]|\+\+|--)\s*(\/)(?![*\/]))/.source + '|' +
+      /\/(?=[^*\/])[^[\/\\]*(?:(?:\[(?:\\.|[^\]\\]*)*\]|\\.)[^[\/\\]*)*?(\/)[gim]*/.source,
+
+    DEFAULT = '{ }',
+
+    FINDBRACES = {
+      '(': RegExp('([()])|'   + S_QBSRC, REGLOB),
+      '[': RegExp('([[\\]])|' + S_QBSRC, REGLOB),
+      '{': RegExp('([{}])|'   + S_QBSRC, REGLOB)
+    },
+
+    _pairs = [
+      '{', '}',
+      '{', '}',
+      /{[^}]*}/,
+      /\\({|})/g,
+      /(\\?)({)/g,
+      RegExp('(\\\\?)(?:([[({])|(}))|' + S_QBSRC, REGLOB),
+      DEFAULT
+    ]
+
+  function _rewrite(re, bp) {
+    return RegExp(
+      re.source.replace(/{/g, bp[2]).replace(/}/g, bp[3]), re.global ? REGLOB : ''
+    )
+  }
+
+  var _brackets = {
+    R_STRINGS: STRINGS,
+    R_MLCOMMS: MLCOMMS,
+    S_QBLOCKS: S_QBSRC
+  }
+
+  _brackets.split = function split(str, tmpl, _bp) {
+
+    var
+      parts = [],
+      match,
+      isexpr,
+      start,
+      pos,
+      re = _bp[6]
+
+    isexpr = start = re.lastIndex = 0
+
+    while (match = re.exec(str)) {
+
+      pos = match.index
+
+      if (isexpr) {
+
+        if (match[2]) {
+          re.lastIndex = skipBraces(match[2], re.lastIndex)
+          continue
+        }
+
+        if (!match[3])
+          continue
+      }
+
+      if (!match[1]) {
+        unescapeStr(str.slice(start, pos))
+        start = re.lastIndex
+        re = _bp[6 + (isexpr ^= 1)]
+        re.lastIndex = start
+      }
+    }
+
+    if (str && start < str.length) {
+      unescapeStr(str.slice(start))
+    }
+
+    return parts
+
+    function unescapeStr(str) {
+      if (isexpr)
+        parts.push(str && str.replace(_bp[5], '$1'))
+      else
+        parts.push(str)
+    }
+
+    function skipBraces(ch, pos) {
+      var
+        match,
+        recch = FINDBRACES[ch],
+        level = 1
+      recch.lastIndex = pos
+
+      while (match = recch.exec(str)) {
+        // istanbul ignore next
+        if (match[1] &&
+          !(match[1] === ch ? ++level : --level)) break
+      }
+      // istanbul ignore next
+      return match ? recch.lastIndex : str.length
+    }
+  }
+
+  _brackets.array = function array(pair) {
+
+    if (!pair || pair === DEFAULT) return _pairs
+    var
+      arr = pair.split(' ')
+
+    // istanbul ignore next
+    if (arr.length !== 2 || /[\x00-\x1F<>a-zA-Z0-9'",;\\]/.test(pair)) {
+      throw new Error('Unsupported brackets "' + pair + '"')
+    }
+    arr = arr.concat(pair.replace(/(?=[[\]()*+?.^$|])/g, '\\').split(' '))
+
+    // istanbul ignore next
+    arr[4] = _rewrite(arr[1].length > 1 ? /{[\S\s]*?}/ : _pairs[4], arr)
+    arr[5] = _rewrite(/\\({|})/g, arr)
+    arr[6] = _rewrite(/(\\?)({)/g, arr)
+    arr[7] = RegExp('(\\\\?)(?:([[({])|(' + arr[3] + '))|' + S_QBSRC, REGLOB)
+    arr[8] = pair
+    return arr
+  }
+
+  return _brackets
+
+})()
 
 /**
  * @module compiler
  */
-
-// istanbul ignore next
-if (!brackets.version) {
-  throw new Error('This compiler version requires riot-tmpl v2.3.18 or above')
-}
 
 function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -249,7 +385,7 @@ function splitHtml(html, opts, pcex) {
 
   if (html && _bp[4].test(html)) {
     var
-      jsfn = opts.expr && (opts.parser || opts.type) ? compileJS : 0,
+      jsfn = opts.expr && (opts.parser || opts.type) ? _compileJS : 0,
       list = brackets.split(html, 0, _bp),
       expr
 
@@ -282,7 +418,7 @@ function restoreExpr(html, pcex) {
               .replace(/>/g, '&gt;')
           })
         }
-        return pcex._bp[0] + expr
+        return pcex._bp[0] + expr.replace(/"/g, '\u2057')
       })
   }
   return html
@@ -295,13 +431,7 @@ var
     /<pre(?:\s+[^'">]+(?:(?:@Q)[^'">]*)*|\s*)?>([\S\s]*?)<\/pre\s*>/
     .source.replace('@Q', brackets.R_STRINGS.source), 'gi')
 
-function compileHTML(html, opts, pcex  ) {
-
-  var intf = (pcex || (pcex = []))._intflag
-  if (!intf)
-    html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT, '').replace(TRIM_TRAIL, '')
-
-  if (!pcex._bp) pcex._bp = brackets.array(opts.brackets)
+function _compileHTML(html, opts, pcex) {
 
   html = splitHtml(html, opts, pcex)
     .replace(HTML_TAGS, function (_, name, attr, ends) {
@@ -331,6 +461,25 @@ function compileHTML(html, opts, pcex  ) {
   if (opts.compact) html = html.replace(/> <([-\w\/])/g, '><$1')
 
   return restoreExpr(html, pcex)
+}
+
+// istanbul ignore next
+function compileHTML(html, opts, pcex) {
+  if (Array.isArray(opts)) {
+    pcex = opts
+    opts = {}
+  }
+  else {
+    if (!pcex) pcex = []
+    if (!opts) opts = {}
+  }
+
+  if (!pcex.__intflag)
+    html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT, '').replace(TRIM_TRAIL, '')
+
+  if (!pcex._bp) pcex._bp = brackets.array(opts.brackets)
+
+  return _compileHTML(html, opts, pcex)
 }
 
 var
@@ -377,7 +526,7 @@ function riotjs(js) {
   }
 }
 
-function compileJS(js, opts, type, parserOpts, url) {
+function _compileJS(js, opts, type, parserOpts, url) {
   if (!js) return ''
   if (!type) type = opts.type
 
@@ -386,6 +535,22 @@ function compileJS(js, opts, type, parserOpts, url) {
     throw new Error('JS parser not found: "' + type + '"')
 
   return parser(js, parserOpts, url).replace(TRIM_TRAIL, '')
+}
+
+// istanbul ignore next
+function compileJS(js, opts, type, extra) {
+  if (typeof opts === 'string') {
+    extra = type
+    type = opts
+    opts = {}
+  }
+  if (typeof type === 'object') {
+    extra = type
+    type = ''
+  }
+  else if (!extra) extra = {}
+
+  return _compileJS(js, opts, type, extra.parserOptions, extra.url)
 }
 
 var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
@@ -413,14 +578,15 @@ function scopedCSS(tag, style) {
   })
 }
 
-function compileCSS(style, tag, type, scoped, opts) {
+function _compileCSS(style, tag, type, opts) {
+  var scoped = (opts || (opts = {})).scoped
 
   if (type) {
     if (type === 'scoped-css') {
       scoped = true
     }
     else if (parsers.css[type]) {
-      style = parsers.css[type](tag, style, opts)
+      style = parsers.css[type](tag, style, opts.parserOpts, opts.url)
     }
     else if (type !== 'css') {
       throw new Error('CSS parser not found: "' + type + '"')
@@ -429,7 +595,23 @@ function compileCSS(style, tag, type, scoped, opts) {
 
   style = style.replace(brackets.R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
 
-  return scoped ? scopedCSS(tag, style) : style
+  if (scoped) {
+    // istanbul ignore next
+    if (!tag)
+      throw new Error('Can not parse scoped CSS without a tagName')
+    style = scopedCSS(tag, style)
+  }
+  return style
+}
+
+// istanbul ignore next
+function compileCSS(style, parser, opts) {
+  if (typeof parser === 'object') {
+    opts = parser
+    parser = ''
+  }
+  else if (!opts) opts = {}
+  return _compileCSS(style, opts.tagName, parser, opts)
 }
 
 var
@@ -479,7 +661,7 @@ function getCode(code, opts, attrs, url) {
       code = require('fs').readFileSync(file, charset || 'utf8')
     }
   }
-  return compileJS(code, opts, type, parserOpts, url)
+  return _compileJS(code, opts, type, parserOpts, url)
 }
 
 var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
@@ -545,7 +727,7 @@ function compile(src, opts, url) {
         pcex = []
 
       pcex._bp = _bp
-      pcex._intflag = 1
+      pcex.__intflag = 1
 
       tagName = tagName.toLowerCase()
 
@@ -558,16 +740,19 @@ function compile(src, opts, url) {
 
         if (body2) {
           /* istanbul ignore next */
-          html = included('html') ? compileHTML(body2, opts, pcex, 1, url) : ''
+          html = included('html') ? _compileHTML(body2, opts, pcex) : ''
         }
         else {
           body = body.replace(_regEx('^' + indent, 'gm'), '')
 
           body = body.replace(STYLE, included('css') ? function (_, _attrs, _style) {
-            var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
-              csstype = getType(_attrs) || opts.style
+            var extraOpts = {
+              scoped: _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
+              url: url,
+              parserOpts: getParserOptions(_attrs)
+            }
             styles += (styles ? ' ' : '') +
-              compileCSS(_style, tagName, csstype, scoped, getParserOptions(_attrs), url)
+              _compileCSS(_style, tagName, getType(_attrs) || opts.style, extraOpts)
             return ''
           } : '')
 
@@ -581,13 +766,13 @@ function compile(src, opts, url) {
           if (included('html')) {
             body = blocks[0]
             if (body)
-              html = compileHTML(body, opts, pcex, 1)
+              html = _compileHTML(body, opts, pcex)
           }
 
           if (included('js')) {
             body = blocks[1]
             if (/\S/.test(body))
-              jscode += (jscode ? '\n' : '') + compileJS(body, opts, null, null, url)
+              jscode += (jscode ? '\n' : '') + _compileJS(body, opts, null, null, url)
           }
         }
       }
@@ -621,8 +806,9 @@ function compile(src, opts, url) {
 module.exports = {
   compile: compile,
   html: compileHTML,
-  style: compileCSS,
+  style: _compileCSS,
+  css: compileCSS,
   js: compileJS,
   parsers: parsers,
-  version: 'v2.3.18'
+  version: 'v2.3.19'
 }

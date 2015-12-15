@@ -12,7 +12,7 @@ var
 function have(mod, req) {
   if (compiler.parsers._req(mod, req))
     return true
-  console.error('\tnot installed locally: ' + (req || mod) + ' alias "' + mod + '"')
+  console.error('\tnot installed locally: ' + compiler.parsers._modname(req || mod) + ' alias "' + mod + '"')
   return false
 }
 
@@ -76,8 +76,8 @@ describe('HTML parsers', function () {
     })
 
     it('plays with quoted values', function () {
-      testStr('<a href={ "a" }>', '<a href="{@ "a"}">', opts)
-      testStr('<a>{"b"}</a>', '<a>{@"b"}</a>', opts)
+      testStr('<a href={ "a" }>', '<a href="{@ \u2057a\u2057}">', opts)
+      testStr('<a>{"b"}</a>', '<a>{@\u2057b\u2057}</a>', opts)
     })
 
     it('remove the last semi-colon', function () {
@@ -216,14 +216,14 @@ describe('Style parsers', function () {
 
   // scss.tag
   it('scss, indented 2, margin 0', function () {
-    if (have('scss', 'node-sass')) {
+    if (have('scss')) {
       testParser('scss', {})
     }
   })
 
   // testing the options attribute on the style tag
   it('custom style options', function () {
-    if (have('sass', 'node-sass')) {
+    if (have('sass')) {
       testParser('sass.options', {})
     }
   })
@@ -295,7 +295,7 @@ describe('Other', function () {
   it('emiting raw html through the `=` flag, with parser', function () {
     // custom parser
     compiler.parsers.js.rawhtml = function(js) {
-      return js.replace(/"/g, '&quot;').replace(/'/g, '"')
+      return js.replace(/"/g, '&quot;')
     }
     testParser('raw', { type: 'rawhtml', expr: true })
   })

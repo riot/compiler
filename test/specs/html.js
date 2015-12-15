@@ -69,10 +69,10 @@ describe('Compile HTML', function() {
     })
 
     it('nested double quotes are supported in expressions', function () {
-      testStr('<p x={ "a" } y="{2}">', '<p x="{"a"}" y="{2}">')
-      testStr('<p x="{"a"}" y="{2}">', '<p x="{"a"}" y="{2}">')
-      testStr('<p x=\'{"a"}\' y="{2}">', '<p x="{"a"}" y="{2}">')
-      testStr('<p x="{""}">', '<p x="{""}">')
+      testStr('<p x={ "a" } y="{2}">', '<p x="{\u2057a\u2057}" y="{2}">')
+      testStr('<p x="{"a"}" y="{2}">', '<p x="{\u2057a\u2057}" y="{2}">')
+      testStr('<p x=\'{"a"}\' y="{2}">', '<p x="{\u2057a\u2057}" y="{2}">')
+      testStr('<p x="{""}">', '<p x="{\u2057\u2057}">')
     })
 
     it('single quotes in expressions are escaped', function () {
@@ -119,10 +119,10 @@ describe('Compile HTML', function() {
     it('raw html detection through the `=` flag', function () {
       testStr(
         '<p>{= \'<\' + myElem + \' style="color: \' + myColor + \';">\\n Click me</\' + myElem + \'>\'}</p>',
-        '<p>{= \'&lt;\' + myElem + \' style="color: \' + myColor + \';"&gt;\\n Click me&lt;/\' + myElem + \'&gt;\'}</p>')
+        '<p>{= \'&lt;\' + myElem + \' style=\u2057color: \' + myColor + \';\u2057&gt;\\n Click me&lt;/\' + myElem + \'&gt;\'}</p>')
         testStr(
           '<ul><li>{= ["foo", "bar"].join(\'<br/>\') }</li></ul>',
-          '<ul><li>{= ["foo", "bar"].join(\'&lt;br/&gt;\')}</li></ul>')
+          '<ul><li>{= [\u2057foo\u2057, \u2057bar\u2057].join(\'&lt;br/&gt;\')}</li></ul>')
     })
 
   })

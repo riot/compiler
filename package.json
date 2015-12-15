@@ -1,6 +1,6 @@
 {
   "name": "riot-compiler",
-  "version": "2.3.18",
+  "version": "2.3.19",
   "description": "Compiler for riot .tag files",
   "main": "dist/compiler.js",
   "jsnext:main": "dist/es6.compiler.js",
@@ -28,9 +28,6 @@
     "tag",
     "compiler"
   ],
-  "dependencies": {
-    "riot-tmpl": "^2.3.18"
-  },
   "devDependencies": {
     "coveralls": "^2.11.4",
     "eslint": "^1.10.3",

@@ -3,7 +3,12 @@
  * @module parsers
  */
 var parsers = (function () {
-  var _mods = {}
+  var _mods = {
+    none: function (js) {
+      return js
+    }
+  }
+  _mods.javascript = _mods.none
 
   function _try(name, req) {  //eslint-disable-line complexity
     var parser
@@ -13,8 +18,12 @@ var parsers = (function () {
       req = 'CoffeeScript'
       break
     case 'es6':
+    case 'babel':
       req = 'babel'
       break
+    case 'none':
+    case 'javascript':
+      return _mods.none
     default:
       if (!req) req = name
       break
@@ -23,6 +32,7 @@ var parsers = (function () {
 
     if (!parser)
       throw new Error(req + ' parser not found.')
+    _mods[name] = parser
 
     return parser
   }
@@ -66,9 +76,6 @@ var parsers = (function () {
   }
 
   var _js = {
-    none: function (js, opts, url) {
-      return js
-    },
     livescript: function (js, opts, url) {
       return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
     },
@@ -81,21 +88,27 @@ var parsers = (function () {
       }, opts)).code
     },
     babel: function (js, opts, url) {
+      // istanbul ignore next: url empty if comming from expression
       return _req('babel').transform(js,
         extend({
-          filename: url
+          filename: url || ''
         }, opts)
       ).code
     },
     coffee: function (js, opts, url) {
       return _req('coffee').compile(js, extend({bare: true}, opts))
-    }
+    },
+    none: _mods.none
   }
 
   _js.javascript   = _js.none
   _js.coffeescript = _js.coffee
 
-  return {html: _html, css: _css, js: _js, _req: _req}
+  return {
+    html: _html,
+    css: _css,
+    js: _js,
+    _req: _req}
 
 })()
 
@@ -103,14 +116,9 @@ riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version v2.3.18
+ * @version v2.3.19
  */
 var compile = (function () {
-
-  // istanbul ignore next
-  if (!brackets.version) {
-    throw new Error('This compiler version requires riot-tmpl v2.3.18 or above')
-  }
 
   function _regEx(str, opt) { return new RegExp(str, opt) }
 
@@ -206,7 +214,7 @@ var compile = (function () {
 
     if (html && _bp[4].test(html)) {
       var
-        jsfn = opts.expr && (opts.parser || opts.type) ? compileJS : 0,
+        jsfn = opts.expr && (opts.parser || opts.type) ? _compileJS : 0,
         list = brackets.split(html, 0, _bp),
         expr
 
@@ -239,7 +247,7 @@ var compile = (function () {
                 .replace(/>/g, '&gt;')
             })
           }
-          return pcex._bp[0] + expr
+          return pcex._bp[0] + expr.replace(/"/g, '\u2057')
         })
     }
     return html
@@ -252,13 +260,7 @@ var compile = (function () {
       /<pre(?:\s+[^'">]+(?:(?:@Q)[^'">]*)*|\s*)?>([\S\s]*?)<\/pre\s*>/
       .source.replace('@Q', brackets.R_STRINGS.source), 'gi')
 
-  function compileHTML(html, opts, pcex  ) {
-
-    var intf = (pcex || (pcex = []))._intflag
-    if (!intf)
-      html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT, '').replace(TRIM_TRAIL, '')
-
-    if (!pcex._bp) pcex._bp = brackets.array(opts.brackets)
+  function _compileHTML(html, opts, pcex) {
 
     html = splitHtml(html, opts, pcex)
       .replace(HTML_TAGS, function (_, name, attr, ends) {
@@ -288,6 +290,25 @@ var compile = (function () {
     if (opts.compact) html = html.replace(/> <([-\w\/])/g, '><$1')
 
     return restoreExpr(html, pcex)
+  }
+
+  // istanbul ignore next
+  function compileHTML(html, opts, pcex) {
+    if (Array.isArray(opts)) {
+      pcex = opts
+      opts = {}
+    }
+    else {
+      if (!pcex) pcex = []
+      if (!opts) opts = {}
+    }
+
+    if (!pcex.__intflag)
+      html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT, '').replace(TRIM_TRAIL, '')
+
+    if (!pcex._bp) pcex._bp = brackets.array(opts.brackets)
+
+    return _compileHTML(html, opts, pcex)
   }
 
   var
@@ -334,7 +355,7 @@ var compile = (function () {
     }
   }
 
-  function compileJS(js, opts, type, parserOpts, url) {
+  function _compileJS(js, opts, type, parserOpts, url) {
     if (!js) return ''
     if (!type) type = opts.type
 
@@ -343,6 +364,22 @@ var compile = (function () {
       throw new Error('JS parser not found: "' + type + '"')
 
     return parser(js, parserOpts, url).replace(TRIM_TRAIL, '')
+  }
+
+  // istanbul ignore next
+  function compileJS(js, opts, type, extra) {
+    if (typeof opts === 'string') {
+      extra = type
+      type = opts
+      opts = {}
+    }
+    if (typeof type === 'object') {
+      extra = type
+      type = ''
+    }
+    else if (!extra) extra = {}
+
+    return _compileJS(js, opts, type, extra.parserOptions, extra.url)
   }
 
   var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
@@ -370,14 +407,15 @@ var compile = (function () {
     })
   }
 
-  function compileCSS(style, tag, type, scoped, opts) {
+  function _compileCSS(style, tag, type, opts) {
+    var scoped = (opts || (opts = {})).scoped
 
     if (type) {
       if (type === 'scoped-css') {
         scoped = true
       }
       else if (parsers.css[type]) {
-        style = parsers.css[type](tag, style, opts)
+        style = parsers.css[type](tag, style, opts.parserOpts, opts.url)
       }
       else if (type !== 'css') {
         throw new Error('CSS parser not found: "' + type + '"')
@@ -386,7 +424,23 @@ var compile = (function () {
 
     style = style.replace(brackets.R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
 
-    return scoped ? scopedCSS(tag, style) : style
+    if (scoped) {
+      // istanbul ignore next
+      if (!tag)
+        throw new Error('Can not parse scoped CSS without a tagName')
+      style = scopedCSS(tag, style)
+    }
+    return style
+  }
+
+  // istanbul ignore next
+  function compileCSS(style, parser, opts) {
+    if (typeof parser === 'object') {
+      opts = parser
+      parser = ''
+    }
+    else if (!opts) opts = {}
+    return _compileCSS(style, opts.tagName, parser, opts)
   }
 
   var
@@ -426,7 +480,7 @@ var compile = (function () {
     var type = getType(attrs),
       parserOpts = getParserOptions(attrs)
 
-    return compileJS(code, opts, type, parserOpts, url)
+    return _compileJS(code, opts, type, parserOpts, url)
   }
 
   var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
@@ -490,7 +544,7 @@ var compile = (function () {
           pcex = []
 
         pcex._bp = _bp
-        pcex._intflag = 1
+        pcex.__intflag = 1
 
         tagName = tagName.toLowerCase()
 
@@ -503,16 +557,19 @@ var compile = (function () {
 
           if (body2) {
             /* istanbul ignore next */
-            html = included('html') ? compileHTML(body2, opts, pcex, 1, url) : ''
+            html = included('html') ? _compileHTML(body2, opts, pcex) : ''
           }
           else {
             body = body.replace(_regEx('^' + indent, 'gm'), '')
 
             body = body.replace(STYLE, included('css') ? function (_, _attrs, _style) {
-              var scoped = _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
-                csstype = getType(_attrs) || opts.style
+              var extraOpts = {
+                scoped: _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
+                url: url,
+                parserOpts: getParserOptions(_attrs)
+              }
               styles += (styles ? ' ' : '') +
-                compileCSS(_style, tagName, csstype, scoped, getParserOptions(_attrs), url)
+                _compileCSS(_style, tagName, getType(_attrs) || opts.style, extraOpts)
               return ''
             } : '')
 
@@ -526,13 +583,13 @@ var compile = (function () {
             if (included('html')) {
               body = blocks[0]
               if (body)
-                html = compileHTML(body, opts, pcex, 1)
+                html = _compileHTML(body, opts, pcex)
             }
 
             if (included('js')) {
               body = blocks[1]
               if (/\S/.test(body))
-                jscode += (jscode ? '\n' : '') + compileJS(body, opts, null, null, url)
+                jscode += (jscode ? '\n' : '') + _compileJS(body, opts, null, null, url)
             }
           }
         }
@@ -561,9 +618,9 @@ var compile = (function () {
   riot.util.compiler = {
     compile: compile,
     html: compileHTML,
-    style: compileCSS,
+    css: compileCSS,
     js: compileJS,
-    version: 'v2.3.18'
+    version: 'v2.3.19'
   }
   return compile
 
