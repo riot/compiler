@@ -12,7 +12,7 @@ var
 function have(mod, req) {
   if (compiler.parsers._req(mod, req))
     return true
-  console.error('\tnot installed locally: ' + (req || mod) + ' alias "' + mod + '"')
+  console.error('\tnot installed locally: ' + compiler.parsers._modname(req || mod) + ' alias "' + mod + '"')
   return false
 }
 
@@ -216,14 +216,14 @@ describe('Style parsers', function () {
 
   // scss.tag
   it('scss, indented 2, margin 0', function () {
-    if (have('scss', 'node-sass')) {
+    if (have('scss')) {
       testParser('scss', {})
     }
   })
 
   // testing the options attribute on the style tag
   it('custom style options', function () {
-    if (have('sass', 'node-sass')) {
+    if (have('sass')) {
       testParser('sass.options', {})
     }
   })
