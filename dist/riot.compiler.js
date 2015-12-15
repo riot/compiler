@@ -116,7 +116,7 @@ riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version v2.3.19
+ * @version WIP
  */
 var compile = (function () {
 
@@ -620,7 +620,7 @@ var compile = (function () {
     html: compileHTML,
     css: compileCSS,
     js: compileJS,
-    version: 'v2.3.19'
+    version: 'WIP'
   }
   return compile
 
