@@ -7,3 +7,4 @@
   this.change = function(e) {
     alert('Hello!')
   }.bind(this)
+  var str = '/* str */'

@@ -218,4 +218,12 @@ describe('Compile tags', function() {
     testFile('raw-html')
   })
 
+  it('Script and Style blocks inside strings must be skipped #1448', function () {
+    testFile('quoted-tags')
+  })
+
+  it('Html comments are removed anywhere, except inside JS strings', function () {
+    testFile('html-comments',1)
+  })
+
 })

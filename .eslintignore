@@ -5,3 +5,4 @@ test/**
 !test/server-specs/*.js
 !test/server-specs/parsers/*.js
 lib/_es6.js
+/**/*.md
