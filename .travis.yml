@@ -13,7 +13,29 @@ install:
   - npm i jade
   - npm i babel@5.8
   - npm i babel-core
-  - npm i babel-preset-es2015-riot
+
+ # babel presets
+  - npm i babel-plugin-transform-es2015-template-literals
+  - npm i babel-plugin-transform-es2015-literals
+  - npm i babel-plugin-transform-es2015-function-name
+  - npm i babel-plugin-transform-es2015-arrow-functions
+  - npm i babel-plugin-transform-es2015-block-scoped-functions
+  - npm i babel-plugin-transform-es2015-classes
+  - npm i babel-plugin-transform-es2015-object-super
+  - npm i babel-plugin-transform-es2015-shorthand-properties
+  - npm i babel-plugin-transform-es2015-computed-properties
+  - npm i babel-plugin-transform-es2015-for-of
+  - npm i babel-plugin-transform-es2015-sticky-regex
+  - npm i babel-plugin-transform-es2015-unicode-regex
+  - npm i babel-plugin-check-es2015-constants
+  - npm i babel-plugin-transform-es2015-spread
+  - npm i babel-plugin-transform-es2015-parameters
+  - npm i babel-plugin-transform-es2015-destructuring
+  - npm i babel-plugin-transform-es2015-block-scoping
+  - npm i babel-plugin-transform-es2015-typeof-symbol
+  - npm i babel-plugin-transform-es2015-modules-commonjs
+  - npm i babel-plugin-transform-regenerator
+
   - npm i coffee-script
   - npm i livescript
   - npm i typescript-simple
