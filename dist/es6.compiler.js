@@ -137,8 +137,8 @@ var
   VOID_TAGS  = /^(?:input|img|br|wbr|hr|area|base|col|embed|keygen|link|meta|param|source|track)$/,
 
   HTML_ATTR  = /\s*([-\w:\xA0-\xFF]+)\s*(?:=\s*('[^']+'|"[^"]+"|\S+))?/g,
-
-  TRIM_TRAIL = /[ \t]+$/gm
+  TRIM_TRAIL = /[ \t]+$/gm,
+  S_STRINGS  = brackets.R_STRINGS.source
 
 function q(s) {
   return "'" + (s ? s
@@ -172,7 +172,6 @@ function parseAttrs(str, pcex) {
     list = [],
     match,
     k, v,
-    _bp = pcex._bp,
     DQ = '"'
 
   HTML_ATTR.lastIndex = 0
@@ -193,7 +192,7 @@ function parseAttrs(str, pcex) {
         v = DQ + (v[0] === "'" ? v.slice(1, -1) : v) + DQ
 
       if (k === 'type' && v.toLowerCase() === '"number"') {
-        v = DQ + _bp[0] + "'number'" + _bp[1] + DQ
+        v = DQ + pcex._bp[0] + "'number'" + pcex._bp[1] + DQ
       }
       else if (/\u0001\d/.test(v)) {
 
@@ -256,11 +255,10 @@ function restoreExpr(html, pcex) {
 }
 
 var
-  HTML_COMMENT = /<!--(?!>)[\S\s]*?-->/g,
+  HTML_COMMENT = _regEx(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_STRINGS, 'g'),
   HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g,
   PRE_TAG = _regEx(
-    /<pre(?:\s+[^'">]+(?:(?:@Q)[^'">]*)*|\s*)?>([\S\s]*?)<\/pre\s*>/
-    .source.replace('@Q', brackets.R_STRINGS.source), 'gi')
+    /<pre(?:\s+[^'">]+(?:(?:@Q)|[^>]*)*|\s*)?>([\S\s]*?)<\/pre\s*>/.source.replace('@Q', S_STRINGS), 'gi')
 
 function _compileHTML(html, opts, pcex) {
 
@@ -305,8 +303,8 @@ function compileHTML(html, opts, pcex) {
     if (!opts) opts = {}
   }
 
-  if (!pcex.__intflag)
-    html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT, '').replace(TRIM_TRAIL, '')
+  html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT,
+    function (s) { return s[0] === '<' ? '' : s }).replace(TRIM_TRAIL, '')
 
   if (!pcex._bp) pcex._bp = brackets.array(opts.brackets)
 
@@ -384,7 +382,7 @@ function compileJS(js, opts, type, extra) {
   return _compileJS(js, opts, type, extra.parserOptions, extra.url)
 }
 
-var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
+var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + S_STRINGS, 'g')
 
 function scopedCSS(tag, style) {
   var scope = ':scope'
@@ -441,7 +439,6 @@ function compileCSS(style, parser, opts) {
     opts = parser
     parser = ''
   }
-  else if (!opts) opts = {}
   return _compileCSS(style, opts.tagName, parser, opts)
 }
 
@@ -485,6 +482,15 @@ function getCode(code, opts, attrs, url) {
   return _compileJS(code, opts, type, parserOpts, url)
 }
 
+function cssCode(code, opts, attrs, url, tag) {
+  var extraOpts = {
+    parserOpts: getParserOptions(attrs),
+    scoped: attrs && /\sscoped(\s|=|$)/i.test(attrs),
+    url: url
+  }
+  return _compileCSS(code, tag, getType(attrs) || opts.style, extraOpts)
+}
+
 var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
 
 function splitBlocks(str) {
@@ -516,9 +522,10 @@ function compileTemplate(html, url, lang, opts) {
 var
   CUST_TAG = _regEx(
     /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@Q|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
-    .source.replace('@Q', brackets.R_STRINGS.source), 'gim'),
-  STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
-  SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
+    .source.replace('@Q', S_STRINGS), 'gim'),
+  SRC_TAGS = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/.source + '|' + S_STRINGS,
+  STYLES = _regEx(SRC_TAGS, 'gi'),
+  SCRIPT = _regEx(SRC_TAGS.replace(/style/g, 'script'), 'gi')
 
 function compile(src, opts, url) {
   var
@@ -546,7 +553,6 @@ function compile(src, opts, url) {
         pcex = []
 
       pcex._bp = _bp
-      pcex.__intflag = 1
 
       tagName = tagName.toLowerCase()
 
@@ -555,7 +561,8 @@ function compile(src, opts, url) {
 
       if (body2) body = body2
 
-      if (body && (body = body.replace(HTML_COMMENT, '')) && /\S/.test(body)) {
+      if (body && (body = body.replace(HTML_COMMENT,
+        function (s) { return s[0] === '<' ? '' : s })) && /\S/.test(body)) {
 
         if (body2) {
           /* istanbul ignore next */
@@ -564,21 +571,19 @@ function compile(src, opts, url) {
         else {
           body = body.replace(_regEx('^' + indent, 'gm'), '')
 
-          body = body.replace(STYLE, included('css') ? function (_, _attrs, _style) {
-            var extraOpts = {
-              scoped: _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
-              url: url,
-              parserOpts: getParserOptions(_attrs)
-            }
-            styles += (styles ? ' ' : '') +
-              _compileCSS(_style, tagName, getType(_attrs) || opts.style, extraOpts)
+          body = body.replace(STYLES, function (_m, _attrs, _style) {
+            if (_m[0] !== '<') return _m
+            if (included('css'))
+              styles += (styles ? ' ' : '') + cssCode(_style, opts, _attrs, url, tagName)
             return ''
-          } : '')
+          })
 
-          body = body.replace(SCRIPT, included('js') ? function (_, _attrs, _script) {
-            jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
+          body = body.replace(SCRIPT, function (_m, _attrs, _script) {
+            if (_m[0] !== '<') return _m
+            if (included('js'))
+              jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
             return ''
-          } : '')
+          })
 
           var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
 

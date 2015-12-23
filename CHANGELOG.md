@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v2.3.20-beta.1
+- Fix [riot#1448](https://github.com/riot/riot/issues/1448) : Riot compiler parses and removes content from string declaration. This is partial fix, you need to write `<\/script>` for closing script tags within quoted strings.
+- Revised regex that matches `<pre>` tags.
+
 ### v2.3.19
 - Fixing issues with double quotes.
 - Removed dependency on riot-tmpl for the node build, now we are using a local version of `brackets`.

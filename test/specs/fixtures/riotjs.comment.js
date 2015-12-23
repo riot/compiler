@@ -11,6 +11,7 @@
   change (e)/* COMMENT */{
     alert('Hello!')   //ANOTHER LINE COMMENT
   }
+  var str = '/* str */'
 /*COMMENT
   click (e) {}
 */

@@ -1,11 +1,15 @@
 # Compiler Guide (complement, WIP)
 
+Please note the compiler generates code for call to the internal function `riot.tag2`, which is a simplified version of `riot.tag`. Since the type and order of the parameters of `riot.tag2` can change in any moment, we are using the `riot.tag` here for illustration purposes.
+
 ## Indentation
 
 From v2.3.13, the compiler handles a more consistent and flexible indentation in both inline and external tag definitions.
 The opening tag must begin a line. You can use any tabs or spaces you want. The compiler uses this to find the closing tag and unindent the content, so the closing tag must have _exactly_ the same indentation of the opening tag.
 
 HTML comments and trailing whitespace are removed from the entire tag content, JavaScript comments are removed from the JavaScript block only. You should not use comments in expressions.
+
+Inside `<pre>` tags, linefeeds are preserved.
 
 Example:
 ```html
@@ -22,8 +26,8 @@ Example:
 generates:
 ```js
 // This JS comment is at column 0, out of the tag
-riot.tag2('treeitem', '<pre>one\n  two\n</pre> <treeitem> </treeitem>', '', '', function(opts) {
-  click(e) {}
+riot.tag('treeitem', '<pre>one\n  two\n</pre> <treeitem> </treeitem>', function(opts) {
+  this.click = function(e) {}.bind(this)
 });     // the closing tag is indented by 2 spaces, this comment must be JS
 ```
 
@@ -58,8 +62,7 @@ If there's no HTML tags within the root tag, riot assumes that the content is Ja
 </my-tag>
 ```
 
-This may seem counterintuitive, but maintains backward compatibility with the behavior of previous versions.
-See [The untagged JS block](the-untagged-js-block) for details.
+This may seem counterintuitive, but complies with the riot specification for [untagged JavaScript blocks](the-untagged-javascript-block).
 
 
 ### Whitespace
@@ -81,7 +84,7 @@ Tag attributes, including these within nested tags, are normalized. This is:
 * the attribute name is converted to lowercase
 * newlines are converted to compacted spaces
 * spacing between name and value is removed
-* the value is enclosed in double quotes.
+* the value is enclosed in double quotes
 
 Content of `style` blocks and expressions are trimmed and newlines converted to compacted spaces.
 
@@ -106,10 +109,10 @@ This example shows the behavior with the default options on different parts of a
 
 will generate this:
 ```js
-riot.tag2('my-tag', '<p></p>', 'p { display: none; }', 'style=" top:0; left:0" expr="{{ foo:"bar" }}"', function(opts) {
+riot.tag('my-tag', '<p></p>', 'p { display: none; }', 'style=" top:0; left:0" expr="{{ foo:"bar" }}"', function(opts) {
   this.click = function(e)
   {}.bind(this)
-}, '{ }');
+});
 ```
 
 **NOTE:** No matter which options you use, newlines are normalized to `\n` and comments and trailing spaces are removed before the parsing begins.
@@ -130,10 +133,8 @@ Example:
 In the first, non-expr attribute, opening brackets must be escaped.
 The generated code is:
 ```js
-// This JS comment is at column 0, out of the tag
-riot.tag2('my-tag', '', '', 'non-expr="\\{ empty:\\{} }" expr="{empty:{}}"', function(opts) {
-  click(e) {}
-});     // the closing tag is indented by 2 spaces, this comment must be JS
+riot.tag('my-tag', '', '', 'non-expr="\\{ empty:\\{} }" expr="{empty:{}}"', function(opts) {
+});
 ```
 at runtime, the backslashes in `non-expr` will be removed. If you need output a literal backslash in front of brackets, you must use `\\{` to generate `\\\\{`.
 
@@ -183,12 +184,12 @@ will set `arr` to be:
 ]
 ```
 
-Be aware that the `html` and `js` properties can contain raw line endings --i.e. unescaped `\r` and/or `\n`.
+Be aware that the `html` and `js` properties can contain raw line endings --i.e. unescaped `\r` and `\n`.
 
 
 ## Parser Options
 
-In addition to the `type` attribute, `script` and `style` tags can include additional configuration at tag level through the `options` attribute.
+In addition to the `type` attribute, the `script` and `style` tags can include additional configuration at tag level through the `options` attribute.
 
 This attribute is a [JSON](http://json.org/) object that specifies options for the JS or CSS parser.
 
@@ -206,7 +207,7 @@ Example:
 </my-tag>
 ```
 
-**NOTE:** The `options` attribute must comply with the [JSON specs](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf), i.e. with double-quoted property names and strings, in a format suitable for `JSON.parse`
+**Note:** The `options` attribute must comply with the [JSON specs](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf), i.e. with double-quoted property names and strings, in a format suitable for `JSON.parse`
 
 
 ## JavaScript
@@ -216,32 +217,31 @@ Where the html ends? or where should I put my JavaScript?
 ### The Untagged JavaScript Block
 
 The first action taken by the compiler is send the received source to any html parser.
-After that, it normalizes line endings to `\n` and removes _html_ comments.
-Once prepared the source, searches the tags, separate its parts (closing/opening tag, root
-attributes, and content). In the content, one by one, removes the `style` blocks and sends its
-content to the CSS parser. Next, it does the same for the `script` tags.
-This is done in the entire content.
+After that, the compiler normalizes line endings to `\n` and removes _html_ comments.
+Once prepared the source, searches the tags, separate its parts (closing/opening tag, root attributes, and content). In the content, one by one, removes the `style` blocks and sends its content to the CSS parser. Next, it does the same for the `script` tags.
+This is done in the entire tag content.
 
-In the remaining content, looks for the last html tag which ends a line.
+In the remaining content, looks for the last html tag which _ends a line_.
 If found, this closing tag signals the end of the html markup and the beginning of the JavaScript code.
 If not found, all remaining is considered JavaScript.
 
-So, you can put html comments, `style`, and `script` blocks, anywhere inside the tag.
-The only restriction is that the untagged JavaScript code must finish the content and you can't use JavaScript comments out of this block.
+So, although not a good idea, you can put html comments, `style`, and `script` blocks, anywhere inside the tag; the only restriction is that the untagged JavaScript block must follow the remaining html content and you can't use JavaScript comments out of this block.
 
 ### Multiple JavaScript Blocks
 
 Each JavaScript block in the tag can have different `type` attributes.
 Once parsed, all blocks will be merged by the compiler.
+The resulting block is enclosed in a function, executed at mount time in the tag context, this is why sometimes is referred to as the tag "constructor".
 
 ### Loading JavaScript from the File System (v2.3.13)
 
 The `src` attribute of the `script` tags inside a riot tag, allows load source files from the file system.
-The filename in `src` can be absolute or relative.
-It can be combined with the `charset` attribute. `charset` defaults to `utf8` and the JavaScript type defaults to the `type` option specified in the options passed to the compiler.
 
-**Note**
-If you pass a third parameter to the `compile` function with the full name of the file being compiled, relative paths will be resolved from this name, if not, these will be relative to the current working directory (as returned by `proccess.cwd()`).
+The filename in `src` can be absolute or relative. If you pass a third parameter to the `compile` function with the full name of the file being compiled, relative paths will be resolved from this name, if not, these will be relative to the current working directory (as returned by `proccess.cwd()`).
+
+JavaScript type defaults to the `type` specified in the options passed to the compiler. If you don't want the code to be parsed, use `type="none"`.
+
+The encoding is specified by the `charset` attribute. It defaults to `utf8`.
 
 Example:
 ```js
@@ -251,26 +251,29 @@ var source = fs.readFileSync(full_filename, 'utf8')
 var result = compiler.compile(source, options, full_filename)
 ```
 
-So, if we have a mytag.tag and a js/data.js file...
+So, if you have a js/data.js loaded by a mytag.tag file...
 ```js
-// ./js/data.js file
-this.title = "my title"
+// js/data.js file
+const APP_NAME = 'My App'
 ```
+
 ```html
-// ./mytag.tag file
+// mytag.tag file
 <my-tag>
-  <p>{ title }</p>
+  <h1>{ title }</h1>
   <script src="js/data.js" type="es6"></script>
+  this.title = APP_NAME
 </my-tag>
 ```
 
 the result is equivalent to
 ```html
 <my-tag>
-  <p>{ title }</p>
+  <h1>{ title }</h1>
   <script type="es6">
-  this.title = "my title"
+  const APP_NAME = 'My App'
   </script>
+  this.title = APP_NAME
 </my-tag>
 ```
 
@@ -296,7 +299,7 @@ There are functions in the node.js build that allow you to compile certain sourc
 
 The `expressions` parameter is interesting, on return it holds, in order of appearance, trimmed and without brackets, the expressions found in the html. If you set `type` and `expr` in the `compilerOptions` parameter, the expressions will be compiled.
 
-**Note** `expressions` is exposed for debugging purposes, but not dependent on it, its format may be altered in future versions.
+**Note:** `expressions` is exposed for debugging purposes, but not dependent on it, its format may be altered in future versions.
 
 #### css(source, parserName, extraOptions)
 
@@ -339,9 +342,8 @@ If you omit `parserName` but include `extraOptions`, you **must** include `compi
 ```js
 var js = compiler.js(source, {}, extraOptions)
 ```
-Since the default JS parser does not make use of the extra options, this is the same:
+Since the default JS parser does not make use of the extra options, this is equivalent:
 ```js
 var js = compiler.js(source)
 ```
-
-`compilerOptions` will be removed in a future version.
+The `compilerOptions` parameter will be removed in a future version.
