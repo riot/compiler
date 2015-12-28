@@ -30,11 +30,12 @@ function normalize(str) {
 }
 
 function testParser(name, opts, save) {
+  opts = opts || {}
   var
     file = name + (opts.type ? '.' + opts.type : ''),
     str1 = cat(fixtures, file + '.tag'),
-    str2 = cat(expected, file + '.js')
-    js = compiler.compile(str1, opts || {}, path.join(fixtures, file + '.tag'))
+    str2 = cat(expected, file + '.js'),
+    js = compiler.compile(str1, opts, path.join(fixtures, file + '.tag'))
 
   if (save)
     fs.writeFile(path.join(expected, file + '_out.js'), js, function (err) {
@@ -106,7 +107,7 @@ describe('JavaScript parsers', function () {
   // complex.tag
   it('complex tag structure', function () {
     if (have('none')) {   // testing none, for coverage too
-      testParser('complex', {})
+      testParser('complex')
     }
     else expect().fail('parsers.js must have a "none" property')
   })
@@ -123,7 +124,7 @@ describe('JavaScript parsers', function () {
 
   it('mixed riotjs and javascript types', function () {
     if (have('javascript')) {   // for js, for coverage too
-      testParser('mixed-js', {})
+      testParser('mixed-js')
     }
     else expect().fail('parsers.js must have a "javascript" property')
   })
@@ -192,58 +193,60 @@ describe('Style parsers', function () {
 
   // style.tag
   it('default style', function () {
-    testParser('style', {})
+    testParser('style')
   })
 
   // style.escoped.tag
   it('scoped styles', function () {
-    testParser('style.scoped', {})
+    testParser('style.scoped')
   })
 
   // stylus.tag
   it('stylus', function () {
     if (have('stylus')) {
-      testParser('stylus', {})
+      testParser('stylus')
     }
   })
 
   // sass.tag
   it('sass, indented 2, margin 0', function () {
     if (have('sass')) {
-      testParser('sass', {})
+      testParser('sass')
     }
   })
 
   // scss.tag
   it('scss, indented 2, margin 0', function () {
     if (have('scss')) {
-      testParser('scss', {})
+      testParser('scss')
+      testParser('scss-import')
     }
   })
 
   // testing the options attribute on the style tag
   it('custom style options', function () {
     if (have('sass')) {
-      testParser('sass.options', {})
+      testParser('sass.options')
     }
   })
 
   // scss.tag
   it('custom parser using postcss + autoprefixer', function () {
     if (have('postcss', 'postcss')) {
-      testParser('postcss', {})
+      testParser('postcss')
     }
   })
 
   // less.tag
   it('less', function () {
     if (have('less')) {
-      testParser('less', {})
+      testParser('less')
+      testParser('less-import')
     }
   })
 
   it('mixing CSS blocks with different type', function () {
-    testParser('mixed-css', {})
+    testParser('mixed-css')
   })
 
   it('the style option for setting the CSS parser (v2.3.13)', function () {

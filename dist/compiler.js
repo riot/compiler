@@ -12,6 +12,8 @@ var parsers = (function () {
   }
   _mods.javascript = _mods.none
 
+  var path = require('path')
+
   var _modnames = {
     es6: 'babel',
     babel: 'babel-core',
@@ -69,6 +71,7 @@ var parsers = (function () {
 
       return sass.renderSync(extend({
         data: css,
+        includePaths: [path.dirname(url)],
         indentedSyntax: true,
         omitSourceMapUrl: true,
         outputStyle: 'compact'
@@ -79,6 +82,7 @@ var parsers = (function () {
 
       return scss.renderSync(extend({
         data: css,
+        includePaths: [path.dirname(url)],
         indentedSyntax: false,
         omitSourceMapUrl: true,
         outputStyle: 'compact'
@@ -91,6 +95,7 @@ var parsers = (function () {
       less.render(css, extend({
         sync: true,
         syncImport: true,
+        filename: url,
         compress: true
       }, opts), function (err, result) {
         // istanbul ignore next
@@ -121,10 +126,9 @@ var parsers = (function () {
       }, opts)).code
     },
     babel: function (js, opts, url) {
-      // istanbul ignore next: url empty if comming from expression
       return _req('babel').transform(js,
         extend({
-          filename: url || ''
+          filename: url
         }, opts)
       ).code
     },
@@ -328,10 +332,12 @@ function mktag(name, html, css, attrs, js, pcex) {
 }
 
 function extend(obj, props) {
-  for (var prop in props) {
-    /* istanbul ignore next */
-    if (props.hasOwnProperty(prop)) {
-      obj[prop] = props[prop]
+  if (props) {
+    for (var prop in props) {
+      /* istanbul ignore next */
+      if (props.hasOwnProperty(prop)) {
+        obj[prop] = props[prop]
+      }
     }
   }
   return obj
@@ -585,7 +591,7 @@ function _compileCSS(style, tag, type, opts) {
       scoped = true
     }
     else if (parsers.css[type]) {
-      style = parsers.css[type](tag, style, opts.parserOpts, opts.url)
+      style = parsers.css[type](tag, style, opts.parserOpts || {}, opts.url)
     }
     else if (type !== 'css') {
       throw new Error('CSS parser not found: "' + type + '"')
@@ -714,7 +720,7 @@ function compile(src, opts, url) {
 
   if (!opts) opts = {}
 
-  url = url || process.cwd() + '/.'
+  if (!url) url = process.cwd() + '/.'
 
   exclude = opts.exclude || false
   function included(s) { return !(exclude && ~exclude.indexOf(s)) }

@@ -1,8 +1,10 @@
 # Compiler Changes
 
 ### v2.3.20-beta.1
+- Fix [riot#1488](https://github.com/riot/riot/issues/1488) : Cannot read property 'replace' of undefined when compiling in Node a tag with an import in its less stylesheet -- Thanks to @jrx-jsj
 - Fix [riot#1448](https://github.com/riot/riot/issues/1448) : Riot compiler parses and removes content from string declaration. This is partial fix, you need to write `<\/script>` for closing script tags within quoted strings.
 - Revised regex that matches `<pre>` tags.
+- `@import` directives of `sass`, `scss`, and `less` can be relative to the file being processed.
 
 ### v2.3.19
 - Fixing issues with double quotes.
