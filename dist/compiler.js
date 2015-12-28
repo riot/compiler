@@ -90,6 +90,7 @@ var parsers = (function () {
 
       less.render(css, extend({
         sync: true,
+        syncImport: true,
         compress: true
       }, opts), function (err, result) {
         // istanbul ignore next
