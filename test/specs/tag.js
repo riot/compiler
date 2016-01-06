@@ -223,7 +223,7 @@ describe('Compile tags', function() {
   })
 
   it('Html comments are removed anywhere, except inside JS strings', function () {
-    testFile('html-comments',1)
+    testFile('html-comments')
   })
 
 })

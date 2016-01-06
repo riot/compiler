@@ -55,8 +55,20 @@ describe('Compile HTML', function() {
 
   describe('2.3.0', function () {
 
-    it('fix #827 to input type=number', function () {
-      testStr('<input type=number>', '<input type="{\'number\'}">')
+    it('fix #827 input type=number and expression in the value', function () {
+      testStr('<input type=number>', '<input type="number">') // no value
+      testStr('<input type=number value=1>', '<input value="1" type="number">') // no expression
+      testStr('<input type=number value={ 1 }>', '<input value="{1}" type="{\'number\'}">')
+    })
+
+    it('fix #1495 Warning of input tag value - for date/time/month/email/color values', function () {
+      testStr('<input type=date value={d}>', '<input value="{d}" type="{\'date\'}">')
+      testStr('<input type=time value={t}>', '<input value="{t}" type="{\'time\'}">')
+      testStr('<input type=date-local value={dl}>', '<input value="{dl}" type="{\'date-local\'}">')
+      testStr('<input type=datetime value={dt}>', '<input value="{dt}" type="{\'datetime\'}">')
+      testStr('<input type=month value={m}>', '<input value="{m}" type="{\'month\'}">')
+      testStr('<input type=email value={e}>', '<input value="{e}" type="{\'email\'}">')
+      testStr('<input type=color value={c}>', '<input value="{c}" type="{\'color\'}">')
     })
 
     it('normalizes attributes, all values in double quotes', function () {

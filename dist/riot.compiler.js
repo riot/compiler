@@ -136,6 +136,7 @@ var compile = (function () {
     VOID_TAGS  = /^(?:input|img|br|wbr|hr|area|base|col|embed|keygen|link|meta|param|source|track)$/,
 
     HTML_ATTR  = /\s*([-\w:\xA0-\xFF]+)\s*(?:=\s*('[^']+'|"[^"]+"|\S+))?/g,
+    SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i,
     TRIM_TRAIL = /[ \t]+$/gm,
     S_STRINGS  = brackets.R_STRINGS.source
 
@@ -172,7 +173,7 @@ var compile = (function () {
     var
       list = [],
       match,
-      k, v,
+      k, v, t, e,
       DQ = '"'
 
     HTML_ATTR.lastIndex = 0
@@ -192,21 +193,25 @@ var compile = (function () {
         if (v[0] !== DQ)
           v = DQ + (v[0] === "'" ? v.slice(1, -1) : v) + DQ
 
-        if (k === 'type' && v.toLowerCase() === '"number"') {
-          v = DQ + pcex._bp[0] + "'number'" + pcex._bp[1] + DQ
+        if (k === 'type' && SPEC_TYPES.test(v)) {
+          t = v
         }
-        else if (/\u0001\d/.test(v)) {
+        else {
+          if (/\u0001\d/.test(v)) {
 
-          if (BOOL_ATTRS.test(k)) {
-            k = '__' + k
+            if (k === 'value') e = 1
+            else if (BOOL_ATTRS.test(k)) k = '__' + k
+            else if (~RIOT_ATTRS.indexOf(k)) k = 'riot-' + k
           }
-          else if (~RIOT_ATTRS.indexOf(k)) {
-            k = 'riot-' + k
-          }
+
+          list.push(k + '=' + v)
         }
-
-        list.push(k + '=' + v)
       }
+    }
+
+    if (t) {
+      if (e) t = DQ + pcex._bp[0] + "'" + t.slice(1, -1) + "'" + pcex._bp[1] + DQ
+      list.push('type=' + t)
     }
     return list.join(' ')
   }

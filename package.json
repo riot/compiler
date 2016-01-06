@@ -33,7 +33,7 @@
     "eslint": "^1.10.3",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.1",
-    "jspreproc": "^0.2.5",
+    "jspreproc": "^0.2.7",
     "mocha": "^2.3.4"
   },
   "author": "Muut, Inc. and other contributors",
