@@ -1,6 +1,6 @@
 {
   "name": "riot-compiler",
-  "version": "2.3.20-beta.1",
+  "version": "2.3.20",
   "description": "Compiler for riot .tag files",
   "main": "dist/compiler.js",
   "jsnext:main": "dist/es6.compiler.js",
@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "test": "make test",
-    "prepublish": "make build && node bump"
+    "prepublish": "make build && ./node_modules/.bin/riot-bump"
   },
   "repository": {
     "type": "git",
@@ -34,7 +34,8 @@
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.1",
     "jspreproc": "^0.2.7",
-    "mocha": "^2.3.4"
+    "mocha": "^2.3.4",
+    "riot-bump": "^1.0.0"
   },
   "author": "Muut, Inc. and other contributors",
   "license": "MIT",
