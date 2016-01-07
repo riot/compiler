@@ -1,26 +1,30 @@
 //
 // Parsers Suite
 //
-/*eslint-env node, mocha */
+/*eslint-env mocha */
+/*global compiler, expect */
+/*eslint no-console: 0 */
+
 var
   path = require('path'),
   fs = require('fs')
+
 var
   fixtures = __dirname,
   expected = path.join(fixtures, 'js')
 
-function have(mod, req) {
+function have (mod, req) {
   if (compiler.parsers._req(mod, req))
     return true
   console.error('\tnot installed locally: ' + compiler.parsers._modname(req || mod) + ' alias "' + mod + '"')
   return false
 }
 
-function cat(dir, filename) {
+function cat (dir, filename) {
   return fs.readFileSync(path.join(dir, filename), 'utf8')
 }
 
-function normalize(str) {
+function normalize (str) {
   var
     n = str.search(/[^\n]/)
   if (n < 0) return ''
@@ -29,7 +33,7 @@ function normalize(str) {
   return ~n ? str.slice(0, n) : str
 }
 
-function testParser(name, opts, save) {
+function testParser (name, opts, save) {
   opts = opts || {}
   var
     file = name + (opts.type ? '.' + opts.type : ''),
@@ -48,7 +52,7 @@ describe('HTML parsers', function () {
 
   this.timeout(12000)
 
-  function testStr(str, resStr, opts) {
+  function testStr (str, resStr, opts) {
     expect(compiler.html(str, opts || {})).to.be(resStr)
   }
 
@@ -98,7 +102,7 @@ describe('HTML parsers', function () {
 
 describe('JavaScript parsers', function () {
 
-  function _custom(js) {
+  function _custom () {
     return 'var foo'
   }
 
@@ -187,7 +191,7 @@ describe('Style parsers', function () {
   this.timeout(12000)
 
   // custom parser
-  compiler.parsers.css.postcss = function(tag, css, opts) {
+  compiler.parsers.css.postcss = function (tag, css) {
     return require('postcss')([require('autoprefixer')]).process(css).css
   }
 
@@ -205,6 +209,7 @@ describe('Style parsers', function () {
   it('stylus', function () {
     if (have('stylus')) {
       testParser('stylus')
+      testParser('stylus-import')
     }
   })
 
@@ -297,7 +302,7 @@ describe('Other', function () {
 
   it('emiting raw html through the `=` flag, with parser', function () {
     // custom parser
-    compiler.parsers.js.rawhtml = function(js) {
+    compiler.parsers.js.rawhtml = function (js) {
       return js.replace(/"/g, '&quot;')
     }
     testParser('raw', { type: 'rawhtml', expr: true })

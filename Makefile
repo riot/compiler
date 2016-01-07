@@ -30,7 +30,7 @@ build: eslint
 
 eslint:
 	# check code style
-	@ $(ESLINT) -c ./.eslintrc lib
+	@ $(ESLINT) -c ./.eslintrc.yml lib test
 
 test-mocha:
 	@ $(ISTANBUL) cover $(MOCHA) -- test/runner.js

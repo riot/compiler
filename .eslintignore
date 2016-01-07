@@ -2,3 +2,5 @@
 **/dist/
 **/lib/_*.js
 **/test/
+!**/test/specs/*.js
+!**/test/specs/parsers/suite.js
