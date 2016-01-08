@@ -1,7 +1,7 @@
 Boolean attributes in riot 2.3
 ==============================
 
-From HTML5 - A vocabulary and associated APIs for HTML and XHTML - W3C Recommendation 28 October 2014:
+From _HTML5 - A vocabulary and associated APIs for HTML and XHTML_ - W3C Recommendation, 28 October 2014:
 
 > 2.4.2 Boolean attributes
 >
@@ -12,7 +12,7 @@ From HTML5 - A vocabulary and associated APIs for HTML and XHTML - W3C Recommend
 > **Note:** The values "true" and "false" are not allowed on boolean attributes. To represent a false value, the attribute has to be omitted altogether.
 >
 
-When the expression is trueish, riot sets the boolean attribute values to attribute's name:
+When the expression is trueish, riot sets the boolean attribute value to the attribute's name:
 ```html
 <my-tag disabled={ 'yes' }></my-tag>
 ```
@@ -34,7 +34,7 @@ Currently riot v2.3.x recognizes these:
 * checked   - `<input>` - for type "radio" or "checkbox"
 * compact   - `<ol>`/`<ul>`/`<dir>` - deprecated in html5
 * disabled  - used in almost all form elements
-* ismap     - `<img>` - for `<img>` elements descendant of an `<a>` element
+* ismap     - for `<img>` elements descendant of an `<a>` element with href
 * noresize  - `<frame>` - deprecated in html5
 * noshade   - `<hr>` - deprecated in html5
 * nowrap    - `<td>` - deprecated in html5
@@ -44,7 +44,7 @@ Currently riot v2.3.x recognizes these:
 * selected  - `<option>`
 * truespeed - `<marquee>` - not supported by Chrome/Opera
 
-**Recognized html5 attributes**
+...and these html5 attributes:
 * autofocus
 * autoplay  - `<audio>`/`<video>`
 * controls  - `<audio>`/`<video>`
@@ -61,26 +61,26 @@ Currently riot v2.3.x recognizes these:
 * sortable  - html 5.1
 * typemustmatch - `<object>`
 
-**WARNING:** Please don't use expressions in the `loop` attribute within `<img>` tags.
-In images, `loop` is not a boolean attribute. This will fix soon.
+**Warning:** Please don't use expressions in the `loop` attribute for `<img>` tags.
+In images, `loop` is not a boolean attribute. ~~This will fix soon.~~
 
 Tested with [the w3c Validator](https://validator.w3.org/nu)
 
 
 ## Removed attributes
 
-This unused or non-boolean attributes, recognized in previous versions, are removed in v2.3.0:
+The following unused or non-boolean attributes, recognized in previous versions, are removed in v2.3.0:
 
-* async - `<script>` - riot does not handle this
+* async - `<script>` - riot does not support async scripts in custom tags
 * declare - `<object>` - unuseful in main browsers
-* defaultChecked - it is a property, not attribute
-* defer - `<script>` - riot does not handle this, only IE8+ honors this attribute
+* defaultChecked - it is a property, not an attribute
+* defer - `<script>` - riot does not handle this, only IE8/9 honors this attribute
 * draggable - not boolean, this is an enumerated attribute: true, false, auto
 * inert - this proposed html5 attribute was [dropped](https://html5.org/r/8536) from the spec
 * enabled - not in the HTML spec
-* indeterminate - boolean attr, but can't be set with markup
-* nohref - `<area>` - deprecated, same effect as NOT including a `href` attribute
-* pauseonexit - `<track>` - not for markup, or its too complex
+* indeterminate - this attribute can't be set with markup
+* nohref - `<area>` - deprecated, same effect as _not_ including a `href` attribute
+* pauseonexit - `<track>` - not for markup, it is too complex
 * spellcheck - not boolean, this is an enumerated attribute: true, false
 * translate - not boolean, this is an enumerated attribute: yes, no
 * visible - not in the HTML spec
@@ -88,8 +88,8 @@ This unused or non-boolean attributes, recognized in previous versions, are remo
 
 ## Special Attributes
 
-The following attributes give error when parsed on browser with `{ exrp_value }`.  
-`d` describes the SVG `<path>`, Chrome gives error if the value has invalid format.
+The following attributes give error when parsed on browsers with `{ exrp_value }`.  
+`d` describes the SVG `<path>`, Chrome gives error if the value has an invalid format.
 
 See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
 

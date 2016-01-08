@@ -1,26 +1,30 @@
 //
 // Parsers Suite
 //
-/*eslint-env node, mocha */
+/*eslint-env mocha */
+/*global compiler, expect */
+/*eslint no-console: 0 */
+
 var
   path = require('path'),
   fs = require('fs')
+
 var
   fixtures = __dirname,
   expected = path.join(fixtures, 'js')
 
-function have(mod, req) {
+function have (mod, req) {
   if (compiler.parsers._req(mod, req))
     return true
   console.error('\tnot installed locally: ' + compiler.parsers._modname(req || mod) + ' alias "' + mod + '"')
   return false
 }
 
-function cat(dir, filename) {
+function cat (dir, filename) {
   return fs.readFileSync(path.join(dir, filename), 'utf8')
 }
 
-function normalize(str) {
+function normalize (str) {
   var
     n = str.search(/[^\n]/)
   if (n < 0) return ''
@@ -29,12 +33,13 @@ function normalize(str) {
   return ~n ? str.slice(0, n) : str
 }
 
-function testParser(name, opts, save) {
+function testParser (name, opts, save) {
+  opts = opts || {}
   var
     file = name + (opts.type ? '.' + opts.type : ''),
     str1 = cat(fixtures, file + '.tag'),
-    str2 = cat(expected, file + '.js')
-    js = compiler.compile(str1, opts || {}, path.join(fixtures, file + '.tag'))
+    str2 = cat(expected, file + '.js'),
+    js = compiler.compile(str1, opts, path.join(fixtures, file + '.tag'))
 
   if (save)
     fs.writeFile(path.join(expected, file + '_out.js'), js, function (err) {
@@ -47,7 +52,7 @@ describe('HTML parsers', function () {
 
   this.timeout(12000)
 
-  function testStr(str, resStr, opts) {
+  function testStr (str, resStr, opts) {
     expect(compiler.html(str, opts || {})).to.be(resStr)
   }
 
@@ -97,7 +102,7 @@ describe('HTML parsers', function () {
 
 describe('JavaScript parsers', function () {
 
-  function _custom(js) {
+  function _custom () {
     return 'var foo'
   }
 
@@ -106,7 +111,7 @@ describe('JavaScript parsers', function () {
   // complex.tag
   it('complex tag structure', function () {
     if (have('none')) {   // testing none, for coverage too
-      testParser('complex', {})
+      testParser('complex')
     }
     else expect().fail('parsers.js must have a "none" property')
   })
@@ -123,7 +128,7 @@ describe('JavaScript parsers', function () {
 
   it('mixed riotjs and javascript types', function () {
     if (have('javascript')) {   // for js, for coverage too
-      testParser('mixed-js', {})
+      testParser('mixed-js')
     }
     else expect().fail('parsers.js must have a "javascript" property')
   })
@@ -186,64 +191,67 @@ describe('Style parsers', function () {
   this.timeout(12000)
 
   // custom parser
-  compiler.parsers.css.postcss = function(tag, css, opts) {
+  compiler.parsers.css.postcss = function (tag, css) {
     return require('postcss')([require('autoprefixer')]).process(css).css
   }
 
   // style.tag
   it('default style', function () {
-    testParser('style', {})
+    testParser('style')
   })
 
   // style.escoped.tag
   it('scoped styles', function () {
-    testParser('style.scoped', {})
+    testParser('style.scoped')
   })
 
   // stylus.tag
   it('stylus', function () {
     if (have('stylus')) {
-      testParser('stylus', {})
+      testParser('stylus')
+      testParser('stylus-import')
     }
   })
 
   // sass.tag
   it('sass, indented 2, margin 0', function () {
     if (have('sass')) {
-      testParser('sass', {})
+      testParser('sass')
     }
   })
 
   // scss.tag
   it('scss, indented 2, margin 0', function () {
     if (have('scss')) {
-      testParser('scss', {})
+      testParser('scss')
+      testParser('scss-import')
     }
   })
 
   // testing the options attribute on the style tag
   it('custom style options', function () {
     if (have('sass')) {
-      testParser('sass.options', {})
+      testParser('sass.options')
     }
   })
 
   // scss.tag
   it('custom parser using postcss + autoprefixer', function () {
     if (have('postcss', 'postcss')) {
-      testParser('postcss', {})
+      testParser('postcss')
     }
   })
 
   // less.tag
   it('less', function () {
     if (have('less')) {
-      testParser('less', {})
+      testParser('less')
+      testParser('less-import')
     }
   })
 
   it('mixing CSS blocks with different type', function () {
-    testParser('mixed-css', {})
+    testParser('mixed-css')
   })
 
   it('the style option for setting the CSS parser (v2.3.13)', function () {
@@ -294,7 +302,7 @@ describe('Other', function () {
 
   it('emiting raw html through the `=` flag, with parser', function () {
     // custom parser
-    compiler.parsers.js.rawhtml = function(js) {
+    compiler.parsers.js.rawhtml = function (js) {
       return js.replace(/"/g, '&quot;')
     }
     testParser('raw', { type: 'rawhtml', expr: true })

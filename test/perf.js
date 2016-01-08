@@ -1,21 +1,18 @@
 /*
   Performance test for the compiler
 */
-'use strict'    // eslint-disable-line strict, global-strict
+/*eslint no-console: 0 */
+'use strict'    // eslint-disable-line
 
 var
   compiler23 = require('../dist/compiler.js').compile,
   compiler22 = require('./v223/compiler223.js').compile,
-  tmpl23 = require('riot-tmpl').tmpl,
-  tmpl22 = require('./v223/compiler223.js').tmpl,
-  assert = require('assert'),
   path = require('path'),
   fs = require('fs')
 
 var
   basedir = path.join(__dirname, 'specs', 'fixtures'),
-  tags = ['box', 'empty', 'input-last', 'mixed-js', 'same', 'scoped', 'timetable', 'treeview', 'oneline'],
-  data = { num: 1, str: 'string', date: new Date(), bool: true, item: null }
+  tags = ['box', 'empty', 'input-last', 'mixed-js', 'same', 'scoped', 'timetable', 'treeview', 'oneline']
 
 var files = tags.map(function (f) {
   f = path.join(basedir, f + '.tag')
@@ -35,7 +32,7 @@ console.log('Performance test for the riot-compiler v2.3 againts the v2.2.3 rele
 console.log('======================================================================')
 console.log()
 console.log('Testing each compiler with %d files, %dx%d iterations (%d total)',
-  tags.length, TMAX-2, LOOP, tags.length * (TMAX-2) * LOOP)
+  tags.length, TMAX - 2, LOOP, tags.length * (TMAX - 2) * LOOP)
 
 console.log('Running the compiler v2.2.4 ...')
 mem22 = {}
@@ -65,7 +62,7 @@ console.log('  provided by the node process.memoryUsage function (very erratic).
 console.log('- Minimum & maximum times are removed.')
 console.log()
 
-function test(compiler, times, ogc) {
+function test (compiler, times, ogc) {
   var gcm
   global.gc()
   global.gc()
@@ -74,12 +71,12 @@ function test(compiler, times, ogc) {
   files.forEach(function (text, idx) {
     var
       tt = new Array(TMAX),
-      s, i, j
+      i, j
 
     for (i = 0; i < tt.length; ++i) {
       tt[i] = Date.now()
       for (j = 0; j < LOOP; ++j) {
-        s = compiler(text)
+        compiler(text)
       }
       tt[i] = Date.now() - tt[i]
     }
@@ -93,20 +90,20 @@ function test(compiler, times, ogc) {
   ogc.heapUsed = process.memoryUsage().heapUsed - gcm
 }
 
-function numsort(a, b) {
+function numsort (a, b) {
   return a - b
 }
-function numsum(a, b) {
+function numsum (a, b) {
   return a + b
 }
-function replicate(s, n) {
+function replicate (s, n) {
   return n < 1 ? '' : (new Array(n + 1)).join(s)
 }
-function padr(s, n) {
+function padr (s, n) {
   s = '' + s
   return s + replicate(' ', n - s.length)
 }
-function padl(s, n) {
+function padl (s, n) {
   s = '' + s
   return replicate(' ', n - s.length) + s
 }

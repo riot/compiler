@@ -1,0 +1,160 @@
+    ###########################################################################
+    #                                                                         #
+    #   Revised by aMarCruz - 2016-01-06                                      #
+    #   Follow most of rules from http://standardjs.com/                      #
+    #                                                                         #
+    ###########################################################################
+
+root: true
+
+    ###########################################################################
+    #                                                                         #
+    #   ENVIRONMENT: if you write code that will be executed in one of the    #
+    #   following environments, the value for that environment should be      #
+    #   set to true.                                                          #
+    #                                                                         #
+    ###########################################################################
+
+env:
+    node: true
+
+ecmaFeatures:
+    modules: true
+
+    ###########################################################################
+    #                                                                         #
+    #   GLOBALS: ESLint will assume the following variables are declared      #
+    #   globally; other variables will require explicit declaration.          #
+    #                                                                         #
+    ###########################################################################
+
+globals:
+    require: true
+
+extends:
+    "eslint:recommended"    # See https://github.com/eslint/eslint/blob/master/conf/eslint.json
+
+rules:
+
+    ###########################################################################
+    #                                                                         #
+    #   POSSIBLE ERRORS: these rules point out areas where you might have     #
+    #   made mistakes.                                                        #
+    #                                                                         #
+    ###########################################################################
+
+    no-cond-assign: 0          # disallow assignment in conditional expressions (Default: 2)
+    no-unexpected-multiline: 2 # avoid code that looks like two expressions but is actually one (Default: 0)
+    valid-jsdoc: [1, { "requireReturn": false }]
+
+    ###########################################################################
+    #                                                                         #
+    #   BEST PRACTICES: these rules are designed to prevent you from making   #
+    #   mistakes. They either prescribe a better way of doing something or    #
+    #   help you avoid pitfalls.                                              #
+    #                                                                         #
+    ###########################################################################
+
+    complexity: [1, 16]       # specify the maximum cyclomatic complexity allowed in a program (Default [0, 11])
+  # curly: 0                  # specify curly brace conventions for all control statements
+    default-case: 2           # require default case in switch statements (Default: 0)
+    dot-notation: 1           # encourages use of dot notation whenever possible (Default: [0, { "allowKeywords": true }])
+    eqeqeq: [2, "smart"]      # require the use of === and !== (Default: 0)
+    guard-for-in: 1           # make sure for-in loops have an if statement (Default: 0)
+    no-alert: 2               # disallow the use of alert, confirm, and prompt (Default: 0)
+    no-caller: 2              # disallow use of arguments.caller or arguments.callee (Default: 0)
+    no-div-regex: 2           # disallow division operators explicitly at beginning of regular expression (Default: 0)
+    no-else-return: 1         # disallow else after a return in an if
+    no-empty-label: 2         # disallow use of labels for anything other then loops and switches (Default: 0)
+    no-eval: 2                # disallow use of eval() (Default: 0)
+    no-extend-native: 2       # disallow adding to native types (Default: 0)
+    no-extra-bind: 2          # disallow unnecessary function binding (Default: 0)
+    no-floating-decimal: 2    # disallow the use of leading or trailing decimal points in numeric literals (Default: 0)
+    no-implied-eval: 2        # disallow use of eval()-like methods (Default: 0)
+    no-iterator: 2            # disallow usage of __iterator__ property (Default: 0)
+    no-labels: 2              # disallow use of labeled statements (Default: 0)
+    no-lone-blocks: 2         # disallow unnecessary nested blocks (Default: 0)
+    no-loop-func: 1           # disallow creation of functions within loops (Default: 0)
+    no-multi-str: 2           # disallow use of multiline strings (Default: 0)
+    no-native-reassign: 2     # disallow reassignments of native objects (Default: 0)
+    no-new: 2                 # disallow use of new operator when not part of the assignment or comparison (Default: 0)
+    no-new-wrappers: 2        # disallows creating new instances of String, Number, and Boolean (Default: 0)
+    no-octal-escape: 2        # disallow use of octal escape sequences in string literals, such as `"Copyright \251"` (Default: 0)
+    no-proto: 2               # disallow usage of __proto__ property (Default: 0)
+    no-return-assign: 1       # disallow use of assignment in return statement (Default: 0)
+    no-script-url: 2          # disallow use of javascript urls (Default: 0)
+    no-self-compare: 2        # disallow comparisons where both sides are exactly the same (Default: 0)
+    no-sequences: 2           # disallow use of comma operator (Default: 0)
+  # no-unused-expressions: 1  # disallow usage of expressions in statement position (Default: 0)
+    no-void: 2                # disallow use of void operator (Default: 0)
+    no-with: 2                # disallow use of the with statement (Default: 0)
+    radix: 2                  # require use of the second argument for parseInt() (Default: 0)
+    wrap-iife: [2, "inside"]  # require immediate function invocation to be wrapped in parentheses (Default: 0)
+    yoda: [2, "never"]        # require or disallow Yoda conditions (Default: 0)
+
+    ###########################################################################
+    #                                                                         #
+    #   STRICT MODE: these rules relate to using strict mode.                 #
+    #                                                                         #
+    ###########################################################################
+
+  # strict: [1, "never"]          # require that all functions are run in strict mode (Default: 0)
+
+    ###########################################################################
+    #                                                                         #
+    #   VARIABLES: These rules have to do with variable declarations.         #
+    #                                                                         #
+    ###########################################################################
+
+    no-label-var: 2               # disallow labels that share a name with a variable (Default: 0)
+  # no-shadow: 1                  # disallow declaration of variables already declared in the outer scope (Default: 0)
+    no-shadow-restricted-names: 2 # disallow shadowing of names such as arguments (Default: 0)
+    no-undef: 1                   # disallow use of undeclared variables unless mentioned in a /*global */ block (Default: 2)
+    no-undef-init: 2              # disallow use of undefined when initializing variables (Default: 0)
+  # no-unused-vars: 0             # disallow declaration of variables that are not used in the code (Default: [2, {"vars": "all", "args": "after-used"}])
+    no-use-before-define: [2, "nofunc"] # disallow use of variables before they are defined (Default: 0)
+
+    ###########################################################################
+    #                                                                         #
+    #   NODE.JS AND COMMONJS: These rules are specific to JavaScript          #
+    #   running on Node.js or using CommonJS in the browser.                  #
+    #                                                                         #
+    ###########################################################################
+
+    no-new-require: 2             # disallow use of new operator with the require function (Default: 0)
+    no-path-concat: 2             # disallow string concatenation with __dirname and __filename (Default: 0)
+
+    ###########################################################################
+    #                                                                         #
+    #   STYLISTIC ISSUES: These rules are purely matters of style and are     #
+    #   quite subjective.                                                     #
+    #                                                                         #
+    ###########################################################################
+
+    array-bracket-spacing: 2        # disallow spaces inside of brackets (Default: [0, "never"])
+    brace-style: [1, "stroustrup", { "allowSingleLine": true }]
+                                    # require Stroustrup style: `else` must be on its own line (Default: [0, '1tbs'])
+    camelcase: [2, { "properties": "always" }]
+                                    # require camel case names (Default: 0)
+    comma-spacing: 2                # enforce spacing before and after comma (Default: 0)
+    comma-style: 2                  # enforce one true comma style (Default: [0, "last"])
+    indent: [2, 2, { "SwitchCase": 1 }] # set a specific tab width (Default: 0)
+    key-spacing: 2                  # enforces spacing between keys and values in object literal properties
+                                    # (Default: [0, { "beforeColon": false, "afterColon": true }])
+    max-nested-callbacks: [2, 4]    # specify the maximum depth callbacks can be nested (Default: [0, 2])
+    new-cap: 1                      # require a capital letter for constructors (Default: 0)
+    new-parens: 2                   # disallow the omission of parentheses when invoking a constructor with no arguments (Default: 0)
+    no-array-constructor: 2         # disallow use of the Array constructor (Default: 0)
+    no-new-object: 1                # disallow use of the Object constructor (Default: 0)
+    no-spaced-func: 2               # disallow space between function identifier and application (Default: 0)
+    no-trailing-spaces: 2           # disallow trailing whitespace at the end of lines (Default: 0)
+    no-extra-parens: 2              # disallow wrapping of non-IIFE statements in parens (Default: 0)
+    quotes: [2, "single", "avoid-escape"]
+                                    # specify whether double or single quotes should be used (Default: [0, "double"])
+    semi: [2, "never"]              # require or disallow use of semicolons instead of ASI (Default: 0)
+    space-after-keywords: 2         # require a space after certain keywords (Default: [0, "always"])
+    space-before-blocks: 2          # require a space before blocks (Default: [0, "always"])
+    space-before-function-paren: 2  # require a space before function parenthesis (Default: [0, "always"])
+    space-in-parens: 2              # require spaces inside parentheses (Default: [0, "never"])
+    space-infix-ops: 1              # require spaces around operators (Default: 0)
+    space-return-throw-case: 2      # require a space after return, throw, and case (Default: 0)

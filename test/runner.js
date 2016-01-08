@@ -1,6 +1,6 @@
 var isNode = typeof window === 'undefined'
 
-describe('Compiler Tests', function() {
+describe('Compiler Tests', function () {
   expect = require('expect.js')
   compiler = require('../dist/compiler.js')
   require('./specs/html')

@@ -1,17 +1,20 @@
+/*eslint-env mocha */
+/*global compiler, expect */
+
 var fs = require('fs'),
   path = require('path')
 
 describe('riotjs', function () {
 
-  function render(str) {
+  function render (str) {
     return compiler.js(str, {})
   }
 
-  function cat(dir, filename) {
+  function cat (dir, filename) {
     return fs.readFileSync(path.join(__dirname, dir, filename), 'utf8')
   }
 
-  function testFile(file, opts) {
+  function testFile (file/*, opts*/) {
     expect(render(cat('fixtures', file))).to.be(cat('expect', file))
   }
 

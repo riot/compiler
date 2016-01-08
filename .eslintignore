@@ -1,7 +1,6 @@
-coverage/
-dist/**
-test/**
-!test/*.js
-!test/server-specs/*.js
-!test/server-specs/parsers/*.js
-lib/_es6.js
+**/coverage/
+**/dist/
+**/lib/_*.js
+**/test/
+!**/test/specs/*.js
+!**/test/specs/parsers/suite.js

@@ -1,7 +1,10 @@
+/*eslint-env mocha */
+/*global compiler, expect */
+
 var fs = require('fs'),
   path = require('path')
 
-describe('Compile tags', function() {
+describe('Compile tags', function () {
   // in Windows __dirname is the real path, path.relative uses symlink
   var
     basepath = path.resolve(__dirname, '../..'),
@@ -10,23 +13,23 @@ describe('Compile tags', function() {
 
   // adding some custom riot parsers
   // css
-  compiler.parsers.css.myparser = function(tag, css) {
+  compiler.parsers.css.myparser = function (tag, css) {
     return css.replace(/@tag/, tag)
   }
   // js
-  compiler.parsers.js.myparser = function(js) {
+  compiler.parsers.js.myparser = function (js) {
     return js.replace(/@version/, '1.0.0')
   }
 
-  function render(str, name) {
+  function render (str, name) {
     return compiler.compile(str, { debug: true }, path.join(fixtures, name))
   }
 
-  function cat(dir, filename) {
+  function cat (dir, filename) {
     return fs.readFileSync(path.join(dir, filename)).toString()
   }
 
-  function testFile(name, save) {
+  function testFile (name, save) {
     var src = cat(fixtures, name + '.tag'),
       js = render(src, name + '.tag')
 
@@ -37,31 +40,31 @@ describe('Compile tags', function() {
     expect(js).to.equal(cat(expected, name + '.js'))
   }
 
-  it('Timetable tag', function() {
+  it('Timetable tag', function () {
     testFile('timetable')
   })
 
-  it('Mixing JavaScript and custom tags', function() {
+  it('Mixing JavaScript and custom tags', function () {
     testFile('mixed-js')
   })
 
-  it('Tag definition and usage on same file', function() {
+  it('Tag definition and usage on same file', function () {
     testFile('same')
   })
 
-  it('Scoped CSS', function() {
+  it('Scoped CSS', function () {
     testFile('scoped')
   })
 
-  it('Quotes before ending HTML bracket', function() {
+  it('Quotes before ending HTML bracket', function () {
     testFile('input-last')
   })
 
-  it('Preserves the object inside the tags', function() {
+  it('Preserves the object inside the tags', function () {
     testFile('box')
   })
 
-  it('Flexible method style (v2.3)', function() {
+  it('Flexible method style (v2.3)', function () {
     testFile('free-style')
   })
 
@@ -73,7 +76,7 @@ describe('Compile tags', function() {
     testFile('treeview')
   })
 
-  it('Included files (v2.3.1)', function() {
+  it('Included files (v2.3.1)', function () {
     testFile('includes')
   })
 
@@ -94,10 +97,11 @@ describe('Compile tags', function() {
 
   it('Parsing the options attribute in script tags', function () {
     var
-      src = cat(fixtures, 'script-options.tag'),
-      js = compiler.compile(src, { parser: testOpts })
+      src = cat(fixtures, 'script-options.tag')
 
-    function testOpts(src, opts) {
+    compiler.compile(src, { parser: testOpts })
+
+    function testOpts (src, opts) {
       expect(opts).to.eql({ val: true })
     }
   })
@@ -119,7 +123,7 @@ describe('Compile tags', function() {
     testFile('pre')
   })
 
-  it('Whitespace is compacted in other parts', function() {
+  it('Whitespace is compacted in other parts', function () {
     testFile('whitespace')
   })
 
@@ -143,12 +147,12 @@ describe('Compile tags', function() {
   it('The `entities` option give access to the compiled parts', function () {
     var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {entities: true}),
       resarr = [
-        [ 'treeview',
+        ['treeview',
           /^<ul id="treeview"> <li> <treeitem data="\{treedata}">/,
           '', '',
           /\s+this.treedata = {/
         ],
-        [ 'treeitem',
+        ['treeitem',
           /^<div class="\{bold: isFolder\(\)}" onclick="\{toggle}"/,
           '', '',
           /\s+var self = this\s+self.name = opts.data.name/
@@ -216,6 +220,14 @@ describe('Compile tags', function() {
 
   it('Escaping raw html in expressions through the `=` flag', function () {
     testFile('raw-html')
+  })
+
+  it('Script and Style blocks inside strings must be skipped #1448', function () {
+    testFile('quoted-tags')
+  })
+
+  it('Html comments are removed anywhere, except inside JS strings', function () {
+    testFile('html-comments')
   })
 
 })

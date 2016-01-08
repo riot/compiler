@@ -10,23 +10,25 @@ var parsers = (function () {
   }
   _mods.javascript = _mods.none
 
-  function _try(name, req) {  //eslint-disable-line complexity
+  function _try (name, req) {  //eslint-disable-line complexity
     var parser
 
+    /*global window */
+
     switch (name) {
-    case 'coffee':
-      req = 'CoffeeScript'
-      break
-    case 'es6':
-    case 'babel':
-      req = 'babel'
-      break
-    case 'none':
-    case 'javascript':
-      return _mods.none
-    default:
-      if (!req) req = name
-      break
+      case 'coffee':
+        req = 'CoffeeScript'
+        break
+      case 'es6':
+      case 'babel':
+        req = 'babel'
+        break
+      case 'none':
+      case 'javascript':
+        return _mods.none
+      default:
+        if (!req) req = name
+        break
     }
     parser = window[req]
 
@@ -37,8 +39,20 @@ var parsers = (function () {
     return parser
   }
 
-  function _req(name, req) {
+  function _req (name, req) {
     return name in _mods ? _mods[name] : _try(name, req)
+  }
+
+  function extend (obj, props) {
+    if (props) {
+      for (var prop in props) {
+        /* istanbul ignore next */
+        if (props.hasOwnProperty(prop)) {
+          obj[prop] = props[prop]
+        }
+      }
+    }
+    return obj
   }
 
   var _html = {
@@ -52,12 +66,14 @@ var parsers = (function () {
   }
 
   var _css = {
-    less: function(tag, css, opts, url) {
+    less: function (tag, css, opts, url) {
       var less = _req('less'),
         ret
 
       less.render(css, extend({
         sync: true,
+        syncImport: true,
+        filename: url,
         compress: true
       }, opts), function (err, result) {
         // istanbul ignore next
@@ -68,34 +84,32 @@ var parsers = (function () {
     },
     stylus: function (tag, css, opts, url) {
       var
-        stylus = _req('stylus'), nib = _req('nib')
+        xopts = extend({filename: url}, opts),
+        stylus = _req('stylus'),
+        nib = _req('nib')
+
       /* istanbul ignore next: can't run both */
       return nib ?
-        stylus(css).use(nib()).import('nib').render() : stylus.render(css)
+        stylus(css, xopts).use(nib()).import('nib').render() : stylus.render(css, xopts)
     }
   }
 
   var _js = {
-    livescript: function (js, opts, url) {
+    livescript: function (js, opts) {
       return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
     },
-    typescript: function (js, opts, url) {
+    typescript: function (js, opts) {
       return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
     },
-    es6: function (js, opts, url) {
+    es6: function (js, opts) {
       return _req('es6').transform(js, extend({
         blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
       }, opts)).code
     },
     babel: function (js, opts, url) {
-      // istanbul ignore next: url empty if comming from expression
-      return _req('babel').transform(js,
-        extend({
-          filename: url || ''
-        }, opts)
-      ).code
+      return _req('babel').transform(js, extend({filename: url}, opts)).code
     },
-    coffee: function (js, opts, url) {
+    coffee: function (js, opts) {
       return _req('coffee').compile(js, extend({bare: true}, opts))
     },
     none: _mods.none
@@ -116,11 +130,11 @@ riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version v2.3.19
+ * @version WIP
  */
 var compile = (function () {
 
-  function _regEx(str, opt) { return new RegExp(str, opt) }
+  function _regEx (str, opt) { return new RegExp(str, opt) }
 
   var
 
@@ -135,16 +149,17 @@ var compile = (function () {
     VOID_TAGS  = /^(?:input|img|br|wbr|hr|area|base|col|embed|keygen|link|meta|param|source|track)$/,
 
     HTML_ATTR  = /\s*([-\w:\xA0-\xFF]+)\s*(?:=\s*('[^']+'|"[^"]+"|\S+))?/g,
+    SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i,
+    TRIM_TRAIL = /[ \t]+$/gm,
+    S_STRINGS  = brackets.R_STRINGS.source
 
-    TRIM_TRAIL = /[ \t]+$/gm
-
-  function q(s) {
+  function q (s) {
     return "'" + (s ? s
       .replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '\\r') :
       '') + "'"
   }
 
-  function mktag(name, html, css, attrs, js, pcex) {
+  function mktag (name, html, css, attrs, js, pcex) {
     var
       c = ', ',
       s = '}' + (pcex.length ? ', ' + q(pcex._bp[8]) : '') + ');'
@@ -155,22 +170,11 @@ var compile = (function () {
            ', function(opts) {\n' + js + s
   }
 
-  function extend(obj, props) {
-    for (var prop in props) {
-      /* istanbul ignore next */
-      if (props.hasOwnProperty(prop)) {
-        obj[prop] = props[prop]
-      }
-    }
-    return obj
-  }
-
-  function parseAttrs(str, pcex) {
+  function parseAttrs (str, pcex) {
     var
       list = [],
       match,
-      k, v,
-      _bp = pcex._bp,
+      k, v, t, e,
       DQ = '"'
 
     HTML_ATTR.lastIndex = 0
@@ -190,31 +194,35 @@ var compile = (function () {
         if (v[0] !== DQ)
           v = DQ + (v[0] === "'" ? v.slice(1, -1) : v) + DQ
 
-        if (k === 'type' && v.toLowerCase() === '"number"') {
-          v = DQ + _bp[0] + "'number'" + _bp[1] + DQ
+        if (k === 'type' && SPEC_TYPES.test(v)) {
+          t = v
         }
-        else if (/\u0001\d/.test(v)) {
+        else {
+          if (/\u0001\d/.test(v)) {
 
-          if (BOOL_ATTRS.test(k)) {
-            k = '__' + k
+            if (k === 'value') e = 1
+            else if (BOOL_ATTRS.test(k)) k = '__' + k
+            else if (~RIOT_ATTRS.indexOf(k)) k = 'riot-' + k
           }
-          else if (~RIOT_ATTRS.indexOf(k)) {
-            k = 'riot-' + k
-          }
+
+          list.push(k + '=' + v)
         }
-
-        list.push(k + '=' + v)
       }
+    }
+
+    if (t) {
+      if (e) t = DQ + pcex._bp[0] + "'" + t.slice(1, -1) + "'" + pcex._bp[1] + DQ
+      list.push('type=' + t)
     }
     return list.join(' ')
   }
 
-  function splitHtml(html, opts, pcex) {
+  function splitHtml (html, opts, pcex) {
     var _bp = pcex._bp
 
     if (html && _bp[4].test(html)) {
       var
-        jsfn = opts.expr && (opts.parser || opts.type) ? _compileJS : 0,
+        jsfn = opts.expr && (opts.parser || opts.type) ? _compileJS : 0, //eslint-disable-line
         list = brackets.split(html, 0, _bp),
         expr
 
@@ -235,7 +243,7 @@ var compile = (function () {
     return html
   }
 
-  function restoreExpr(html, pcex) {
+  function restoreExpr (html, pcex) {
     if (pcex.length) {
       html = html
         .replace(/\u0001(\d+)/g, function (_, d) {
@@ -254,13 +262,12 @@ var compile = (function () {
   }
 
   var
-    HTML_COMMENT = /<!--(?!>)[\S\s]*?-->/g,
+    HTML_COMMENT = _regEx(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_STRINGS, 'g'),
     HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g,
     PRE_TAG = _regEx(
-      /<pre(?:\s+[^'">]+(?:(?:@Q)[^'">]*)*|\s*)?>([\S\s]*?)<\/pre\s*>/
-      .source.replace('@Q', brackets.R_STRINGS.source), 'gi')
+      /<pre(?:\s+[^'">]+(?:(?:@Q)|[^>]*)*|\s*)?>([\S\s]*?)<\/pre\s*>/.source.replace('@Q', S_STRINGS), 'gi')
 
-  function _compileHTML(html, opts, pcex) {
+  function _compileHTML (html, opts, pcex) {
 
     html = splitHtml(html, opts, pcex)
       .replace(HTML_TAGS, function (_, name, attr, ends) {
@@ -277,11 +284,12 @@ var compile = (function () {
     if (!opts.whitespace) {
       if (/<pre[\s>]/.test(html)) {
         var p = []
-        html = html.replace(PRE_TAG, function (q)
-          { return p.push(q) && '\u0002' }).trim().replace(/\s+/g, ' ')
+        html = html.replace(PRE_TAG, function (_q) {
+          return p.push(_q) && '\u0002'
+        }).trim().replace(/\s+/g, ' ')
         // istanbul ignore else
         if (p.length)
-          html = html.replace(/\u0002/g, function (_) { return p.shift() })
+          html = html.replace(/\u0002/g, function () { return p.shift() })
       }
       else
         html = html.trim().replace(/\s+/g, ' ')
@@ -293,7 +301,7 @@ var compile = (function () {
   }
 
   // istanbul ignore next
-  function compileHTML(html, opts, pcex) {
+  function compileHTML (html, opts, pcex) {
     if (Array.isArray(opts)) {
       pcex = opts
       opts = {}
@@ -303,8 +311,8 @@ var compile = (function () {
       if (!opts) opts = {}
     }
 
-    if (!pcex.__intflag)
-      html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT, '').replace(TRIM_TRAIL, '')
+    html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT,
+      function (s) { return s[0] === '<' ? '' : s }).replace(TRIM_TRAIL, '')
 
     if (!pcex._bp) pcex._bp = brackets.array(opts.brackets)
 
@@ -315,14 +323,14 @@ var compile = (function () {
     JS_RMCOMMS = _regEx('(' + brackets.S_QBLOCKS + ')|' + brackets.R_MLCOMMS.source + '|//[^\r\n]*', 'g'),
     JS_ES6SIGN = /^([ \t]*)([$_A-Za-z][$\w]*)\s*(\([^()]*\)\s*{)/m
 
-  function riotjs(js) {
+  function riotjs (js) {
     var
       match,
       toes5,
       parts = [],
       pos
 
-    js = js.replace(JS_RMCOMMS, function (m, q) { return q ? m : ' ' })
+    js = js.replace(JS_RMCOMMS, function (m, _q) { return _q ? m : ' ' })
 
     while (match = js.match(JS_ES6SIGN)) {
 
@@ -341,21 +349,21 @@ var compile = (function () {
 
     return parts.length ? parts.join('') + js : js
 
-    function skipBlock(str) {
+    function skipBlock (str) {
       var
         re = _regEx('([{}])|' + brackets.S_QBLOCKS, 'g'),
         level = 1,
-        match
+        mm
 
-      while (level && (match = re.exec(str))) {
-        if (match[1])
-          match[1] === '{' ? ++level : --level
+      while (level && (mm = re.exec(str))) {
+        if (mm[1])
+          mm[1] === '{' ? ++level : --level
       }
       return level ? str.length : re.lastIndex
     }
   }
 
-  function _compileJS(js, opts, type, parserOpts, url) {
+  function _compileJS (js, opts, type, parserOpts, url) {
     if (!js) return ''
     if (!type) type = opts.type
 
@@ -367,7 +375,7 @@ var compile = (function () {
   }
 
   // istanbul ignore next
-  function compileJS(js, opts, type, extra) {
+  function compileJS (js, opts, type, extra) {
     if (typeof opts === 'string') {
       extra = type
       type = opts
@@ -382,9 +390,9 @@ var compile = (function () {
     return _compileJS(js, opts, type, extra.parserOptions, extra.url)
   }
 
-  var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + brackets.R_STRINGS.source, 'g')
+  var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + S_STRINGS, 'g')
 
-  function scopedCSS(tag, style) {
+  function scopedCSS (tag, style) {
     var scope = ':scope'
 
     return style.replace(CSS_SELECTOR, function (m, p1, p2) {
@@ -407,7 +415,7 @@ var compile = (function () {
     })
   }
 
-  function _compileCSS(style, tag, type, opts) {
+  function _compileCSS (style, tag, type, opts) {
     var scoped = (opts || (opts = {})).scoped
 
     if (type) {
@@ -415,7 +423,7 @@ var compile = (function () {
         scoped = true
       }
       else if (parsers.css[type]) {
-        style = parsers.css[type](tag, style, opts.parserOpts, opts.url)
+        style = parsers.css[type](tag, style, opts.parserOpts || {}, opts.url)
       }
       else if (type !== 'css') {
         throw new Error('CSS parser not found: "' + type + '"')
@@ -434,12 +442,11 @@ var compile = (function () {
   }
 
   // istanbul ignore next
-  function compileCSS(style, parser, opts) {
+  function compileCSS (style, parser, opts) {
     if (typeof parser === 'object') {
       opts = parser
       parser = ''
     }
-    else if (!opts) opts = {}
     return _compileCSS(style, opts.tagName, parser, opts)
   }
 
@@ -447,7 +454,7 @@ var compile = (function () {
     TYPE_ATTR = /\stype\s*=\s*(?:(['"])(.+?)\1|(\S+))/i,
     MISC_ATTR = /\s*=\s*("(?:\\[\S\s]|[^"\\]*)*"|'(?:\\[\S\s]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
 
-  function getType(str) {
+  function getType (str) {
 
     if (str) {
       var match = str.match(TYPE_ATTR)
@@ -456,7 +463,7 @@ var compile = (function () {
     return str ? str.replace('text/', '') : ''
   }
 
-  function getAttr(str, name) {
+  function getAttr (str, name) {
 
     if (str) {
       var
@@ -469,23 +476,32 @@ var compile = (function () {
     return ''
   }
 
-  function getParserOptions(attrs) {
+  function getParserOptions (attrs) {
     var opts = getAttr(attrs, 'options')
 
     if (opts) opts = JSON.parse(opts)
     return opts
   }
 
-  function getCode(code, opts, attrs, url) {
+  function getCode (code, opts, attrs, url) {
     var type = getType(attrs),
       parserOpts = getParserOptions(attrs)
 
     return _compileJS(code, opts, type, parserOpts, url)
   }
 
+  function cssCode (code, opts, attrs, url, tag) {
+    var extraOpts = {
+      parserOpts: getParserOptions(attrs),
+      scoped: attrs && /\sscoped(\s|=|$)/i.test(attrs),
+      url: url
+    }
+    return _compileCSS(code, tag, getType(attrs) || opts.style, extraOpts)
+  }
+
   var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
 
-  function splitBlocks(str) {
+  function splitBlocks (str) {
     var k, m
 
     /* istanbul ignore next: this if() can't be true, but just in case... */
@@ -497,12 +513,12 @@ var compile = (function () {
         k += m.index + m[0].length
         return [str.slice(0, k), str.slice(k)]
       }
-      k = str.lastIndexOf('<', k -1)
+      k = str.lastIndexOf('<', k - 1)
     }
     return ['', str]
   }
 
-  function compileTemplate(html, url, lang, opts) {
+  function compileTemplate (html, url, lang, opts) {
     var parser = parsers.html[lang]
 
     if (!parser)
@@ -514,19 +530,22 @@ var compile = (function () {
   var
     CUST_TAG = _regEx(
       /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@Q|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
-      .source.replace('@Q', brackets.R_STRINGS.source), 'gim'),
-    STYLE = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/gi,
-    SCRIPT = _regEx(STYLE.source.replace(/tyle/g, 'cript'), 'gi')
+      .source.replace('@Q', S_STRINGS), 'gim'),
+    SRC_TAGS = /<style(\s+[^>]*)?>\n?([^<]*(?:<(?!\/style\s*>)[^<]*)*)<\/style\s*>/.source + '|' + S_STRINGS,
+    STYLES = _regEx(SRC_TAGS, 'gi'),
+    SCRIPT = _regEx(SRC_TAGS.replace(/style/g, 'script'), 'gi')
 
-  function compile(src, opts, url) {
+  function compile (src, opts, url) {
     var
       parts = [],
       exclude
 
     if (!opts) opts = {}
 
+    if (!url) url = ''
+
     exclude = opts.exclude || false
-    function included(s) { return !(exclude && ~exclude.indexOf(s)) }
+    function included (s) { return !(exclude && ~exclude.indexOf(s)) }
 
     var _bp = brackets.array(opts.brackets)
 
@@ -544,7 +563,6 @@ var compile = (function () {
           pcex = []
 
         pcex._bp = _bp
-        pcex.__intflag = 1
 
         tagName = tagName.toLowerCase()
 
@@ -553,7 +571,8 @@ var compile = (function () {
 
         if (body2) body = body2
 
-        if (body && (body = body.replace(HTML_COMMENT, '')) && /\S/.test(body)) {
+        if (body && (body = body.replace(HTML_COMMENT,
+          function (s) { return s[0] === '<' ? '' : s })) && /\S/.test(body)) {
 
           if (body2) {
             /* istanbul ignore next */
@@ -562,21 +581,19 @@ var compile = (function () {
           else {
             body = body.replace(_regEx('^' + indent, 'gm'), '')
 
-            body = body.replace(STYLE, included('css') ? function (_, _attrs, _style) {
-              var extraOpts = {
-                scoped: _attrs && /\sscoped(\s|=|$)/i.test(_attrs),
-                url: url,
-                parserOpts: getParserOptions(_attrs)
-              }
-              styles += (styles ? ' ' : '') +
-                _compileCSS(_style, tagName, getType(_attrs) || opts.style, extraOpts)
+            body = body.replace(STYLES, function (_m, _attrs, _style) {
+              if (_m[0] !== '<') return _m
+              if (included('css'))
+                styles += (styles ? ' ' : '') + cssCode(_style, opts, _attrs, url, tagName)
               return ''
-            } : '')
+            })
 
-            body = body.replace(SCRIPT, included('js') ? function (_, _attrs, _script) {
-              jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
+            body = body.replace(SCRIPT, function (_m, _attrs, _script) {
+              if (_m[0] !== '<') return _m
+              if (included('js'))
+                jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
               return ''
-            } : '')
+            })
 
             var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
 
@@ -620,7 +637,7 @@ var compile = (function () {
     html: compileHTML,
     css: compileCSS,
     js: compileJS,
-    version: 'v2.3.19'
+    version: 'WIP'
   }
   return compile
 
