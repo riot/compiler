@@ -118,13 +118,13 @@ var parsers = (function () {
     },
     stylus: function (tag, css, opts, url) {
       var
+        xopts = extend({filename: url}, opts),
         stylus = _req('stylus'),
-        optx = extend({filename: url}, opts),
         nib = _req('nib')
 
       /* istanbul ignore next: can't run both */
       return nib ?
-        stylus(css, optx).use(nib()).import('nib').render() : stylus.render(css, optx)
+        stylus(css, xopts).use(nib()).import('nib').render() : stylus.render(css, xopts)
     }
   }
 
@@ -141,11 +141,7 @@ var parsers = (function () {
       }, opts)).code
     },
     babel: function (js, opts, url) {
-      return _req('babel').transform(js,
-        extend({
-          filename: url
-        }, opts)
-      ).code
+      return _req('babel').transform(js, extend({filename: url}, opts)).code
     },
     coffee: function (js, opts) {
       return _req('coffee').compile(js, extend({bare: true}, opts))
