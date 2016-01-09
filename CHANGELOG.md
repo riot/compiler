@@ -6,7 +6,7 @@
 - Fix [riot#1448](https://github.com/riot/riot/issues/1448) : Riot compiler parses and removes content from string declaration. This is partial fix, you need to write `<\/script>` for closing script tags within quoted strings.
 - Revised regex that matches `<pre>` tags.
 - `@import` directives of `stylus`, `sass`, `scss`, and `less` can be relative to the file being processed.
-- Fixed lint issues with new .eslint.yml, almost compatible with [JavaScript Standard Style](http://standardjs.com/)
+- Fixed lint issues with new .eslintrc.yml, almost compatible with [JavaScript Standard Style](http://standardjs.com/)
 
 ### v2.3.19
 - Fixing issues with double quotes.

@@ -1,4 +1,4 @@
-/* riot-compiler WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* riot-compiler v2.3.20, @license MIT, (c) 2015 Muut Inc. + contributors */
 'use strict'
 
 /**
@@ -827,5 +827,5 @@ module.exports = {
   css: compileCSS,
   js: compileJS,
   parsers: parsers,
-  version: 'WIP'
+  version: 'v2.3.20'
 }
