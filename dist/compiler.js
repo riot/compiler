@@ -5,14 +5,13 @@
  * @module parsers
  */
 var parsers = (function () {
-  var _mods = {
-    none: function (js) {
-      return js
-    }
-  }
-  _mods.javascript = _mods.none
 
   var path = require('path')
+
+  var _mods = {
+    none: function (js) { return js }
+  }
+  _mods.javascript = _mods.none
 
   var _modnames = {
     es6: 'babel',
@@ -25,30 +24,21 @@ var parsers = (function () {
     sass: 'node-sass'
   }
 
-  function _modname (name) {
-    return _modnames[name] || name
-  }
+  function modname (name) { return _modnames[name] || name }
 
-  function _try (name, req) {  //eslint-disable-line complexity
-    var parser
+  function _try (name, req) {
 
     function fn (r) {
-      try {
-        _mods[name] = require(r)
-      }
-      catch (e) {
-        _mods[name] = null
-      }
-      return _mods[name]
+      var p
+      try { p = require(r) }
+      catch (e) { p = null }
+      return p
     }
 
-    /* istanbul ignore next */
-    if (name === 'es6')
-      return fn('babel') || fn('babel-core')
-
-    parser = fn(req || _modname(name))
-
-    return parser
+    return _mods[name] =                  // eslint-disable-line no-return-assign
+      name === 'es6' ?                    // istanbul ignore next
+      fn('babel') || fn('babel-core') :
+      fn(req || modname(name))
   }
 
   function _req (name, req) {
@@ -69,47 +59,45 @@ var parsers = (function () {
 
   var _html = {
     jade: function (html, opts, url) {
-      return _req('jade').render(html, extend({
+      opts = extend({
         pretty: true,
         filename: url,
         doctype: 'html'
-      }, opts))
+      }, opts)
+      return _req('jade').render(html, opts)
     }
   }
 
   var _css = {
     sass: function (tag, css, opts, url) {
-      var sass = _req('sass')
-
-      return sass.renderSync(extend({
+      opts = extend({
         data: css,
         includePaths: [path.dirname(url)],
         indentedSyntax: true,
         omitSourceMapUrl: true,
         outputStyle: 'compact'
-      }, opts)).css + ''
+      }, opts)
+      return _req('sass').renderSync(opts).css + ''
     },
     scss: function (tag, css, opts, url) {
-      var scss = _req('scss')
-
-      return scss.renderSync(extend({
+      opts = extend({
         data: css,
         includePaths: [path.dirname(url)],
         indentedSyntax: false,
         omitSourceMapUrl: true,
         outputStyle: 'compact'
-      }, opts)).css + ''
+      }, opts)
+      return _req('scss').renderSync(opts).css + ''
     },
     less: function (tag, css, opts, url) {
-      var less = _req('less'),
-        ret
-
-      less.render(css, extend({
+      var ret
+      opts = extend({
         sync: true,
         syncImport: true,
         filename: url,
         compress: true
-      }, opts), function (err, result) {
+      }, opts)
+      _req('less').render(css, opts, function (err, result) {
         // istanbul ignore next
         if (err) throw err
         ret = result.css
@@ -118,27 +106,24 @@ var parsers = (function () {
     },
     stylus: function (tag, css, opts, url) {
       var
-        xopts = extend({filename: url}, opts),
         stylus = _req('stylus'),
         nib = _req('nib')
 
+      opts = extend({filename: url}, opts)
       /* istanbul ignore next: can't run both */
       return nib ?
-        stylus(css, xopts).use(nib()).import('nib').render() : stylus.render(css, xopts)
+        stylus(css, opts).use(nib()).import('nib').render() : stylus.render(css, opts)
     }
   }
 
   var _js = {
-    livescript: function (js, opts) {
-      return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
-    },
-    typescript: function (js, opts) {
-      return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
-    },
     es6: function (js, opts) {
-      return _req('es6').transform(js, extend({
-        blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
-      }, opts)).code
+      opts = extend({
+        blacklist: ['useStrict', 'strict', 'react'],
+        sourceMaps: false,
+        comments: false
+      }, opts)
+      return _req('es6').transform(js, opts).code
     },
     babel: function (js, opts, url) {
       return _req('babel').transform(js, extend({filename: url}, opts)).code
@@ -146,18 +131,24 @@ var parsers = (function () {
     coffee: function (js, opts) {
       return _req('coffee').compile(js, extend({bare: true}, opts))
     },
-    none: _mods.none
+    livescript: function (js, opts) {
+      return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
+    },
+    typescript: function (js, opts) {
+      return _req('typescript')(js, opts)
+    },
+    none: _mods.none, javascript: _mods.none
   }
 
-  _js.javascript   = _js.none
   _js.coffeescript = _js.coffee
 
   return {
+    _modname: modname,
+    _req: _req,
     html: _html,
     css: _css,
-    js: _js,
-    _modname: _modname,
-    _req: _req}
+    js: _js
+  }
 
 })()
 

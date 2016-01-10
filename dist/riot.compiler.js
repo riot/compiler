@@ -1,46 +1,13 @@
-
 /**
  * @module parsers
  */
 var parsers = (function () {
-  var _mods = {
-    none: function (js) {
-      return js
-    }
-  }
-  _mods.javascript = _mods.none
 
-  function _try (name, req) {  //eslint-disable-line complexity
-    var parser
-
-    /*global window */
-
-    switch (name) {
-      case 'coffee':
-        req = 'CoffeeScript'
-        break
-      case 'es6':
-      case 'babel':
-        req = 'babel'
-        break
-      case 'none':
-      case 'javascript':
-        return _mods.none
-      default:
-        if (!req) req = name
-        break
-    }
-    parser = window[req]
-
+  function _req (name) {
+    var parser = window[name]
     if (!parser)
-      throw new Error(req + ' parser not found.')
-    _mods[name] = parser
-
+      throw new Error(name + ' parser not found.')
     return parser
-  }
-
-  function _req (name, req) {
-    return name in _mods ? _mods[name] : _try(name, req)
   }
 
   function extend (obj, props) {
@@ -55,74 +22,67 @@ var parsers = (function () {
     return obj
   }
 
-  var _html = {
-    jade: function (html, opts, url) {
-      return _req('jade').render(html, extend({
-        pretty: true,
-        filename: url,
-        doctype: 'html'
-      }, opts))
+  var _p = {
+    html: {
+      jade: function (html, opts, url) {
+        opts = extend({
+          pretty: true,
+          filename: url,
+          doctype: 'html'
+        }, opts)
+        return _req('jade').render(html, opts)
+      }
+    },
+
+    css: {
+      less: function (tag, css, opts, url) {
+        var ret
+        opts = extend({
+          sync: true,
+          syncImport: true,
+          filename: url,
+          compress: true
+        }, opts)
+        _req('less').render(css, opts, function (err, result) {
+          // istanbul ignore next
+          if (err) throw err
+          ret = result.css
+        })
+        return ret
+      }
+    },
+
+    js: {
+      es6: function (js, opts) {
+        opts = extend({
+          blacklist: ['useStrict', 'strict', 'react'],
+          sourceMaps: false,
+          comments: false
+        }, opts)
+        return _req('babel').transform(js, opts).code
+      },
+      babel: function (js, opts, url) {
+        return _req('babel').transform(js, extend({filename: url}, opts)).code
+      },
+      coffee: function (js, opts) {
+        return _req('CoffeeScript').compile(js, extend({bare: true}, opts))
+      },
+      livescript: function (js, opts) {
+        return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
+      },
+      typescript: function (js, opts) {
+        return _req('typescript')(js, opts)
+      },
+      none: function (js) {
+        return js
+      }
     }
   }
 
-  var _css = {
-    less: function (tag, css, opts, url) {
-      var less = _req('less'),
-        ret
+  _p.js.javascript   = _p.js.none
+  _p.js.coffeescript = _p.js.coffee
 
-      less.render(css, extend({
-        sync: true,
-        syncImport: true,
-        filename: url,
-        compress: true
-      }, opts), function (err, result) {
-        // istanbul ignore next
-        if (err) throw err
-        ret = result.css
-      })
-      return ret
-    },
-    stylus: function (tag, css, opts, url) {
-      var
-        xopts = extend({filename: url}, opts),
-        stylus = _req('stylus'),
-        nib = _req('nib')
-
-      /* istanbul ignore next: can't run both */
-      return nib ?
-        stylus(css, xopts).use(nib()).import('nib').render() : stylus.render(css, xopts)
-    }
-  }
-
-  var _js = {
-    livescript: function (js, opts) {
-      return _req('livescript').compile(js, extend({bare: true, header: false}, opts))
-    },
-    typescript: function (js, opts) {
-      return _req('typescript')(js, opts).replace(/\r\n?/g, '\n')
-    },
-    es6: function (js, opts) {
-      return _req('es6').transform(js, extend({
-        blacklist: ['useStrict', 'strict', 'react'], sourceMaps: false, comments: false
-      }, opts)).code
-    },
-    babel: function (js, opts, url) {
-      return _req('babel').transform(js, extend({filename: url}, opts)).code
-    },
-    coffee: function (js, opts) {
-      return _req('coffee').compile(js, extend({bare: true}, opts))
-    },
-    none: _mods.none
-  }
-
-  _js.javascript   = _js.none
-  _js.coffeescript = _js.coffee
-
-  return {
-    html: _html,
-    css: _css,
-    js: _js,
-    _req: _req}
+  return _p
 
 })()
 

@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v2.3.21
+- Code refactorization of the `parsers` module, removed unuseful CSS parser `stylus` on browsers.
+
 ### v2.3.20
 - Fix [riot#1495](https://github.com/riot/riot/issues/1495) : Warning of input tag value - Avoids warnings for date/datetime/time/month/email/color types with expression in its value.
 - Fix [riot#1488](https://github.com/riot/riot/issues/1488) : Cannot read property 'replace' of undefined when compiling in Node a tag with an import in its less stylesheet -- Thanks to @jrx-jsj
