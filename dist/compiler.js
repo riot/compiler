@@ -324,10 +324,10 @@ var
 
   VOID_TAGS  = /^(?:input|img|br|wbr|hr|area|base|col|embed|keygen|link|meta|param|source|track)$/,
 
-  HTML_ATTR  = / ?([-\w:\xA0-\xFF]+) ?(?:= ?('[^']*?'|"[^"]*?"|\S+))?/g,
+  HTML_ATTR  = / ?([-\w:\xA0-\xFF]+) ?(?:= ?('[^']*'|"[^"]*"|\S+))?/g,
   SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i,
   TRIM_TRAIL = /[ \t]+$/gm,
-  S_STRINGS  = /"(?:[^"\n\\]*|\\[\S\s])*"|'(?:[^'\n\\]*|\\[\S\s])*'/.source
+  S_STRINGS  = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
 
 var path = require('path')
 
@@ -632,7 +632,7 @@ function _compileCSS (style, tag, type, opts) {
 
 // istanbul ignore next
 function compileCSS (style, parser, opts) {
-  if (typeof parser === 'object') {
+  if (parser && typeof parser === 'object') {
     opts = parser
     parser = ''
   }
@@ -677,17 +677,13 @@ function getCode (code, opts, attrs, url) {
   var type = getType(attrs),
     parserOpts = getParserOptions(attrs)
 
-  // istanbul ignore else
-  if (url) {
-    var src = getAttr(attrs, 'src')
+  var src = getAttr(attrs, 'src')
 
-    if (src) {
-      var
-        charset = getAttr(attrs, 'charset'),
-        file = path.resolve(path.dirname(url), src)
+  if (src) {
+    var charset = getAttr(attrs, 'charset'),
+      file = path.resolve(path.dirname(url), src)
 
-      code = require('fs').readFileSync(file, charset || 'utf8')
-    }
+    code = require('fs').readFileSync(file, charset || 'utf8')
   }
   return _compileJS(code, opts, type, parserOpts, url)
 }
