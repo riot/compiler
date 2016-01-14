@@ -1,5 +1,5 @@
-/*eslint-env mocha */
-/*global compiler, expect */
+/* eslint-env mocha */
+/* global compiler, expect */
 
 var fs = require('fs'),
   path = require('path')

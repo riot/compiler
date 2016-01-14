@@ -1,8 +1,8 @@
 /*
   Performance test for the compiler
 */
-/*eslint no-console: 0 */
-'use strict'    // eslint-disable-line
+/* eslint no-console: 0, max-len: 0 */
+'use strict'
 
 var
   compiler23 = require('../dist/compiler.js').compile,
@@ -63,10 +63,9 @@ console.log('- Minimum & maximum times are removed.')
 console.log()
 
 function test (compiler, times, ogc) {
-  var gcm
   global.gc()
   global.gc()
-  gcm = process.memoryUsage().heapUsed
+  var gcm = process.memoryUsage().heapUsed
 
   files.forEach(function (text, idx) {
     var

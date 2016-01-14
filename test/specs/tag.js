@@ -1,5 +1,6 @@
 /*eslint-env mocha */
 /*global compiler, expect */
+/*eslint max-len: 0 */
 
 var fs = require('fs'),
   path = require('path')
@@ -33,10 +34,11 @@ describe('Compile tags', function () {
     var src = cat(fixtures, name + '.tag'),
       js = render(src, name + '.tag')
 
-    if (save)
+    if (save) {
       fs.writeFile(path.join(expected, name + '_out.js'), js, function (err) {
         if (err) throw err
       })
+    }
     expect(js).to.equal(cat(expected, name + '.js'))
   }
 
@@ -89,21 +91,18 @@ describe('Compile tags', function () {
   })
 
   it('With attributes in the root', function () {
-    var
-      src = cat(fixtures, 'root-attribs.tag'),
-      js = compiler.compile(src)        // no name, no options
-    expect(js).to.equal(cat(expected, 'root-attribs.js'))
+    testFile('root-attribs')
   })
 
   it('Parsing the options attribute in script tags', function () {
     var
-      src = cat(fixtures, 'script-options.tag')
+      src = cat(fixtures, 'script-options.tag'),
+      js = compiler.compile(src, { parser: testOpts })
 
-    compiler.compile(src, { parser: testOpts })
-
-    function testOpts (src, opts) {
+    function testOpts (_, opts) {
       expect(opts).to.eql({ val: true })
     }
+    expect(js).to.not.contain('options=')
   })
 
   it('The `whitespace` option preserves newlines and tabs', function () {
@@ -114,9 +113,10 @@ describe('Compile tags', function () {
         '\t    ss</p>',
         '</whitespace>'
       ].join('\n'),
-      str = compiler.compile(src, {whitespace: true})
+      str = compiler.compile(src, { whitespace: true })
 
-    expect(str).to.be('riot.tag2(\'whitespace\', \'\t<p>xyz\\n\t  cc\\n\t    ss</p>\\n\', \'\', \'\', function(opts) {\n});')
+    expect(str).to.be('riot.tag2(\'whitespace\', \'\t<p>xyz\\n' +
+      '\t  cc\\n\t    ss</p>\\n\', \'\', \'\', function(opts) {\n});')
   })
 
   it('Whitespace within <pre> tags is always preserved', function () {
@@ -133,6 +133,7 @@ describe('Compile tags', function () {
 
   it('The url name is optional', function () {
     var js = compiler.compile('<url/>', {})
+
     expect(js).to.equal("riot.tag2('url', '', '', '', function(opts) {\n});")
   })
 
@@ -145,7 +146,7 @@ describe('Compile tags', function () {
   })
 
   it('The `entities` option give access to the compiled parts', function () {
-    var parts = compiler.compile(cat(fixtures, 'treeview.tag'), {entities: true}),
+    var parts = compiler.compile(cat(fixtures, 'treeview.tag'), { entities: true }),
       resarr = [
         ['treeview',
           /^<ul id="treeview"> <li> <treeitem data="\{treedata}">/,
@@ -158,9 +159,11 @@ describe('Compile tags', function () {
           /\s+var self = this\s+self.name = opts.data.name/
         ]
       ]
+
     expect(parts.length).to.be(2)
     for (var i = 0; i < 2; ++i) {
       var a = resarr[i]
+
       expect(parts[i]).to.be.an('object')
       expect(parts[i].tagName).to.be(a[0])
       expect(parts[i].html).to.match(a[1])
@@ -230,4 +233,7 @@ describe('Compile tags', function () {
     testFile('html-comments')
   })
 
+  it('html does not break on unbalanced quotes #1511', function () {
+    testFile('one-quote')
+  })
 })
