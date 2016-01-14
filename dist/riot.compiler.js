@@ -113,7 +113,7 @@ var compile = (function () {
     HTML_ATTR  = / ?([-\w:\xA0-\xFF]+) ?(?:= ?('[^']*?'|"[^"]*?"|\S+))?/g,
     SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i,
     TRIM_TRAIL = /[ \t]+$/gm,
-    S_STRINGS  = brackets.R_STRINGS.source
+    S_STRINGS  = /"(?:[^"\n\\]*|\\[\S\s])*"|'(?:[^'\n\\]*|\\[\S\s])*'/.source
 
   function q (s) {
     return "'" + (
@@ -507,7 +507,7 @@ var compile = (function () {
     CUST_TAG = /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]*(?:(?:"(?:[^"\\]*|\\[\S\s])*"|'(?:[^'\\]*|\\[\S\s])*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/gim,
     SRC_TAGS = /<style(\s+[^>]*)?>\n?([\S\s]*?)<\/style\s*>/.source + '|' + S_STRINGS,
     STYLES = _regEx(SRC_TAGS, 'gi'),
-    SCRIPT = _regEx(SRC_TAGS.replace(/style/g, 'script'), 'gi')
+    SCRIPTS = _regEx(SRC_TAGS.replace(/style/g, 'script'), 'gi')
 
   function compile (src, opts, url) {
     var
@@ -564,7 +564,7 @@ var compile = (function () {
               return ''
             })
 
-            body = body.replace(SCRIPT, function (_m, _attrs, _script) {
+            body = body.replace(SCRIPTS, function (_m, _attrs, _script) {
               if (_m[0] !== '<') return _m
               if (included('js')) {
                 jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
