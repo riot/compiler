@@ -1,5 +1,6 @@
-/*eslint-env mocha */
-/*global compiler, expect */
+/* eslint-env mocha */
+/* global compiler, expect */
+/* eslint max-len: 0 */
 
 describe('Scoped CSS', function () {
 

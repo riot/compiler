@@ -1,5 +1,6 @@
-/*eslint-env mocha */
-/*global compiler, expect */
+/* eslint-env mocha */
+/* global compiler, expect */
+/* eslint max-len: 0 */
 
 describe('Compile HTML', function () {
 
@@ -125,6 +126,7 @@ describe('Compile HTML', function () {
         'draggable', 'spellcheck', 'translate', 'declare', 'indeterminate',
         'pauseonexit', 'enabled', 'visible'
       ]
+
       for (var i = 0; i < att.length; ++i) {
         testStr('<p ' + att[i] + '={}>', '<p ' + att[i] + '="{}">')
       }

@@ -1,9 +1,9 @@
 //
 // Parsers Suite
 //
-/*eslint-env mocha */
-/*global compiler, expect */
-/*eslint no-console: 0 */
+/* eslint-env mocha */
+/* global compiler, expect */
+/* eslint no-console: 0, max-len: 0 */
 
 var
   path = require('path'),
@@ -14,9 +14,10 @@ var
   expected = path.join(fixtures, 'js')
 
 function have (mod, req) {
-  if (compiler.parsers._req(mod, req))
-    return true
-  console.error('\tnot installed locally: ' + compiler.parsers._modname(req || mod) + ' alias "' + mod + '"')
+  if (compiler.parsers._req(mod, req)) return true
+
+  console.error('\tnot installed locally: ' +
+    compiler.parsers._modname(req || mod) + ' alias "' + mod + '"')
   return false
 }
 
@@ -25,8 +26,8 @@ function cat (dir, filename) {
 }
 
 function normalize (str) {
-  var
-    n = str.search(/[^\n]/)
+  var n = str.search(/[^\n]/)
+
   if (n < 0) return ''
   if (n > 0) str = str.slice(n)
   n = str.search(/\n+$/)
@@ -41,16 +42,17 @@ function testParser (name, opts, save) {
     str2 = cat(expected, file + '.js'),
     js = compiler.compile(str1, opts, path.join(fixtures, file + '.tag'))
 
-  if (save)
+  if (save) {
     fs.writeFile(path.join(expected, file + '_out.js'), js, function (err) {
       if (err) throw err
     })
+  }
   expect(normalize(js)).to.be(normalize(str2))
 }
 
 describe('HTML parsers', function () {
 
-  this.timeout(12000)
+  this.timeout(12000)   // eslint-disable-line
 
   function testStr (str, resStr, opts) {
     expect(compiler.html(str, opts || {})).to.be(resStr)
@@ -99,14 +101,13 @@ describe('HTML parsers', function () {
 
 })
 
-
 describe('JavaScript parsers', function () {
 
   function _custom () {
     return 'var foo'
   }
 
-  this.timeout(30000) // first call to babel-core is slooooow!
+  this.timeout(30000)     // eslint-disable-line
 
   // complex.tag
   it('complex tag structure', function () {
@@ -185,10 +186,9 @@ describe('JavaScript parsers', function () {
 
 })
 
-
 describe('Style parsers', function () {
 
-  this.timeout(12000)
+  this.timeout(12000)   // eslint-disable-line
 
   // custom parser
   compiler.parsers.css.postcss = function (tag, css) {
@@ -266,7 +266,7 @@ describe('Style parsers', function () {
       result
 
     compiler.parsers.css.myParser2 = function (t, s) { return s.replace(/\bp\b/g, 'P') }
-    result = compiler.compile(source, {style: 'myParser2'})
+    result = compiler.compile(source, { style: 'myParser2' })
     expect(result).to.contain('P {top:0}')
   })
 
@@ -278,7 +278,7 @@ describe('Other', function () {
     var
       str1 = cat(fixtures, 'test.tag')
 
-    expect(compiler.compile).withArgs(str1, {template: 'unknown'}).to.throwError()
+    expect(compiler.compile).withArgs(str1, { template: 'unknown' }).to.throwError()
   })
 
   it('unknown JS & CSS parsers throws an error', function () {
@@ -290,7 +290,7 @@ describe('Other', function () {
         '</error>'
       ].join('\n')
 
-    expect(compiler.compile).withArgs(str1, {type: 'unknown'}).to.throwError()
+    expect(compiler.compile).withArgs(str1, { type: 'unknown' }).to.throwError()
     expect(compiler.compile).withArgs(str2).to.throwError()
     expect(have('unknown')).to.be(false)
   })

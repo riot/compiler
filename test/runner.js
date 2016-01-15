@@ -1,4 +1,5 @@
-var isNode = typeof window === 'undefined'
+/* global describe, expect:true, compiler:true */
+/* eslint no-unused-vars: 0 */
 
 describe('Compiler Tests', function () {
   expect = require('expect.js')

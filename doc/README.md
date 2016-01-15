@@ -151,6 +151,8 @@ The predefined parsers are:
 - `scss`
 - `stylus`
 
+\* Only `less` is available on browsers.
+
 #### js
 - `none` or `javascript`
 - `livescript`
