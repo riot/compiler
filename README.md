@@ -31,6 +31,10 @@ Due to changes in the babel API, from our v2.3.0 we are separating the babel sup
 * es6 - For `babel` and `babel-core` v5.8.x and below
 * babel - For `babel-core` v6.x - You must `npm install babel-preset-es2015-riot` too, for this to work.
 
+### Known Issues
+
+* Expressions within attribute values containing `>` must be enclosed in quotes. Ex: `<mytag hidden="{ a > 5 }">`.
+* Shorthands within attributes parsed by CoffeeScript must be prefixed with a caret: `<mytag class="{^ c:1 }">`
 
 [travis-image]:  https://img.shields.io/travis/riot/compiler.svg?style=flat-square
 [travis-url]:    https://travis-ci.org/riot/compiler

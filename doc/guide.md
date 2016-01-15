@@ -217,15 +217,18 @@ Where the html ends? or where should I put my JavaScript?
 ### The Untagged JavaScript Block
 
 The first action taken by the compiler is send the received source to any html parser.
-After that, the compiler normalizes line endings to `\n` and removes _html_ comments.
-Once prepared the source, searches the tags, separate its parts (closing/opening tag, root attributes, and content). In the content, one by one, removes the `style` blocks and sends its content to the CSS parser. Next, it does the same for the `script` tags.
-This is done in the entire tag content.
+After that, the compiler normalizes line endings to `\n`.
+This is done in the entire source.
+
+Once prepared the source, searches the html elements. For each found element separates its parts (closing/opening tag, root attributes, and content) and parses the root attributes, then removes _html_ comments and trims trailing whitespace from the content.
 
 In the remaining content, looks for the last html tag which _ends a line_.
-If found, this closing tag signals the end of the html markup and the beginning of the JavaScript code.
+If found, its closing tag signals the end of the html markup and the beginning of the untagged JavaScript code.
 If not found, all remaining is considered JavaScript.
 
-So, although not a good idea, you can put html comments, `style`, and `script` blocks, anywhere inside the tag; the only restriction is that the untagged JavaScript block must follow the remaining html content and you can't use JavaScript comments out of this block.
+In the html part, one by one, removes the `style` blocks and sends its content to the CSS parser. Next, it does the same for the `script` tags.
+
+So, you can put html comments anywhere inside the tag, but keep the `style` and `script` blocks in the html part; the only restriction is that the untagged JavaScript block must follow the html and you can't use JavaScript comments outside this block.
 
 ### Multiple JavaScript Blocks
 

@@ -181,16 +181,16 @@ describe('Compile tags', function () {
       dummyTag = [
         '<my-tag>',
         '<p>{ hi }</p>',
-        'this.hi = "hi"',
         '<style scoped>',
         ' :scope { color: red; }',
         '</style>',
+        'this.hi = "hi"',
         '</my-tag>'
       ].join('\n')
 
     expect(compiler.compile(dummyTag, {
       exclude: ['html']
-    })).to.be("riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"] { color: red; }', '', function(opts) {\nthis.hi = \"hi\"\n\n});")
+    })).to.be("riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"] { color: red; }', '', function(opts) {\nthis.hi = \"hi\"\n});")
 
     expect(compiler.compile(dummyTag, {
       exclude: ['html', 'js']
@@ -198,7 +198,7 @@ describe('Compile tags', function () {
 
     expect(compiler.compile(dummyTag, {
       exclude: ['css']
-    })).to.be("riot.tag2('my-tag', '<p>{hi}</p>', '', '', function(opts) {\nthis.hi = \"hi\"\n\n}, '{ }');")
+    })).to.be("riot.tag2('my-tag', '<p>{hi}</p>', '', '', function(opts) {\nthis.hi = \"hi\"\n}, '{ }');")
 
     expect(parts[0].html + parts[1].html).to.be('')
     expect(parts[0].js + parts[1].js).to.be('')
@@ -207,7 +207,7 @@ describe('Compile tags', function () {
       entities: true,
       exclude: ['css']
     })
-    expect(parts[0].html).to.not.match(/style/)
+    expect(parts[0].html).to.not.match(/\bstyle\b/)
     expect(parts[0].css).to.be('')
 
     parts = compiler.compile(cat(fixtures, 'root-attribs.tag'), {

@@ -3,6 +3,7 @@
 ### v2.3.21
 - Code refactorization of the `parsers` module, removed unuseful CSS parser `stylus` for browsers.
 - Fix [riot#1511](https://github.com/riot/riot/issues/1511) : Escape Quotes - They may be some issues to fix.
+- New logic for parsing `<script>/<style>` blocks. See [doc/guide.md](https://github.com/riot/compiler/blob/dev/doc/guide.md#the-untagged-javascript-block) for details.
 
 ### v2.3.20
 - Fix [riot#1495](https://github.com/riot/riot/issues/1495) : Warning of input tag value - Avoids warnings for date/datetime/time/month/email/color types with expression in its value.

@@ -115,8 +115,7 @@ var
 
   HTML_ATTR  = / ?([-\w:\xA0-\xFF]+) ?(?:= ?('[^']*'|"[^"]*"|\S+))?/g,
   SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i,
-  TRIM_TRAIL = /[ \t]+$/gm,
-  S_STRINGS  = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
+  TRIM_TRAIL = /[ \t]+$/gm
 
 function q (s) {
   return "'" + (
@@ -235,13 +234,14 @@ function restoreExpr (html, pcex) {
 }
 
 var
-  HTML_COMMENT = _regEx(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_STRINGS, 'g'),
+  HTML_COMMENT = /<!--(?!>)[\S\s]*?-->|"(?:[^"\n\\]*|\\[\S\s])*"|'(?:[^'\n\\]*|\\[\S\s])*'/g,
   HTML_TAGS = /<([-\w]+)(\s+(?:[^"'\/>]*|"[^"]*"|'[^']*'|\/[^>])*)?(\/?)>/g,
   PRE_TAG = /<pre(?:\s+(?:[^">]*|"[^"]*")*)?>([\S\s]+?)<\/pre\s*>/gi
 
 function _compileHTML (html, opts, pcex) {
 
   html = splitHtml(html, opts, pcex)
+    .replace(TRIM_TRAIL, '')
     .replace(HTML_TAGS, function (_, name, attr, ends) {
 
       name = name.toLowerCase()
@@ -286,8 +286,8 @@ function compileHTML (html, opts, pcex) {
     if (!opts) opts = {}
   }
 
-  html = html.replace(/\r\n?/g, '\n').replace(HTML_COMMENT,
-    function (s) { return s[0] === '<' ? '' : s }).replace(TRIM_TRAIL, '')
+  html = html.replace(/\r\n?/g, '\n')
+    .replace(HTML_COMMENT, function (s) { return s[0] === '<' ? '' : s })
 
   if (!pcex._bp) pcex._bp = brackets.array(opts.brackets)
 
@@ -365,7 +365,7 @@ function compileJS (js, opts, type, extra) {
   return _compileJS(js, opts, type, extra.parserOptions, extra.url)
 }
 
-var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + S_STRINGS, 'g')
+var CSS_SELECTOR = /(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|(?:"(?:[^"\\]*|\\.)*"|'(?:[^'\\]*|\\.)*')/g
 
 function scopedCSS (tag, style) {
   var scope = ':scope'
@@ -508,9 +508,8 @@ function compileTemplate (html, url, lang, opts) {
 
 var
   CUST_TAG = /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]*(?:(?:"(?:[^"\\]*|\\[\S\s])*"|'(?:[^'\\]*|\\[\S\s])*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/gim,
-  SRC_TAGS = /<style(\s+[^>]*)?>\n?([\S\s]*?)<\/style\s*>/.source + '|' + S_STRINGS,
-  STYLES = _regEx(SRC_TAGS, 'gi'),
-  SCRIPTS = _regEx(SRC_TAGS.replace(/style/g, 'script'), 'gi')
+  SCRIPTS = /<script(\s+[^>]*)?>\n?([\S\s]*?)<\/script\s*>/gi,
+  STYLES = /<style(\s+[^>]*)?>\n?([\S\s]*?)<\/style\s*>/gi
 
 function compile (src, opts, url) {
   var
@@ -557,10 +556,12 @@ function compile (src, opts, url) {
           html = included('html') ? _compileHTML(body2, opts, pcex) : ''
         }
         else {
-          body = body.replace(_regEx('^' + indent, 'gm'), '')
 
-          body = body.replace(STYLES, function (_m, _attrs, _style) {
-            if (_m[0] !== '<') return _m
+          var blocks = splitBlocks(
+            body.replace(_regEx('^' + indent, 'gm'), '').replace(TRIM_TRAIL, '')
+          )
+
+          body = blocks[0].replace(STYLES, function (_m, _attrs, _style) {
             if (included('css')) {
               styles += (styles ? ' ' : '') + cssCode(_style, opts, _attrs, url, tagName)
             }
@@ -568,18 +569,16 @@ function compile (src, opts, url) {
           })
 
           body = body.replace(SCRIPTS, function (_m, _attrs, _script) {
-            if (_m[0] !== '<') return _m
             if (included('js')) {
               jscode += (jscode ? '\n' : '') + getCode(_script, opts, _attrs, url)
             }
             return ''
           })
 
-          var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
-
           if (included('html')) {
-            body = blocks[0]
-            if (body) html = _compileHTML(body, opts, pcex)
+            if (/\S/.test(body)) {
+              html = _compileHTML(body, opts, pcex)
+            }
           }
 
           if (included('js')) {
