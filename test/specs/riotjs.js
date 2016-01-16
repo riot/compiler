@@ -2,7 +2,8 @@
 /* global compiler, expect */
 
 var fs = require('fs'),
-  path = require('path')
+  path = require('path'),
+  norm = require('./helpers').normalizeJS
 
 describe('riotjs', function () {
 
@@ -15,7 +16,7 @@ describe('riotjs', function () {
   }
 
   function testFile (file/*, opts*/) {
-    expect(render(cat('fixtures', file))).to.be(cat('expect', file))
+    expect(norm(render(cat('fixtures', file)))).to.be(norm(cat('expect', file)))
   }
 
   it('converts Class method into v5 style', function () {

@@ -3,7 +3,8 @@
 /*eslint max-len: 0 */
 
 var fs = require('fs'),
-  path = require('path')
+  path = require('path'),
+  norm = require('./helpers').normalizeJS
 
 describe('Compile tags', function () {
   // in Windows __dirname is the real path, path.relative uses symlink
@@ -39,7 +40,7 @@ describe('Compile tags', function () {
         if (err) throw err
       })
     }
-    expect(js).to.equal(cat(expected, name + '.js'))
+    expect(norm(js)).to.equal(norm(cat(expected, name + '.js')))
   }
 
   it('Timetable tag', function () {
@@ -225,7 +226,7 @@ describe('Compile tags', function () {
     testFile('raw-html')
   })
 
-  it('Script and Style blocks inside strings must be skipped #1448', function () {
+  it('Script and Style blocks inside strings must be skipped riot#1448', function () {
     testFile('quoted-tags')
   })
 
@@ -233,7 +234,11 @@ describe('Compile tags', function () {
     testFile('html-comments')
   })
 
-  it('html does not break on unbalanced quotes #1511', function () {
+  it('html does not break on unbalanced quotes riot#1511', function () {
     testFile('one-quote')
+  })
+
+  it('svg in tag breaks in 2.3.21 #45', function () {
+    testFile('svg')
   })
 })

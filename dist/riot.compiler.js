@@ -110,18 +110,18 @@ var compile = (function () {
 
     VOID_TAGS  = /^(?:input|img|br|wbr|hr|area|base|col|embed|keygen|link|meta|param|source|track)$/,
 
-    HTML_ATTR  = / ?([-\w:\xA0-\xFF]+) ?(?:= ?('[^']*'|"[^"]*"|\S+))?/g,
+    HTML_ATTR  = / *([-\w:\xA0-\xFF]+) ?(?:= ?('[^']*'|"[^"]*"|\S+))?/g,
     SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i,
-    TRIM_TRAIL = /[ \t]+$/gm
+    TRIM_TRAIL = /[ \t]+$/gm,
+    S_LINESTR  = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source,
+    S_STRINGS  = brackets.R_STRINGS.source
 
   function q (s) {
-    return "'" + (
-      s ? s
-        .replace(/\\/g, '\\\\')
-        .replace(/'/g, "\\'")
-        .replace(/\n/g, '\\n')
-        .replace(/\r/g, '\\r') : ''
-      ) + "'"
+    return "'" + (s ? s
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r') : '') + "'"
   }
 
   function mktag (name, html, css, attrs, js, pcex) {
@@ -146,7 +146,7 @@ var compile = (function () {
 
     str = str.replace(/\s+/g, ' ')
 
-    while (match = HTML_ATTR.exec(str)) {   // eslint-disable-line no-cond-assign
+    while (match = HTML_ATTR.exec(str)) {
 
       k = match[1].toLowerCase()
       v = match[2]
@@ -231,8 +231,8 @@ var compile = (function () {
   }
 
   var
-    HTML_COMMENT = /<!--(?!>)[\S\s]*?-->|"(?:[^"\n\\]*|\\[\S\s])*"|'(?:[^'\n\\]*|\\[\S\s])*'/g,
-    HTML_TAGS = /<([-\w]+)(\s+(?:[^"'\/>]*|"[^"]*"|'[^']*'|\/[^>])*)?(\/?)>/g,
+    HTML_COMMENT = _regEx(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_LINESTR, 'g'),
+    HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g,
     PRE_TAG = /<pre(?:\s+(?:[^">]*|"[^"]*")*)?>([\S\s]+?)<\/pre\s*>/gi
 
   function _compileHTML (html, opts, pcex) {
@@ -292,8 +292,9 @@ var compile = (function () {
   }
 
   var
-    JS_RMCOMMS = _regEx('(' + brackets.S_QBLOCKS + ')|' + brackets.R_MLCOMMS.source + '|//[^\r\n]*', 'g'),
-    JS_ES6SIGN = /^([ \t]*)([$_A-Za-z][$\w]*)\s*(\([^()]*\)\s*{)/m
+    JS_ES6SIGN = /^[ \t]*([$_A-Za-z][$\w]*)\s*\([^()]*\)\s*{/m,
+    JS_RMCOMMS = _regEx(brackets.R_MLCOMMS.source + '|//[^\r\n]*|' + brackets.S_QBLOCKS, 'g'),
+    JS_CLOSEBR = _regEx('([{}])|' + brackets.S_QBLOCKS, 'g')
 
   function riotjs (js) {
     var
@@ -302,31 +303,42 @@ var compile = (function () {
       parts = [],
       pos
 
-    js = js.replace(JS_RMCOMMS, function (m, _q) { return _q ? m : ' ' })
+    JS_RMCOMMS.lastIndex = 0
+    while (match = JS_RMCOMMS.exec(js)) {
+      var s = match[0]
 
-    while (match = js.match(JS_ES6SIGN)) {    // eslint-disable-line no-cond-assign
+      if (s[0] === '/' && !match[1] && !match[2]) {
+        js = RegExp.leftContext + ' ' + RegExp.rightContext
+        JS_RMCOMMS.lastIndex = match[3] + 1
+      }
+    }
+
+    while (match = js.match(JS_ES6SIGN)) {
 
       parts.push(RegExp.leftContext)
       js  = RegExp.rightContext
       pos = skipBlock(js)
 
-      toes5 = !/^(?:if|while|for|switch|catch|function)$/.test(match[2])
+      toes5 = !/^(?:if|while|for|switch|catch|function)$/.test(match[1])
       if (toes5) {
-        match[0] = match[1] + 'this.' + match[2] + ' = function' + match[3]
+        match[0] = match[0].replace(match[1], 'this.' + match[1] + ' = function')
       }
       parts.push(match[0], js.slice(0, pos))
       js = js.slice(pos)
       if (toes5 && !/^\s*.\s*bind\b/.test(js)) parts.push('.bind(this)')
     }
 
-    return parts.length ? parts.join('') + js : js
+    if (parts.length) js = parts.join('') + js
+
+    return js
 
     function skipBlock (str) {
       var
-        re = _regEx('([{}])|' + brackets.S_QBLOCKS, 'g'),
+        re = JS_CLOSEBR,
         level = 1,
         mm
 
+      re.lastIndex = 0
       while (level && (mm = re.exec(str))) {
         if (mm[1]) mm[1] === '{' ? ++level : --level
       }
@@ -362,7 +374,7 @@ var compile = (function () {
     return _compileJS(js, opts, type, extra.parserOptions, extra.url)
   }
 
-  var CSS_SELECTOR = /(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|(?:"(?:[^"\\]*|\\.)*"|'(?:[^'\\]*|\\.)*')/g
+  var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + S_LINESTR, 'g')
 
   function scopedCSS (tag, style) {
     var scope = ':scope'
@@ -425,9 +437,10 @@ var compile = (function () {
 
   var
     TYPE_ATTR = /\stype\s*=\s*(?:(['"])(.+?)\1|(\S+))/i,
-    MISC_ATTR = /\s*=\s*("(?:\\[\S\s]|[^"\\]*)*"|'(?:\\[\S\s]|[^'\\]*)*'|\{[^}]+}|\S+)/.source
+    MISC_ATTR = '\\s*=\\s*(' + S_STRINGS + '|{[^}]+}|\\S+)'
 
   function getType (str) {
+
     if (str) {
       var match = str.match(TYPE_ATTR)
 
@@ -474,22 +487,22 @@ var compile = (function () {
     return _compileCSS(code, tag, getType(attrs) || opts.style, extraOpts)
   }
 
-  var END_TAGS = /\/>\n|^<(?:\/[\w\-]+\s*|[\w\-]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
+  var END_TAGS = /\/>\n|^<(?:\/[-\w]+\s*|[-\w]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
 
   function splitBlocks (str) {
     var k, m
 
     /* istanbul ignore next: this if() can't be true, but just in case... */
-    if (str[str.length - 1] === '>') return [str, '']
-
-    k = str.lastIndexOf('<')
-    while (~k) {
-      m = str.slice(k).match(END_TAGS)
-      if (m) {
-        k += m.index + m[0].length
-        return [str.slice(0, k), str.slice(k)]
+    if (/<[-\w]/.test(str)) {
+      k = str.lastIndexOf('<')
+      while (~k) {
+        m = str.slice(k).match(END_TAGS)
+        if (m) {
+          k += m.index + m[0].length
+          return [str.slice(0, k), str.slice(k)]
+        }
+        k = str.lastIndexOf('<', k - 1)
       }
-      k = str.lastIndexOf('<', k - 1)
     }
     return ['', str]
   }
@@ -504,7 +517,8 @@ var compile = (function () {
   }
 
   var
-    CUST_TAG = /^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]*(?:(?:"(?:[^"\\]*|\\[\S\s])*"|'(?:[^'\\]*|\\[\S\s])*'|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/gim,
+    CUST_TAG = _regEx(/^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
+      .source.replace('@', S_STRINGS), 'gim'),
     SCRIPTS = /<script(\s+[^>]*)?>\n?([\S\s]*?)<\/script\s*>/gi,
     STYLES = /<style(\s+[^>]*)?>\n?([\S\s]*?)<\/style\s*>/gi
 
@@ -573,9 +587,7 @@ var compile = (function () {
             })
 
             if (included('html')) {
-              if (/\S/.test(body)) {
-                html = _compileHTML(body, opts, pcex)
-              }
+              html = _compileHTML(body, opts, pcex)
             }
 
             if (included('js')) {
