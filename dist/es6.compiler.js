@@ -113,29 +113,51 @@ var
 
   VOID_TAGS  = /^(?:input|img|br|wbr|hr|area|base|col|embed|keygen|link|meta|param|source|track)$/,
 
-  HTML_ATTR  = / *([-\w:\xA0-\xFF]+) ?(?:= ?('[^']*'|"[^"]*"|\S+))?/g,
   SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i,
+
   TRIM_TRAIL = /[ \t]+$/gm,
+
   S_LINESTR  = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source,
-  S_STRINGS  = brackets.R_STRINGS.source
+
+  S_STRINGS  = brackets.R_STRINGS.source,
+
+  HTML_COMMS = _regEx(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_LINESTR, 'g'),
+
+  HTML_ATTRS = / *([-\w:\xA0-\xFF]+) ?(?:= ?('[^']*'|"[^"]*"|\S+))?/g,
+
+  HTML_TAGS = /<([-\w]+)(?:\s+([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)(\/?)>/g,
+
+  PRE_TAGS = /<pre(?:\s+(?:[^">]*|"[^"]*")*)?>([\S\s]+?)<\/pre\s*>/gi
+
+/* eslint-disable no-constant-condition */
+if (1) throw new Error('You must #include brackets before this code!')
+/* eslint-enable no-constant-condition */
+
+var getBPairs = (function () {
+  var abp, sbp = '@'
+
+  return function (s) {
+    if (s !== sbp) {
+      sbp = s
+      abp = brackets.array(s)
+    }
+    return abp
+  }
+})()
 
 function q (s) {
-  return "'" + (s ? s
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r') : '') + "'"
+  return "'" + (s ? s.replace(/\\/g, '\\\\').replace(/'/g, "\\'") : '') + "'"
 }
 
 function mktag (name, html, css, attrs, js, pcex) {
   var
     c = ', ',
-    s = '}' + (pcex.length ? ', ' + q(pcex._bp[8]) : '') + ');'
+    s = '}' + (pcex.length ? ', ' + q(pcex._bp[$_RIX_PAIR]) : '') + ');'
 
   if (js && js.slice(-1) !== '\n') s = '\n' + s
 
-  return 'riot.tag2(\'' + name + "'" + c + q(html) + c + q(css) + c + q(attrs) +
-         ', function(opts) {\n' + js + s
+  return 'riot.tag2(\'' + name + "'" + c + q(html).replace(/\n/g, '\\n') +
+    c + q(css) + c + q(attrs) + ', function(opts) {\n' + js + s
 }
 
 function parseAttrs (str, pcex) {
@@ -145,11 +167,11 @@ function parseAttrs (str, pcex) {
     k, v, t, e,
     DQ = '"'
 
-  HTML_ATTR.lastIndex = 0
+  HTML_ATTRS.lastIndex = 0
 
   str = str.replace(/\s+/g, ' ')
 
-  while (match = HTML_ATTR.exec(str)) {
+  while (match = HTML_ATTRS.exec(str)) {
 
     k = match[1].toLowerCase()
     v = match[2]
@@ -189,7 +211,7 @@ function parseAttrs (str, pcex) {
 function splitHtml (html, opts, pcex) {
   var _bp = pcex._bp
 
-  if (html && _bp[4].test(html)) {
+  if (html && _bp[$_RIX_TEST].test(html)) {
     var
       jsfn = opts.expr && (opts.parser || opts.type) ? _compileJS : 0,
       list = brackets.split(html, 0, _bp),
@@ -207,7 +229,7 @@ function splitHtml (html, opts, pcex) {
         if (expr.slice(-1) === ';') expr = expr.slice(0, -1)
         if (israw) expr = '=' + expr
       }
-      list[i] = '\u0001' + (pcex.push(expr.replace(/[\r\n]+/g, ' ').trim()) - 1) + _bp[1]
+      list[i] = '\u0001' + (pcex.push(expr) - 1) + _bp[1]
     }
     html = list.join('')
   }
@@ -227,21 +249,34 @@ function restoreExpr (html, pcex) {
               .replace(/>/g, '&gt;')
           })
         }
-        return pcex._bp[0] + expr.replace(/"/g, '\u2057')
+
+        return pcex._bp[0] + expr.trim().replace(/[\r\n]+/g, ' ').replace(/"/g, '\u2057')
       })
   }
   return html
 }
 
-var
-  HTML_COMMENT = _regEx(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_LINESTR, 'g'),
-  HTML_TAGS = /<([-\w]+)\s*([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)(\/?)>/g,
-  PRE_TAG = /<pre(?:\s+(?:[^">]*|"[^"]*")*)?>([\S\s]+?)<\/pre\s*>/gi
+function cleanSource (src) {
+  var mm,
+    re = HTML_COMMS
+
+  if (~src.indexOf('\r')) {
+    src = src.replace(/\r\n?/g, '\n')
+  }
+
+  re.lastIndex = 0
+  while (mm = re.exec(src)) {
+    if (mm[0][0] === '<') {
+      src = RegExp.leftContext + RegExp.rightContext
+      re.lastIndex = mm[3] + 1
+    }
+  }
+  return src
+}
 
 function _compileHTML (html, opts, pcex) {
 
   html = splitHtml(html, opts, pcex)
-    .replace(TRIM_TRAIL, '')
     .replace(HTML_TAGS, function (_, name, attr, ends) {
 
       name = name.toLowerCase()
@@ -254,25 +289,23 @@ function _compileHTML (html, opts, pcex) {
     })
 
   if (!opts.whitespace) {
-    if (/<pre[\s>]/.test(html)) {
-      var p = []
+    var p = []
 
-      html = html.replace(PRE_TAG, function (_q) {
+    if (/<pre[\s>]/.test(html)) {
+      html = html.replace(PRE_TAGS, function (_q) {
         p.push(_q)
         return '\u0002'
-      }).trim().replace(/\s+/g, ' ')
+      })
+    }
+    html = html.trim().replace(/\s+/g, ' ')
 
-      // istanbul ignore else
-      if (p.length) html = html.replace(/\u0002/g, function () { return p.shift() })
-    }
-    else {
-      html = html.trim().replace(/\s+/g, ' ')
-    }
+    // istanbul ignore else
+    if (p.length) html = html.replace(/\u0002/g, function () { return p.shift() })
   }
 
   if (opts.compact) html = html.replace(/>[ \t]+<([-\w\/])/g, '><$1')
 
-  return restoreExpr(html, pcex)
+  return restoreExpr(html, pcex).replace(TRIM_TRAIL, '')
 }
 
 // istanbul ignore next
@@ -286,71 +319,61 @@ function compileHTML (html, opts, pcex) {
     if (!opts) opts = {}
   }
 
-  html = html.replace(/\r\n?/g, '\n')
-    .replace(HTML_COMMENT, function (s) { return s[0] === '<' ? '' : s })
-
   if (!pcex._bp) pcex._bp = brackets.array(opts.brackets)
 
-  return _compileHTML(html, opts, pcex)
+  return _compileHTML(cleanSource(html), opts, pcex)
 }
 
 var
+
   JS_ES6SIGN = /^[ \t]*([$_A-Za-z][$\w]*)\s*\([^()]*\)\s*{/m,
-  JS_RMCOMMS = _regEx(brackets.R_MLCOMMS.source + '|//[^\r\n]*|' + brackets.S_QBLOCKS, 'g'),
-  JS_CLOSEBR = _regEx('([{}])|' + brackets.S_QBLOCKS, 'g')
+
+  JS_ES6END = _regEx('[{}]|' + brackets.S_QBLOCKS, 'g'),
+
+  JS_COMMS = _regEx(brackets.R_MLCOMMS.source + '|//[^\r\n]*|' + brackets.S_QBLOCKS, 'g')
 
 function riotjs (js) {
   var
+    parts = [],
     match,
     toes5,
-    parts = [],
-    pos
+    pos, name, rm
 
-  JS_RMCOMMS.lastIndex = 0
-  while (match = JS_RMCOMMS.exec(js)) {
-    var s = match[0]
-
-    if (s[0] === '/' && !match[1] && !match[2]) {
+  JS_COMMS.lastIndex = 0
+  while (rm = JS_COMMS.exec(js)) {
+    if (rm[0][0] === '/' && !rm[1] && !rm[2]) {
       js = RegExp.leftContext + ' ' + RegExp.rightContext
-      JS_RMCOMMS.lastIndex = match[3] + 1
+      JS_COMMS.lastIndex = rm[3] + 1
     }
   }
 
   while (match = js.match(JS_ES6SIGN)) {
 
     parts.push(RegExp.leftContext)
-    js  = RegExp.rightContext
-    pos = skipBlock(js)
+    js = RegExp.rightContext
 
-    toes5 = !/^(?:if|while|for|switch|catch|function)$/.test(match[1])
-    if (toes5) {
-      match[0] = match[0].replace(match[1], 'this.' + match[1] + ' = function')
+    JS_ES6END.lastIndex = 0
+    pos = 1
+    while (pos && (rm = JS_ES6END.exec(js))) {
+      if (rm[0] === '{') ++pos
+      else if (rm[0] === '}') --pos
     }
-    parts.push(match[0], js.slice(0, pos))
+    pos = pos ? js.length : JS_ES6END.lastIndex
+
+    name = match[1]
+    toes5 = !/^(?:if|while|for|switch|catch|function)$/.test(name)
+    name = toes5 ? match[0].replace(name, 'this.' + name + ' = function') : match[0]
+    parts.push(name, js.slice(0, pos))
     js = js.slice(pos)
+
     if (toes5 && !/^\s*.\s*bind\b/.test(js)) parts.push('.bind(this)')
   }
 
-  if (parts.length) js = parts.join('') + js
-
-  return js
-
-  function skipBlock (str) {
-    var
-      re = JS_CLOSEBR,
-      level = 1,
-      mm
-
-    re.lastIndex = 0
-    while (level && (mm = re.exec(str))) {
-      if (mm[1]) mm[1] === '{' ? ++level : --level
-    }
-    return level ? str.length : re.lastIndex
-  }
+  return parts.length ? parts.join('') + js : js
 }
 
 function _compileJS (js, opts, type, parserOpts, url) {
-  if (!js) return ''
+  if (!/\S/.test(js)) return ''
   if (!type) type = opts.type
 
   var parser = opts.parser || (type ? parsers.js[type] : riotjs)
@@ -358,7 +381,7 @@ function _compileJS (js, opts, type, parserOpts, url) {
   if (!parser) {
     throw new Error('JS parser not found: "' + type + '"')
   }
-  return parser(js, parserOpts, url).replace(TRIM_TRAIL, '')
+  return parser(js, parserOpts, url).replace(/\r\n?/g, '\n').replace(TRIM_TRAIL, '')
 }
 
 // istanbul ignore next
@@ -537,14 +560,13 @@ function compile (src, opts, url) {
   exclude = opts.exclude || false
   function included (s) { return !(exclude && ~exclude.indexOf(s)) }
 
-  var _bp = brackets.array(opts.brackets)
+  var _bp = getBPairs(opts.brackets)
 
   if (opts.template) {
     src = compileTemplate(src, url, opts.template, opts.templateOptions)
   }
 
-  src = src
-    .replace(/\r\n?/g, '\n')
+  src = cleanSource(src)
     .replace(CUST_TAG, function (_, indent, tagName, attribs, body, body2) {
 
       var
@@ -560,10 +582,7 @@ function compile (src, opts, url) {
       attribs = attribs && included('attribs')
         ? restoreExpr(parseAttrs(splitHtml(attribs, opts, pcex), pcex), pcex) : ''
 
-      if (body2) body = body2
-
-      if (body && (body = body.replace(HTML_COMMENT,
-        function (s) { return s[0] === '<' ? '' : s })) && /\S/.test(body)) {
+      if ((body || (body = body2)) && /\S/.test(body)) {
 
         if (body2) {
           /* istanbul ignore next */
@@ -594,10 +613,8 @@ function compile (src, opts, url) {
           }
 
           if (included('js')) {
-            body = blocks[1]
-            if (/\S/.test(body)) {
-              jscode += (jscode ? '\n' : '') + _compileJS(body, opts, null, null, url)
-            }
+            body = _compileJS(blocks[1], opts, null, null, url)
+            if (body) jscode += (jscode ? '\n' : '') + body
           }
         }
       }

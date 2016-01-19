@@ -123,14 +123,15 @@ From the perspective of the riot compiler, backslashes in the template are chara
 The compiler preserves them with one exception: backslashes inside expressions used to escape riot brackets are removed. This occurs just before the expression is passed to any JS parser.
 
 Actually, with correct JavaScript, the compiler is a bit smarter and does not need escaped brackets _within_ expressions.
-However, it is needed for literal opening brackets out of expressions, since there is no way to differentiate from riot brackets.
+However, it is needed for literal opening brackets in the html, out of expressions, since there is no way to differentiate literal brackets from riot brackets.
 
-Example:
+Example with the default brackets:
 ```html
 <my-tag non-expr="\{ empty:\{} }" expr="{ empty:{} }"></my-tag>
 ```
 
-In the first, non-expr attribute, opening brackets must be escaped.
+In the first, non-expression attribute, opening brackets must be escaped.
+
 The generated code is:
 ```js
 riot.tag('my-tag', '', '', 'non-expr="\\{ empty:\\{} }" expr="{empty:{}}"', function(opts) {
@@ -280,6 +281,8 @@ the result is equivalent to
 </my-tag>
 ```
 
+**Note:** You cannot nest `<script>` elements.
+
 ## Style
 
 (WIP)
@@ -300,7 +303,7 @@ There are functions in the node.js build that allow you to compile certain sourc
 | compilerOptions | object | optional. Used properties: `brackets`, `withespace`, `compact`, `type`, `expr`
 | expressions | Array | optional. See below.
 
-The `expressions` parameter is interesting, on return it holds, in order of appearance, trimmed and without brackets, the expressions found in the html. If you set `type` and `expr` in the `compilerOptions` parameter, the expressions will be compiled.
+The `expressions` parameter is interesting, on return it holds, in order of appearance, trimmed and without brackets, the expressions found in the html. If you set `type` and `expr` in the _compilerOptions_ parameter, the expressions will be compiled.
 
 **Note:** `expressions` is exposed for debugging purposes, but not dependent on it, its format may be altered in future versions.
 
@@ -312,8 +315,9 @@ The `expressions` parameter is interesting, on return it holds, in order of appe
 | parserName   | string | optional, can be omited. Must be one of `parsers.js`
 | extraOptions | Object | optional, can be omited. Used properties: `tagName`, `parserOpts`, `url`, and `scoped`
 
-`tagName`, `parserOpts`, `url` are passed to the given parser.
-`scoped` will compile the styles as Scoped CSS after run any parser, `scoped` can't be used without `tagName`.
+The `tagName`, `url`, and `parserOpts` properties of _extraOptions_ will be passed to the given parser.
+
+Setting the `scoped` property of _extraOptions_ will compile the styles as _Scoped CSS_ after run any parser, `scoped` can't be used without `tagName`.
 
 Example:
 ```js
@@ -326,12 +330,12 @@ will run `parsers.css.stylus(opts.tagName, styles, opts.parserOpts, opts.url)`, 
 
 | parameter | type | description
 | --------- | ---- | -----------
-| source    | string | html markup, without styles nor JavaScript code
-| compilerOptions | object | Optional, see note for omision. Used properties: `type`
-| parserName   | string | optional. If string, must be one of `parsers.js`
+| source    | string | Raw JavaScript code
+| compilerOptions | object | Optional. This is **deprecated**, use `parserName`
+| parserName   | string | optional. Must be one of `parsers.js`
 | extraOptions | Object | optional. Used properties: `parserOpts`, `url`
 
-`parserOpts` and `url` are passed to the given parser.
+The `parserOpts` and `url` properties of _extraOptions_ will be passed to the given parser.
 
 Example:
 ```js
@@ -345,8 +349,9 @@ If you omit `parserName` but include `extraOptions`, you **must** include `compi
 ```js
 var js = compiler.js(source, {}, extraOptions)
 ```
-Since the default JS parser does not make use of the extra options, this is equivalent:
+But, since the default JS parser does not make use of the extra options, you can use:
 ```js
 var js = compiler.js(source)
 ```
-The `compilerOptions` parameter will be removed in a future version.
+
+The `compilerOptions` parameter will be removed in v2.4

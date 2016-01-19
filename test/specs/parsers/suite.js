@@ -7,7 +7,8 @@
 
 var
   path = require('path'),
-  fs = require('fs')
+  fs = require('fs'),
+  norm = require('../helpers').normalizeJS
 
 var
   fixtures = __dirname,
@@ -25,15 +26,6 @@ function cat (dir, filename) {
   return fs.readFileSync(path.join(dir, filename), 'utf8')
 }
 
-function normalize (str) {
-  var n = str.search(/[^\n]/)
-
-  if (n < 0) return ''
-  if (n > 0) str = str.slice(n)
-  n = str.search(/\n+$/)
-  return ~n ? str.slice(0, n) : str
-}
-
 function testParser (name, opts, save) {
   opts = opts || {}
   var
@@ -47,7 +39,7 @@ function testParser (name, opts, save) {
       if (err) throw err
     })
   }
-  expect(normalize(js)).to.be(normalize(str2))
+  expect(norm(js)).to.be(norm(str2))
 }
 
 describe('HTML parsers', function () {
@@ -107,7 +99,7 @@ describe('JavaScript parsers', function () {
     return 'var foo'
   }
 
-  this.timeout(30000)     // eslint-disable-line
+  this.timeout(32000)     // eslint-disable-line
 
   // complex.tag
   it('complex tag structure', function () {
