@@ -223,13 +223,27 @@ This is done in the entire source.
 
 Once prepared the source, searches the html elements. For each found element separates its parts (closing/opening tag, root attributes, and content) and parses the root attributes, then removes _html_ comments and trims trailing whitespace from the content.
 
-In the remaining content, looks for the last html tag which _ends a line_.
+In the remaining content, looks for the last html tag which _terminate its line_.
 If found, its closing tag signals the end of the html markup and the beginning of the untagged JavaScript code.
 If not found, all remaining is considered JavaScript.
 
 In the html part, one by one, removes the `style` blocks and sends its content to the CSS parser. Next, it does the same for the `script` tags.
 
 So, you can put html comments anywhere inside the tag, but keep the `style` and `script` blocks in the html part; the only restriction is that the untagged JavaScript block must follow the html and you can't use JavaScript comments outside this block.
+
+### To ES6 Users
+
+Following the above rules, detect the last HTML tag is not difficult, but keep in mind that template strings may break the compiler, as in the following tag:
+
+```html
+<mytag>
+  // js code
+  var s = `
+  <p>
+  `
+</mytag>
+```
+The compiler does not recognize template strings and confuses `<p>` with the last HTML element.
 
 ### Multiple JavaScript Blocks
 

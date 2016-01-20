@@ -99,7 +99,7 @@ describe('JavaScript parsers', function () {
     return 'var foo'
   }
 
-  this.timeout(32000)     // eslint-disable-line
+  this.timeout(45000)     // eslint-disable-line
 
   // complex.tag
   it('complex tag structure', function () {

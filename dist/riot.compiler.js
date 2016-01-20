@@ -175,8 +175,7 @@ var compile = (function () {
 
       if (!v) {
         list.push(k)
-      }
-      else {
+      } else {
 
         if (v[0] !== DQ) {
           v = DQ + (v[0] === "'" ? v.slice(1, -1) : v) + DQ
@@ -184,8 +183,7 @@ var compile = (function () {
 
         if (k === 'type' && SPEC_TYPES.test(v)) {
           t = v
-        }
-        else {
+        } else {
           if (/\u0001\d/.test(v)) {
 
             if (k === 'value') e = 1
@@ -212,16 +210,14 @@ var compile = (function () {
       var
         jsfn = opts.expr && (opts.parser || opts.type) ? _compileJS : 0,
         list = brackets.split(html, 0, _bp),
-        expr
+        expr, israw
 
       for (var i = 1; i < list.length; i += 2) {
         expr = list[i]
         if (expr[0] === '^') {
           expr = expr.slice(1)
-        }
-        else if (jsfn) {
-          var israw = expr[0] === '='
-
+        } else if (jsfn) {
+          israw = expr[0] === '='
           expr = jsfn(israw ? expr.slice(1) : expr, opts).trim()
           if (expr.slice(-1) === ';') expr = expr.slice(0, -1)
           if (israw) expr = '=' + expr
@@ -310,8 +306,7 @@ var compile = (function () {
     if (Array.isArray(opts)) {
       pcex = opts
       opts = {}
-    }
-    else {
+    } else {
       if (!pcex) pcex = []
       if (!opts) opts = {}
     }
@@ -334,13 +329,14 @@ var compile = (function () {
       parts = [],
       match,
       toes5,
-      pos, name, rm
+      pos, name, rm, R
 
-    JS_COMMS.lastIndex = 0
-    while (rm = JS_COMMS.exec(js)) {
+    R = JS_COMMS
+    R.lastIndex = 0
+    while (rm = R.exec(js)) {
       if (rm[0][0] === '/' && !rm[1] && !rm[2]) {
         js = RegExp.leftContext + ' ' + RegExp.rightContext
-        JS_COMMS.lastIndex = rm[3] + 1
+        R.lastIndex = rm[3] + 1
       }
     }
 
@@ -349,13 +345,14 @@ var compile = (function () {
       parts.push(RegExp.leftContext)
       js = RegExp.rightContext
 
-      JS_ES6END.lastIndex = 0
+      R = JS_ES6END
+      R.lastIndex = 0
       pos = 1
-      while (pos && (rm = JS_ES6END.exec(js))) {
+      while (pos && (rm = R.exec(js))) {
         if (rm[0] === '{') ++pos
         else if (rm[0] === '}') --pos
       }
-      pos = pos ? js.length : JS_ES6END.lastIndex
+      pos = pos ? js.length : R.lastIndex
 
       name = match[1]
       toes5 = !/^(?:if|while|for|switch|catch|function)$/.test(name)
@@ -397,21 +394,25 @@ var compile = (function () {
     return _compileJS(js, opts, type, extra.parserOptions, extra.url)
   }
 
-  var CSS_SELECTOR = _regEx('(}|{|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + S_LINESTR, 'g')
+  var CSS_SELECTOR = _regEx('([{}]|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + S_LINESTR, 'g')
 
-  function scopedCSS (tag, style) {
+  function scopedCSS (tag, css) {
     var scope = ':scope'
 
-    return style.replace(CSS_SELECTOR, function (m, p1, p2) {
+    return css.replace(CSS_SELECTOR, function (m, p1, p2) {
 
       if (!p2) return m
 
       p2 = p2.replace(/[^,]+/g, function (sel) {
         var s = sel.trim()
 
-        if (s && s !== 'from' && s !== 'to' && s.slice(-1) !== '%') {
+        if (!s || s === 'from' || s === 'to' || s.slice(-1) === '%') {
+          return sel
+        }
 
-          if (s.indexOf(scope) < 0) s = scope + ' ' + s
+        if (s.indexOf(scope) < 0) {
+          s = tag + ' ' + s + ',[riot-tag="' + tag + '"] ' + s
+        } else {
           s = s.replace(scope, tag) + ',' +
               s.replace(scope, '[riot-tag="' + tag + '"]')
         }
@@ -422,65 +423,65 @@ var compile = (function () {
     })
   }
 
-  function _compileCSS (style, tag, type, opts) {
+  function _compileCSS (css, tag, type, opts) {
     var scoped = (opts || (opts = {})).scoped
 
     if (type) {
       if (type === 'scoped-css') {
         scoped = true
-      }
-      else if (parsers.css[type]) {
-        style = parsers.css[type](tag, style, opts.parserOpts || {}, opts.url)
-      }
-      else if (type !== 'css') {
+      } else if (parsers.css[type]) {
+        css = parsers.css[type](tag, css, opts.parserOpts || {}, opts.url)
+      } else if (type !== 'css') {
         throw new Error('CSS parser not found: "' + type + '"')
       }
     }
 
-    style = style.replace(brackets.R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
+    css = css.replace(brackets.R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
 
     if (scoped) {
       // istanbul ignore next
       if (!tag) {
         throw new Error('Can not parse scoped CSS without a tagName')
       }
-      style = scopedCSS(tag, style)
+      css = scopedCSS(tag, css)
     }
-    return style
+    return css
   }
 
   // istanbul ignore next
-  function compileCSS (style, parser, opts) {
-    if (parser && typeof parser === 'object') {
-      opts = parser
-      parser = ''
+  function compileCSS (css, type, opts) {
+    if (type && typeof type === 'object') {
+      opts = type
+      type = ''
     }
-    return _compileCSS(style, opts.tagName, parser, opts)
+    return _compileCSS(css, opts.tagName, type, opts)
   }
 
   var
+
     TYPE_ATTR = /\stype\s*=\s*(?:(['"])(.+?)\1|(\S+))/i,
+
     MISC_ATTR = '\\s*=\\s*(' + S_STRINGS + '|{[^}]+}|\\S+)'
 
-  function getType (str) {
+  function getType (attribs) {
+    if (attribs) {
+      var match = attribs.match(TYPE_ATTR)
 
-    if (str) {
-      var match = str.match(TYPE_ATTR)
-
-      str = match && (match[2] || match[3])
+      match = match && (match[2] || match[3])
+      if (match) {
+        return match.replace('text/', '')
+      }
     }
-    return str ? str.replace('text/', '') : ''
+    return ''
   }
 
-  function getAttr (str, name) {
-    if (str) {
-      var
-        re = _regEx('\\s' + name + MISC_ATTR, 'i'),
-        match = str.match(re)
+  function getAttr (attribs, name) {
+    if (attribs) {
+      var match = attribs.match(_regEx('\\s' + name + MISC_ATTR, 'i'))
 
-      str = match && match[1]
-      if (str) {
-        return (/^['"]/).test(str) ? str.slice(1, -1) : str
+      match = match && match[1]
+      if (match) {
+        return (/^['"]/).test(match) ? match.slice(1, -1) : match
       }
     }
     return ''
@@ -489,8 +490,7 @@ var compile = (function () {
   function getParserOptions (attrs) {
     var opts = getAttr(attrs, 'options')
 
-    if (opts) opts = JSON.parse(opts)
-    return opts
+    return opts ? JSON.parse(opts) : null
   }
 
   function getCode (code, opts, attrs, url) {
@@ -510,20 +510,22 @@ var compile = (function () {
     return _compileCSS(code, tag, getType(attrs) || opts.style, extraOpts)
   }
 
-  var END_TAGS = /\/>\n|^<(?:\/[-\w]+\s*|[-\w]+(?:\s+(?:[-\w:\xA0-\xFF][\S\s]*?)?)?)>\n/
+  var END_TAGS = /\/>\n|^<(?:\/?[-\w]+\s*|[-\w]+\s+[-\w:\xA0-\xFF][\S\s]*?)>\n/
 
   function splitBlocks (str) {
-    var k, m
-
-    /* istanbul ignore next: this if() can't be true, but just in case... */
     if (/<[-\w]/.test(str)) {
-      k = str.lastIndexOf('<')
+      var
+        m,
+        k = str.lastIndexOf('<'),
+        n = str.length
+
       while (~k) {
-        m = str.slice(k).match(END_TAGS)
+        m = str.slice(k, n).match(END_TAGS)
         if (m) {
           k += m.index + m[0].length
           return [str.slice(0, k), str.slice(k)]
         }
+        n = k
         k = str.lastIndexOf('<', k - 1)
       }
     }
@@ -540,8 +542,10 @@ var compile = (function () {
   }
 
   var
+
     CUST_TAG = _regEx(/^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
       .source.replace('@', S_STRINGS), 'gim'),
+
     SCRIPTS = /<script(\s+[^>]*)?>\n?([\S\s]*?)<\/script\s*>/gi,
     STYLES = /<style(\s+[^>]*)?>\n?([\S\s]*?)<\/style\s*>/gi
 
@@ -584,8 +588,7 @@ var compile = (function () {
           if (body2) {
             /* istanbul ignore next */
             html = included('html') ? _compileHTML(body2, opts, pcex) : ''
-          }
-          else {
+          } else {
 
             var blocks = splitBlocks(
               body.replace(_regEx('^' + indent, 'gm'), '').replace(TRIM_TRAIL, '')

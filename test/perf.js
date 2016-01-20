@@ -58,13 +58,15 @@ console.log('  provided by the node process.memoryUsage function (very erratic).
 console.log('- Minimum & maximum times are removed.')
 console.log()
 
-/*
-tags.forEach(function (t, i) {
-  var p = path.join(__dirname, 'v223', t + '.js')
+function preLoad () {
+  tags.forEach(function (t, i) {
+    var p = path.join(__dirname, 'v223', t + '.js')
 
-  fs.writeFileSync(p, compiler22(files[i]), 'utf8')
-})
-*/
+    //fs.writeFileSync(p, compiler22(files[i]), 'utf8')
+    compiler22(files[i])
+    compiler23(files[i])
+  })
+}
 
 function test (compiler, times, ogc) {
   global.gc()
