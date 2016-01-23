@@ -1,0 +1,24 @@
+{
+  "dictionaries": [
+    "jsdoc"
+  ],
+  "tags": {
+    "allowUnknownTags": false
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": false,
+    "default": {
+      "outputSourceFiles": true,
+      "useLongnameInNav": true
+    }
+  },
+  "opts": {
+    "destination": "./doc/api/",
+    "encoding": "utf8",
+    "private": true
+  }
+}

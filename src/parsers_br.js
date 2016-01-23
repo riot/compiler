@@ -63,8 +63,7 @@ var parsers = (function () {
         opts = extend({
           sync: true,
           syncImport: true,
-          filename: url,
-          compress: true
+          filename: url
         }, opts)
         _req('less').render(css, opts, function (err, result) {
           // istanbul ignore next

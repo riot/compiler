@@ -2,11 +2,65 @@
 /* global compiler, expect */
 /* eslint max-len: 0 */
 
+describe('Compile fn', function () {
+  var fn = compiler.css
+
+  compiler.parsers.css.myParser = function (tag, _css) {
+    return _css.replace(/@tag/, tag)
+  }
+
+  it('use a custom css parser to render the css', function () {
+    var src = '@tag { color: red }',
+      css = 'my-tag { color: red }'
+
+    // test old and new API
+    expect(compiler.style(src, 'my-tag', 'myParser')).to.equal(css)
+    expect(fn(src, 'myParser', { tagName: 'my-tag' })).to.equal(css)
+  })
+
+  it('new compiler.css API allows omit parameters (v2.3.20)', function () {
+    var css, src = 'p{\ntop:0}\n@tag{top:1}\n'
+
+    // parameters are (css, type-string, opts-object)
+    css = 'p{ top:0} undefined{top:1}'
+    expect(fn(src, 'myParser', null)).to.be(css)
+    expect(fn(src, 'myParser', {})).to.be(css)
+    expect(fn(src, 'myParser')).to.be(css)
+
+    css = 'p{ top:0} @tag{top:1}'
+    expect(fn(src, 'css', null)).to.be(css)
+    expect(fn(src, 'css', {})).to.be(css)
+    expect(fn(src, 'css')).to.be(css)
+    expect(fn(src, '', null)).to.be(css)
+    expect(fn(src, null)).to.be(css)
+    expect(fn(src, {})).to.be(css)
+    expect(fn(src, '')).to.be(css)
+    expect(fn(src)).to.be(css)
+  })
+
+  it('a missing CSS parser raises an exception', function () {
+    expect(function () {
+      fn('p{}', 'unknown')
+    }).to.throwError()
+  })
+
+  it('compile empty style (simple)', function () {
+    expect(fn('h1 {} h2\n{ font-size: 130% } p{}, a\n{top:0}'))
+      .to.be('h1 {} h2 { font-size: 130% } p{}, a {top:0}')
+  })
+
+})
+
 describe('Scoped CSS', function () {
 
   function render (str, parser) {
     return compiler.style(str, 'my-tag', parser || 'scoped-css')
   }
+
+  it('scoped option without a tag name raises an exception', function () {
+    expect(function () { compiler.style('p{}', '', '', { scoped: 1 }) }).to.throwError()
+    expect(function () { compiler.css('p{}', '', { scoped: 1 }) }).to.throwError()
+  })
 
   it('add my-tag to the simple selector', function () {
     expect(render('h1 { font-size: 150% }'))
@@ -68,17 +122,10 @@ describe('Scoped CSS', function () {
     expect(render('@keyframes fade { 10% { opacity: 1; } 85% { opacity: 0; } }'))
         .to.equal('@keyframes fade { 10% { opacity: 1; } 85% { opacity: 0; } }')
   })
-  it('compile empty style', function () {
+
+  it('compile empty style (scoped)', function () {
     expect(render('h1 {} h2 { font-size: 130% }'))
         .to.equal('my-tag h1,[riot-tag="my-tag"] h1 {} my-tag h2,[riot-tag="my-tag"] h2 { font-size: 130% }')
-  })
-
-  it('use a custom css parser to render the css', function () {
-    compiler.parsers.css.myParser = function (tag, css) {
-      return css.replace(/@tag/, tag)
-    }
-    expect(render('@tag { color: red }', 'myParser'))
-        .to.equal('my-tag { color: red }')
   })
 
 })

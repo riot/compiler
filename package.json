@@ -2,7 +2,7 @@
   "name": "riot-compiler",
   "version": "2.3.22",
   "description": "Compiler for riot .tag files",
-  "main": "dist/compiler.js",
+  "main": "lib/compiler.js",
   "jsnext:main": "dist/es6.compiler.js",
   "directories": {
     "lib": "lib",
@@ -10,6 +10,7 @@
   },
   "files": [
     "lib",
+    "src",
     "doc",
     "dist/*.js",
     "test/**"

@@ -1,6 +1,11 @@
 // free indent
 
-<free-style><p onclick={ click }/>
+<free-style style="
+    top:0
+    "><p onclick={ click }
+  expr = {
+      { x:{} }.x
+  }/>
 
     <!-- also test compactation of empty lines -->
 

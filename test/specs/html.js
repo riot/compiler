@@ -64,7 +64,7 @@ describe('Compile HTML', function () {
       testStr('<input type=number value={ 1 }>', '<input value="{1}" type="{\'number\'}">')
     })
 
-    it('fix #1495 Warning of input tag value - for date/time/month/email/color values', function () {
+    it('fix #1495 Warning of input tag value (date/time/month/email/color)', function () {
       testStr('<input type=date value={d}>', '<input value="{d}" type="{\'date\'}">')
       testStr('<input type=time value={t}>', '<input value="{t}" type="{\'time\'}">')
       testStr('<input type=date-local value={dl}>', '<input value="{dl}" type="{\'date-local\'}">')
@@ -139,6 +139,24 @@ describe('Compile HTML', function () {
       testStr(
         '<ul><li>{= ["foo", "bar"].join(\'<br/>\') }</li></ul>',
         '<ul><li>{= [\u2057foo\u2057, \u2057bar\u2057].join(\'&lt;br/&gt;\')}</li></ul>')
+    })
+
+    it('new compiler.html API allows omit the options (v2.3.20)', function () {
+      var js, ex = []
+
+      js = compiler.html('<p a={ 0 }/>', ex)
+      expect(js).to.be('<p a="{0}"></p>')
+      expect(ex.length).to.be(1)
+      expect(ex[0].trim()).to.be('0')
+
+      js = compiler.html('<p a={ 5 }/>', null, ex)
+      expect(js).to.be('<p a="{5}"></p>')
+      expect(ex.length).to.be(2)            // previous content must be not destroyed
+      expect(ex[0].trim()).to.be('0')
+      expect(ex[1].trim()).to.be('5')
+
+      js = compiler.html('<p a={ 0 }/>')
+      expect(js).to.be('<p a="{0}"></p>')
     })
 
   })

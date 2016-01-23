@@ -5,7 +5,7 @@
 'use strict'
 
 var
-  compiler23 = require('../dist/compiler.js').compile,
+  compiler23 = require('../').compile,
   compiler22 = require('./v223/compiler223.js').compile,
   path = require('path'),
   fs = require('fs')

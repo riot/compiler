@@ -1,6 +1,13 @@
 # Compiler Changes
 
-### v2.3.21
+### v2.3.22
+- Complete code refactorization with comments in preparation for JSDoc.
+- Keeps the fix [riot#1511](https://github.com/riot/riot/issues/1511) of the deleted v2.3.21, without the single-quote error.
+- Removed the "compress" option of the `less` parser, it is deprecated and generates warnings on the console.
+- Various tweaks to increase performance and reduce (~55%) memory consumption.
+- Files to preprocess are moved from "lib" to the "src" directory, now "lib" has the required node.js files only.
+
+### v2.3.21 (unpublished due to errors)
 - Code refactorization of the `parsers` module, removed unuseful CSS parser `stylus` for browsers.
 - Fix [riot#1511](https://github.com/riot/riot/issues/1511) : Escape Quotes - They may be some issues to fix.
 - New logic for parsing `<script>/<style>` blocks. See [doc/guide.md](https://github.com/riot/compiler/blob/dev/doc/guide.md#the-untagged-javascript-block) for details.

@@ -3,10 +3,10 @@
 
 describe('Compiler Tests', function () {
   expect = require('expect.js')
-  compiler = require('../dist/compiler.js')
+  compiler = require('../')
   require('./specs/html')
-  require('./specs/scoped-css')
-  require('./specs/riotjs')
+  require('./specs/css')
+  require('./specs/js')
   require('./specs/tag')
   require('./specs/parsers/suite')
 })
