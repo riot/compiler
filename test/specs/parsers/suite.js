@@ -7,31 +7,26 @@
 
 var
   path = require('path'),
-  fs = require('fs')
+  fs   = require('fs'),
+  norm = require('../helpers').normalizeJS
 
 var
   fixtures = __dirname,
-  expected = path.join(fixtures, 'js')
+  expected = path.join(fixtures, 'js'),
+  parsers  = compiler.parsers
 
 function have (mod, req) {
-  if (compiler.parsers._req(mod, req)) return true
+  if (parsers._req(mod, req)) return true
 
-  console.error('\tnot installed locally: ' +
-    compiler.parsers._modname(req || mod) + ' alias "' + mod + '"')
+  if (mod !== 'unknown') {
+    if (!req) req = parsers._modname(mod)
+    console.error('\tnot installed locally: ' + req + ' alias "' + mod + '"')
+  }
   return false
 }
 
 function cat (dir, filename) {
   return fs.readFileSync(path.join(dir, filename), 'utf8')
-}
-
-function normalize (str) {
-  var n = str.search(/[^\n]/)
-
-  if (n < 0) return ''
-  if (n > 0) str = str.slice(n)
-  n = str.search(/\n+$/)
-  return ~n ? str.slice(0, n) : str
 }
 
 function testParser (name, opts, save) {
@@ -47,7 +42,7 @@ function testParser (name, opts, save) {
       if (err) throw err
     })
   }
-  expect(normalize(js)).to.be(normalize(str2))
+  expect(norm(js)).to.be(norm(str2))
 }
 
 describe('HTML parsers', function () {
@@ -107,7 +102,7 @@ describe('JavaScript parsers', function () {
     return 'var foo'
   }
 
-  this.timeout(30000)     // eslint-disable-line
+  this.timeout(45000)     // eslint-disable-line
 
   // complex.tag
   it('complex tag structure', function () {
@@ -169,19 +164,25 @@ describe('JavaScript parsers', function () {
     }
   })
 
-  // test-attr.babel.tag
+  // test-attr.babel.tag (also test alias coffeescript)
   it('coffee with shorthands (fix #1090)', function () {
-    if (have('coffee')) {
-      testParser('test-attr', { type: 'coffee', expr: true })
+    if (have('coffeescript')) {
+      testParser('test-attr', { type: 'coffeescript', expr: true })
     }
   })
 
   // test.random.tag
   it('custom js parser', function () {
-
-    compiler.parsers.js.custom = _custom
+    parsers.js.custom = _custom
     testParser('test', { type: 'custom' })
+  })
 
+  // complet test for none
+  it('the javascript parser is an alias of "none" and does nothing', function () {
+    var code = 'fn () {\n}\n'
+
+    expect(parsers._modname('javascript')).to.be('none')
+    expect(parsers.js.javascript(code)).to.be(code)
   })
 
 })
@@ -191,7 +192,7 @@ describe('Style parsers', function () {
   this.timeout(12000)   // eslint-disable-line
 
   // custom parser
-  compiler.parsers.css.postcss = function (tag, css) {
+  parsers.css.postcss = function (tag, css) {
     return require('postcss')([require('autoprefixer')]).process(css).css
   }
 
@@ -221,7 +222,7 @@ describe('Style parsers', function () {
   })
 
   // scss.tag
-  it('scss, indented 2, margin 0', function () {
+  it('scss (no indentedSyntax)', function () {
     if (have('scss')) {
       testParser('scss')
       testParser('scss-import')
@@ -265,7 +266,7 @@ describe('Style parsers', function () {
       ].join('\n'),
       result
 
-    compiler.parsers.css.myParser2 = function (t, s) { return s.replace(/\bp\b/g, 'P') }
+    parsers.css.myParser2 = function (t, s) { return s.replace(/\bp\b/g, 'P') }
     result = compiler.compile(source, { style: 'myParser2' })
     expect(result).to.contain('P {top:0}')
   })
@@ -302,7 +303,7 @@ describe('Other', function () {
 
   it('emiting raw html through the `=` flag, with parser', function () {
     // custom parser
-    compiler.parsers.js.rawhtml = function (js) {
+    parsers.js.rawhtml = function (js) {
       return js.replace(/"/g, '&quot;')
     }
     testParser('raw', { type: 'rawhtml', expr: true })

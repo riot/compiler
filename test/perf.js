@@ -1,23 +1,19 @@
 /*
   Performance test for the compiler
 */
-/* eslint no-console: 0, max-len: 0 */
+/* eslint no-console: 0, max-len: 0, no-unused-vars: 0 */
 'use strict'
 
 var
-  compiler23 = require('../dist/compiler.js').compile,
+  compiler23 = require('../').compile,
   compiler22 = require('./v223/compiler223.js').compile,
   path = require('path'),
   fs = require('fs')
 
 var
-  basedir = path.join(__dirname, 'specs', 'fixtures'),
-  tags = ['box', 'empty', 'input-last', 'mixed-js', 'same', 'scoped', 'timetable', 'treeview', 'oneline']
-
-var files = tags.map(function (f) {
-  f = path.join(basedir, f + '.tag')
-  return fs.readFileSync(f, { encoding: 'utf8' })
-})
+  basedir = path.join(__dirname, 'v223'),
+  files = [],
+  tags = getFiles(basedir, files)
 
 var
   LOOP = 5000,
@@ -62,6 +58,16 @@ console.log('  provided by the node process.memoryUsage function (very erratic).
 console.log('- Minimum & maximum times are removed.')
 console.log()
 
+function preLoad () {
+  tags.forEach(function (t, i) {
+    var p = path.join(__dirname, 'v223', t + '.js')
+
+    //fs.writeFileSync(p, compiler22(files[i]), 'utf8')
+    compiler22(files[i])
+    compiler23(files[i])
+  })
+}
+
 function test (compiler, times, ogc) {
   global.gc()
   global.gc()
@@ -105,4 +111,21 @@ function padr (s, n) {
 function padl (s, n) {
   s = '' + s
   return replicate(' ', n - s.length) + s
+}
+
+function getFiles (base, src) {
+  var
+    dir = fs.readdirSync(base),
+    tgs = [],
+    f, n
+
+  for (var i = 0; i < dir.length; i++) {
+    n = dir[i]
+    if (path.extname(n) === '.tag') {
+      f = path.join(base, n)
+      tgs.push(n.slice(0, -4))
+      src.push(fs.readFileSync(f, { encoding: 'utf8' }))
+    }
+  }
+  return tgs
 }

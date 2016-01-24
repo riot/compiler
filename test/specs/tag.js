@@ -1,16 +1,19 @@
 /*eslint-env mocha */
 /*global compiler, expect */
-/*eslint max-len: 0 */
+/*eslint max-len: 0, no-console: 0 */
 
 var fs = require('fs'),
-  path = require('path')
+  path = require('path'),
+  norm = require('./helpers').normalizeJS
 
 describe('Compile tags', function () {
-  // in Windows __dirname is the real path, path.relative uses symlink
+  // in Win __dirname is a real path, in Lunux is symlink, path.relative uses symlink
   var
-    basepath = path.resolve(__dirname, '../..'),
-    fixtures = path.relative(basepath, path.join(__dirname, 'fixtures')),
-    expected = path.relative(basepath, path.join(__dirname, 'expect'))
+    basepath = path.resolve(__dirname, './'),
+    //fixtures = path.relative(basepath, path.join(__dirname, 'fixtures')),
+    //expected = path.relative(basepath, path.join(__dirname, 'expect'))
+    fixtures = path.join(basepath, 'fixtures'),
+    expected = path.join(basepath, 'expect')
 
   // adding some custom riot parsers
   // css
@@ -22,12 +25,12 @@ describe('Compile tags', function () {
     return js.replace(/@version/, '1.0.0')
   }
 
-  function render (str, name) {
-    return compiler.compile(str, { debug: true }, path.join(fixtures, name))
+  function render (str, name, opts) {
+    return compiler.compile(str, opts, name ? path.join(fixtures, name) : '')
   }
 
   function cat (dir, filename) {
-    return fs.readFileSync(path.join(dir, filename)).toString()
+    return fs.readFileSync(path.join(dir, filename), 'utf8')
   }
 
   function testFile (name, save) {
@@ -39,7 +42,11 @@ describe('Compile tags', function () {
         if (err) throw err
       })
     }
-    expect(js).to.equal(cat(expected, name + '.js'))
+    expect(norm(js)).to.equal(norm(cat(expected, name + '.js')))
+  }
+
+  function compileStr (src, name, opts) {
+    return norm(render(src, name ? name + '.tag' : '', opts))
   }
 
   it('Timetable tag', function () {
@@ -78,8 +85,12 @@ describe('Compile tags', function () {
     testFile('treeview')
   })
 
-  it('Included files (v2.3.1)', function () {
+  it('<script src=file> tag includes an external file (v2.3.1)', function () {
     testFile('includes')
+  })
+
+  it('<script src=file defer> preserves the script tag (v2.3.22)', function () {
+    testFile('includes-defer')
   })
 
   it('Dealing with unclosed es6 methods', function () {
@@ -131,8 +142,21 @@ describe('Compile tags', function () {
     testFile('empty')
   })
 
+  it('The debug option prepends the filename relative to CWD to the source', function () {
+    var js,
+      ff = path.join(fixtures + '/box.tag'),
+      rr = path.relative('.', path.join(fixtures, 'box.tag')),
+      result = '//src: ' + rr.replace(/\\/g, '/')
+
+    js = compiler.compile('<url/>', { debug: true }, ff)
+    expect(js.slice(0, js.indexOf('\n'))).to.be(result)
+
+    js = compiler.compile('<url/>', { debug: true }, rr)
+    expect(js.slice(0, js.indexOf('\n'))).to.be(result)
+  })
+
   it('The url name is optional', function () {
-    var js = compiler.compile('<url/>', {})
+    var js = compiler.compile('<url/>')
 
     expect(js).to.equal("riot.tag2('url', '', '', '', function(opts) {\n});")
   })
@@ -141,7 +165,7 @@ describe('Compile tags', function () {
     testFile('so-input')
   })
 
-  it('Multiline tags must be open/closed with the same indentation, which is removed', function () {
+  it('Multiline tags must open/close with the same indentation, which is removed', function () {
     testFile('indentation')
   })
 
@@ -188,17 +212,14 @@ describe('Compile tags', function () {
         '</my-tag>'
       ].join('\n')
 
-    expect(compiler.compile(dummyTag, {
-      exclude: ['html']
-    })).to.be("riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"] { color: red; }', '', function(opts) {\nthis.hi = \"hi\"\n});")
+    expect(compileStr(dummyTag, '', { exclude: ['html'] })).to.be(norm(
+      "riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"] { color: red; }', '', function(opts) {\nthis.hi = \"hi\"\n});"))
 
-    expect(compiler.compile(dummyTag, {
-      exclude: ['html', 'js']
-    })).to.be("riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"] { color: red; }', '', function(opts) {\n});")
+    expect(compileStr(dummyTag, '', { exclude: ['html', 'js'] })).to.be(norm(
+      "riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"] { color: red; }', '', function(opts) {\n});"))
 
-    expect(compiler.compile(dummyTag, {
-      exclude: ['css']
-    })).to.be("riot.tag2('my-tag', '<p>{hi}</p>', '', '', function(opts) {\nthis.hi = \"hi\"\n}, '{ }');")
+    expect(compileStr(dummyTag, '', { exclude: ['css'] })).to.be(norm(
+      "riot.tag2('my-tag', '<p>{hi}</p>', '', '', function(opts) {\nthis.hi = \"hi\"\n}, '{ }');"))
 
     expect(parts[0].html + parts[1].html).to.be('')
     expect(parts[0].js + parts[1].js).to.be('')
@@ -215,6 +236,11 @@ describe('Compile tags', function () {
       exclude: ['attribs']
     })
     expect(parts[0].attribs).to.be('')
+
+    // oneline has empty body in the 2nd tag
+    parts = compiler.compile(cat(fixtures, 'oneline.tag'), { entities: true, exclude: ['html'] })
+    expect(parts[0].html).to.be('')
+    expect(parts[1].html).to.be('')
   })
 
   it('Output an expression without evaluation by escaping the opening brace', function () {
@@ -225,7 +251,7 @@ describe('Compile tags', function () {
     testFile('raw-html')
   })
 
-  it('Script and Style blocks inside strings must be skipped #1448', function () {
+  it('Script and Style blocks inside strings must be skipped riot#1448', function () {
     testFile('quoted-tags')
   })
 
@@ -233,7 +259,76 @@ describe('Compile tags', function () {
     testFile('html-comments')
   })
 
-  it('html does not break on unbalanced quotes #1511', function () {
+  it('html does not break on unbalanced quotes riot#1511', function () {
     testFile('one-quote')
+  })
+
+  it('svg in tag breaks in 2.3.21 #45', function () {
+    testFile('svg')
+  })
+
+  it('Throws on unbalanced brackets in expression, well... not always', function () {
+    expect(function () {
+      compiler.compile('<mytag foo={[} bar={}/>')
+    }).to.throwError()
+    expect(function () {
+      compiler.compile('<mytag foo={{} bar={}/>')
+    }).not.to.throwError()
+  })
+
+  it('detection of untagged JS may fail in rare cases', function () {
+    testFile('untagged-js')
+  })
+})
+
+describe('The (internal) `brackets.array` function', function () {
+  var arrayFn = require('./../../lib/brackets').array
+
+  it('stores in cache the last custom brackets', function () {
+    var bp = arrayFn('[ ]')
+
+    // brackets must return the same array as bp
+    expect(bp).to.be(arrayFn('[ ]'))
+    // for defaults, brackets uses an static array, `bp` remains in cache
+    compiler.compile('<mytag foo={0}/>', { brackets: null })
+    // so again, we get the same custom array
+    expect(bp).to.be(arrayFn('[ ]'))
+
+    // this will change the array in cache
+    arrayFn('{$ $}')
+    // we get another, old instance
+    expect(bp).not.to.be(arrayFn('[ ]'))
+  })
+
+  it('creation of regexes is not slow, Garbage Collection will be.', function () {
+    var CNT = 25000,
+      i, t1, t2, bp = [null, '~[ ]~']
+
+    this.timeout(1000)  // eslint-disable-line
+
+    // brackets must return the same array
+    t1 = Date.now()
+    for (i = 0; i < CNT; i++) arrayFn(bp[i % 1])
+    t1 = Date.now() - t1
+
+    // here, the array is re-created
+    bp[0] = '# #'
+    t2 = Date.now()
+    for (i = 0; i < CNT; i++) arrayFn(bp[i % 1])
+    t2 = Date.now() - t2
+
+    console.log('\t%d calls using cache: %d ms, creating regexes: %d ms',
+      CNT, t1, t2)
+  })
+
+  it('throws if receives invalid brackets characters', function () {
+    // brackets must return the same array as bp
+    expect(function () {
+      arrayFn('<% %>')
+    }).to.throwError()
+
+    expect(function () {
+      arrayFn('{}')
+    }).to.throwError()
   })
 })

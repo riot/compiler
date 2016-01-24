@@ -1,6 +1,8 @@
+//#define RIOT
 //#if 0
 /*global riot, parsers, compileHTML, compileCSS, compileJS */
 //#endif
+
 //#include_once parsers_br
 
 riot.parsers = parsers

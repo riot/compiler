@@ -114,7 +114,7 @@ rules:
     #   STYLISTIC ISSUES
     #
     array-bracket-spacing: 2    # disallow spaces inside of brackets (Default: [0, "never"])
-    brace-style: [1, "stroustrup", { "allowSingleLine": true }]
+    brace-style: [1, "1tbs", { "allowSingleLine": true }]
                                 # require Stroustrup style: `else` must be on its own line (Default: [0, '1tbs'])
     camelcase: [2, { "properties": "always" }]
                                 # require camel case names (Default: 0)
@@ -130,7 +130,7 @@ rules:
                                 # (Default: [0, { "beforeColon": false, "afterColon": true }])
     linebreak-style: [2, "unix"]
     max-depth: [1, 5]           # specify the maximum depth blocks can be nested
-    max-len: [1, 92, 4, { "ignoreUrls": true, "ignorePattern": "=\\s+/.+/|_regEx\\(" }]
+    max-len: [1, 92, 4, { "ignoreUrls": true, "ignorePattern": "=\\s+/.+/|_regEx\\(|RegExp\\(" }]
                                 # maximum line length, except for regexes
     max-nested-callbacks: [2, 4] # specify the maximum depth callbacks can be nested (Default: [0, 2])
     new-cap: 2                  # require a capital letter for constructors (Default: 0)

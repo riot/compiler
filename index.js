@@ -1,1 +1,1 @@
-module.exports = require('./dist/compiler')
+module.exports = require('./lib/compiler')
