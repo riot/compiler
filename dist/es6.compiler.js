@@ -256,8 +256,8 @@ function _compileHTML (html, opts, pcex) {
     var p = []
 
     if (/<pre[\s>]/.test(html)) {
-      html = html.replace(PRE_TAGS, function (_q) {
-        p.push(_q)
+      html = html.replace(PRE_TAGS, function (q) {
+        p.push(q)
         return '\u0002'
       })
     }
@@ -439,19 +439,23 @@ var MISC_ATTR = '\\s*=\\s*(' + S_STRINGS + '|{[^}]+}|\\S+)'
 
 var END_TAGS = /\/>\n|^<(?:\/?[-\w]+\s*|[-\w]+\s+[-\w:\xA0-\xFF][\S\s]*?)>\n/
 
-function q (s) {
-  return SQ + (s ? s.replace(/\\/g, '\\\\').replace(/'/g, "\\'") : '') + SQ
+function _q (s, r) {
+  if (!s) return "''"
+  s = SQ + s.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + SQ
+  return r && ~s.indexOf('\n') ? s.replace(/\n/g, '\\n') : s
 }
 
 function mktag (name, html, css, attribs, js, pcex) {
   var
     c = ', ',
-    s = '}' + (pcex.length ? ', ' + q(pcex._bp[8]) : '') + ');'
+    s = '}' + (pcex.length ? ', ' + _q(pcex._bp[8]) : '') + ');'
 
   if (js && js.slice(-1) !== '\n') s = '\n' + s
 
-  return 'riot.tag2(\'' + name + SQ + c + q(html).replace(/\n/g, '\\n') +
-    c + q(css) + c + q(attribs) + ', function(opts) {\n' + js + s
+  return 'riot.tag2(\'' + name + SQ +
+    c + _q(html, 1) +
+    c + _q(css) +
+    c + _q(attribs) + ', function(opts) {\n' + js + s
 }
 
 function splitBlocks (str) {
@@ -582,11 +586,9 @@ function compile (src, opts, url) {
           if (included('html')) html = _compileHTML(body2, opts, pcex)
         } else {
 
-          var blocks = splitBlocks(
-            body.replace(RegExp('^' + indent, 'gm'), '').replace(TRIM_TRAIL, '')
-          )
+          body = body.replace(RegExp('^' + indent, 'gm'), '')
 
-          body = blocks[0].replace(STYLES, function (_m, _attrs, _style) {
+          body = body.replace(STYLES, function (_m, _attrs, _style) {
             if (included('css')) {
               styles += (styles ? ' ' : '') + cssCode(_style, opts, _attrs, url, tagName)
             }
@@ -602,8 +604,10 @@ function compile (src, opts, url) {
             return ''
           })
 
+          var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
+
           if (included('html')) {
-            html = _compileHTML(body, opts, pcex)
+            html = _compileHTML(blocks[0], opts, pcex)
           }
 
           if (included('js')) {

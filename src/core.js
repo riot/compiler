@@ -308,8 +308,8 @@ function _compileHTML (html, opts, pcex) {
 
     // hide any `<pre>` tags from the compactation
     if (/<pre[\s>]/.test(html)) {
-      html = html.replace(PRE_TAGS, function (_q) {
-        p.push(_q)
+      html = html.replace(PRE_TAGS, function (q) {
+        p.push(q)
         return '\u0002'
       })
     }
@@ -686,13 +686,17 @@ var END_TAGS = /\/>\n|^<(?:\/?[-\w]+\s*|[-\w]+\s+[-\w:\xA0-\xFF][\S\s]*?)>\n/
  * Encloses the given string in single quotes.
  *
  * 2016-01-18: we must escape single quotes and backslashes before quoting the
- * string, but there's no need to care about line-endings, each submodule does it.
+ * string, but there's no need to care about line-endings unless is required,
+ * as each submodule normalizes the lines.
  *
- * @param   {string} s - unquoted string
- * @returns {string} quoted string, with escaped single-quotes and backslashes
+ * @param   {string} s - The unquoted, source string
+ * @param   {number} r - If 1, escape embeded EOLs in the source
+ * @returns {string} Quoted string, with escaped single-quotes and backslashes.
  */
-function q (s) {
-  return SQ + (s ? s.replace(/\\/g, '\\\\').replace(/'/g, "\\'") : '') + SQ
+function _q (s, r) {
+  if (!s) return "''"
+  s = SQ + s.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + SQ
+  return r && ~s.indexOf('\n') ? s.replace(/\n/g, '\\n') : s
 }
 
 /**
@@ -709,14 +713,16 @@ function q (s) {
 function mktag (name, html, css, attribs, js, pcex) {
   var
     c = ', ',
-    s = '}' + (pcex.length ? ', ' + q(pcex._bp[$_RIX_PAIR]) : '') + ');'
+    s = '}' + (pcex.length ? ', ' + _q(pcex._bp[$_RIX_PAIR]) : '') + ');'
 
   // give more consistency to the output
   if (js && js.slice(-1) !== '\n') s = '\n' + s
 
-  // 2016-01-18: html can contain eols if opts.whitespace=1, fix after q()
-  return 'riot.tag2(\'' + name + SQ + c + q(html).replace(/\n/g, '\\n') +
-    c + q(css) + c + q(attribs) + ', function(opts) {\n' + js + s
+  // 2016-01-18: html can contain eols if opts.whitespace=1, fix with q(s,1)
+  return 'riot.tag2(\'' + name + SQ +
+    c + _q(html, 1) +
+    c + _q(css) +
+    c + _q(attribs) + ', function(opts) {\n' + js + s
 }
 
 /**
@@ -980,13 +986,11 @@ function compile (src, opts, url) {
           /* is-tanbul ignore next */
           if (included('html')) html = _compileHTML(body2, opts, pcex)
         } else {
-          // separate the untagged javascript block from the html
-          var blocks = splitBlocks(
-            body.replace(RegExp('^' + indent, 'gm'), '').replace(TRIM_TRAIL, '')
-          )
+          // remove tag indentation in the content
+          body = body.replace(RegExp('^' + indent, 'gm'), '')
 
           // get and process the style blocks
-          body = blocks[0].replace(STYLES, function (_m, _attrs, _style) {
+          body = body.replace(STYLES, function (_m, _attrs, _style) {
             if (included('css')) {
               styles += (styles ? ' ' : '') + cssCode(_style, opts, _attrs, url, tagName)
             }
@@ -1006,9 +1010,12 @@ function compile (src, opts, url) {
             return ''
           })
 
+          // separate the untagged javascript block from the html
+          var blocks = splitBlocks(body.replace(TRIM_TRAIL, ''))
+
           // process the remaining html part
           if (included('html')) {
-            html = _compileHTML(body, opts, pcex)
+            html = _compileHTML(blocks[0], opts, pcex)
           }
 
           // and the untagged js block

@@ -20,12 +20,15 @@ DIST = "./dist/"
 # default job
 test: build test-mocha
 
-build: eslint
+build: pre-build eslint
 	# rebuild all
-	@ mkdir -p $(DIST)
-	@ $(JSPP) $(JSPP_NODE_FLAGS) src/core.js  > lib/compiler.js
 	@ $(JSPP) $(JSPP_RIOT_FLAGS) src/_riot.js > $(DIST)riot.compiler.js
 	@ $(JSPP) $(JSPP_ES6_FLAGS)  src/_es6.js  > $(DIST)es6.compiler.js
+
+pre-build:
+	# build the node version
+	@ mkdir -p $(DIST)
+	@ $(JSPP) $(JSPP_NODE_FLAGS) src/core.js > lib/compiler.js
 
 eslint:
 	# check code style
@@ -53,4 +56,4 @@ perf: build
 docs: build
 	@ jsdoc lib/ --configure ./jsdoc.json -P ./package.json --verbose
 
-.PHONY: test build eslint test-mocha send-coverage debug perf docs
+.PHONY: test pre-build build eslint test-mocha send-coverage debug perf docs
