@@ -62,7 +62,7 @@ If there's no HTML tags within the root tag, riot assumes that the content is Ja
 </my-tag>
 ```
 
-This may seem counterintuitive, but complies with the riot specification for [untagged JavaScript blocks](the-untagged-javascript-block).
+This may seem counterintuitive, but complies with the riot specification for [untagged JavaScript blocks](#the-untagged-javascript-block).
 
 
 ### Whitespace
