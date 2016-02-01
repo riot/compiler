@@ -261,11 +261,11 @@ The resulting block is enclosed in a function, executed at mount time in the tag
 
 ### Loading JavaScript from the File System (v2.3.13)
 
-The `src` attribute of the `script` tags inside a riot tag, allows load source files from the file system.
+The `src` attribute of the `script` tags inside a riot tag allows load source files from the file system.
 
 The filename in `src` can be absolute or relative. If you pass a third parameter to the `compile` function with the full name of the file being compiled, relative paths will be resolved from this name, if not, these will be relative to the current working directory (as returned by `proccess.cwd()`).
 
-JavaScript type defaults to the `type` specified in the options passed to the compiler. If you don't want the code to be parsed, use `type="none"`.
+Without a `type=` directive, the JavaScript parser defaults to the `type` specified in the options passed to the compiler. If you don't want the code to be parsed, use `type="none"`.
 
 The encoding is specified by the `charset` attribute. It defaults to `utf8`.
 
@@ -273,8 +273,15 @@ Example:
 ```js
 var compile = require('riot-compile'),
     fs = require('fs')
-var source = fs.readFileSync(full_filename, 'utf8')
-var result = compiler.compile(source, options, full_filename)
+var tagfile = 'src/mytag.tag',
+    outfile = 'js/mytag.js',
+    options = {}
+
+fs.readFile(tagfile, function (err, source) {
+  if (err) throw err
+  var js = compiler.compile(source, options, tagfile)
+  fs.writeFile(outfile, js)
+})
 ```
 
 So, if you have a js/data.js loaded by a mytag.tag file...
@@ -302,6 +309,12 @@ the result is equivalent to
   this.title = APP_NAME
 </my-tag>
 ```
+
+To avoid the compiler load the code from the file, include the keyword `defer` in the tag:
+```html
+  <script src="js/data.js" defer></script>
+```
+with this, the `<script>` is retained in the html, with the keyword `defer` removed.
 
 **Note:** You cannot nest `<script>` elements.
 
