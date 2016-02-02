@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v2.3.23
+- Fix [riot#1325](https://github.com/riot/riot/issues/1325) : Gulp + Browserify + Babelify + type="es6" error.
+- The keyword `defer` in `<script src=file>` avoids that the compiler loads the file, preserving the tag - Requested by [riot#1492](https://github.com/riot/riot/issues/1492) : Stop script tags from being evaluated with serverside `riot.render`.
+
 ### v2.3.22
 - Fix [riot#1511](https://github.com/riot/riot/issues/1511) : Escape Quotes - They may be some issues to fix.
 - Regression of logic to parse style and script tags, due to loss of performance and other issues.
