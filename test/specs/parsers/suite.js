@@ -8,7 +8,8 @@
 var
   path = require('path'),
   fs   = require('fs'),
-  norm = require('../helpers').normalizeJS
+  norm    = require('../helpers').normalizeJS,
+  reqname = require('../helpers').requireName
 
 var
   fixtures = __dirname,
@@ -19,7 +20,7 @@ function have (mod, req) {
   if (parsers._req(mod, req)) return true
 
   if (mod !== 'unknown') {
-    if (!req) req = parsers._modname(mod)
+    if (!req) req = reqname(mod)
     console.error('\tnot installed locally: ' + req + ' alias "' + mod + '"')
   }
   return false
@@ -181,7 +182,6 @@ describe('JavaScript parsers', function () {
   it('the javascript parser is an alias of "none" and does nothing', function () {
     var code = 'fn () {\n}\n'
 
-    expect(parsers._modname('javascript')).to.be('none')
     expect(parsers.js.javascript(code)).to.be(code)
   })
 
