@@ -273,10 +273,10 @@ attribute.
 The `defer` attribute is used to avoid the processing of the `script` tag
 during the Riot compile time, which would threat them as 'code to be
 evaluated'. This will be deferred to happen just on the final renderer context
-(ie. Web Browsers).
+(e.g. Web Browsers).
 This can be useful for example on Server Side Rendering (SSR) of plain
 old HTML files. Riot Tags in this context would include some logic inside
-`script` tags designed to be run on just on the Client (ie. To provide
+`script` tags designed to be run on just on the Client (e.g. To provide
 animations). The original `defer` attribute is also removed during the
 rendering of the final emitted  `script` tag.
 
