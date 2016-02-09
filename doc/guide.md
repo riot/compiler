@@ -62,7 +62,7 @@ If there's no HTML tags within the root tag, riot assumes that the content is Ja
 </my-tag>
 ```
 
-This may seem counterintuitive, but complies with the riot specification for [untagged JavaScript blocks](#the-untagged-javascript-block).
+This may seem counterintuitive, but complies with the riot specification for [untagged JavaScript blocks](the-untagged-javascript-block).
 
 
 ### Whitespace
@@ -265,7 +265,7 @@ The `src` attribute of the `script` tags inside a riot tag allows load source fi
 
 The filename in `src` can be absolute or relative. If you pass a third parameter to the `compile` function with the full name of the file being compiled, relative paths will be resolved from this name, if not, these will be relative to the current working directory (as returned by `proccess.cwd()`).
 
-Without a `type=` directive, the JavaScript parser defaults to the `type` specified in the options passed to the compiler. If you don't want the code to be parsed, use `type="none"`.
+JavaScript type defaults to the `type` specified in the options passed to the compiler. If you don't want the code to be parsed, use `type="none"`.
 
 The encoding is specified by the `charset` attribute. It defaults to `utf8`.
 
@@ -273,15 +273,8 @@ Example:
 ```js
 var compile = require('riot-compile'),
     fs = require('fs')
-var tagfile = 'src/mytag.tag',
-    outfile = 'js/mytag.js',
-    options = {}
-
-fs.readFile(tagfile, function (err, source) {
-  if (err) throw err
-  var js = compiler.compile(source, options, tagfile)
-  fs.writeFile(outfile, js)
-})
+var source = fs.readFileSync(full_filename, 'utf8')
+var result = compiler.compile(source, options, full_filename)
 ```
 
 So, if you have a js/data.js loaded by a mytag.tag file...
