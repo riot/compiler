@@ -266,6 +266,19 @@ The `src` attribute of the `script` tags inside a riot tag allows load source fi
 The filename in `src` can be absolute or relative. If you pass a third parameter to the `compile` function with the full name of the file being compiled, relative paths will be resolved from this name, if not, these will be relative to the current working directory (as returned by `proccess.cwd()`).
 
 JavaScript type defaults to the `type` specified in the options passed to the compiler. If you don't want the code to be parsed, use `type="none"`.
+If you just want to get the `script` tag rendered, keeping the `type`
+attribute and the tag contents untouched, you should then use the `defer` 
+attribute.
+
+The `defer` attribute is used to avoid the processing of the `script` tag
+during the Riot compile time, which would threat them as 'code to be
+evaluated'. This will be deferred to happen just on the final renderer context
+(e.g. Web Browsers).
+This can be useful for example on Server Side Rendering (SSR) of plain
+old HTML files. Riot Tags in this context would include some logic inside
+`script` tags designed to be run on just on the Client (e.g. To provide
+animations). The original `defer` attribute is also removed during the
+rendering of the final emitted  `script` tag.
 
 The encoding is specified by the `charset` attribute. It defaults to `utf8`.
 
