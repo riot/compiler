@@ -121,6 +121,10 @@ var TRIM_TRAIL = /[ \t]+$/gm
 
 // Clearer?
 var
+  RE_HASEXPR = /\x01#\d/,       // for searching a hidden expression in a string
+  RE_REPEXPR = /\x01#(\d+)/g,   // used to restore a hidden expression
+  CH_IDEXPR  = '\x01#',         // sequence for marking a hidden expression
+  CH_DQCODE  = '\u2057',        // escape double quotes with this char
   DQ = '"',
   SQ = "'"
 
@@ -187,7 +191,7 @@ function parseAttribs (str, pcex) {
       if (k === 'type' && SPEC_TYPES.test(v)) {
         type = v                  // we'll check if value contains expression
       } else {
-        if (/\u0001\d/.test(v)) {
+        if (RE_HASEXPR.test(v)) {
           // renames special attributes with expressiones in their value.
           if (k === 'value') vexp = 1
           else if (BOOL_ATTRS.test(k)) k = '__' + k
@@ -237,7 +241,7 @@ function splitHtml (html, opts, pcex) {
         if (expr.slice(-1) === ';') expr = expr.slice(0, -1)
         if (israw) expr = '=' + expr
       }
-      list[i] = '\u0001' + (pcex.push(expr) - 1) + _bp[1]
+      list[i] = CH_IDEXPR + (pcex.push(expr) - 1) + _bp[1]
     }
     html = list.join('')
   }
@@ -255,7 +259,7 @@ function splitHtml (html, opts, pcex) {
 function restoreExpr (html, pcex) {
   if (pcex.length) {
     html = html
-      .replace(/\u0001(\d+)/g, function (_, d) {
+      .replace(RE_REPEXPR, function (_, d) {
         var expr = pcex[d]
 
         if (expr[0] === '=') {
@@ -266,7 +270,7 @@ function restoreExpr (html, pcex) {
           })
         }
         // 2016-01-18: chaining replaces seems most efficient
-        return pcex._bp[0] + expr.trim().replace(/[\r\n]+/g, ' ').replace(/"/g, '\u2057')
+        return pcex._bp[0] + expr.trim().replace(/[\r\n]+/g, ' ').replace(/"/g, CH_DQCODE)
       })
   }
   return html
