@@ -7,6 +7,7 @@
 - It has changed the character used to hide expressions during the compilation, maybe this fix [riot#1588](https://github.com/riot/riot/issues/1588) : Syntax Error: Invalid character `\0129` (riot+compiler.min).
 - Removed the unused parameter with the compiled-time brackets from the call to `riot.tag2`.
 - Removed support for raw expressions. It is unlikely this feature will be implemented in v2.3.x
+- Updated the regex that is used to match tag names, more closer to the HTML specs.
 - Update devDependencies.
 
 ### v2.3.22
