@@ -709,13 +709,11 @@ function mktag (name, html, css, attr, js, opts) {
   // give more consistency to the output
   if (js && js.slice(-1) !== '\n') s = '\n' + s
 
-  html = _q(html, 1)
-  css  = _q(css)
-  attr = _q(attr)
-
   // 2016-01-18: html can contain eols if opts.whitespace=1, fix with q(s,1)
   return 'riot.tag2(\'' + name + SQ +
-    c + html + c + css + c + attr + ', function(opts) {\n' + js + s
+    c + _q(html, 1) +
+    c + _q(css) +
+    c + _q(attr) + ', function(opts) {\n' + js + s
 }
 
 /**

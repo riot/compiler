@@ -5,6 +5,7 @@
 - Fix [riot#1342](https://github.com/riot/riot/issues/1342), [riot#1636](https://github.com/riot/riot/issues/1636) and request from [dwyl/learn-riot#8](https://github.com/dwyl/learn-riot/issues/8) : Server-Side Rendered Page Fails W3C Check. The new `data-is` attribute is used for scoped styles in addition to `riot-tag` (the later will be removed in compiler v3.x)
 - The keyword `defer` in `<script src=file>` avoids that the compiler loads the file, preserving the tag - Requested by [riot#1492](https://github.com/riot/riot/issues/1492) : Stop script tags from being evaluated with serverside `riot.render`. It is removed in client-side compilation because browsers will not load scripts through innerHTML.
 - It has changed the character used to hide expressions during the compilation, maybe this fix [riot#1588](https://github.com/riot/riot/issues/1588) : Syntax Error: Invalid character `\0129` (riot+compiler.min).
+- The option `debug` inserts newlines between the `riot.tag2` parameters and the call is prefixed with the source filename.
 - Removed the unused parameter with the compiled-time brackets from the call to `riot.tag2`.
 - Removed support for raw expressions. It is unlikely this feature will be implemented in v2.3.x
 - Updated the regex that is used to match tag names, more closer to the HTML specs.

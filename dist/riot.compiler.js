@@ -444,12 +444,10 @@ var compile = (function () {
 
     if (js && js.slice(-1) !== '\n') s = '\n' + s
 
-    html = _q(html, 1)
-    css  = _q(css)
-    attr = _q(attr)
-
     return 'riot.tag2(\'' + name + SQ +
-      c + html + c + css + c + attr + ', function(opts) {\n' + js + s
+      c + _q(html, 1) +
+      c + _q(css) +
+      c + _q(attr) + ', function(opts) {\n' + js + s
   }
 
   function splitBlocks (str) {
