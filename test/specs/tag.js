@@ -213,13 +213,13 @@ describe('Compile tags', function () {
       ].join('\n')
 
     expect(compileStr(dummyTag, '', { exclude: ['html'] })).to.be(norm(
-      "riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"] { color: red; }', '', function(opts) {\nthis.hi = \"hi\"\n});"))
+      "riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"],[data-is=\"my-tag\"]{ color: red; }', '', function(opts) {\nthis.hi = \"hi\"\n});"))
 
     expect(compileStr(dummyTag, '', { exclude: ['html', 'js'] })).to.be(norm(
-      "riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"] { color: red; }', '', function(opts) {\n});"))
+      "riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"],[data-is=\"my-tag\"]{ color: red; }', '', function(opts) {\n});"))
 
     expect(compileStr(dummyTag, '', { exclude: ['css'] })).to.be(norm(
-      "riot.tag2('my-tag', '<p>{hi}</p>', '', '', function(opts) {\nthis.hi = \"hi\"\n}, '{ }');"))
+      "riot.tag2('my-tag', '<p>{hi}</p>', '', '', function(opts) {\nthis.hi = \"hi\"\n});"))
 
     expect(parts[0].html + parts[1].html).to.be('')
     expect(parts[0].js + parts[1].js).to.be('')
@@ -245,10 +245,6 @@ describe('Compile tags', function () {
 
   it('Output an expression without evaluation by escaping the opening brace', function () {
     testFile('print-brackets')
-  })
-
-  it('Escaping raw html in expressions through the `=` flag', function () {
-    testFile('raw-html')
   })
 
   it('Script and Style blocks inside strings must be skipped riot#1448', function () {

@@ -2,4 +2,4 @@ riot.tag2('style-test', '<h3>{opts.title}</h3>', 'style-test { display: block; b
     this.foo = function() {
 
     }.bind(this)
-}, '{ }');
+});

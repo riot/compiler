@@ -18,4 +18,4 @@ riot.tag2('includes', '<p onclick="{click}"></p>', '', '', function(opts) {
     bar( {} )
   }
   .bind (this)
-}, '{ }');
+});

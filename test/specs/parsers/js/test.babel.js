@@ -5,4 +5,4 @@ var _foo = require('foo');
 
 var type = 'JavaScript';
 this.test = 'This is ' + type;
-}, '{ }');
+});

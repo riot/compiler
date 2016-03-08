@@ -2,9 +2,12 @@
 
 ### v2.3.23
 - Fix [riot#1325](https://github.com/riot/riot/issues/1325) : Gulp + Browserify + Babelify + type="es6" error.
-- The keyword `defer` in `<script src=file>` avoids that the compiler loads the file, preserving the tag - Requested by [riot#1492](https://github.com/riot/riot/issues/1492) : Stop script tags from being evaluated with serverside `riot.render`.
+- Fix [riot#1342](https://github.com/riot/riot/issues/1342), [riot#1636](https://github.com/riot/riot/issues/1636) and request from [dwyl/learn-riot#8](https://github.com/dwyl/learn-riot/issues/8) : Server-Side Rendered Page Fails W3C Check. The new `data-is` attribute is used for scoped styles in addition to `riot-tag` (the later will be removed in compiler v3.x)
+- The keyword `defer` in `<script src=file>` avoids that the compiler loads the file, preserving the tag - Requested by [riot#1492](https://github.com/riot/riot/issues/1492) : Stop script tags from being evaluated with serverside `riot.render`. It is removed in client-side compilation because browsers will not load scripts through innerHTML.
 - It has changed the character used to hide expressions during the compilation, maybe this fix [riot#1588](https://github.com/riot/riot/issues/1588) : Syntax Error: Invalid character `\0129` (riot+compiler.min).
-- Update devDependencies
+- Removed the unused parameter with the compiled-time brackets from the call to `riot.tag2`.
+- Removed support for raw expressions. It is unlikely this feature will be implemented in v2.3.x
+- Update devDependencies.
 
 ### v2.3.22
 - Fix [riot#1511](https://github.com/riot/riot/issues/1511) : Escape Quotes - They may be some issues to fix.

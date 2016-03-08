@@ -28,7 +28,7 @@ riot.tag2('treeview', '<ul id="treeview"> <li> <treeitem data="{treedata}"></tre
       }
     ]
   }
-}, '{ }');
+});
 
 riot.tag2('treeitem', '<div class="{bold: isFolder()}" onclick="{toggle}" ondblclick="{changeType}"> {name} <span if="{isFolder()}">[{open ? \'-\' : \'+\'}]</span> </div> <ul if="{isFolder()}" show="{isFolder() && open}"> <li each="{child, i in nodes}"> <treeitem data="{child}"></treeitem> </li> <li onclick="{addChild}">+</li> </ul>', '', '', function(opts) {
   var self = this
@@ -56,4 +56,4 @@ riot.tag2('treeitem', '<div class="{bold: isFolder()}" onclick="{toggle}" ondblc
       name: 'new stuff'
     })
   }.bind(this)
-}, '{ }');
+});

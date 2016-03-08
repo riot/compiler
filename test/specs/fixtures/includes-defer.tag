@@ -1,5 +1,5 @@
 <includes-defer><p onclick={ click }/>
-  <!-- included at compile-time --><script src="riotjs.object.js" defer></script>
+  <!-- included at run-time --><script src="riotjs.object.js" defer></script>
   <!-- filename relative to the parent -->
   <script src="../expect/riotjs.method.js" defer></script>
   <script>      // tagged script

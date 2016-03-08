@@ -106,7 +106,7 @@ var HTML_ATTRS = / *([-\w:\xA0-\xFF]+) ?(?:= ?('[^']*'|"[^"]*"|\S+))?/g
 
 var HTML_COMMS = RegExp(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_LINESTR, 'g')
 
-var HTML_TAGS = /<([-\w]+)(?:\s+([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)(\/?)>/g
+var HTML_TAGS = /<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)(\/?)>/g
 
 var BOOL_ATTRS = RegExp(
     '^(?:disabled|checked|readonly|required|allowfullscreen|auto(?:focus|play)|' +
@@ -142,7 +142,7 @@ function cleanSource (src) {
   }
 
   re.lastIndex = 0
-  while (mm = re.exec(src)) {
+  while ((mm = re.exec(src))) {
     if (mm[0][0] === '<') {
       src = RegExp.leftContext + RegExp.rightContext
       re.lastIndex = mm[3] + 1
@@ -161,7 +161,7 @@ function parseAttribs (str, pcex) {
 
   str = str.replace(/\s+/g, ' ')
 
-  while (match = HTML_ATTRS.exec(str)) {
+  while ((match = HTML_ATTRS.exec(str))) {
     var
       k = match[1].toLowerCase(),
       v = match[2]
@@ -203,17 +203,15 @@ function splitHtml (html, opts, pcex) {
     var
       jsfn = opts.expr && (opts.parser || opts.type) ? _compileJS : 0,
       list = brackets.split(html, 0, _bp),
-      expr, israw
+      expr
 
     for (var i = 1; i < list.length; i += 2) {
       expr = list[i]
       if (expr[0] === '^') {
         expr = expr.slice(1)
       } else if (jsfn) {
-        israw = expr[0] === '='
-        expr = jsfn(israw ? expr.slice(1) : expr, opts).trim()
+        expr = jsfn(expr, opts).trim()
         if (expr.slice(-1) === ';') expr = expr.slice(0, -1)
-        if (israw) expr = '=' + expr
       }
       list[i] = CH_IDEXPR + (pcex.push(expr) - 1) + _bp[1]
     }
@@ -224,20 +222,10 @@ function splitHtml (html, opts, pcex) {
 
 function restoreExpr (html, pcex) {
   if (pcex.length) {
-    html = html
-      .replace(RE_REPEXPR, function (_, d) {
-        var expr = pcex[d]
+    html = html.replace(RE_REPEXPR, function (_, d) {
 
-        if (expr[0] === '=') {
-          expr = expr.replace(brackets.R_STRINGS, function (qs) {
-            return qs
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-          })
-        }
-
-        return pcex._bp[0] + expr.trim().replace(/[\r\n]+/g, ' ').replace(/"/g, CH_DQCODE)
-      })
+      return pcex._bp[0] + pcex[d].trim().replace(/[\r\n]+/g, ' ').replace(/"/g, CH_DQCODE)
+    })
   }
   return html
 }
@@ -308,7 +296,7 @@ function riotjs (js) {
 
   if (~js.indexOf('/')) js = rmComms(js, JS_COMMS)
 
-  while (match = js.match(JS_ES6SIGN)) {
+  while ((match = js.match(JS_ES6SIGN))) {
 
     parts.push(RE.leftContext)
     js  = RE.rightContext
@@ -327,7 +315,7 @@ function riotjs (js) {
 
   function rmComms (s, r, m) {
     r.lastIndex = 0
-    while (m = r.exec(s)) {
+    while ((m = r.exec(s))) {
       if (m[0][0] === '/' && !m[1] && !m[2]) {
         s = RE.leftContext + ' ' + RE.rightContext
         r.lastIndex = m[3] + 1
@@ -392,12 +380,14 @@ function scopedCSS (tag, css) {
       }
 
       if (s.indexOf(scope) < 0) {
-        s = tag + ' ' + s + ',[riot-tag="' + tag + '"] ' + s
+        s = tag + ' ' + s + ',[riot-tag="' + tag + '"] ' + s +
+                            ',[data-is="' + tag + '"] ' + s
       } else {
         s = s.replace(scope, tag) + ',' +
-            s.replace(scope, '[riot-tag="' + tag + '"]')
+            s.replace(scope, '[riot-tag="' + tag + '"]') + ',' +
+            s.replace(scope, '[data-is="' + tag + '"]')
       }
-      return sel.slice(-1) === ' ' ? s + ' ' : s
+      return s
     })
 
     return p1 ? p1 + ' ' + p2 : p2
@@ -441,7 +431,7 @@ var TYPE_ATTR = /\stype\s*=\s*(?:(['"])(.+?)\1|(\S+))/i
 
 var MISC_ATTR = '\\s*=\\s*(' + S_STRINGS + '|{[^}]+}|\\S+)'
 
-var END_TAGS = /\/>\n|^<(?:\/?[-\w]+\s*|[-\w]+\s+[-\w:\xA0-\xFF][\S\s]*?)>\n/
+var END_TAGS = /\/>\n|^<(?:\/?-?[A-Za-z][-\w\xA0-\xFF]*\s*|-?[A-Za-z][-\w\xA0-\xFF]*\s+[-\w:\xA0-\xFF][\S\s]*?)>\n/
 
 function _q (s, r) {
   if (!s) return "''"
@@ -449,17 +439,19 @@ function _q (s, r) {
   return r && ~s.indexOf('\n') ? s.replace(/\n/g, '\\n') : s
 }
 
-function mktag (name, html, css, attribs, js, pcex) {
+function mktag (name, html, css, attr, js, opts) {
   var
-    c = ', ',
-    s = '}' + (pcex.length ? ', ' + _q(pcex._bp[8]) : '') + ');'
+    c = opts.debug ? ',\n  ' : ', ',
+    s = '});'
 
   if (js && js.slice(-1) !== '\n') s = '\n' + s
 
+  html = _q(html, 1)
+  css  = _q(css)
+  attr = _q(attr)
+
   return 'riot.tag2(\'' + name + SQ +
-    c + _q(html, 1) +
-    c + _q(css) +
-    c + _q(attribs) + ', function(opts) {\n' + js + s
+    c + html + c + css + c + attr + ', function(opts) {\n' + js + s
 }
 
 function splitBlocks (str) {
@@ -513,8 +505,11 @@ function getParserOptions (attribs) {
 }
 
 function getCode (code, opts, attribs, base) {
-  var type = getType(attribs)
+  var
+    type = getType(attribs),
+    src  = getAttrib(attribs, 'src')
 
+  if (src) return false
   return _compileJS(code, opts, type, getParserOptions(attribs), base)
 }
 
@@ -634,7 +629,7 @@ function compile (src, opts, url) {
         return ''
       }
 
-      return mktag(tagName, html, styles, attribs, jscode, pcex)
+      return mktag(tagName, html, styles, attribs, jscode, opts)
     })
 
   if (opts.entities) return parts

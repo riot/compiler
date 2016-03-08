@@ -15,11 +15,8 @@ var path = require('path')            // used by getCode()
 //#endif
 
 //#set $_RIX_TEST = 4
-//#set $_RIX_PAIR = 8
 //#ifndef $_RIX_TEST
-var
-  $_RIX_TEST = 4,
-  $_RIX_PAIR = 8
+var $_RIX_TEST = 4
 //#endif
 
 /**
@@ -64,7 +61,7 @@ var HTML_COMMS = RegExp(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_LINESTR, 'g')
  *  {@link module:compiler~parseAttribs|parseAttribs}
  * @const {RegExp}
  */
-var HTML_TAGS = /<([-\w]+)(?:\s+([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)(\/?)>/g
+var HTML_TAGS = /<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)(\/?)>/g
 
 /**
  * Matches boolean HTML attributes, prefixed with `"__"` in the riot tag definition.
@@ -147,7 +144,7 @@ function cleanSource (src) {
   }
 
   re.lastIndex = 0
-  while (mm = re.exec(src)) {
+  while ((mm = re.exec(src))) {
     if (mm[0][0] === '<') {
       src = RegExp.leftContext + RegExp.rightContext
       re.lastIndex = mm[3] + 1
@@ -175,7 +172,7 @@ function parseAttribs (str, pcex) {
 
   str = str.replace(/\s+/g, ' ')
 
-  while (match = HTML_ATTRS.exec(str)) {
+  while ((match = HTML_ATTRS.exec(str))) {
     var
       k = match[1].toLowerCase(), // attribute names are forced to lower case
       v = match[2]
@@ -229,17 +226,15 @@ function splitHtml (html, opts, pcex) {
     var
       jsfn = opts.expr && (opts.parser || opts.type) ? _compileJS : 0,
       list = brackets.split(html, 0, _bp),
-      expr, israw
+      expr
 
     for (var i = 1; i < list.length; i += 2) {
       expr = list[i]
       if (expr[0] === '^') {
         expr = expr.slice(1)
       } else if (jsfn) {
-        israw = expr[0] === '='
-        expr = jsfn(israw ? expr.slice(1) : expr, opts).trim()
+        expr = jsfn(expr, opts).trim()
         if (expr.slice(-1) === ';') expr = expr.slice(0, -1)
-        if (israw) expr = '=' + expr
       }
       list[i] = CH_IDEXPR + (pcex.push(expr) - 1) + _bp[1]
     }
@@ -258,20 +253,10 @@ function splitHtml (html, opts, pcex) {
  */
 function restoreExpr (html, pcex) {
   if (pcex.length) {
-    html = html
-      .replace(RE_REPEXPR, function (_, d) {
-        var expr = pcex[d]
-
-        if (expr[0] === '=') {
-          expr = expr.replace(brackets.R_STRINGS, function (qs) {
-            return qs
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-          })
-        }
-        // 2016-01-18: chaining replaces seems most efficient
-        return pcex._bp[0] + expr.trim().replace(/[\r\n]+/g, ' ').replace(/"/g, CH_DQCODE)
-      })
+    html = html.replace(RE_REPEXPR, function (_, d) {
+      // 2016-01-18: chaining replaces seems most efficient
+      return pcex._bp[0] + pcex[d].trim().replace(/[\r\n]+/g, ' ').replace(/"/g, CH_DQCODE)
+    })
   }
   return html
 }
@@ -411,7 +396,7 @@ function riotjs (js) {
   if (~js.indexOf('/')) js = rmComms(js, JS_COMMS)
 
   // 2016-01-18: Faster, only replaces the method name, captured in $1
-  while (match = js.match(JS_ES6SIGN)) {
+  while ((match = js.match(JS_ES6SIGN))) {
     // save the processed part
     parts.push(RE.leftContext)
     js  = RE.rightContext
@@ -433,7 +418,7 @@ function riotjs (js) {
   // 2016-01-18: remove comments without touching qblocks (avoid reallocation)
   function rmComms (s, r, m) {
     r.lastIndex = 0
-    while (m = r.exec(s)) {
+    while ((m = r.exec(s))) {
       if (m[0][0] === '/' && !m[1] && !m[2]) {    // $1:div, $2:regex
         s = RE.leftContext + ' ' + RE.rightContext
         r.lastIndex = m[3] + 1                    // $3:matchOffset
@@ -552,14 +537,16 @@ function scopedCSS (tag, css) {
       }
       // replace the `:scope` pseudo-selector, where it is, with the root tag name;
       // if `:scope` was not included, add the tag name as prefix, and mirror all
-      // to `[riot-tag]`
+      // `[data-is]`
       if (s.indexOf(scope) < 0) {
-        s = tag + ' ' + s + ',[riot-tag="' + tag + '"] ' + s
+        s = tag + ' ' + s + ',[riot-tag="' + tag + '"] ' + s +
+                            ',[data-is="' + tag + '"] ' + s
       } else {
         s = s.replace(scope, tag) + ',' +
-            s.replace(scope, '[riot-tag="' + tag + '"]')
+            s.replace(scope, '[riot-tag="' + tag + '"]') + ',' +
+            s.replace(scope, '[data-is="' + tag + '"]')
       }
-      return sel.slice(-1) === ' ' ? s + ' ' : s // respect (a little) the user style
+      return s
     })
     // add the danling bracket char and return the processed selector list
     return p1 ? p1 + ' ' + p2 : p2
@@ -684,7 +671,7 @@ var MISC_ATTR = '\\s*=\\s*(' + S_STRINGS + '|{[^}]+}|\\S+)'
  * ```
  * @const {RegExp}
  */
-var END_TAGS = /\/>\n|^<(?:\/?[-\w]+\s*|[-\w]+\s+[-\w:\xA0-\xFF][\S\s]*?)>\n/
+var END_TAGS = /\/>\n|^<(?:\/?-?[A-Za-z][-\w\xA0-\xFF]*\s*|-?[A-Za-z][-\w\xA0-\xFF]*\s+[-\w:\xA0-\xFF][\S\s]*?)>\n/
 
 /**
  * Encloses the given string in single quotes.
@@ -706,27 +693,29 @@ function _q (s, r) {
 /**
  * Generates code to call the `riot.tag2` function with the processed parts.
  *
- * @param   {string} name    - The tag name
- * @param   {string} html    - HTML (can contain embeded eols)
- * @param   {string} css     - Styles
- * @param   {string} attribs - Root attributes
- * @param   {string} js      - JavaScript "constructor"
- * @param   {Array}  pcex    - Expressions
+ * @param   {string} name - The tag name
+ * @param   {string} html - HTML (can contain embeded eols)
+ * @param   {string} css  - Styles
+ * @param   {string} attr - Root attributes
+ * @param   {string} js   - JavaScript "constructor"
+ * @param   {object} opts - Compiler options
  * @returns {string} Code to call `riot.tag2`
  */
-function mktag (name, html, css, attribs, js, pcex) {
+function mktag (name, html, css, attr, js, opts) {
   var
-    c = ', ',
-    s = '}' + (pcex.length ? ', ' + _q(pcex._bp[$_RIX_PAIR]) : '') + ');'
+    c = opts.debug ? ',\n  ' : ', ',
+    s = '});'
 
   // give more consistency to the output
   if (js && js.slice(-1) !== '\n') s = '\n' + s
 
+  html = _q(html, 1)
+  css  = _q(css)
+  attr = _q(attr)
+
   // 2016-01-18: html can contain eols if opts.whitespace=1, fix with q(s,1)
   return 'riot.tag2(\'' + name + SQ +
-    c + _q(html, 1) +
-    c + _q(css) +
-    c + _q(attribs) + ', function(opts) {\n' + js + s
+    c + html + c + css + c + attr + ', function(opts) {\n' + js + s
 }
 
 /**
@@ -819,11 +808,11 @@ function getParserOptions (attribs) {
  * @returns {string} Parsed code
  */
 function getCode (code, opts, attribs, base) {
-  var type = getType(attribs)
+  var
+    type = getType(attribs),
+    src  = getAttrib(attribs, 'src')
 
   //#if NODE
-  var src = getAttrib(attribs, 'src')
-
   if (src) {
     if (DEFER_ATTR.test(attribs)) return false
 
@@ -832,6 +821,8 @@ function getCode (code, opts, attribs, base) {
 
     code = require('fs').readFileSync(file, charset || 'utf8')
   }
+  //#else
+  if (src) return false
   //#endif
   return _compileJS(code, opts, type, getParserOptions(attribs), base)
 }
@@ -1046,7 +1037,7 @@ function compile (src, opts, url) {
       }
 
       // replace the tag with a call to the riot.tag2 function and we are done
-      return mktag(tagName, html, styles, attribs, jscode, pcex)
+      return mktag(tagName, html, styles, attribs, jscode, opts)
     })
 
   // if "entities" return the array of objects of the extraced parts

@@ -4,4 +4,4 @@
 // UPDATE: hack NOT NECESSARY with the 0 indent restriction.
 riot.tag2('treeitem', '<div class="{bold: isFolder()}" onclick="{toggle}" ondblclick="{changeType}"> {name} <span if="{isFolder()}">[{open ? \'-\' : \'+\'}]</span> </div> <ul if="{isFolder()}" show="{isFolder() && open}"> <li each="{child, i in nodes}"> <treeitem data="{child}"></treeitem> </li> <li onclick="{addChild}">+</li> </ul>', '', '', function(opts) {
   var self = this
-}, '{ }');
+});

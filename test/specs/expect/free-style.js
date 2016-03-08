@@ -14,6 +14,6 @@ click(1)
       bar( {} )
     }
     .bind (this)
-}, '{ }');
+});
 
 // done

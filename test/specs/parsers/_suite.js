@@ -109,8 +109,9 @@ describe('JavaScript parsers', function () {
   it('complex tag structure', function () {
     if (have('none')) {   // testing none, for coverage too
       testParser('complex')
+    } else {
+      expect().fail('parsers.js must have a "none" property')
     }
-    else expect().fail('parsers.js must have a "none" property')
   })
 
   // test.tag
@@ -126,8 +127,9 @@ describe('JavaScript parsers', function () {
   it('mixed riotjs and javascript types', function () {
     if (have('javascript')) {   // for js, for coverage too
       testParser('mixed-js')
+    } else {
+      expect().fail('parsers.js must have a "javascript" property')
     }
-    else expect().fail('parsers.js must have a "javascript" property')
   })
 
   // test.coffee.tag
@@ -301,12 +303,13 @@ describe('Other', function () {
     testParser('brackets', { brackets: '${ }' })
   })
 
+  /*
   it('emiting raw html through the `=` flag, with parser', function () {
     // custom parser
     parsers.js.rawhtml = function (js) {
       return js.replace(/"/g, '&quot;')
     }
     testParser('raw', { type: 'rawhtml', expr: true })
-  })
+  })*/
 
 })

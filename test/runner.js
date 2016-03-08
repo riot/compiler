@@ -8,5 +8,5 @@ describe('Compiler Tests', function () {
   require('./specs/css')
   require('./specs/js')
   require('./specs/tag')
-  require('./specs/parsers/suite')
+  require('./specs/parsers/_suite')
 })

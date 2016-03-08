@@ -6,4 +6,4 @@ riot.tag2('content', '<div class="box"> <h1>{box.title}</h1> <img riot-src="{box
       image: "http://trinixy.ru/pics5/20130614/podb_07.jpg",
       body: "It is when SO!"
   }
-}, '{ }');
+});

@@ -132,6 +132,7 @@ describe('Compile HTML', function () {
       }
     })
 
+    /*
     it('raw html detection through the `=` flag', function () {
       testStr(
         '<p>{= \'<\' + myElem + \' style="color: \' + myColor + \';">\\n Click me</\' + myElem + \'>\'}</p>',
@@ -139,7 +140,7 @@ describe('Compile HTML', function () {
       testStr(
         '<ul><li>{= ["foo", "bar"].join(\'<br/>\') }</li></ul>',
         '<ul><li>{= [\u2057foo\u2057, \u2057bar\u2057].join(\'&lt;br/&gt;\')}</li></ul>')
-    })
+    })*/
 
     it('new compiler.html API allows omit the options (v2.3.20)', function () {
       var js, ex = []

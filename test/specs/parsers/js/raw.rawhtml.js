@@ -7,4 +7,4 @@ riot.tag2('raw-html', '<p>{=[address1,address2].join(\'&lt;br&gt;\')}</p> <p onc
   swap() {
     this.myElem = this.myElem === 'span' ? 'p' : 'span'
   }
-}, '{ }');
+});
