@@ -174,7 +174,7 @@ describe('JavaScript parsers', function () {
     }
   })
 
-  // test.random.tag
+  // test.custom.tag
   it('custom js parser', function () {
     parsers.js.custom = _custom
     testParser('test', { type: 'custom' })
