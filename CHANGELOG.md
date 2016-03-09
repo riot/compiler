@@ -1,5 +1,17 @@
 # Compiler Changes
 
+### v2.3.23
+- The parsers are moved to its own directory in the node version. The load is on first use.
+- Fix [riot#1325](https://github.com/riot/riot/issues/1325) : Gulp + Browserify + Babelify + type="es6" error.
+- Fix [riot#1342](https://github.com/riot/riot/issues/1342), [riot#1636](https://github.com/riot/riot/issues/1636) and request from [dwyl/learn-riot#8](https://github.com/dwyl/learn-riot/issues/8) : Server-Side Rendered Page Fails W3C Check. The new `data-is` attribute is used for scoped styles in addition to `riot-tag` (the later will be removed in compiler v3.x)
+- The keyword `defer` in `<script src=file>` avoids that the compiler loads the file, preserving the tag - Requested by [riot#1492](https://github.com/riot/riot/issues/1492) : Stop script tags from being evaluated with serverside `riot.render`. It is removed in client-side compilation because browsers will not load scripts through innerHTML.
+- It has changed the character used to hide expressions during the compilation, maybe this fix [riot#1588](https://github.com/riot/riot/issues/1588) : Syntax Error: Invalid character `\0129` (riot+compiler.min).
+- The option `debug` inserts newlines between the `riot.tag2` parameters and the call is prefixed with the source filename - Requested by [riot#1646](https://github.com/riot/riot/issues/1646) : Split portions of generated html with newline instead of space
+- Removed the unused parameter with the compiled-time brackets from the call to `riot.tag2`.
+- Removed support for raw expressions. It is unlikely this feature will be implemented in v2.3.x
+- Updated the regex that is used to match tag names, more closer to the HTML5 specs.
+- Update devDependencies.
+
 ### v2.3.22
 - Fix [riot#1511](https://github.com/riot/riot/issues/1511) : Escape Quotes - They may be some issues to fix.
 - Regression of logic to parse style and script tags, due to loss of performance and other issues.

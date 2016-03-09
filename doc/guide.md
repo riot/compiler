@@ -62,7 +62,7 @@ If there's no HTML tags within the root tag, riot assumes that the content is Ja
 </my-tag>
 ```
 
-This may seem counterintuitive, but complies with the riot specification for [untagged JavaScript blocks](the-untagged-javascript-block).
+This may seem counterintuitive, but complies with the riot specification for [untagged JavaScript blocks](#the-untagged-javascript-block).
 
 
 ### Whitespace
@@ -261,11 +261,25 @@ The resulting block is enclosed in a function, executed at mount time in the tag
 
 ### Loading JavaScript from the File System (v2.3.13)
 
-The `src` attribute of the `script` tags inside a riot tag, allows load source files from the file system.
+The `src` attribute of the `script` tags inside a riot tag allows load source files from the file system.
 
 The filename in `src` can be absolute or relative. If you pass a third parameter to the `compile` function with the full name of the file being compiled, relative paths will be resolved from this name, if not, these will be relative to the current working directory (as returned by `proccess.cwd()`).
 
-JavaScript type defaults to the `type` specified in the options passed to the compiler. If you don't want the code to be parsed, use `type="none"`.
+Without a `type=` directive, the JavaScript parser defaults to the `type` specified in the options passed to the compiler. If you don't want the code to be parsed, use `type="none"`.
+
+If you just want to get the `script` tag rendered, keeping the `type`
+attribute and the tag contents untouched, you should then use the `defer` 
+attribute.
+
+The `defer` attribute is used to avoid the processing of the `script` tag
+during the Riot compile time, which would threat them as 'code to be
+evaluated'. This will be deferred to happen just on the final renderer context
+(e.g. Web Browsers).
+This can be useful for example on Server Side Rendering (SSR) of plain
+old HTML files. Riot Tags in this context would include some logic inside
+`script` tags designed to be run on just on the Client (e.g. To provide
+animations). The original `defer` attribute is also removed during the
+rendering of the final emitted  `script` tag.
 
 The encoding is specified by the `charset` attribute. It defaults to `utf8`.
 
@@ -273,8 +287,15 @@ Example:
 ```js
 var compile = require('riot-compile'),
     fs = require('fs')
-var source = fs.readFileSync(full_filename, 'utf8')
-var result = compiler.compile(source, options, full_filename)
+var tagfile = 'src/mytag.tag',
+    outfile = 'js/mytag.js',
+    options = {}
+
+fs.readFile(tagfile, function (err, source) {
+  if (err) throw err
+  var js = compiler.compile(source, options, tagfile)
+  fs.writeFile(outfile, js)
+})
 ```
 
 So, if you have a js/data.js loaded by a mytag.tag file...
@@ -302,6 +323,12 @@ the result is equivalent to
   this.title = APP_NAME
 </my-tag>
 ```
+
+To avoid the compiler load the code from the file, include the keyword `defer` in the tag:
+```html
+  <script src="js/data.js" defer></script>
+```
+with this, the `<script>` is retained in the html, with the keyword `defer` removed.
 
 **Note:** You cannot nest `<script>` elements.
 

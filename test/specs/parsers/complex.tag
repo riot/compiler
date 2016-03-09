@@ -8,14 +8,12 @@ var outer = 'js'
   if (a > b) { /* comment */ }
 </tag>
 
-<2nd>
+<-t2>
   <p/>
 
   foo() {
-
     this.update()
   }
-</2nd>
+</-t2>
 
 var after = 'js2 <html>'
-

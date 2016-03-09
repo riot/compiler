@@ -8,7 +8,8 @@
 var
   path = require('path'),
   fs   = require('fs'),
-  norm = require('../helpers').normalizeJS
+  norm    = require('../helpers').normalizeJS,
+  reqname = require('../helpers').requireName
 
 var
   fixtures = __dirname,
@@ -19,7 +20,7 @@ function have (mod, req) {
   if (parsers._req(mod, req)) return true
 
   if (mod !== 'unknown') {
-    if (!req) req = parsers._modname(mod)
+    if (!req) req = reqname(mod)
     console.error('\tnot installed locally: ' + req + ' alias "' + mod + '"')
   }
   return false
@@ -108,8 +109,9 @@ describe('JavaScript parsers', function () {
   it('complex tag structure', function () {
     if (have('none')) {   // testing none, for coverage too
       testParser('complex')
+    } else {
+      expect().fail('parsers.js must have a "none" property')
     }
-    else expect().fail('parsers.js must have a "none" property')
   })
 
   // test.tag
@@ -125,8 +127,9 @@ describe('JavaScript parsers', function () {
   it('mixed riotjs and javascript types', function () {
     if (have('javascript')) {   // for js, for coverage too
       testParser('mixed-js')
+    } else {
+      expect().fail('parsers.js must have a "javascript" property')
     }
-    else expect().fail('parsers.js must have a "javascript" property')
   })
 
   // test.coffee.tag
@@ -171,7 +174,7 @@ describe('JavaScript parsers', function () {
     }
   })
 
-  // test.random.tag
+  // test.custom.tag
   it('custom js parser', function () {
     parsers.js.custom = _custom
     testParser('test', { type: 'custom' })
@@ -181,7 +184,6 @@ describe('JavaScript parsers', function () {
   it('the javascript parser is an alias of "none" and does nothing', function () {
     var code = 'fn () {\n}\n'
 
-    expect(parsers._modname('javascript')).to.be('none')
     expect(parsers.js.javascript(code)).to.be(code)
   })
 
@@ -301,12 +303,13 @@ describe('Other', function () {
     testParser('brackets', { brackets: '${ }' })
   })
 
+  /*
   it('emiting raw html through the `=` flag, with parser', function () {
     // custom parser
     parsers.js.rawhtml = function (js) {
       return js.replace(/"/g, '&quot;')
     }
     testParser('raw', { type: 'rawhtml', expr: true })
-  })
+  })*/
 
 })

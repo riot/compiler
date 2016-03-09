@@ -2,4 +2,4 @@ riot.tag2('includes-defer', '<p onclick="{click}"></p> <script src="riotjs.objec
 
     this.click = function (e)
     {foo ({})}.bind(this)
-}, '{ }');
+});
