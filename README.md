@@ -1,5 +1,5 @@
 [![Build Status][travis-image]][travis-url]
-[![Code Quality][codeclimate-image]][codeclimate-url]
+[![Issue Count][codeclimate-image]][codeclimate-url]
 [![Coverage Status][coverage-image]][coverage-url]
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-url]
@@ -38,12 +38,12 @@ Due to changes in the babel API, from our v2.3.0 we are separating the babel sup
 
 [travis-image]:  https://img.shields.io/travis/riot/compiler.svg?style=flat-square
 [travis-url]:    https://travis-ci.org/riot/compiler
-[license-image]: http://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
+[license-image]: https://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
 [license-url]:   LICENSE.txt
-[npm-version-image]:   http://img.shields.io/npm/v/riot-compiler.svg?style=flat-square
-[npm-downloads-image]: http://img.shields.io/npm/dm/riot-compiler.svg?style=flat-square
+[npm-version-image]:   https://img.shields.io/npm/v/riot-compiler.svg?style=flat-square
+[npm-downloads-image]: https://img.shields.io/npm/dm/riot-compiler.svg?style=flat-square
 [npm-url]:             https://npmjs.org/package/riot-compiler
-[coverage-image]:    https://img.shields.io/coveralls/riot/compiler/master.svg?style=flat-square
-[coverage-url]:      https://coveralls.io/r/riot/compiler/?branch=master
-[codeclimate-image]: https://codeclimate.com/github/riot/compiler/badges/gpa.svg
+[coverage-image]:    https://codeclimate.com/github/riot/compiler/badges/coverage.svg
+[coverage-url]:      https://codeclimate.com/github/riot/compiler/coverage
+[codeclimate-image]: https://codeclimate.com/github/riot/compiler/badges/issue_count.svg
 [codeclimate-url]:   https://codeclimate.com/github/riot/compiler
