@@ -20,8 +20,8 @@ DIST = "./dist/"
 # default job
 test: build test-mocha
 
-build: pre-build eslint
-	# rebuild all
+build: eslint pre-build
+	# build riot and es6 versions
 	@ $(JSPP) $(JSPP_RIOT_FLAGS) src/_riot.js > $(DIST)riot.compiler.js
 	@ $(JSPP) $(JSPP_ES6_FLAGS)  src/_es6.js  > $(DIST)es6.compiler.js
 

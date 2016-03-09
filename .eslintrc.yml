@@ -25,7 +25,7 @@ ecmaFeatures:
     ###########################################################################
 
 globals:
-    "riot": false
+    riot: false
 
     ###########################################################################
     #   RECOMMENDED PRESET - mainly for possible errors                       #
@@ -75,7 +75,7 @@ rules:
     no-new-wrappers: 2          # disallow creating new instances of String, Number, and Boolean (Default: 0)
     no-octal-escape: 2          # disallow use of octal escape sequences in string literals, such as `"Copyright \251"` (Default: 0)
     no-proto: 2                 # disallow usage of __proto__ property (Default: 0)
-    no-return-assign: 2         # disallow use of assignment in return statement (Default: 0)
+    no-return-assign: 1         # disallow use of assignment in return statement (Default: 0)
     no-script-url: 2            # disallow use of javascript urls (Default: 0)
     no-self-compare: 2          # disallow comparisons where both sides are exactly the same (Default: 0)
     no-sequences: 2             # disallow use of comma operator (Default: 0)
@@ -156,5 +156,4 @@ rules:
     space-infix-ops: [2, {"int32Hint": false}]
                                 # require spaces around infix operators, expect for `var|0` (Default: 0)
     space-unary-ops: 2          # require spaces after new, delete, typeof, void, yield, disallow spaces for ++, --, etc
-    object-curly-spacing: [2, "always"]
-                                # require spaces inside brackets
+    object-curly-spacing: [2, "always", { "objectsInObjects": false }] # require spaces inside brackets

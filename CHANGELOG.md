@@ -8,7 +8,7 @@
 - The option `debug` inserts newlines between the `riot.tag2` parameters and the call is prefixed with the source filename - Requested by [riot#1646](https://github.com/riot/riot/issues/1646) : Split portions of generated html with newline instead of space
 - Removed the unused parameter with the compiled-time brackets from the call to `riot.tag2`.
 - Removed support for raw expressions. It is unlikely this feature will be implemented in v2.3.x
-- Updated the regex that is used to match tag names, more closer to the HTML specs.
+- Updated the regex that is used to match tag names, more closer to the HTML5 specs.
 - Update devDependencies.
 
 ### v2.3.22

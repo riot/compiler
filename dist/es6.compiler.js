@@ -108,6 +108,8 @@ var HTML_COMMS = RegExp(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_LINESTR, 'g')
 
 var HTML_TAGS = /<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)(\/?)>/g
 
+var HTML_PACK = />[ \t]+<(-?[A-Za-z]|\/[-A-Za-z])/g
+
 var BOOL_ATTRS = RegExp(
     '^(?:disabled|checked|readonly|required|allowfullscreen|auto(?:focus|play)|' +
     'compact|controls|default|formnovalidate|hidden|ismap|itemscope|loop|' +
@@ -259,7 +261,7 @@ function _compileHTML (html, opts, pcex) {
     if (p.length) html = html.replace(/\u0002/g, function () { return p.shift() })
   }
 
-  if (opts.compact) html = html.replace(/>[ \t]+<([-\w\/])/g, '><$1')
+  if (opts.compact) html = html.replace(HTML_PACK, '><$1')
 
   return restoreExpr(html, pcex).replace(TRIM_TRAIL, '')
 }
@@ -532,7 +534,7 @@ function compileTemplate (html, url, lang, opts) {
 
 var
 
-  CUST_TAG = RegExp(/^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
+  CUST_TAG = RegExp(/^([ \t]*)<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^'"\/>]+(?:(?:@|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
     .source.replace('@', S_STRINGS), 'gim'),
 
   SCRIPTS = /<script(\s+[^>]*)?>\n?([\S\s]*?)<\/script\s*>/gi,

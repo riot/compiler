@@ -64,6 +64,13 @@ var HTML_COMMS = RegExp(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_LINESTR, 'g')
 var HTML_TAGS = /<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)(\/?)>/g
 
 /**
+ * Matches spaces and tabs between HTML tags
+ * Used by the `compact` option.
+ * @const RegExp
+ */
+var HTML_PACK = />[ \t]+<(-?[A-Za-z]|\/[-A-Za-z])/g
+
+/**
  * Matches boolean HTML attributes, prefixed with `"__"` in the riot tag definition.
  * Used by {@link module:compiler~parseAttribs|parseAttribs} with lowercase names.
  * With a long list like this, a regex is faster than `[].indexOf` in most browsers.
@@ -310,7 +317,7 @@ function _compileHTML (html, opts, pcex) {
   }
 
   // for `opts.compact`, remove tabs and spaces between tags
-  if (opts.compact) html = html.replace(/>[ \t]+<([-\w\/])/g, '><$1')
+  if (opts.compact) html = html.replace(HTML_PACK, '><$1')
 
   // 2016-01-16: new logic in compile makes necessary another TRIM_TRAIL
   return restoreExpr(html, pcex).replace(TRIM_TRAIL, '')
@@ -879,7 +886,7 @@ var
    * unquoted expressions, but disallows the character '>' within unquoted attribute values.
    * @const {RegExp}
    */
-  CUST_TAG = RegExp(/^([ \t]*)<([-\w]+)(?:\s+([^'"\/>]+(?:(?:@|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
+  CUST_TAG = RegExp(/^([ \t]*)<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^'"\/>]+(?:(?:@|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
     .source.replace('@', S_STRINGS), 'gim'),
   /**
    * Matches `script` elements, capturing its attributes in $1 and its content in $2.
