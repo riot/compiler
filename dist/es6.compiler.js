@@ -1,6 +1,6 @@
 /**
  * Compiler for riot custom tags
- * @version WIP
+ * @version v2.3.23
  */
 
 import { brackets } from 'riot-tmpl'
@@ -637,7 +637,7 @@ function compile (src, opts, url) {
   return src
 }
 
-var version = 'WIP'
+var version = 'v2.3.23'
 
 export default {
   compile,
