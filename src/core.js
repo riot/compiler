@@ -789,13 +789,27 @@ function getAttrib (attribs, name) {
 }
 
 /**
+ * Unescape any html string
+ * @param   {string} str escaped html string
+ * @returns {string} unescaped html string
+ */
+function unescapeHTML (str) {
+  return str
+          .replace('&amp;', /&/g)
+          .replace('&lt;', /</g)
+          .replace('&gt;', />/g)
+          .replace('&quot;', /"/g)
+          .replace('&#039;', /'/g)
+}
+
+/**
  * Gets the parser options from the "options" attribute.
  *
  * @param   {string} attribs - The attribute list
  * @returns {object} Parsed options, or null if no options
  */
 function getParserOptions (attribs) {
-  var opts = getAttrib(attribs, 'options')
+  var opts = unescapeHTML(getAttrib(attribs, 'options'))
 
   // convert the string into a valid js object
   return opts ? JSON.parse(opts) : null

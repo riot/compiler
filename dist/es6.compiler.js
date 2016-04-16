@@ -1,6 +1,6 @@
 /**
  * Compiler for riot custom tags
- * @version v2.3.23
+ * @version WIP
  */
 
 import { brackets } from 'riot-tmpl'
@@ -498,8 +498,17 @@ function getAttrib (attribs, name) {
   return ''
 }
 
+function unescapeHTML (str) {
+  return str
+          .replace('&amp;', /&/g)
+          .replace('&lt;', /</g)
+          .replace('&gt;', />/g)
+          .replace('&quot;', /"/g)
+          .replace('&#039;', /'/g)
+}
+
 function getParserOptions (attribs) {
-  var opts = getAttrib(attribs, 'options')
+  var opts = unescapeHTML(getAttrib(attribs, 'options'))
 
   return opts ? JSON.parse(opts) : null
 }
@@ -637,7 +646,7 @@ function compile (src, opts, url) {
   return src
 }
 
-var version = 'v2.3.23'
+var version = 'WIP'
 
 export default {
   compile,

@@ -92,7 +92,7 @@ riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version v2.3.23
+ * @version WIP
  */
 var compile = (function () {
 
@@ -496,8 +496,17 @@ var compile = (function () {
     return ''
   }
 
+  function unescapeHTML (str) {
+    return str
+            .replace('&amp;', /&/g)
+            .replace('&lt;', /</g)
+            .replace('&gt;', />/g)
+            .replace('&quot;', /"/g)
+            .replace('&#039;', /'/g)
+  }
+
   function getParserOptions (attribs) {
-    var opts = getAttrib(attribs, 'options')
+    var opts = unescapeHTML(getAttrib(attribs, 'options'))
 
     return opts ? JSON.parse(opts) : null
   }
@@ -640,7 +649,7 @@ var compile = (function () {
     html: compileHTML,
     css: compileCSS,
     js: compileJS,
-    version: 'v2.3.23'
+    version: 'WIP'
   }
   return compile
 
