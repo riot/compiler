@@ -108,12 +108,6 @@ var compile = (function () {
 
   var HTML_PACK = />[ \t]+<(-?[A-Za-z]|\/[-A-Za-z])/g
 
-  var BOOL_ATTRS = RegExp(
-      '^(?:disabled|checked|readonly|required|allowfullscreen|auto(?:focus|play)|' +
-      'compact|controls|default|formnovalidate|hidden|ismap|itemscope|loop|' +
-      'multiple|muted|no(?:resize|shade|validate|wrap)?|open|reversed|seamless|' +
-      'selected|sortable|truespeed|typemustmatch)$')
-
   var RIOT_ATTRS = ['style', 'src', 'd']
 
   var VOID_TAGS = /^(?:input|img|br|wbr|hr|area|base|col|embed|keygen|link|meta|param|source|track)$/
@@ -180,7 +174,6 @@ var compile = (function () {
           if (RE_HASEXPR.test(v)) {
 
             if (k === 'value') vexp = 1
-            else if (BOOL_ATTRS.test(k)) k = '__' + k
             else if (~RIOT_ATTRS.indexOf(k)) k = 'riot-' + k
           }
 

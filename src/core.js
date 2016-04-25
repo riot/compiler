@@ -71,19 +71,6 @@ var HTML_TAGS = /<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^"'\/>]*(?:(?:"[^"]*"|'[^']
 var HTML_PACK = />[ \t]+<(-?[A-Za-z]|\/[-A-Za-z])/g
 
 /**
- * Matches boolean HTML attributes, prefixed with `"__"` in the riot tag definition.
- * Used by {@link module:compiler~parseAttribs|parseAttribs} with lowercase names.
- * With a long list like this, a regex is faster than `[].indexOf` in most browsers.
- * @const {RegExp}
- * @see [attributes.md](https://github.com/riot/compiler/blob/dev/doc/attributes.md)
- */
-var BOOL_ATTRS = RegExp(
-    '^(?:disabled|checked|readonly|required|allowfullscreen|auto(?:focus|play)|' +
-    'compact|controls|default|formnovalidate|hidden|ismap|itemscope|loop|' +
-    'multiple|muted|no(?:resize|shade|validate|wrap)?|open|reversed|seamless|' +
-    'selected|sortable|truespeed|typemustmatch)$')
-
-/**
  * These attributes give error when parsed on browsers with an expression in its value.
  * Ex: `<img src={ exrp_value }>`.
  * Used by {@link module:compiler~parseAttribs|parseAttribs} with lowercase names only.
@@ -198,7 +185,6 @@ function parseAttribs (str, pcex) {
         if (RE_HASEXPR.test(v)) {
           // renames special attributes with expressiones in their value.
           if (k === 'value') vexp = 1
-          else if (BOOL_ATTRS.test(k)) k = '__' + k
           else if (~RIOT_ATTRS.indexOf(k)) k = 'riot-' + k
         }
         // join the key-value pair, with no spaces between the parts

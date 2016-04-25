@@ -23,12 +23,6 @@ describe('Compile HTML', function () {
     testStr('<p style="left:0; top={ n }">', '<p riot-style="left:0; top={n}">')
   })
 
-  it('adds the prefix `__` to boolean attributes with expressions', function () {
-    testStr('<a disabled={ a } nowrap="{ b }">', '<a __disabled="{a}" __nowrap="{b}">')
-    testStr('<a disabled readonly={}>', '<a disabled __readonly="{}">')
-    testStr('<a readonly=readonly autofocus={1}>', '<a readonly="readonly" __autofocus="{1}">')
-  })
-
   it('adds double quotes to the attribute value', function () {
     testStr('<a a={ a }>', '<a a="{a}">')
     testStr("<a a='{ a }'>", '<a a="{a}">')
