@@ -12,6 +12,7 @@ branches:
 
 install:
   - npm i jade
+  - npm i pug
   - npm i babel@5.8
   - npm i babel-core
 
