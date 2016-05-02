@@ -24,15 +24,25 @@ var parsers = (function () {
     return obj
   }
 
+  function renderPug (compilerName, html, opts, url) {
+    opts = extend({
+      pretty: true,
+      filename: url,
+      doctype: 'html'
+    }, opts)
+    return _req(compilerName).render(html, opts)
+  }
+
   var _p = {
     html: {
       jade: function (html, opts, url) {
-        opts = extend({
-          pretty: true,
-          filename: url,
-          doctype: 'html'
-        }, opts)
-        return _req('jade').render(html, opts)
+        /* eslint-disable */
+        console.log('DEPRECATION WARNING: jade was renamed "pug" - the jade parser will be removed in riot@3.0.0!')
+        /* eslint-enable */
+        return renderPug('jade', html, opts, url)
+      },
+      pug: function (html, opts, url) {
+        return renderPug('pug', html, opts, url)
       }
     },
 

@@ -61,6 +61,12 @@ describe('HTML parsers', function () {
       testParser('slide.jade', { template: 'jade' })
     }
   })
+  it('pug', function () {
+    if (have('pug') && have('coffee')) {
+      testParser('test.pug', { template: 'pug' })
+      testParser('slide.pug', { template: 'pug' })
+    }
+  })
 
   describe('Custom parser in expressions', function () {
     var opts = {
