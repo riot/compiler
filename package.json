@@ -30,10 +30,10 @@
     "compiler"
   ],
   "devDependencies": {
-    "coveralls": "^2.11.8",
-    "eslint": "^2.2.0",
+    "coveralls": "^2.11.9",
+    "eslint": "^2.9.0",
     "expect.js": "^0.3.1",
-    "istanbul": "^0.4.2",
+    "istanbul": "^0.4.3",
     "jspreproc": "^0.2.7",
     "mocha": "^2.4.5",
     "riot-bump": "^1.0.0"
