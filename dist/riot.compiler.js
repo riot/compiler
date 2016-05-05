@@ -94,7 +94,7 @@ var parsers = (function () {
   _p.js.javascript   = _p.js.none
   _p.js.coffeescript = _p.js.coffee
 
-  _p.util = {
+  _p.utils = {
     extend: extend
   }
 
@@ -110,7 +110,9 @@ riot.parsers = parsers
  */
 var compile = (function () {
 
-  var extend = parsers.util.extend
+  var extend
+
+  extend = parsers.utils.extend
 
   var S_LINESTR = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
 
