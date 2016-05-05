@@ -2,8 +2,8 @@
 
 ### v2.4.0
 
-- Add the `pug` parser that in the next major release will replace completely `jade`
-- Add the possibility to pass custom parser options directly to the `compiler.compile` method [more info](https://github.com/riot/compiler/issues/64)
+- Add the `pug` parser (it will replace completely `jade` in the next major release)
+- Add the possibility to pass custom parsers options directly via the `compiler.compile` method through the `parserOptions: {js: {}, template: {}, style: {}}` key [more info](https://github.com/riot/compiler/issues/64)
 - Fix un-escape parser options in html [more info](https://github.com/riot/compiler/issues/63)
 
 ### v2.3.23
