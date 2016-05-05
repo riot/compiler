@@ -1,6 +1,6 @@
 /**
  * Compiler for riot custom tags
- * @version v2.4.0
+ * @version WIP
  */
 
 import { brackets } from 'riot-tmpl'
@@ -111,9 +111,11 @@ var parsers = (function () {
 /**
  * @module compiler
  */
-var extend
 
-extend = parsers.utils.extend
+/* eslint-disable */
+
+var extend = parsers.utils.extend
+/* eslint-enable */
 
 var S_LINESTR = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
 
@@ -517,11 +519,11 @@ function getAttrib (attribs, name) {
 
 function unescapeHTML (str) {
   return str
-          .replace('&amp;', /&/g)
-          .replace('&lt;', /</g)
-          .replace('&gt;', />/g)
-          .replace('&quot;', /"/g)
-          .replace('&#039;', /'/g)
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, '\'')
 }
 
 function getParserOptions (attribs) {
@@ -681,7 +683,7 @@ function compile (src, opts, url) {
   return src
 }
 
-var version = 'v2.4.0'
+var version = 'WIP'
 
 export default {
   compile,

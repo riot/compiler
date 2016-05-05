@@ -12,13 +12,15 @@ var brackets = require('./brackets')
 var parsers = require('./parsers')
 var path = require('path') // used by getCode()
 //#endif
-var extend
+
+/* eslint-disable */
 //#if NODE
-extend = require('./parsers/_utils').mixobj
+var extend = require('./parsers/_utils').mixobj
 //#else
 // shortcut to enable the use of the parsers util methods
-extend = parsers.utils.extend
+var extend = parsers.utils.extend
 //#endif
+/* eslint-enable */
 
 //#set $_RIX_TEST = 4
 //#ifndef $_RIX_TEST
@@ -801,11 +803,11 @@ function getAttrib (attribs, name) {
  */
 function unescapeHTML (str) {
   return str
-          .replace('&amp;', /&/g)
-          .replace('&lt;', /</g)
-          .replace('&gt;', />/g)
-          .replace('&quot;', /"/g)
-          .replace('&#039;', /'/g)
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, '\'')
 }
 
 /**
