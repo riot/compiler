@@ -106,13 +106,14 @@ riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version v2.4.0
+ * @version WIP
  */
 var compile = (function () {
 
-  var extend
+  /* eslint-disable */
 
-  extend = parsers.utils.extend
+  var extend = parsers.utils.extend
+  /* eslint-enable */
 
   var S_LINESTR = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
 
@@ -516,11 +517,11 @@ var compile = (function () {
 
   function unescapeHTML (str) {
     return str
-            .replace('&amp;', /&/g)
-            .replace('&lt;', /</g)
-            .replace('&gt;', />/g)
-            .replace('&quot;', /"/g)
-            .replace('&#039;', /'/g)
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#039;/g, '\'')
   }
 
   function getParserOptions (attribs) {
@@ -685,7 +686,7 @@ var compile = (function () {
     html: compileHTML,
     css: compileCSS,
     js: compileJS,
-    version: 'v2.4.0'
+    version: 'WIP'
   }
   return compile
 
