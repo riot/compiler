@@ -94,6 +94,10 @@ var parsers = (function () {
   _p.js.javascript   = _p.js.none
   _p.js.coffeescript = _p.js.coffee
 
+  _p.util = {
+    extend: extend
+  }
+
   return _p
 
 })()
@@ -105,6 +109,10 @@ riot.parsers = parsers
  * @version WIP
  */
 var compile = (function () {
+
+  var extend
+
+  extend = parsers.util.extend
 
   var S_LINESTR = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
 
@@ -524,18 +532,28 @@ var compile = (function () {
   function getCode (code, opts, attribs, base) {
     var
       type = getType(attribs),
-      src  = getAttrib(attribs, 'src')
+      src  = getAttrib(attribs, 'src'),
+      jsParserOptions = extend({}, opts.parserOptions.js)
 
     if (src) return false
-    return _compileJS(code, opts, type, getParserOptions(attribs), base)
+
+    return _compileJS(
+            code,
+            opts,
+            type,
+            extend(jsParserOptions, getParserOptions(attribs)),
+            base
+          )
   }
 
   function cssCode (code, opts, attribs, url, tag) {
-    var extraOpts = {
-      parserOpts: getParserOptions(attribs),
-      scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
-      url: url
-    }
+    var
+      parserStyleOptions = extend({}, opts.parserOptions.style),
+      extraOpts = {
+        parserOpts: extend(parserStyleOptions, getParserOptions(attribs)),
+        scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
+        url: url
+      }
 
     return _compileCSS(code, tag, getType(attribs) || opts.style, extraOpts)
   }
@@ -561,9 +579,17 @@ var compile = (function () {
   function compile (src, opts, url) {
     var
       parts = [],
-      included
+      included,
+      defaultParserptions = {
+
+        template: {},
+        js: {},
+        style: {}
+      }
 
     if (!opts) opts = {}
+
+    opts.parserOptions = extend(defaultParserptions, opts.parserOptions || {})
 
     included = opts.exclude
       ? function (s) { return opts.exclude.indexOf(s) < 0 } : function () { return 1 }
@@ -573,7 +599,7 @@ var compile = (function () {
     var _bp = brackets.array(opts.brackets)
 
     if (opts.template) {
-      src = compileTemplate(src, url, opts.template, opts.templateOptions)
+      src = compileTemplate(src, url, opts.template, opts.parserOptions.template)
     }
 
     src = cleanSource(src)

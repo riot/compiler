@@ -114,6 +114,10 @@ var parsers = (function () {
   _p.js.javascript   = _p.js.none
   _p.js.coffeescript = _p.js.coffee   // 4 the nostalgics
 
+  _p.util = {
+    extend: extend
+  }
+
   return _p
 
 })()

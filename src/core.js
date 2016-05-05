@@ -5,13 +5,20 @@
  * @module compiler
  * @version WIP
  * @license MIT
- * @copyright 2015 Muut Inc. + contributors
+ * @copyright Muut Inc. + contributors
  */
 'use strict'
-
 var brackets = require('./brackets')
 var parsers = require('./parsers')
-var path = require('path')            // used by getCode()
+var path = require('path') // used by getCode()
+//#endif
+var extend
+//#if NODE
+// prefer the Object assign method 100% supported in node
+extend = Object.assign
+//#else
+// shortcut to enable the use of the parsers util methods
+extend = parsers.util.extend
 //#endif
 
 //#set $_RIX_TEST = 4
@@ -829,7 +836,8 @@ function getParserOptions (attribs) {
 function getCode (code, opts, attribs, base) {
   var
     type = getType(attribs),
-    src  = getAttrib(attribs, 'src')
+    src  = getAttrib(attribs, 'src'),
+    jsParserOptions = extend({}, opts.parserOptions.js)
 
   //#if NODE
   if (src) {
@@ -840,10 +848,18 @@ function getCode (code, opts, attribs, base) {
 
     code = require('fs').readFileSync(file, charset || 'utf8')
   }
+
   //#else
   if (src) return false
   //#endif
-  return _compileJS(code, opts, type, getParserOptions(attribs), base)
+
+  return _compileJS(
+          code,
+          opts,
+          type,
+          extend(jsParserOptions, getParserOptions(attribs)),
+          base
+        )
 }
 
 /**
@@ -857,11 +873,13 @@ function getCode (code, opts, attribs, base) {
  * @returns {string} Parsed styles
  */
 function cssCode (code, opts, attribs, url, tag) {
-  var extraOpts = {
-    parserOpts: getParserOptions(attribs),
-    scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
-    url: url
-  }
+  var
+    parserStyleOptions = extend({}, opts.parserOptions.style),
+    extraOpts = {
+      parserOpts: extend(parserStyleOptions, getParserOptions(attribs)),
+      scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
+      url: url
+    }
 
   return _compileCSS(code, tag, getType(attribs) || opts.style, extraOpts)
 }
@@ -945,9 +963,18 @@ var
 function compile (src, opts, url) {
   var
     parts = [],
-    included
+    included,
+    defaultParserptions = {
+      // TODO: rename this key from `template` to `html`in the next major release
+      template: {},
+      js: {},
+      style: {}
+    }
 
   if (!opts) opts = {}
+
+  // make sure the custom parser options are always objects
+  opts.parserOptions = extend(defaultParserptions, opts.parserOptions || {})
 
   // for excluding certain parts, `ops.exclude` can be a string or array
   included = opts.exclude
@@ -967,7 +994,7 @@ function compile (src, opts, url) {
 
   // run any custom html parser before the compilation
   if (opts.template) {
-    src = compileTemplate(src, url, opts.template, opts.templateOptions)
+    src = compileTemplate(src, url, opts.template, opts.parserOptions.template)
   }
 
   // each tag can have attributes first, then html markup with zero or more script

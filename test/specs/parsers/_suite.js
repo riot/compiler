@@ -279,6 +279,32 @@ describe('Style parsers', function () {
     expect(result).to.contain('P {top:0}')
   })
 
+  it('the style parser options can be passed directly to the compiler', function () {
+    var
+      source = [
+        '<style-option>',
+        '  <style>',
+        '    p {top:0}',
+        '  </style>',
+        '</style-option>'
+      ].join('\n')
+
+    parsers.css.myParser2 = function (tag, css, opts) {
+      expect(opts.flag).to.be(true)
+      // don't do anything
+      return css
+    }
+
+    compiler.compile(source, {
+      style: 'myParser2',
+      parserOptions: {
+        style: {
+          flag: true
+        }
+      }
+    })
+  })
+
 })
 
 describe('Other', function () {
@@ -302,6 +328,56 @@ describe('Other', function () {
     expect(compiler.compile).withArgs(str1, { type: 'unknown' }).to.throwError()
     expect(compiler.compile).withArgs(str2).to.throwError()
     expect(have('unknown')).to.be(false)
+  })
+
+  it('the js parser options can be passed directly to the compiler', function () {
+    var
+      tag = [
+        '<custom-options>',
+        'this.foo = () => null',
+        '<custom-options>'
+      ].join('\n')
+
+    parsers.js.foo = function (js, opts) {
+      expect(opts.flag).to.be(true)
+      // don't do anything
+      return js
+    }
+
+    compiler.compile(tag, {
+      js: 'foo',
+      parserOptions: {
+        js: {
+          flag: true
+        }
+      }
+    })
+
+  })
+
+  it('the template parser options can be passed directly to the compiler', function () {
+    var
+      tag = [
+        '<custom-options>',
+        'this.foo = () => null',
+        '<custom-options>'
+      ].join('\n')
+
+    parsers.html.foo = function (html, opts) {
+      expect(opts.flag).to.be(true)
+      // don't do anything
+      return ''
+    }
+
+    expect(compiler.compile(tag, {
+      template: 'foo',
+      parserOptions: {
+        template: {
+          flag: true
+        }
+      }
+    })).to.be('')
+
   })
 
   // brackets.tag
