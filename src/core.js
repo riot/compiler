@@ -12,14 +12,7 @@ var brackets = require('./brackets')
 var parsers = require('./parsers')
 var path = require('path') // used by getCode()
 //#endif
-var extend
-//#if NODE
-// prefer the Object assign method 100% supported in node
-extend = Object.assign
-//#else
-// shortcut to enable the use of the parsers util methods
-extend = parsers.util.extend
-//#endif
+var extend = parsers.util.extend
 
 //#set $_RIX_TEST = 4
 //#ifndef $_RIX_TEST

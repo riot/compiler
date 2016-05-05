@@ -110,9 +110,7 @@ riot.parsers = parsers
  */
 var compile = (function () {
 
-  var extend
-
-  extend = parsers.util.extend
+  var extend = parsers.util.extend
 
   var S_LINESTR = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
 
