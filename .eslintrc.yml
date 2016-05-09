@@ -4,6 +4,9 @@
     #   Follow most of rules from http://standardjs.com/                      #
     #   2016-01-19: use 1tbs style for blocks, like in the riot core          #
     #   2016-03-05: revised for eslint v2.2, disallow conditional assign      #
+    #   2016-03-10: allows conditional assigns, shadowing vars in the upper   #
+    #               scope, and the creation of functions within loops.        #
+    #   2016-03-11: Don't require empty line after variable declarations      #
     #                                                                         #
     ###########################################################################
 
@@ -15,10 +18,13 @@ root: true
 
 env:
     node: true
-    es6: true
+    #es6: true
 
 ecmaFeatures:
     modules: true
+
+parserOptions:
+    sourceType: "module"
 
     ###########################################################################
     #   GLOBALS                                                               #
@@ -42,7 +48,8 @@ rules:
     #
     #   POSSIBLE ERRORS
     #
-    no-extra-parens: [2, "all", {"conditionalAssign": false}] # disallow wrapping of non-IIFE statements in parens (Default: 0)
+    no-cond-assign: 0           # core riot style
+    no-extra-parens: [2, "all", {"conditionalAssign": false}] # disallow extra parens, except for conditional assign
     valid-jsdoc: [2, { "prefer": { "return": "returns" }, "requireReturn": false, "requireReturnDescription": false }]
     #
     #   BEST PRACTICES
@@ -67,7 +74,6 @@ rules:
     no-iterator: 2              # disallow usage of __iterator__ property (Default: 0)
     no-labels: 2                # disallow use of labeled statements (Default: 0)
     no-lone-blocks: 2           # disallow unnecessary nested blocks (Default: 0)
-    no-loop-func: 1             # disallow creation of functions within loops (Default: 0)
     no-multi-str: 2             # disallow use of multiline strings (Default: 0)
     no-native-reassign: 2       # disallow reassignments of native objects (Default: 0)
     no-new: 2                   # disallow use of new operator when not part of the assignment or comparison (Default: 0)
@@ -96,7 +102,6 @@ rules:
     #
     no-catch-shadow: 2          # disallow the catch clause parameter name being the same as a variable in the outer scope
     no-label-var: 2             # disallow labels that share a name with a variable (Default: 0)
-    no-shadow: 1                # disallow declaration of variables already declared in the outer scope (Default: 0)
     no-shadow-restricted-names: 2 # disallow shadowing of names such as arguments (Default: 0)
 #   no-undef: 1                 # disallow use of undeclared variables unless mentioned in a /*global */ block (Default: 2)
     no-undef-init: 2            # disallow use of undefined when initializing variables (Default: 0)
@@ -135,7 +140,6 @@ rules:
     max-nested-callbacks: [2, 4] # specify the maximum depth callbacks can be nested (Default: [0, 2])
     new-cap: 2                  # require a capital letter for constructors (Default: 0)
     new-parens: 2               # disallow the omission of parentheses when invoking a constructor with no arguments (Default: 0)
-    newline-after-var: 1        # require an empty newline after variable declarations
     no-array-constructor: 2     # disallow use of the Array constructor (Default: 0)
     no-lonely-if: 2             # disallow if as the only statement in an else block
     no-multiple-empty-lines: [2, {"max": 1}]
