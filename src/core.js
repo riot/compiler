@@ -5,14 +5,22 @@
  * @module compiler
  * @version WIP
  * @license MIT
- * @copyright 2015 Muut Inc. + contributors
+ * @copyright Muut Inc. + contributors
  */
 'use strict'
-
 var brackets = require('./brackets')
 var parsers = require('./parsers')
-var path = require('path')            // used by getCode()
+var path = require('path') // used by getCode()
 //#endif
+
+/* eslint-disable */
+//#if NODE
+var extend = require('./parsers/_utils').mixobj
+//#else
+// shortcut to enable the use of the parsers util methods
+var extend = parsers.utils.extend
+//#endif
+/* eslint-enable */
 
 //#set $_RIX_TEST = 4
 //#ifndef $_RIX_TEST
@@ -789,13 +797,27 @@ function getAttrib (attribs, name) {
 }
 
 /**
+ * Unescape any html string
+ * @param   {string} str escaped html string
+ * @returns {string} unescaped html string
+ */
+function unescapeHTML (str) {
+  return str
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, '\'')
+}
+
+/**
  * Gets the parser options from the "options" attribute.
  *
  * @param   {string} attribs - The attribute list
  * @returns {object} Parsed options, or null if no options
  */
 function getParserOptions (attribs) {
-  var opts = getAttrib(attribs, 'options')
+  var opts = unescapeHTML(getAttrib(attribs, 'options'))
 
   // convert the string into a valid js object
   return opts ? JSON.parse(opts) : null
@@ -815,7 +837,8 @@ function getParserOptions (attribs) {
 function getCode (code, opts, attribs, base) {
   var
     type = getType(attribs),
-    src  = getAttrib(attribs, 'src')
+    src  = getAttrib(attribs, 'src'),
+    jsParserOptions = extend({}, opts.parserOptions.js)
 
   //#if NODE
   if (src) {
@@ -826,10 +849,18 @@ function getCode (code, opts, attribs, base) {
 
     code = require('fs').readFileSync(file, charset || 'utf8')
   }
+
   //#else
   if (src) return false
   //#endif
-  return _compileJS(code, opts, type, getParserOptions(attribs), base)
+
+  return _compileJS(
+          code,
+          opts,
+          type,
+          extend(jsParserOptions, getParserOptions(attribs)),
+          base
+        )
 }
 
 /**
@@ -843,11 +874,13 @@ function getCode (code, opts, attribs, base) {
  * @returns {string} Parsed styles
  */
 function cssCode (code, opts, attribs, url, tag) {
-  var extraOpts = {
-    parserOpts: getParserOptions(attribs),
-    scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
-    url: url
-  }
+  var
+    parserStyleOptions = extend({}, opts.parserOptions.style),
+    extraOpts = {
+      parserOpts: extend(parserStyleOptions, getParserOptions(attribs)),
+      scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
+      url: url
+    }
 
   return _compileCSS(code, tag, getType(attribs) || opts.style, extraOpts)
 }
@@ -931,9 +964,18 @@ var
 function compile (src, opts, url) {
   var
     parts = [],
-    included
+    included,
+    defaultParserptions = {
+      // TODO: rename this key from `template` to `html`in the next major release
+      template: {},
+      js: {},
+      style: {}
+    }
 
   if (!opts) opts = {}
+
+  // make sure the custom parser options are always objects
+  opts.parserOptions = extend(defaultParserptions, opts.parserOptions || {})
 
   // for excluding certain parts, `ops.exclude` can be a string or array
   included = opts.exclude
@@ -953,7 +995,7 @@ function compile (src, opts, url) {
 
   // run any custom html parser before the compilation
   if (opts.template) {
-    src = compileTemplate(src, url, opts.template, opts.templateOptions)
+    src = compileTemplate(src, url, opts.template, opts.parserOptions.template)
   }
 
   // each tag can have attributes first, then html markup with zero or more script
