@@ -8,20 +8,18 @@
 var
   path = require('path'),
   fs   = require('fs'),
-  norm    = require('../helpers').normalizeJS,
-  reqname = require('../helpers').requireName
+  norm = require('../helpers').normalizeJS
 
 var
   fixtures = __dirname,
   expected = path.join(fixtures, 'js'),
   parsers  = compiler.parsers
 
-function have (mod, req) {
-  if (parsers._req(mod, req)) return true
+function have (name) {
+  if (parsers._req(name)) return true
 
-  if (mod !== 'unknown') {
-    if (!req) req = reqname(mod)
-    console.error('\tnot installed locally: ' + req + ' alias "' + mod + '"')
+  if (name !== 'unknown') {
+    console.error('\t' + name + ' parser not installed locally.')
   }
   return false
 }
@@ -246,7 +244,7 @@ describe('Style parsers', function () {
 
   // scss.tag
   it('custom parser using postcss + autoprefixer', function () {
-    if (have('postcss', 'postcss')) {
+    if (have('postcss')) {
       testParser('postcss')
     }
   })

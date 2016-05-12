@@ -5,6 +5,21 @@
 
 import { brackets } from 'riot-tmpl'
 
+// istanbul ignore next
+function safeRegex (re) {
+  var src = re.source
+  var opt = re.global ? 'g' : ''
+
+  if (re.ignoreCase) opt += 'i'
+  if (re.multiline)  opt += 'm'
+
+  for (var i = 1; i < arguments.length; i++) {
+    src = src.replace('@', '\\' + arguments[i])
+  }
+
+  return new RegExp(src, opt)
+}
+
 /**
  * @module parsers
  */
@@ -43,7 +58,7 @@ var parsers = (function () {
     html: {
       jade: function (html, opts, url) {
         /* eslint-disable */
-        console.log('DEPRECATION WARNING: jade was renamed "pug" - the jade parser will be removed in riot@3.0.0!')
+        console.log('DEPRECATION WARNING: jade was renamed "pug" - The jade parser will be removed in riot@3.0.0!')
         /* eslint-enable */
         return renderPug('jade', html, opts, url)
       },
@@ -112,8 +127,6 @@ var parsers = (function () {
  * @module compiler
  */
 
-/* eslint-disable */
-
 var extend = parsers.utils.extend
 /* eslint-enable */
 
@@ -146,8 +159,8 @@ var SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i
 var TRIM_TRAIL = /[ \t]+$/gm
 
 var
-  RE_HASEXPR = /\x01#\d/,
-  RE_REPEXPR = /\x01#(\d+)/g,
+  RE_HASEXPR = safeRegex(/@#\d/, 'x01'),
+  RE_REPEXPR = safeRegex(/@#(\d+)/g, 'x01'),
   CH_IDEXPR  = '\x01#',
   CH_DQCODE  = '\u2057',
   DQ = '"',
@@ -361,11 +374,8 @@ function _compileJS (js, opts, type, parserOpts, url) {
   if (!/\S/.test(js)) return ''
   if (!type) type = opts.type
 
-  var parser = opts.parser || (type ? parsers.js[type] : riotjs)
+  var parser = opts.parser || type && parsers._req('js.' + type, true) || riotjs
 
-  if (!parser) {
-    throw new Error('JS parser not found: "' + type + '"')
-  }
   return parser(js, parserOpts, url).replace(/\r\n?/g, '\n').replace(TRIM_TRAIL, '')
 }
 
@@ -421,10 +431,10 @@ function _compileCSS (css, tag, type, opts) {
   if (type) {
     if (type === 'scoped-css') {
       scoped = true
-    } else if (parsers.css[type]) {
-      css = parsers.css[type](tag, css, opts.parserOpts || {}, opts.url)
     } else if (type !== 'css') {
-      throw new Error('CSS parser not found: "' + type + '"')
+
+      var parser = parsers._req('css.' + type, true)
+      css = parser(tag, css, opts.parserOpts || {}, opts.url)
     }
   }
 
@@ -562,11 +572,8 @@ function cssCode (code, opts, attribs, url, tag) {
 }
 
 function compileTemplate (html, url, lang, opts) {
-  var parser = parsers.html[lang]
 
-  if (!parser) {
-    throw new Error('Template parser not found: "' + lang + '"')
-  }
+  var parser = parsers._req('html.' + lang, true)
   return parser(html, opts, url)
 }
 

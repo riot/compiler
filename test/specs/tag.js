@@ -10,8 +10,6 @@ describe('Compile tags', function () {
   // in Win __dirname is a real path, in Lunux is symlink, path.relative uses symlink
   var
     basepath = path.resolve(__dirname, './'),
-    //fixtures = path.relative(basepath, path.join(__dirname, 'fixtures')),
-    //expected = path.relative(basepath, path.join(__dirname, 'expect'))
     fixtures = path.join(basepath, 'fixtures'),
     expected = path.join(basepath, 'expect')
 
@@ -114,6 +112,17 @@ describe('Compile tags', function () {
       expect(opts).to.eql({ val: true })
     }
     expect(js).to.not.contain('options=')
+  })
+
+  it('parser can autoload from the `parsers` object', function () {
+    var js
+    try {
+      js = require('coffee-script')
+    } catch (_) {
+      js = null
+    }
+    if (js) expect(compiler.parsers.js.coffee('x=0')).to.match(/var x/)
+    else console.log('\tPlease give me a coffee.')
   })
 
   it('The `whitespace` option preserves newlines and tabs', function () {
