@@ -57,7 +57,7 @@ var parsers = (function () {
     html: {
       jade: function (html, opts, url) {
         /* eslint-disable */
-        console.log('DEPRECATION WARNING: jade was renamed "pug" - the jade parser will be removed in riot@3.0.0!')
+        console.log('DEPRECATION WARNING: jade was renamed "pug" - The jade parser will be removed in riot@3.0.0!')
         /* eslint-enable */
         return renderPug('jade', html, opts, url)
       },

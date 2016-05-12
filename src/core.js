@@ -8,15 +8,16 @@
  * @copyright Muut Inc. + contributors
  */
 'use strict'
-var brackets = require('./brackets')
-var parsers = require('./parsers')
-var path = require('path') // used by getCode()
+
+var brackets  = require('./brackets')
+var parsers   = require('./parsers')
+var safeRegex = require('./safe-regex')
+var path      = require('path')           // used by getCode()
 //#endif
 
-/* eslint-disable */
-//#if NODE
+/*#if NODE
 var extend = require('./parsers/_utils').mixobj
-//#else
+//#else */
 // shortcut to enable the use of the parsers util methods
 var extend = parsers.utils.extend
 //#endif
@@ -133,10 +134,10 @@ var TRIM_TRAIL = /[ \t]+$/gm
 
 // Clearer?
 var
-  RE_HASEXPR = /\x01#\d/,       // for searching a hidden expression in a string
-  RE_REPEXPR = /\x01#(\d+)/g,   // used to restore a hidden expression
-  CH_IDEXPR  = '\x01#',         // sequence for marking a hidden expression
-  CH_DQCODE  = '\u2057',        // escape double quotes with this char
+  RE_HASEXPR = safeRegex(/@#\d/, 'x01'),      // for searching a hidden expression in a string
+  RE_REPEXPR = safeRegex(/@#(\d+)/g, 'x01'),  // used to restore a hidden expression
+  CH_IDEXPR  = '\x01#',                       // sequence for marking a hidden expression
+  CH_DQCODE  = '\u2057',                      // escape double quotes with this char
   DQ = '"',
   SQ = "'"
 
@@ -472,11 +473,9 @@ function _compileJS (js, opts, type, parserOpts, url) {
   if (!/\S/.test(js)) return ''
   if (!type) type = opts.type
 
-  var parser = opts.parser || (type ? parsers.js[type] : riotjs)
+  // 2016-05-11: _req throws exception for invalid parser
+  var parser = opts.parser || type && parsers._req('js.' + type, true) || riotjs
 
-  if (!parser) {
-    throw new Error('JS parser not found: "' + type + '"')
-  }
   return parser(js, parserOpts, url).replace(/\r\n?/g, '\n').replace(TRIM_TRAIL, '')
 }
 
@@ -588,10 +587,10 @@ function _compileCSS (css, tag, type, opts) {
   if (type) {
     if (type === 'scoped-css') {    // DEPRECATED
       scoped = true
-    } else if (parsers.css[type]) {
-      css = parsers.css[type](tag, css, opts.parserOpts || {}, opts.url)
     } else if (type !== 'css') {
-      throw new Error('CSS parser not found: "' + type + '"')
+      // 2016-05-11: _req throws exception for invalid parser
+      var parser = parsers._req('css.' + type, true)
+      css = parser(tag, css, opts.parserOpts || {}, opts.url)
     }
   }
 
@@ -897,11 +896,8 @@ function cssCode (code, opts, attribs, url, tag) {
  * @throws  Will throw "Template parser not found" if the HTML parser cannot be loaded.
  */
 function compileTemplate (html, url, lang, opts) {
-  var parser = parsers.html[lang]
-
-  if (!parser) {
-    throw new Error('Template parser not found: "' + lang + '"')
-  }
+  // 2016-05-11: _req throws exception for invalid parser (fix #60)
+  var parser = parsers._req('html.' + lang, true)
   return parser(html, opts, url)
 }
 

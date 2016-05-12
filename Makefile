@@ -29,10 +29,13 @@ pre-build:
 	# build the node version
 	@ mkdir -p $(DIST)
 	@ $(JSPP) $(JSPP_NODE_FLAGS) src/core.js > lib/compiler.js
+	@ $(JSPP) $(JSPP_NODE_FLAGS) src/safe-regex.js > lib/safe-regex.js
 
 eslint:
 	# check code style
-	@ $(ESLINT) -c ./.eslintrc.yml lib test
+	@ $(ESLINT) -c ./.eslintrc.yml src test
+	@ $(ESLINT) -c ./.eslintrc.yml lib \
+    --ignore-pattern "**/compiler.js" --ignore-pattern "**/safe-regex.js"
 
 test-mocha:
 	@ $(ISTANBUL) cover $(MOCHA) -- test/runner.js
