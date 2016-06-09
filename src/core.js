@@ -126,9 +126,8 @@ var PRE_TAGS = /<pre(?:\s+(?:[^">]*|"[^"]*")*)?>([\S\s]+?)<\/pre\s*>/gi
  */
 var SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i
 
-
 /**
- * Matches the "import" statement  
+ * Matches the 'import' statement
  * @const {RegExp}
  */
 var IMPORT_STATEMENT = /^(?: )*(?:import)(?:(?:.*))*$/gm
@@ -287,26 +286,25 @@ function restoreExpr (html, pcex) {
 /**
  * Return imports statement of the code as a string
  * @param    {string} js - The js code containing the imports statement
- * @returns  {string} imports Js code containing only the imports statement 
+ * @returns  {string} Js code containing only the imports statement
  */
 function compileImports (js) {
   var imp = []
   var imports = ''
-  while(imp = IMPORT_STATEMENT.exec(js) ) {
+  while (imp = IMPORT_STATEMENT.exec(js)) {
     imports += imp[0].trim() + '\n'
   }
   return imports
 }
 
 /**
- * Remove "import" statement from JSCode
- * 
+ * Remove 'import' statement from JSCode
  * @param    {string} js - The Js code
- * @returns  {string} jsCode The js code without "import" statement 
+ * @returns  {string} jsCode The js code without 'import' statement
  */
 function rmImports (js) {
-   var jsCode = js.replace(IMPORT_STATEMENT , '')
-   return jsCode
+  var jsCode = js.replace(IMPORT_STATEMENT, '')
+  return jsCode
 }
 
 /*
@@ -745,6 +743,7 @@ function _q (s, r) {
  * @param   {string} attr - Root attributes
  * @param   {string} js   - JavaScript "constructor"
  * @param   {object} opts - Compiler options
+ * @param   {string} imports - Code containing 'import' statements
  * @returns {string} Code to call `riot.tag2`
  */
 function mktag (name, html, css, attr, js, opts, imports) {
