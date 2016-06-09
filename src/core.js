@@ -126,6 +126,13 @@ var PRE_TAGS = /<pre(?:\s+(?:[^">]*|"[^"]*")*)?>([\S\s]+?)<\/pre\s*>/gi
  */
 var SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i
 
+
+/**
+ * Matches the "import" statement
+ * @const {RegExp}
+ */
+var IMPORT_STATEMENT = /^(?: )*(?:import)(?:(?:.*))*$/gm
+
 /**
  * Matches trailing spaces and tabs by line.
  * @const {RegExp}
@@ -275,6 +282,31 @@ function restoreExpr (html, pcex) {
     })
   }
   return html
+}
+
+/**
+ * Return imports statement of the code as a string
+ * @param    {string} js - The js code containing the imports statement
+ * @returns  {string} imports Js code containing only the imports statement
+ */
+function compileImports (js) {
+  var imp = []
+  var imports = ''
+  while(imp = IMPORT_STATEMENT.exec(js) ) {
+    imports += imp[0].trim() + '\n'
+  }
+  return imports
+}
+
+/**
+ * Remove "import" statement from JSCode
+ *
+ * @param    {string} js - The Js code
+ * @returns  {string} jsCode The js code without "import" statement
+ */
+function rmImports (js) {
+   var jsCode = js.replace(IMPORT_STATEMENT , '')
+   return jsCode
 }
 
 /*
@@ -715,7 +747,7 @@ function _q (s, r) {
  * @param   {object} opts - Compiler options
  * @returns {string} Code to call `riot.tag2`
  */
-function mktag (name, html, css, attr, js, opts) {
+function mktag (name, html, css, attr, js, opts, imports) {
   var
     c = opts.debug ? ',\n  ' : ', ',
     s = '});'
@@ -724,7 +756,7 @@ function mktag (name, html, css, attr, js, opts) {
   if (js && js.slice(-1) !== '\n') s = '\n' + s
 
   // 2016-01-18: html can contain eols if opts.whitespace=1, fix with q(s,1)
-  return 'riot.tag2(\'' + name + SQ +
+  return imports + 'riot.tag2(\'' + name + SQ +
     c + _q(html, 1) +
     c + _q(css) +
     c + _q(attr) + ', function(opts) {\n' + js + s
@@ -1002,6 +1034,7 @@ function compile (src, opts, url) {
         jscode = '',
         styles = '',
         html = '',
+        imports = '',
         pcex = []
 
       pcex._bp = _bp
@@ -1059,6 +1092,8 @@ function compile (src, opts, url) {
           // and the untagged js block
           if (included('js')) {
             body = _compileJS(blocks[1], opts, null, null, url)
+            imports = compileImports(jscode)
+            jscode  = rmImports(jscode)
             if (body) jscode += (jscode ? '\n' : '') + body
           }
         }
@@ -1080,7 +1115,7 @@ function compile (src, opts, url) {
       }
 
       // replace the tag with a call to the riot.tag2 function and we are done
-      return mktag(tagName, html, styles, attribs, jscode, opts)
+      return mktag(tagName, html, styles, attribs, jscode, opts, imports)
     })
 
   // if "entities" return the array of objects of the extraced parts
