@@ -742,8 +742,8 @@ function _q (s, r) {
  * @param   {string} css  - Styles
  * @param   {string} attr - Root attributes
  * @param   {string} js   - JavaScript "constructor"
- * @param   {object} opts - Compiler options
  * @param   {string} imports - Code containing 'import' statements
+ * @param   {object} opts - Compiler options
  * @returns {string} Code to call `riot.tag2`
  */
 function mktag (name, html, css, attr, js, imports, opts) {
