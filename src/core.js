@@ -746,7 +746,7 @@ function _q (s, r) {
  * @param   {string} imports - Code containing 'import' statements
  * @returns {string} Code to call `riot.tag2`
  */
-function mktag (name, html, css, attr, js, opts, imports) {
+function mktag (name, html, css, attr, js, imports, opts) {
   var
     c = opts.debug ? ',\n  ' : ', ',
     s = '});'
@@ -1114,7 +1114,7 @@ function compile (src, opts, url) {
       }
 
       // replace the tag with a call to the riot.tag2 function and we are done
-      return mktag(tagName, html, styles, attribs, jscode, opts, imports)
+      return mktag(tagName, html, styles, attribs, jscode, imports, opts)
     })
 
   // if "entities" return the array of objects of the extraced parts
