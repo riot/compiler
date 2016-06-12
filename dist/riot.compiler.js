@@ -24,15 +24,25 @@ var parsers = (function () {
     return obj
   }
 
+  function renderPug (compilerName, html, opts, url) {
+    opts = extend({
+      pretty: true,
+      filename: url,
+      doctype: 'html'
+    }, opts)
+    return _req(compilerName).render(html, opts)
+  }
+
   var _p = {
     html: {
       jade: function (html, opts, url) {
-        opts = extend({
-          pretty: true,
-          filename: url,
-          doctype: 'html'
-        }, opts)
-        return _req('jade').render(html, opts)
+        /* eslint-disable */
+        console.log('DEPRECATION WARNING: jade was renamed "pug" - The jade parser will be removed in riot@3.0.0!')
+        /* eslint-enable */
+        return renderPug('jade', html, opts, url)
+      },
+      pug: function (html, opts, url) {
+        return renderPug('pug', html, opts, url)
       }
     },
 
@@ -84,6 +94,10 @@ var parsers = (function () {
   _p.js.javascript   = _p.js.none
   _p.js.coffeescript = _p.js.coffee
 
+  _p.utils = {
+    extend: extend
+  }
+
   return _p
 
 })()
@@ -92,9 +106,12 @@ riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version WIP
+ * @version v2.5.0
  */
 var compile = (function () {
+
+  var extend = parsers.utils.extend
+  /* eslint-enable */
 
   var S_LINESTR = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
 
@@ -116,11 +133,13 @@ var compile = (function () {
 
   var SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i
 
+  var IMPORT_STATEMENT = /^(?: )*(?:import)(?:(?:.*))*$/gm
+
   var TRIM_TRAIL = /[ \t]+$/gm
 
   var
-    RE_HASEXPR = /\x01#\d/,
-    RE_REPEXPR = /\x01#(\d+)/g,
+    RE_HASEXPR = safeRegex(/@#\d/, 'x01'),
+    RE_REPEXPR = safeRegex(/@#(\d+)/g, 'x01'),
     CH_IDEXPR  = '\x01#',
     CH_DQCODE  = '\u2057',
     DQ = '"',
@@ -221,6 +240,20 @@ var compile = (function () {
       })
     }
     return html
+  }
+
+  function compileImports (js) {
+    var imp = []
+    var imports = ''
+    while (imp = IMPORT_STATEMENT.exec(js)) {
+      imports += imp[0].trim() + '\n'
+    }
+    return imports
+  }
+
+  function rmImports (js) {
+    var jsCode = js.replace(IMPORT_STATEMENT, '')
+    return jsCode
   }
 
   function _compileHTML (html, opts, pcex) {
@@ -333,11 +366,8 @@ var compile = (function () {
     if (!/\S/.test(js)) return ''
     if (!type) type = opts.type
 
-    var parser = opts.parser || (type ? parsers.js[type] : riotjs)
+    var parser = opts.parser || type && parsers._req('js.' + type, true) || riotjs
 
-    if (!parser) {
-      throw new Error('JS parser not found: "' + type + '"')
-    }
     return parser(js, parserOpts, url).replace(/\r\n?/g, '\n').replace(TRIM_TRAIL, '')
   }
 
@@ -393,10 +423,10 @@ var compile = (function () {
     if (type) {
       if (type === 'scoped-css') {
         scoped = true
-      } else if (parsers.css[type]) {
-        css = parsers.css[type](tag, css, opts.parserOpts || {}, opts.url)
       } else if (type !== 'css') {
-        throw new Error('CSS parser not found: "' + type + '"')
+
+        var parser = parsers._req('css.' + type, true)
+        css = parser(tag, css, opts.parserOpts || {}, opts.url)
       }
     }
 
@@ -432,14 +462,14 @@ var compile = (function () {
     return r && ~s.indexOf('\n') ? s.replace(/\n/g, '\\n') : s
   }
 
-  function mktag (name, html, css, attr, js, opts) {
+  function mktag (name, html, css, attr, js, imports, opts) {
     var
       c = opts.debug ? ',\n  ' : ', ',
       s = '});'
 
     if (js && js.slice(-1) !== '\n') s = '\n' + s
 
-    return 'riot.tag2(\'' + name + SQ +
+    return imports + 'riot.tag2(\'' + name + SQ +
       c + _q(html, 1) +
       c + _q(css) +
       c + _q(attr) + ', function(opts) {\n' + js + s
@@ -491,11 +521,11 @@ var compile = (function () {
 
   function unescapeHTML (str) {
     return str
-            .replace('&amp;', /&/g)
-            .replace('&lt;', /</g)
-            .replace('&gt;', />/g)
-            .replace('&quot;', /"/g)
-            .replace('&#039;', /'/g)
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#039;/g, '\'')
   }
 
   function getParserOptions (attribs) {
@@ -507,28 +537,35 @@ var compile = (function () {
   function getCode (code, opts, attribs, base) {
     var
       type = getType(attribs),
-      src  = getAttrib(attribs, 'src')
+      src  = getAttrib(attribs, 'src'),
+      jsParserOptions = extend({}, opts.parserOptions.js)
 
     if (src) return false
-    return _compileJS(code, opts, type, getParserOptions(attribs), base)
+
+    return _compileJS(
+            code,
+            opts,
+            type,
+            extend(jsParserOptions, getParserOptions(attribs)),
+            base
+          )
   }
 
   function cssCode (code, opts, attribs, url, tag) {
-    var extraOpts = {
-      parserOpts: getParserOptions(attribs),
-      scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
-      url: url
-    }
+    var
+      parserStyleOptions = extend({}, opts.parserOptions.style),
+      extraOpts = {
+        parserOpts: extend(parserStyleOptions, getParserOptions(attribs)),
+        scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
+        url: url
+      }
 
     return _compileCSS(code, tag, getType(attribs) || opts.style, extraOpts)
   }
 
   function compileTemplate (html, url, lang, opts) {
-    var parser = parsers.html[lang]
 
-    if (!parser) {
-      throw new Error('Template parser not found: "' + lang + '"')
-    }
+    var parser = parsers._req('html.' + lang, true)
     return parser(html, opts, url)
   }
 
@@ -544,9 +581,17 @@ var compile = (function () {
   function compile (src, opts, url) {
     var
       parts = [],
-      included
+      included,
+      defaultParserptions = {
+
+        template: {},
+        js: {},
+        style: {}
+      }
 
     if (!opts) opts = {}
+
+    opts.parserOptions = extend(defaultParserptions, opts.parserOptions || {})
 
     included = opts.exclude
       ? function (s) { return opts.exclude.indexOf(s) < 0 } : function () { return 1 }
@@ -556,7 +601,7 @@ var compile = (function () {
     var _bp = brackets.array(opts.brackets)
 
     if (opts.template) {
-      src = compileTemplate(src, url, opts.template, opts.templateOptions)
+      src = compileTemplate(src, url, opts.template, opts.parserOptions.template)
     }
 
     src = cleanSource(src)
@@ -565,6 +610,7 @@ var compile = (function () {
           jscode = '',
           styles = '',
           html = '',
+          imports = '',
           pcex = []
 
         pcex._bp = _bp
@@ -611,6 +657,8 @@ var compile = (function () {
 
             if (included('js')) {
               body = _compileJS(blocks[1], opts, null, null, url)
+              imports = compileImports(jscode)
+              jscode  = rmImports(jscode)
               if (body) jscode += (jscode ? '\n' : '') + body
             }
           }
@@ -629,7 +677,7 @@ var compile = (function () {
           return ''
         }
 
-        return mktag(tagName, html, styles, attribs, jscode, opts)
+        return mktag(tagName, html, styles, attribs, jscode, imports, opts)
       })
 
     if (opts.entities) return parts
@@ -642,7 +690,7 @@ var compile = (function () {
     html: compileHTML,
     css: compileCSS,
     js: compileJS,
-    version: 'WIP'
+    version: 'v2.5.0'
   }
   return compile
 

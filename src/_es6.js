@@ -10,6 +10,8 @@
 
 import { brackets } from 'riot-tmpl'
 
+//#include safe-regex
+
 //#include parsers_br
 
 /**

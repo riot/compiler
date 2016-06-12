@@ -5,14 +5,23 @@
  * @module compiler
  * @version WIP
  * @license MIT
- * @copyright 2015 Muut Inc. + contributors
+ * @copyright Muut Inc. + contributors
  */
 'use strict'
 
-var brackets = require('./brackets')
-var parsers = require('./parsers')
-var path = require('path')            // used by getCode()
+var brackets  = require('./brackets')
+var parsers   = require('./parsers')
+var safeRegex = require('./safe-regex')
+var path      = require('path')           // used by getCode()
 //#endif
+
+/*#if NODE
+var extend = require('./parsers/_utils').mixobj
+//#else */
+// shortcut to enable the use of the parsers util methods
+var extend = parsers.utils.extend
+//#endif
+/* eslint-enable */
 
 //#set $_RIX_TEST = 4
 //#ifndef $_RIX_TEST
@@ -105,6 +114,12 @@ var PRE_TAGS = /<pre(?:\s+(?:[^">]*|"[^"]*")*)?>([\S\s]+?)<\/pre\s*>/gi
 var SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i
 
 /**
+ * Matches the 'import' statement
+ * @const {RegExp}
+ */
+var IMPORT_STATEMENT = /^(?: )*(?:import)(?:(?:.*))*$/gm
+
+/**
  * Matches trailing spaces and tabs by line.
  * @const {RegExp}
  */
@@ -112,10 +127,10 @@ var TRIM_TRAIL = /[ \t]+$/gm
 
 // Clearer?
 var
-  RE_HASEXPR = /\x01#\d/,       // for searching a hidden expression in a string
-  RE_REPEXPR = /\x01#(\d+)/g,   // used to restore a hidden expression
-  CH_IDEXPR  = '\x01#',         // sequence for marking a hidden expression
-  CH_DQCODE  = '\u2057',        // escape double quotes with this char
+  RE_HASEXPR = safeRegex(/@#\d/, 'x01'),      // for searching a hidden expression in a string
+  RE_REPEXPR = safeRegex(/@#(\d+)/g, 'x01'),  // used to restore a hidden expression
+  CH_IDEXPR  = '\x01#',                       // sequence for marking a hidden expression
+  CH_DQCODE  = '\u2057',                      // escape double quotes with this char
   DQ = '"',
   SQ = "'"
 
@@ -252,6 +267,30 @@ function restoreExpr (html, pcex) {
     })
   }
   return html
+}
+
+/**
+ * Return imports statement of the code as a string
+ * @param    {string} js - The js code containing the imports statement
+ * @returns  {string} Js code containing only the imports statement
+ */
+function compileImports (js) {
+  var imp = []
+  var imports = ''
+  while (imp = IMPORT_STATEMENT.exec(js)) {
+    imports += imp[0].trim() + '\n'
+  }
+  return imports
+}
+
+/**
+ * Remove 'import' statement from JSCode
+ * @param    {string} js - The Js code
+ * @returns  {string} jsCode The js code without 'import' statement
+ */
+function rmImports (js) {
+  var jsCode = js.replace(IMPORT_STATEMENT, '')
+  return jsCode
 }
 
 /*
@@ -450,11 +489,9 @@ function _compileJS (js, opts, type, parserOpts, url) {
   if (!/\S/.test(js)) return ''
   if (!type) type = opts.type
 
-  var parser = opts.parser || (type ? parsers.js[type] : riotjs)
+  // 2016-05-11: _req throws exception for invalid parser
+  var parser = opts.parser || type && parsers._req('js.' + type, true) || riotjs
 
-  if (!parser) {
-    throw new Error('JS parser not found: "' + type + '"')
-  }
   return parser(js, parserOpts, url).replace(/\r\n?/g, '\n').replace(TRIM_TRAIL, '')
 }
 
@@ -566,10 +603,10 @@ function _compileCSS (css, tag, type, opts) {
   if (type) {
     if (type === 'scoped-css') {    // DEPRECATED
       scoped = true
-    } else if (parsers.css[type]) {
-      css = parsers.css[type](tag, css, opts.parserOpts || {}, opts.url)
     } else if (type !== 'css') {
-      throw new Error('CSS parser not found: "' + type + '"')
+      // 2016-05-11: _req throws exception for invalid parser
+      var parser = parsers._req('css.' + type, true)
+      css = parser(tag, css, opts.parserOpts || {}, opts.url)
     }
   }
 
@@ -691,10 +728,11 @@ function _q (s, r) {
  * @param   {string} css  - Styles
  * @param   {string} attr - Root attributes
  * @param   {string} js   - JavaScript "constructor"
+ * @param   {string} imports - Code containing 'import' statements
  * @param   {object} opts - Compiler options
  * @returns {string} Code to call `riot.tag2`
  */
-function mktag (name, html, css, attr, js, opts) {
+function mktag (name, html, css, attr, js, imports, opts) {
   var
     c = opts.debug ? ',\n  ' : ', ',
     s = '});'
@@ -703,7 +741,7 @@ function mktag (name, html, css, attr, js, opts) {
   if (js && js.slice(-1) !== '\n') s = '\n' + s
 
   // 2016-01-18: html can contain eols if opts.whitespace=1, fix with q(s,1)
-  return 'riot.tag2(\'' + name + SQ +
+  return imports + 'riot.tag2(\'' + name + SQ +
     c + _q(html, 1) +
     c + _q(css) +
     c + _q(attr) + ', function(opts) {\n' + js + s
@@ -781,11 +819,11 @@ function getAttrib (attribs, name) {
  */
 function unescapeHTML (str) {
   return str
-          .replace('&amp;', /&/g)
-          .replace('&lt;', /</g)
-          .replace('&gt;', />/g)
-          .replace('&quot;', /"/g)
-          .replace('&#039;', /'/g)
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, '\'')
 }
 
 /**
@@ -815,7 +853,8 @@ function getParserOptions (attribs) {
 function getCode (code, opts, attribs, base) {
   var
     type = getType(attribs),
-    src  = getAttrib(attribs, 'src')
+    src  = getAttrib(attribs, 'src'),
+    jsParserOptions = extend({}, opts.parserOptions.js)
 
   //#if NODE
   if (src) {
@@ -826,10 +865,18 @@ function getCode (code, opts, attribs, base) {
 
     code = require('fs').readFileSync(file, charset || 'utf8')
   }
+
   //#else
   if (src) return false
   //#endif
-  return _compileJS(code, opts, type, getParserOptions(attribs), base)
+
+  return _compileJS(
+          code,
+          opts,
+          type,
+          extend(jsParserOptions, getParserOptions(attribs)),
+          base
+        )
 }
 
 /**
@@ -843,11 +890,13 @@ function getCode (code, opts, attribs, base) {
  * @returns {string} Parsed styles
  */
 function cssCode (code, opts, attribs, url, tag) {
-  var extraOpts = {
-    parserOpts: getParserOptions(attribs),
-    scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
-    url: url
-  }
+  var
+    parserStyleOptions = extend({}, opts.parserOptions.style),
+    extraOpts = {
+      parserOpts: extend(parserStyleOptions, getParserOptions(attribs)),
+      scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
+      url: url
+    }
 
   return _compileCSS(code, tag, getType(attribs) || opts.style, extraOpts)
 }
@@ -864,11 +913,8 @@ function cssCode (code, opts, attribs, url, tag) {
  * @throws  Will throw "Template parser not found" if the HTML parser cannot be loaded.
  */
 function compileTemplate (html, url, lang, opts) {
-  var parser = parsers.html[lang]
-
-  if (!parser) {
-    throw new Error('Template parser not found: "' + lang + '"')
-  }
+  // 2016-05-11: _req throws exception for invalid parser (fix #60)
+  var parser = parsers._req('html.' + lang, true)
   return parser(html, opts, url)
 }
 
@@ -931,9 +977,18 @@ var
 function compile (src, opts, url) {
   var
     parts = [],
-    included
+    included,
+    defaultParserptions = {
+      // TODO: rename this key from `template` to `html`in the next major release
+      template: {},
+      js: {},
+      style: {}
+    }
 
   if (!opts) opts = {}
+
+  // make sure the custom parser options are always objects
+  opts.parserOptions = extend(defaultParserptions, opts.parserOptions || {})
 
   // for excluding certain parts, `ops.exclude` can be a string or array
   included = opts.exclude
@@ -953,7 +1008,7 @@ function compile (src, opts, url) {
 
   // run any custom html parser before the compilation
   if (opts.template) {
-    src = compileTemplate(src, url, opts.template, opts.templateOptions)
+    src = compileTemplate(src, url, opts.template, opts.parserOptions.template)
   }
 
   // each tag can have attributes first, then html markup with zero or more script
@@ -964,6 +1019,7 @@ function compile (src, opts, url) {
         jscode = '',
         styles = '',
         html = '',
+        imports = '',
         pcex = []
 
       pcex._bp = _bp
@@ -1021,6 +1077,8 @@ function compile (src, opts, url) {
           // and the untagged js block
           if (included('js')) {
             body = _compileJS(blocks[1], opts, null, null, url)
+            imports = compileImports(jscode)
+            jscode  = rmImports(jscode)
             if (body) jscode += (jscode ? '\n' : '') + body
           }
         }
@@ -1042,7 +1100,7 @@ function compile (src, opts, url) {
       }
 
       // replace the tag with a call to the riot.tag2 function and we are done
-      return mktag(tagName, html, styles, attribs, jscode, opts)
+      return mktag(tagName, html, styles, attribs, jscode, imports, opts)
     })
 
   // if "entities" return the array of objects of the extraced parts

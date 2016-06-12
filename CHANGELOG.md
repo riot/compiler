@@ -1,5 +1,11 @@
 # Compiler Changes
 
+### v2.4.1
+
+- Add the `pug` parser (it will replace completely `jade` in the next major release)
+- Add the possibility to pass custom parsers options directly via the `compiler.compile` method through the `parserOptions: {js: {}, template: {}, style: {}}` key [more info](https://github.com/riot/compiler/issues/64)
+- Fix un-escape parser options in html [more info](https://github.com/riot/compiler/issues/63)
+
 ### v2.3.23
 - The parsers are moved to its own directory in the node version. The load is on first use.
 - Fix [riot#1325](https://github.com/riot/riot/issues/1325) : Gulp + Browserify + Babelify + type="es6" error.
