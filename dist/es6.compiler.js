@@ -156,6 +156,8 @@ var PRE_TAGS = /<pre(?:\s+(?:[^">]*|"[^"]*")*)?>([\S\s]+?)<\/pre\s*>/gi
 
 var SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i
 
+var IMPORT_STATEMENT = /^(?: )*(?:import)(?:(?:.*))*$/gm
+
 var TRIM_TRAIL = /[ \t]+$/gm
 
 var
@@ -262,6 +264,20 @@ function restoreExpr (html, pcex) {
     })
   }
   return html
+}
+
+function compileImports (js) {
+  var imp = []
+  var imports = ''
+  while (imp = IMPORT_STATEMENT.exec(js)) {
+    imports += imp[0].trim() + '\n'
+  }
+  return imports
+}
+
+function rmImports (js) {
+  var jsCode = js.replace(IMPORT_STATEMENT, '')
+  return jsCode
 }
 
 function _compileHTML (html, opts, pcex) {
@@ -470,14 +486,14 @@ function _q (s, r) {
   return r && ~s.indexOf('\n') ? s.replace(/\n/g, '\\n') : s
 }
 
-function mktag (name, html, css, attr, js, opts) {
+function mktag (name, html, css, attr, js, imports, opts) {
   var
     c = opts.debug ? ',\n  ' : ', ',
     s = '});'
 
   if (js && js.slice(-1) !== '\n') s = '\n' + s
 
-  return 'riot.tag2(\'' + name + SQ +
+  return imports + 'riot.tag2(\'' + name + SQ +
     c + _q(html, 1) +
     c + _q(css) +
     c + _q(attr) + ', function(opts) {\n' + js + s
@@ -618,6 +634,7 @@ function compile (src, opts, url) {
         jscode = '',
         styles = '',
         html = '',
+        imports = '',
         pcex = []
 
       pcex._bp = _bp
@@ -664,6 +681,8 @@ function compile (src, opts, url) {
 
           if (included('js')) {
             body = _compileJS(blocks[1], opts, null, null, url)
+            imports = compileImports(jscode)
+            jscode  = rmImports(jscode)
             if (body) jscode += (jscode ? '\n' : '') + body
           }
         }
@@ -682,7 +701,7 @@ function compile (src, opts, url) {
         return ''
       }
 
-      return mktag(tagName, html, styles, attribs, jscode, opts)
+      return mktag(tagName, html, styles, attribs, jscode, imports, opts)
     })
 
   if (opts.entities) return parts

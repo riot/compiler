@@ -71,6 +71,10 @@ describe('Compile tags', function () {
     testFile('box')
   })
 
+  it('Make sure all the es6 import will be always moved in the global scope', function () {
+    testFile('es6-import')
+  })
+
   it('Flexible method style (v2.3)', function () {
     testFile('free-style')
   })
