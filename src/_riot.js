@@ -3,6 +3,7 @@
 /*global riot, parsers, compileHTML, compileCSS, compileJS */
 //#endif
 
+//#include_once safe-regex
 //#include_once parsers_br
 
 riot.parsers = parsers
