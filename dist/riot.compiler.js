@@ -17,14 +17,27 @@ function safeRegex (re) {
 /**
  * @module parsers
  */
-var parsers = (function () {
+var parsers = (function (win) {
 
-  function _req (name) {
-    var parser = window[name]
+  var _p = {}
+
+  function _r (name) {
+    var parser = win[name]
 
     if (parser) return parser
 
-    throw new Error(name + ' parser not found.')
+    throw new Error('Parser "' + name + '" not loaded.')
+  }
+
+  function _req (name) {
+    var parts = name.split('.')
+
+    if (parts.length !== 2) throw new Error('Bad format for parsers._req')
+
+    var parser = _p[parts[0]][parts[1]]
+    if (parser) return parser
+
+    throw new Error('Parser "' + name + '" not found.')
   }
 
   function extend (obj, props) {
@@ -45,83 +58,78 @@ var parsers = (function () {
       filename: url,
       doctype: 'html'
     }, opts)
-    return _req(compilerName).render(html, opts)
+    return _r(compilerName).render(html, opts)
   }
 
-  var _p = {
-    html: {
-      jade: function (html, opts, url) {
-        /* eslint-disable */
-        console.log('DEPRECATION WARNING: jade was renamed "pug" - The jade parser will be removed in riot@3.0.0!')
-        /* eslint-enable */
-        return renderPug('jade', html, opts, url)
-      },
-      pug: function (html, opts, url) {
-        return renderPug('pug', html, opts, url)
-      }
+  _p.html = {
+    jade: function (html, opts, url) {
+      /* eslint-disable */
+      console.log('DEPRECATION WARNING: jade was renamed "pug" - The jade parser will be removed in riot@3.0.0!')
+      /* eslint-enable */
+      return renderPug('jade', html, opts, url)
     },
-
-    css: {
-      less: function (tag, css, opts, url) {
-        var ret
-
-        opts = extend({
-          sync: true,
-          syncImport: true,
-          filename: url
-        }, opts)
-        _req('less').render(css, opts, function (err, result) {
-          // istanbul ignore next
-          if (err) throw err
-          ret = result.css
-        })
-        return ret
-      }
-    },
-
-    js: {
-      es6: function (js, opts) {
-        opts = extend({
-          blacklist: ['useStrict', 'strict', 'react'],
-          sourceMaps: false,
-          comments: false
-        }, opts)
-        return _req('babel').transform(js, opts).code
-      },
-      babel: function (js, opts, url) {
-        return _req('babel').transform(js, extend({ filename: url }, opts)).code
-      },
-      coffee: function (js, opts) {
-        return _req('CoffeeScript').compile(js, extend({ bare: true }, opts))
-      },
-      livescript: function (js, opts) {
-        return _req('livescript').compile(js, extend({ bare: true, header: false }, opts))
-      },
-      typescript: function (js, opts) {
-        return _req('typescript')(js, opts)
-      },
-      none: function (js) {
-        return js
-      }
+    pug: function (html, opts, url) {
+      return renderPug('pug', html, opts, url)
     }
   }
+  _p.css = {
+    less: function (tag, css, opts, url) {
+      var ret
 
+      opts = extend({
+        sync: true,
+        syncImport: true,
+        filename: url
+      }, opts)
+      _r('less').render(css, opts, function (err, result) {
+        // istanbul ignore next
+        if (err) throw err
+        ret = result.css
+      })
+      return ret
+    }
+  }
+  _p.js = {
+    es6: function (js, opts) {
+      opts = extend({
+        blacklist: ['useStrict', 'strict', 'react'],
+        sourceMaps: false,
+        comments: false
+      }, opts)
+      return _r('babel').transform(js, opts).code
+    },
+    babel: function (js, opts, url) {
+      return _r('babel').transform(js, extend({ filename: url }, opts)).code
+    },
+    coffee: function (js, opts) {
+      return _r('CoffeeScript').compile(js, extend({ bare: true }, opts))
+    },
+    livescript: function (js, opts) {
+      return _r('livescript').compile(js, extend({ bare: true, header: false }, opts))
+    },
+    typescript: function (js, opts) {
+      return _r('typescript')(js, opts)
+    },
+    none: function (js) {
+      return js
+    }
+  }
   _p.js.javascript   = _p.js.none
   _p.js.coffeescript = _p.js.coffee
-
+  _p._req  = _req
   _p.utils = {
     extend: extend
   }
 
   return _p
 
-})()
+})(window || global)
 
 riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version v2.5.1
+ * @version WIP
  */
 var compile = (function () {
 
@@ -712,7 +720,7 @@ var compile = (function () {
     html: compileHTML,
     css: compileCSS,
     js: compileJS,
-    version: 'v2.5.1'
+    version: 'WIP'
   }
   return compile
 

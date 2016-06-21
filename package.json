@@ -1,6 +1,6 @@
 {
   "name": "riot-compiler",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "Compiler for riot .tag files",
   "main": "lib/compiler.js",
   "jsnext:main": "dist/es6.compiler.js",
@@ -31,9 +31,9 @@
   ],
   "devDependencies": {
     "coveralls": "^2.11.9",
-    "eslint": "^2.13.0",
+    "eslint": "^2.13.1",
     "expect.js": "^0.3.1",
-    "istanbul": "^0.4.3",
+    "istanbul": "^0.4.4",
     "jspreproc": "^0.2.7",
     "mocha": "^2.5.3",
     "riot-bump": "^1.0.0"

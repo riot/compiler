@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v2.5.2
+- Fix #72: `undefined` is not a function when evaluating `parsers._req`.
+- Updated node versions for travis, including v5.x
+
 ### v2.4.1
 
 - Add the `pug` parser (it will replace completely `jade` in the next major release)
