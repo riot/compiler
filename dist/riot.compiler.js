@@ -72,7 +72,6 @@ var parsers = (function (win) {
       return renderPug('pug', html, opts, url)
     }
   }
-
   _p.css = {
     less: function (tag, css, opts, url) {
       var ret
@@ -90,7 +89,6 @@ var parsers = (function (win) {
       return ret
     }
   }
-
   _p.js = {
     es6: function (js, opts) {
       opts = extend({
@@ -116,7 +114,6 @@ var parsers = (function (win) {
       return js
     }
   }
-
   _p.js.javascript   = _p.js.none
   _p.js.coffeescript = _p.js.coffee
   _p._req  = _req
@@ -132,7 +129,7 @@ riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version v2.5.2
+ * @version WIP
  */
 var compile = (function () {
 
@@ -723,7 +720,7 @@ var compile = (function () {
     html: compileHTML,
     css: compileCSS,
     js: compileJS,
-    version: 'v2.5.2'
+    version: 'WIP'
   }
   return compile
 

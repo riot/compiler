@@ -1,6 +1,6 @@
 /**
  * Compiler for riot custom tags
- * @version v2.5.2
+ * @version WIP
  */
 
 import { brackets } from 'riot-tmpl'
@@ -78,7 +78,6 @@ var parsers = (function (win) {
       return renderPug('pug', html, opts, url)
     }
   }
-
   _p.css = {
     less: function (tag, css, opts, url) {
       var ret
@@ -96,7 +95,6 @@ var parsers = (function (win) {
       return ret
     }
   }
-
   _p.js = {
     es6: function (js, opts) {
       opts = extend({
@@ -122,7 +120,6 @@ var parsers = (function (win) {
       return js
     }
   }
-
   _p.js.javascript   = _p.js.none
   _p.js.coffeescript = _p.js.coffee
   _p._req  = _req
@@ -720,7 +717,7 @@ function compile (src, opts, url) {
   return src
 }
 
-var version = 'v2.5.2'
+var version = 'WIP'
 
 export default {
   compile,
