@@ -3,6 +3,7 @@
 ### v2.5.3
 - Fix #73 : resolveModuleSource must be a function - Option removed from the default Babel options.
 - Updated node.js to 4.4 in the Travis environment.
+- Downgraded ESLint to 2.x for using with node v0.12.x
 
 ### v2.5.2
 - Fix #72: `undefined` is not a function when evaluating `parsers._req`.
