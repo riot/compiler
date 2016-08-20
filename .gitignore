@@ -69,3 +69,8 @@ pids
 
 # node-waf configuration
 .lock-wscript
+
+# generated files
+/dist
+/lib/compiler.js
+/lib/safe-regex.js

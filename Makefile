@@ -16,20 +16,24 @@ JSPP      = ./node_modules/jspreproc/bin/jspp.js
 
 # folders
 DIST = "./dist/"
+LIB = "./lib/"
 
 # default job
 test: build test-mocha
 
-build: eslint pre-build
+build: clean eslint pre-build
 	# build riot and es6 versions
 	@ $(JSPP) $(JSPP_RIOT_FLAGS) src/_riot.js > $(DIST)riot.compiler.js
 	@ $(JSPP) $(JSPP_ES6_FLAGS)  src/_es6.js  > $(DIST)es6.compiler.js
 
+clean:
+	@ rm -rf $(DIST)
+
 pre-build:
 	# build the node version
 	@ mkdir -p $(DIST)
-	@ $(JSPP) $(JSPP_NODE_FLAGS) src/core.js > lib/compiler.js
-	@ $(JSPP) $(JSPP_NODE_FLAGS) src/safe-regex.js > lib/safe-regex.js
+	@ $(JSPP) $(JSPP_NODE_FLAGS) src/core.js > $(LIB)compiler.js
+	@ $(JSPP) $(JSPP_NODE_FLAGS) src/safe-regex.js > $(LIB)safe-regex.js
 
 eslint:
 	# check code style
@@ -57,6 +61,6 @@ perf: build
 	@ node --expose-gc test/perf.js
 
 docs: build
-	@ jsdoc lib/ --configure ./jsdoc.json -P ./package.json --verbose
+	@ jsdoc $(LIB) --configure ./jsdoc.json -P ./package.json --verbose
 
 .PHONY: test pre-build build eslint test-mocha send-coverage debug perf docs
