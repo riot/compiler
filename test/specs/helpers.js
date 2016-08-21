@@ -3,6 +3,7 @@ module.exports = {
     return js
       .replace(/ = function\s+\(/g, ' = function(')
       .replace(/ { ?|{ /g, '{')
+      .replace(/\r\n/g, '\n')
       .replace(/\n\n+/g, '\n')
       .replace(/^\/\/src:.*\n/, '')
       .trim()
