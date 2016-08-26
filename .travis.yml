@@ -18,6 +18,7 @@ install:
 
  # babel presets
   - npm i babel-preset-es2015-riot
+  - npm i buble
   - npm i coffee-script
   - npm i livescript
   - npm i typescript-simple

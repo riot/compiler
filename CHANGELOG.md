@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v2.5.4
+- Added parser for [bublé](https://buble.surge.sh) as `buble`.
+
 ### v2.5.3
 - Fix #73 : resolveModuleSource must be a function - Option removed from the default Babel options.
 - Updated node.js to 4.4 in the Travis environment.

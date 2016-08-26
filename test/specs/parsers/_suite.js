@@ -171,6 +171,13 @@ describe('JavaScript parsers', function () {
     }
   })
 
+  // test.buble.tag
+  it('bublé', function () {
+    if (have('buble')) {
+      testParser('test', { type: 'buble' })
+    }
+  })
+
   // test-attr.babel.tag (also test alias coffeescript)
   it('coffee with shorthands (fix #1090)', function () {
     if (have('coffeescript')) {
