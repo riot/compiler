@@ -107,6 +107,13 @@ var parsers = (function (win) {
     babel: function (js, opts, url) {
       return _r('babel').transform(js, extend({ filename: url }, opts)).code
     },
+    buble: function (js, opts, url) {
+      opts = extend({
+        source: url,
+        modules: false
+      }, opts)
+      return _r('buble').transform(js, opts).code
+    },
     coffee: function (js, opts) {
       return _r('CoffeeScript').compile(js, extend({ bare: true }, opts))
     },

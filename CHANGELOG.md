@@ -1,6 +1,7 @@
 # Compiler Changes
 
 ### v2.5.4
+- Added parser for [bublé](https://buble.surge.sh) as `buble` in the browser. Option `modules` is `false` in all versions.
 - Added parser for [bublé](https://buble.surge.sh) as `buble`.
 - Added support for es6 `import` statements. Thanks to @kuashe! - Related to [riot#1715](https://github.com/riot/riot/issues/1715), [riot#1784](https://github.com/riot/riot/issues/1784), and [riot#1864](https://github.com/riot/riot/issues/1864).
 
