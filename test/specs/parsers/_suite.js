@@ -234,6 +234,13 @@ describe('Style parsers', function () {
     }
   })
 
+  // sass.tag
+  it('sass inside pug - issue #68', function () {
+    if (have('sass')) {
+      testParser('sass-inside-pug', { template: 'pug' })
+    }
+  })
+
   // scss.tag
   it('scss (no indentedSyntax)', function () {
     if (have('scss')) {
