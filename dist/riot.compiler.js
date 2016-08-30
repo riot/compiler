@@ -101,6 +101,13 @@ var parsers = (function (win) {
     babel: function (js, opts, url) {
       return _r('babel').transform(js, extend({ filename: url }, opts)).code
     },
+    buble: function (js, opts, url) {
+      opts = extend({
+        source: url,
+        modules: false
+      }, opts)
+      return _r('buble').transform(js, opts).code
+    },
     coffee: function (js, opts) {
       return _r('CoffeeScript').compile(js, extend({ bare: true }, opts))
     },
@@ -129,7 +136,7 @@ riot.parsers = parsers
 
 /**
  * Compiler for riot custom tags
- * @version v2.5.3
+ * @version v2.5.4
  */
 var compile = (function () {
 
@@ -162,7 +169,7 @@ var compile = (function () {
 
   var SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i
 
-  var IMPORT_STATEMENT = /^(?: )*(?:import)(?:(?:.*))*$/gm
+  var IMPORT_STATEMENT = /^\s*import(?:\s*[*{]|\s+[$_a-zA-Z'"]).*\n?/gm
 
   var TRIM_TRAIL = /[ \t]+$/gm
 
@@ -270,20 +277,6 @@ var compile = (function () {
       })
     }
     return html
-  }
-
-  function compileImports (js) {
-    var imp = []
-    var imports = ''
-    while (imp = IMPORT_STATEMENT.exec(js)) {
-      imports += imp[0].trim() + '\n'
-    }
-    return imports
-  }
-
-  function rmImports (js) {
-    var jsCode = js.replace(IMPORT_STATEMENT, '')
-    return jsCode
   }
 
   function _compileHTML (html, opts, pcex) {
@@ -687,9 +680,11 @@ var compile = (function () {
 
             if (included('js')) {
               body = _compileJS(blocks[1], opts, null, null, url)
-              imports = compileImports(jscode)
-              jscode  = rmImports(jscode)
               if (body) jscode += (jscode ? '\n' : '') + body
+              jscode = jscode.replace(IMPORT_STATEMENT, function (s) {
+                imports += s.trim() + '\n'
+                return ''
+              })
             }
           }
         }
@@ -702,7 +697,8 @@ var compile = (function () {
             html: html,
             css: styles,
             attribs: attribs,
-            js: jscode
+            js: jscode,
+            imports: imports
           })
           return ''
         }
@@ -720,7 +716,7 @@ var compile = (function () {
     html: compileHTML,
     css: compileCSS,
     js: compileJS,
-    version: 'v2.5.3'
+    version: 'v2.5.4'
   }
   return compile
 

@@ -134,7 +134,7 @@ rules:
     keyword-spacing: 2          # enforce spacing before and after keywords
     linebreak-style: [2, "unix"]
     max-depth: [1, 5]           # specify the maximum depth blocks can be nested
-    max-len: [1, 92, 4, { "ignoreTrailingComments": true, "ignoreUrls": true, "ignorePattern": "=\\s+/|_regEx\\(|RegExp\\(" }]
+    max-len: [1, 96, 4, { "ignoreTrailingComments": true, "ignoreUrls": true, "ignorePattern": "=\\s+/|_regEx\\(|RegExp\\(" }]
     no-control-regex: 1
                                 # maximum line length, except for regexes
     max-nested-callbacks: [2, 4] # specify the maximum depth callbacks can be nested (Default: [0, 2])
