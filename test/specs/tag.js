@@ -75,6 +75,10 @@ describe('Compile tags', function () {
     testFile('es6-import')
   })
 
+  it('Detect es6 import in the untagged JS block', function () {
+    testFile('es6-import-untagged')
+  })
+
   it('Flexible method style (v2.3)', function () {
     testFile('free-style')
   })

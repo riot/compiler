@@ -2,6 +2,7 @@
 
 ### v2.5.4
 - Added parser for [bublé](https://buble.surge.sh) as `buble`.
+- Added support for es6 `import` statements. Thanks to @kuashe! - Related to [riot#1715](https://github.com/riot/riot/issues/1715), [riot#1784](https://github.com/riot/riot/issues/1784), and [riot#1864](https://github.com/riot/riot/issues/1864).
 
 ### v2.5.3
 - Fix #73 : resolveModuleSource must be a function - Option removed from the default Babel options.
