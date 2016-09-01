@@ -299,6 +299,7 @@ function restoreExpr (html, pcex) {
  * @see {@link http://www.w3.org/TR/html5/syntax.html}
  */
 function _compileHTML (html, opts, pcex) {
+  if (!/\S/.test(html)) return ''
 
   // separate the expressions, then parse the tags and their attributes
   html = splitHtml(html, opts, pcex)
@@ -756,7 +757,9 @@ function splitBlocks (str) {
       m = str.slice(k, n).match(END_TAGS)
       if (m) {
         k += m.index + m[0].length
-        return [str.slice(0, k), str.slice(k)]
+        m = str.slice(0, k)
+        if (m.slice(-5) === '<-/>\n') m = m.slice(0, -5) // riot/riot#1966
+        return [m, str.slice(k)]
       }
       n = k
       k = str.lastIndexOf('<', k - 1)

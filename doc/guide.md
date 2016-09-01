@@ -64,6 +64,30 @@ If there's no HTML tags within the root tag, riot assumes that the content is Ja
 
 This may seem counterintuitive, but complies with the riot specification for [untagged JavaScript blocks](#the-untagged-javascript-block).
 
+In the above case, you can use this:
+```html
+<my-tag>I'm html</my-tag>
+```
+
+But there's other cases...
+```html
+<my-title>
+  {title}
+  this.title = 'Title'
+<my-title>
+```
+
+Here, the compiler cannot guess if `{title}` is an expression or a literal ES6 object.
+
+However, from v2.5.4 you can use the BuGless-hack...
+```html
+<my-title>
+  {title}<-/>
+  this.title = 'Title'
+</my-title>
+```
+
+The ending `<-/>` puts `{title}` as expression in the html part and the `<-/>` is removed.
 
 ### Whitespace
 

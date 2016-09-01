@@ -292,6 +292,10 @@ describe('Compile tags', function () {
   it('detection of untagged JS may fail in rare cases', function () {
     testFile('untagged-js')
   })
+
+  it('tag with yield and one expression (riot#1966)', function () {
+    testFile('tag-title-hack')
+  })
 })
 
 describe('The (internal) `brackets.array` function', function () {
