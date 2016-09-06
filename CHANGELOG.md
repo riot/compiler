@@ -1,6 +1,7 @@
 # Compiler Changes
 
-### v2.5.4
+### v2.5.5
+- Fix to erroneous version number in the package.json, v2.5.4 was released before.
 - Removed unuseful files from the npm package.
 - Updated credits in package.json
 - Updated devDependencies, skip ESLint in CI test for node v0.12
