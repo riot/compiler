@@ -10,10 +10,8 @@
   },
   "files": [
     "lib",
-    "src",
     "doc",
-    "dist/*.js",
-    "test/**"
+    "dist/*.js"
   ],
   "scripts": {
     "test": "make test",
