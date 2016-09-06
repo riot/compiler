@@ -33,9 +33,11 @@ pre-build:
 
 eslint:
 	# check code style
+ifneq ($(TRAVIS_NODE_VERSION),0.12)
 	@ $(ESLINT) -c ./.eslintrc.yml src test
 	@ $(ESLINT) -c ./.eslintrc.yml lib \
     --ignore-pattern "**/compiler.js" --ignore-pattern "**/safe-regex.js"
+endif
 
 test-mocha:
 	@ $(ISTANBUL) cover $(MOCHA) -- test/runner.js
@@ -45,8 +47,6 @@ send-coverage:
 ifeq ($(TESTCOVER),master 4.2)
 	@ npm install codeclimate-test-reporter
 	@ codeclimate-test-reporter < coverage/lcov.info
-else
-	@ echo Send in master 4.2
 endif
 
 debug: build

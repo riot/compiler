@@ -2,7 +2,7 @@
 
 ### v2.5.4
 - Updated credits in package.json
-- Updated devDependencies
+- Updated devDependencies, skip ESLint in CI test for node v0.12
 - BuGless-hack for [riot#1966](https://github.com/riot/riot/issues/1966) - You can use `<-/>` to signal the end of the html if your html is ending with an expression.
 - Fix #68 : SASS inside Pug template gives Invalid CSS.
 - Added parser for [bublé](https://buble.surge.sh) as `buble` in the browser. Option `modules` is `false` in all versions.
