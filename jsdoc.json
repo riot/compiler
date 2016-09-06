@@ -1,9 +1,7 @@
 {
-  "dictionaries": [
-    "jsdoc"
-  ],
   "tags": {
-    "allowUnknownTags": false
+    "allowUnknownTags": false,
+    "dictionaries": ["jsdoc"]
   },
   "plugins": [
     "plugins/markdown"
@@ -19,6 +17,7 @@
   "opts": {
     "destination": "./doc/api/",
     "encoding": "utf8",
-    "private": true
+    "private": true,
+    "template": "node_modules/minami"
   }
 }
