@@ -6,6 +6,7 @@ JSPP_ES6_FLAGS  = $(JSPP_FLAGS)
 
 # Code Climate only accepts the first job of default branch
 TESTCOVER = $(TRAVIS_BRANCH) $(TRAVIS_NODE_VERSION)
+NODE_VER := $(shell node nodever)
 
 # Command line paths
 COVERALLS = ./node_modules/coveralls/bin/coveralls.js
@@ -31,9 +32,12 @@ pre-build:
 	@ $(JSPP) $(JSPP_NODE_FLAGS) src/core.js > lib/compiler.js
 	@ $(JSPP) $(JSPP_NODE_FLAGS) src/safe-regex.js > lib/safe-regex.js
 
+showenv:
+	@echo "$(NODE_VER)"
+
 eslint:
 	# check code style
-ifneq ($(TRAVIS_NODE_VERSION),0.12)
+ifneq ($(NODE_VER),0.12)
 	@ $(ESLINT) -c ./.eslintrc.yml src test
 	@ $(ESLINT) -c ./.eslintrc.yml lib \
     --ignore-pattern "**/compiler.js" --ignore-pattern "**/safe-regex.js"
