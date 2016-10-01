@@ -15,11 +15,6 @@
 
 `$ npm install riot-compiler --save`
 
-### Bower
-
-`$ bower install riot-compiler --save`
-
-
 ### Read more in the [doc folder](doc/) and the [CHANGELOG](CHANGELOG.md)
 
 _Please note: the documentation is a work in progress. Contributions are welcome._

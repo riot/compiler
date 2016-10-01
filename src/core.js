@@ -117,7 +117,7 @@ var SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i
  * Matches the 'import' statement
  * @const {RegExp}
  */
-var IMPORT_STATEMENT = /^(?: )*(?:import)(?:(?:.*))*$/gm
+var IMPORT_STATEMENT = /^\s*import(?:\s*[*{]|\s+[$_a-zA-Z'"]).*\n?/gm
 
 /**
  * Matches trailing spaces and tabs by line.
@@ -309,6 +309,7 @@ function rmImports (js) {
  * @see {@link http://www.w3.org/TR/html5/syntax.html}
  */
 function _compileHTML (html, opts, pcex) {
+  if (!/\S/.test(html)) return ''
 
   // separate the expressions, then parse the tags and their attributes
   html = splitHtml(html, opts, pcex)
@@ -766,7 +767,9 @@ function splitBlocks (str) {
       m = str.slice(k, n).match(END_TAGS)
       if (m) {
         k += m.index + m[0].length
-        return [str.slice(0, k), str.slice(k)]
+        m = str.slice(0, k)
+        if (m.slice(-5) === '<-/>\n') m = m.slice(0, -5) // riot/riot#1966
+        return [m, str.slice(k)]
       }
       n = k
       k = str.lastIndexOf('<', k - 1)
@@ -1080,6 +1083,10 @@ function compile (src, opts, url) {
             imports = compileImports(jscode)
             jscode  = rmImports(jscode)
             if (body) jscode += (jscode ? '\n' : '') + body
+            jscode = jscode.replace(IMPORT_STATEMENT, function (s) {
+              imports += s.trim() + '\n'
+              return ''
+            })
           }
         }
       }
@@ -1094,7 +1101,8 @@ function compile (src, opts, url) {
           html: html,
           css: styles,
           attribs: attribs,
-          js: jscode
+          js: jscode,
+          imports: imports
         })
         return ''
       }

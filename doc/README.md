@@ -159,6 +159,7 @@ The predefined parsers are:
 - `typescript`
 - `es6` - (using `babel-core` or `babel`)
 - `babel` - (using `babel-core` v6.x and the `es2015` preset)
+- `buble`
 - `coffee` or `coffeescript`
 
 ## Changes in v2.3.0

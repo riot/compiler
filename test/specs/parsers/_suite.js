@@ -171,6 +171,13 @@ describe('JavaScript parsers', function () {
     }
   })
 
+  // test.buble.tag
+  it('bublé', function () {
+    if (have('buble')) {
+      testParser('test', { type: 'buble' })
+    }
+  })
+
   // test-attr.babel.tag (also test alias coffeescript)
   it('coffee with shorthands (fix #1090)', function () {
     if (have('coffeescript')) {
@@ -224,6 +231,13 @@ describe('Style parsers', function () {
   it('sass, indented 2, margin 0', function () {
     if (have('sass')) {
       testParser('sass')
+    }
+  })
+
+  // sass.tag
+  it('sass inside pug - issue #68', function () {
+    if (have('sass') && have('pug')) {
+      testParser('sass-inside-pug', { template: 'pug' })
     }
   })
 

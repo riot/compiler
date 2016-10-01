@@ -1,5 +1,27 @@
 # Compiler Changes
 
+### v2.5.5
+- Fix to erroneous version number in the package.json, v2.5.4 was released before.
+- Removed unuseful files from the npm package.
+- Updated credits in package.json
+- Updated devDependencies, skip ESLint in CI test for node v0.12
+- BuGless-hack for [riot#1966](https://github.com/riot/riot/issues/1966) - You can use `<-/>` to signal the end of the html if your html is ending with an expression.
+
+### v2.5.4
+- Fix #68 : SASS inside Pug template gives Invalid CSS.
+- Added parser for [bublé](https://buble.surge.sh) as `buble` in the browser. Option `modules` is `false` in all versions.
+- Added parser for [bublé](https://buble.surge.sh) as `buble`.
+- Added support for es6 `import` statements. Thanks to @kuashe! - Related to [riot#1715](https://github.com/riot/riot/issues/1715), [riot#1784](https://github.com/riot/riot/issues/1784), and [riot#1864](https://github.com/riot/riot/issues/1864).
+
+### v2.5.3
+- Fix #73 : resolveModuleSource must be a function - Option removed from the default Babel options.
+- Updated node.js to 4.4 in the Travis environment.
+- Downgraded ESLint to 2.x for using with node v0.12.x
+
+### v2.5.2
+- Fix #72: `undefined` is not a function when evaluating `parsers._req`.
+- Updated node versions for travis, including v5.x
+
 ### v2.4.1
 
 - Add the `pug` parser (it will replace completely `jade` in the next major release)
