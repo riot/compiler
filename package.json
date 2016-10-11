@@ -1,6 +1,6 @@
 {
   "name": "riot-compiler",
-  "version": "3.0.0-alpha.2",
+  "version": "3.0.0-alpha.3",
   "description": "Compiler for riot .tag files",
   "main": "lib/compiler.js",
   "jsnext:main": "dist/es6.compiler.js",
@@ -29,11 +29,11 @@
   ],
   "devDependencies": {
     "coveralls": "^2.11.14",
-    "eslint": "^3.7.0",
+    "eslint": "^3.7.1",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
     "jspreproc": "^0.2.7",
-    "mocha": "^3.1.0",
+    "mocha": "^3.1.2",
     "riot-bump": "^1.0.0"
   },
   "author": "Riot maintainers team + smart people from all over the world",
