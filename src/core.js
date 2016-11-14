@@ -130,7 +130,7 @@ var SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i
  * Matches the 'import' statement
  * @const {RegExp}
  */
-var IMPORT_STATEMENT = /^\s*import(?:\s*[*{]|\s+[$_a-zA-Z'"]).*\n?/gm
+var IMPORT_STATEMENT = /^\s*import(?:(\s|\S)*)['|"]/gm
 
 /**
  * Matches trailing spaces and tabs by line.

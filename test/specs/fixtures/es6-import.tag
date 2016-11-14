@@ -5,6 +5,20 @@
     import john from 'doe'
     import foo from 'bar'
     import { foo, bar, baz } from 'foo.bar.baz'
+    import {
+      foo,
+      bar,
+      baz
+    } from 'foo.bar.baz'
+    import {
+      foo,
+      bar,
+      baz } from 'foo.bar.baz'
+
+    import { foo,
+      bar,
+      baz } from 'foo.bar.baz'
+
     time(){
         return Date()
     }
