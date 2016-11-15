@@ -117,7 +117,7 @@ var SPEC_TYPES = /^"(?:number|date(?:time)?|time|month|email|color)\b/i
  * Matches the 'import' statement
  * @const {RegExp}
  */
-var IMPORT_STATEMENT = /^\s*import(?:\s*[*{]|\s+[$_a-zA-Z'"]).*\n?/gm
+var IMPORT_STATEMENT = /^\s*import(?:(\s|\S)*)['|"]/gm
 
 /**
  * Matches trailing spaces and tabs by line.
@@ -267,30 +267,6 @@ function restoreExpr (html, pcex) {
     })
   }
   return html
-}
-
-/**
- * Return imports statement of the code as a string
- * @param    {string} js - The js code containing the imports statement
- * @returns  {string} Js code containing only the imports statement
- */
-function compileImports (js) {
-  var imp = []
-  var imports = ''
-  while (imp = IMPORT_STATEMENT.exec(js)) {
-    imports += imp[0].trim() + '\n'
-  }
-  return imports
-}
-
-/**
- * Remove 'import' statement from JSCode
- * @param    {string} js - The Js code
- * @returns  {string} jsCode The js code without 'import' statement
- */
-function rmImports (js) {
-  var jsCode = js.replace(IMPORT_STATEMENT, '')
-  return jsCode
 }
 
 /*
@@ -562,19 +538,23 @@ function scopedCSS (tag, css) {
     p2 = p2.replace(/[^,]+/g, function (sel) {
       var s = sel.trim()
 
+      // skip selectors already using the tag name
+      if (s.indexOf(tag) === 0) {
+        return sel
+      }
+
       // skips the keywords and percents of css animations
       if (!s || s === 'from' || s === 'to' || s.slice(-1) === '%') {
         return sel
       }
+
       // replace the `:scope` pseudo-selector, where it is, with the root tag name;
       // if `:scope` was not included, add the tag name as prefix, and mirror all
       // `[data-is]`
       if (s.indexOf(scope) < 0) {
-        s = tag + ' ' + s + ',[riot-tag="' + tag + '"] ' + s +
-                            ',[data-is="' + tag + '"] ' + s
+        s = tag + ' ' + s + ',[data-is="' + tag + '"] ' + s
       } else {
         s = s.replace(scope, tag) + ',' +
-            s.replace(scope, '[riot-tag="' + tag + '"]') + ',' +
             s.replace(scope, '[data-is="' + tag + '"]')
       }
       return s
@@ -599,12 +579,10 @@ function scopedCSS (tag, css) {
  * @see {@link module:compiler.compileCSS|compileCSS}
  */
 function _compileCSS (css, tag, type, opts) {
-  var scoped = (opts || (opts = {})).scoped
+  opts = opts || {}
 
   if (type) {
-    if (type === 'scoped-css') {    // DEPRECATED
-      scoped = true
-    } else if (type !== 'css') {
+    if (type !== 'css') {
       // 2016-05-11: _req throws exception for invalid parser
       var parser = parsers._req('css.' + type, true)
       css = parser(tag, css, opts.parserOpts || {}, opts.url)
@@ -613,14 +591,8 @@ function _compileCSS (css, tag, type, opts) {
 
   // remove comments, compact and trim whitespace
   css = css.replace(brackets.R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
+  if (tag) css = scopedCSS(tag, css)
 
-  // translate scoped rules if required
-  if (scoped) {
-    if (!tag) {
-      throw new Error('Can not parse scoped CSS without a tagName')
-    }
-    css = scopedCSS(tag, css)
-  }
   return css
 }
 
@@ -897,7 +869,6 @@ function cssCode (code, opts, attribs, url, tag) {
     parserStyleOptions = extend({}, opts.parserOptions.style),
     extraOpts = {
       parserOpts: extend(parserStyleOptions, getParserOptions(attribs)),
-      scoped: attribs && /\sscoped(\s|=|$)/i.test(attribs),
       url: url
     }
 
@@ -1080,8 +1051,6 @@ function compile (src, opts, url) {
           // and the untagged js block
           if (included('js')) {
             body = _compileJS(blocks[1], opts, null, null, url)
-            imports = compileImports(jscode)
-            jscode  = rmImports(jscode)
             if (body) jscode += (jscode ? '\n' : '') + body
             jscode = jscode.replace(IMPORT_STATEMENT, function (s) {
               imports += s.trim() + '\n'

@@ -222,7 +222,7 @@ describe('Compile tags', function () {
       dummyTag = [
         '<my-tag>',
         '<p>{ hi }</p>',
-        '<style scoped>',
+        '<style>',
         ' :scope { color: red; }',
         '</style>',
         'this.hi = "hi"',
@@ -230,10 +230,10 @@ describe('Compile tags', function () {
       ].join('\n')
 
     expect(compileStr(dummyTag, '', { exclude: ['html'] })).to.be(norm(
-      "riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"],[data-is=\"my-tag\"]{ color: red; }', '', function(opts) {\nthis.hi = \"hi\"\n});"))
+      "riot.tag2('my-tag', '', 'my-tag,[data-is=\"my-tag\"]{ color: red; }', '', function(opts) {\nthis.hi = \"hi\"\n});"))
 
     expect(compileStr(dummyTag, '', { exclude: ['html', 'js'] })).to.be(norm(
-      "riot.tag2('my-tag', '', 'my-tag,[riot-tag=\"my-tag\"],[data-is=\"my-tag\"]{ color: red; }', '', function(opts) {\n});"))
+      "riot.tag2('my-tag', '', 'my-tag,[data-is=\"my-tag\"]{ color: red; }', '', function(opts) {\n});"))
 
     expect(compileStr(dummyTag, '', { exclude: ['css'] })).to.be(norm(
       "riot.tag2('my-tag', '<p>{hi}</p>', '', '', function(opts) {\nthis.hi = \"hi\"\n});"))

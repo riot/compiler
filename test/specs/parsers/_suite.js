@@ -288,7 +288,7 @@ describe('Style parsers', function () {
 
     parsers.css.myParser2 = function (t, s) { return s.replace(/\bp\b/g, 'P') }
     result = compiler.compile(source, { style: 'myParser2' })
-    expect(result).to.contain('P {top:0}')
+    expect(result).to.contain('style-option P,[data-is="style-option"] P{top:0}')
   })
 
   it('the style parser options can be passed directly to the compiler', function () {
