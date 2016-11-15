@@ -86,7 +86,7 @@ var HTML_PACK = />[ \t]+<(-?[A-Za-z]|\/[-A-Za-z])/g
  * @const {Array}
  * @see [attributes.md](https://github.com/riot/compiler/blob/dev/doc/attributes.md)
  */
-var RIOT_ATTRS = ['style', 'src', 'd']
+var RIOT_ATTRS = ['style', 'src', 'd', 'value']
 
 /**
  * HTML5 void elements that cannot be auto-closed.
@@ -200,7 +200,7 @@ function parseAttribs (str, pcex) {
         if (RE_HASEXPR.test(v)) {
           // renames special attributes with expressiones in their value.
           if (k === 'value') vexp = 1
-          else if (~RIOT_ATTRS.indexOf(k)) k = 'riot-' + k
+          if (~RIOT_ATTRS.indexOf(k)) k = 'riot-' + k
         }
         // join the key-value pair, with no spaces between the parts
         list.push(k + '=' + v)

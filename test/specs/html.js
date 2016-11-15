@@ -15,7 +15,7 @@ describe('Compile HTML', function () {
   it('compiles void tag into separated: <x/> -> <x></x>', function () {
     testStr('<p/>', '<p></p>')
     testStr('<a><b/></a>', '<a><b></b></a>')
-    testStr('<my-tag value={ test }/>', '<my-tag value="{test}"></my-tag>')
+    testStr('<my-tag value={ test }/>', '<my-tag riot-value="{test}"></my-tag>')
   })
 
   it('adds the prefix `riot-` to some attributes', function () {
@@ -55,17 +55,17 @@ describe('Compile HTML', function () {
     it('fix #827 input type=number and expression in the value', function () {
       testStr('<input type=number>', '<input type="number">') // no value
       testStr('<input type=number value=1>', '<input value="1" type="number">') // no expression
-      testStr('<input type=number value={ 1 }>', '<input value="{1}" type="{\'number\'}">')
+      testStr('<input type=number value={ 1 }>', '<input riot-value="{1}" type="{\'number\'}">')
     })
 
     it('fix #1495 Warning of input tag value (date/time/month/email/color)', function () {
-      testStr('<input type=date value={d}>', '<input value="{d}" type="{\'date\'}">')
-      testStr('<input type=time value={t}>', '<input value="{t}" type="{\'time\'}">')
-      testStr('<input type=date-local value={dl}>', '<input value="{dl}" type="{\'date-local\'}">')
-      testStr('<input type=datetime value={dt}>', '<input value="{dt}" type="{\'datetime\'}">')
-      testStr('<input type=month value={m}>', '<input value="{m}" type="{\'month\'}">')
-      testStr('<input type=email value={e}>', '<input value="{e}" type="{\'email\'}">')
-      testStr('<input type=color value={c}>', '<input value="{c}" type="{\'color\'}">')
+      testStr('<input type=date value={d}>', '<input riot-value="{d}" type="{\'date\'}">')
+      testStr('<input type=time value={t}>', '<input riot-value="{t}" type="{\'time\'}">')
+      testStr('<input type=date-local value={dl}>', '<input riot-value="{dl}" type="{\'date-local\'}">')
+      testStr('<input type=datetime value={dt}>', '<input riot-value="{dt}" type="{\'datetime\'}">')
+      testStr('<input type=month value={m}>', '<input riot-value="{m}" type="{\'month\'}">')
+      testStr('<input type=email value={e}>', '<input riot-value="{e}" type="{\'email\'}">')
+      testStr('<input type=color value={c}>', '<input riot-value="{c}" type="{\'color\'}">')
     })
 
     it('normalizes attributes, all values in double quotes', function () {
