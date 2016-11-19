@@ -98,15 +98,7 @@ var parsers = (function (win) {
     }
   }
   _p.js = {
-    es6: function (js, opts) {
-      opts = extend({
-        blacklist: ['useStrict', 'strict', 'react'],
-        sourceMaps: false,
-        comments: false
-      }, opts)
-      return _r('babel').transform(js, opts).code
-    },
-    babel: function (js, opts, url) {
+    es6: function (js, opts, url) {
       return _r('babel').transform(js, extend({ filename: url }, opts)).code
     },
     buble: function (js, opts, url) {

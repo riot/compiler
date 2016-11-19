@@ -164,13 +164,6 @@ describe('JavaScript parsers', function () {
     }
   })
 
-  // test.babel.tag
-  it('babel', function () {
-    if (have('babel')) {
-      testParser('test', { type: 'babel' })
-    }
-  })
-
   // test.buble.tag
   it('bublé', function () {
     if (have('buble')) {
