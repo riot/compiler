@@ -157,8 +157,7 @@ The predefined parsers are:
 - `none` or `javascript`
 - `livescript`
 - `typescript`
-- `es6` - (using `babel-core` or `babel`)
-- `babel` - (using `babel-core` v6.x and the `es2015` preset)
+- `es6` - (using `babel-core` v6.x and the `es2015` preset)
 - `buble`
 - `coffee` or `coffeescript`
 
