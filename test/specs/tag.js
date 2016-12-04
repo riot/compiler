@@ -63,6 +63,10 @@ describe('Compile tags', function () {
     testFile('scoped')
   })
 
+  it('CSS @apply Rules', function () {
+    testFile('css-apply')
+  })
+
   it('Quotes before ending HTML bracket', function () {
     testFile('input-last')
   })

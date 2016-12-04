@@ -517,7 +517,7 @@ function compileJS (js, opts, type, userOpts) {
  * Matches CSS selectors, excluding those beginning with '@' and quoted strings.
  * @const {RegExp}
  */
-var CSS_SELECTOR = RegExp('([{}]|^)[ ;]*([^@ ;{}][^{}]*)(?={)|' + S_LINESTR, 'g')
+var CSS_SELECTOR = RegExp('([{}]|^)[; ]*((?:[^@ ;{}][^{}]*)?[^@ ;{}:] ?)(?={)|' + S_LINESTR, 'g')
 
 /**
  * Parses styles enclosed in a "scoped" tag (`scoped` was removed from HTML5).
