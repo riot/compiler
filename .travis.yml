@@ -8,24 +8,6 @@ branches:
     - master
     - dev
 
-install:
-  - npm i jade
-  - npm i pug
-  - npm i babel-core
-
- # babel presets
-  - npm i babel-preset-es2015-riot
-  - npm i buble
-  - npm i coffee-script
-  - npm i livescript
-  - npm i typescript-simple
-  - npm i stylus
-  - npm i nib
-  - npm i node-sass
-  - npm i less
-  - npm i postcss autoprefixer
-  - npm i
-
 after_success: make send-coverage
 
 notifications:
