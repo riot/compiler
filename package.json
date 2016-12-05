@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "test": "make test",
-    "postinstall": "npm run install-html && npm run install-js && npm run install-css",
+    "prepare": "npm run install-html && npm run install-js && npm run install-css",
     "install-html": "npm i jade pug",
     "install-js": "npm i babel-core babel-preset-es2015-riot buble coffee-script livescript typescript-simple",
     "install-css": "npm i stylus nib node-sass less postcss autoprefixer",
