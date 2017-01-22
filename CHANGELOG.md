@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.1.0
+- Adds support for css @apply rule: now ScopedCSS parser can handle it properly
+
 ### v3.0.0
 - Fix #2210 : Style tag get stripped from riot tag even if it's in a javascript string.
 - Deprecate old `babel` support, now the `es6` parser will use Babel 6 by default

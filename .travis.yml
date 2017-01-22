@@ -8,6 +8,9 @@ branches:
     - master
     - dev
 
+install:
+  - npm run prepare
+
 after_success: make send-coverage
 
 notifications:
