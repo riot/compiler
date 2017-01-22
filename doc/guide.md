@@ -250,13 +250,13 @@ This is done in the entire source.
 
 Once prepared the source, searches the html elements. For each found element separates its parts (closing/opening tag, root attributes, and content) and parses the root attributes, then removes _html_ comments and trim trailing whitespace from the content.
 
-Then, one at the time, removes the `style` blocks and sends its content to the CSS parser. Next, it does the same for the `script` blocks.
+Then, one at the time, removes all the `script` blocks and sends its content to the JS parser. Next, it does the same for the `style` blocks.
 
 In the remaining content, looks for the last html tag which _terminate its line_.
-If found, its closing tag signals the end of the html markup and the beginning of the untagged JavaScript code.
+If found, this closing tag signals the end of the html markup and the beginning of the untagged JavaScript code.
 If not found, all remaining is considered JavaScript.
 
-So, you can put `style` and `script` blocks anywhere in the content, the only restriction is that the untagged JavaScript block must follow the html and you can't use JavaScript comments outside this block.
+So, you can put `style` and `script` blocks anywhere in the content, the only restriction is that the untagged JavaScript block must be last and you can't use JavaScript comments outside this block.
 
 **Note:** This freedom has a cost: JavaScript strings containing script or style tags have to be written with tricks as:
 ```js
