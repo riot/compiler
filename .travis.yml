@@ -9,6 +9,7 @@ branches:
     - dev
 
 install:
+  - npm i
   - npm run prepare
 
 after_success: make send-coverage
