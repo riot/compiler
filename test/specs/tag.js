@@ -300,6 +300,10 @@ describe('Compile tags', function () {
   it('tag with yield and one expression (riot#1966)', function () {
     testFile('tag-title-hack')
   })
+
+  it('riot#2210 Style tag get stripped from riot tag even if it\'s in a js string', function () {
+    testFile('style-inside-script')
+  })
 })
 
 describe('The (internal) `brackets.array` function', function () {

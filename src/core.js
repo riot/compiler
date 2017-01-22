@@ -1019,14 +1019,6 @@ function compile (src, opts, url) {
           // remove tag indentation in the content
           body = body.replace(RegExp('^' + indent, 'gm'), '')
 
-          // get and process the style blocks
-          body = body.replace(STYLES, function (_m, _attrs, _style) {
-            if (included('css')) {
-              styles += (styles ? ' ' : '') + cssCode(_style, opts, _attrs, url, tagName)
-            }
-            return ''
-          })
-
           // now the script blocks
           body = body.replace(SCRIPTS, function (_m, _attrs, _script) {
             if (included('js')) {
@@ -1036,6 +1028,14 @@ function compile (src, opts, url) {
               if (code === false) return _m.replace(DEFER_ATTR, '')
               //#endif
               if (code) jscode += (jscode ? '\n' : '') + code
+            }
+            return ''
+          })
+
+          // get and process the style blocks
+          body = body.replace(STYLES, function (_m, _attrs, _style) {
+            if (included('css')) {
+              styles += (styles ? ' ' : '') + cssCode(_style, opts, _attrs, url, tagName)
             }
             return ''
           })

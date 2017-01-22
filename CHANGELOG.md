@@ -1,9 +1,11 @@
 # Compiler Changes
 
 ### v3.0.0
+- Fix #2210 : Style tag get stripped from riot tag even if it's in a javascript string.
 - Deprecate old `babel` support, now the `es6` parser will use Babel 6 by default
 - Change css always scoped by default
 - Fix all the `value` attributes using expressions will be output as `riot-value` to [riot#1957](https://github.com/riot/riot/issues/1957)
+- Updated devDependencies.
 
 ### v2.5.5
 - Fix to erroneous version number in the package.json, v2.5.4 was released before.
