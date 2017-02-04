@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.1.4
+- Fix avoid the `filename` option for the babel-standalone parser
+
 ### v3.1.3
 - Fix babel in browser runtime parser https://github.com/riot/examples/issues/51
 
