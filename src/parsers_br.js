@@ -106,7 +106,6 @@ var parsers = (function (win) {
       return _r('Babel').transform( // eslint-disable-line
         js,
         extend({
-          filename: url,
           plugins: [
             ['transform-es2015-template-literals', { loose: true }],
             'transform-es2015-literals',
