@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.1.3
+- Fix babel in browser runtime parser https://github.com/riot/examples/issues/51
+
 ### v3.1.2
 - Fix [riot#2210](https://github.com/riot/riot/issues/2210) : Style tag get stripped from riot tag even if it's in a javascript string.
 - Updated devDependencies.
