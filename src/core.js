@@ -368,7 +368,7 @@ function compileHTML (html, opts, pcex) {
  * 2016-01-18: rewritten to capture only the method name (performant)
  * @const {RegExp}
  */
-var JS_ES6SIGN = /^[ \t]*([$_A-Za-z][$\w]*)\s*\([^()]*\)\s*{/m
+var JS_ES6SIGN = /^[ \t]*(((?:async)\s*)?([$_A-Za-z][$\w]*))\s*\([^()]*\)\s*{/m
 
 /**
  * Regex for remotion of multiline and single-line JavaScript comments, merged with
@@ -399,6 +399,8 @@ function riotjs (js) {
     match,
     toes5,
     pos,
+    method,
+    prefix,
     name,
     RE = RegExp
 
@@ -412,9 +414,18 @@ function riotjs (js) {
     pos = skipBody(js, JS_ES6END)
 
     // convert ES6 method signature to ES5 function, exclude JS keywords
-    name  = match[1]
+    method = match[1] // the full match
+    prefix = match[2] || '' // async or ''
+    name  = match[3] // the method name
+
     toes5 = !/^(?:if|while|for|switch|catch|function)$/.test(name)
-    name  = toes5 ? match[0].replace(name, 'this.' + name + ' = function') : match[0]
+
+    if (toes5) {
+      name = match[0].replace(method, 'this.' + name + ' =' + prefix + ' function')
+    } else {
+      name = match[0]
+    }
+
     parts.push(name, js.slice(0, pos))
     js = js.slice(pos)
 

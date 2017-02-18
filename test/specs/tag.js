@@ -79,6 +79,10 @@ describe('Compile tags', function () {
     testFile('es6-import')
   })
 
+  it('Support short cut async functions', function () {
+    testFile('es6-async')
+  })
+
   it('Detect es6 import in the untagged JS block', function () {
     testFile('es6-import-untagged')
   })
