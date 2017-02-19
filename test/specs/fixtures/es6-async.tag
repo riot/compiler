@@ -10,5 +10,9 @@
       await new Promise((resolve) => {setTimeout(resolve,2000)});
       console.log("done");
     }
+
+    * bar() {
+      yield baz
+    }
   </script>
 </async>
