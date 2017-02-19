@@ -79,6 +79,10 @@ describe('Compile tags', function () {
     testFile('es6-import')
   })
 
+  it('Es6 template strings can be properly parsed', function () {
+    testFile('es6-template-strings')
+  })
+
   it('Support short cut async functions', function () {
     testFile('es6-async')
   })
