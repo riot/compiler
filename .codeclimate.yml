@@ -4,7 +4,7 @@ engines:
 
 ratings:
   paths:
-  - "dist/compiler.js"
+  - "src/**/*"
 
 exclude_paths:
   - "dist/riot.compiler.js"

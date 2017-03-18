@@ -1,25 +1,17 @@
 {
   "name": "riot-compiler",
-  "version": "3.2.1",
+  "version": "4.0.0-alpha.0",
   "description": "Compiler for riot .tag files",
-  "main": "lib/compiler.js",
-  "jsnext:main": "dist/es6.compiler.js",
-  "directories": {
-    "lib": "lib",
-    "doc": "doc"
-  },
+  "main": "dist/index.js",
+  "module": "dist/index.next.js",
+  "jsnext:main": "dist/index.next.js",
   "files": [
-    "lib",
-    "doc",
-    "dist/*.js"
+    "dist",
+    "src"
   ],
   "scripts": {
     "test": "make test",
-    "prepare": "npm run install-html && npm run install-js && npm run install-css",
-    "install-html": "npm i jade pug",
-    "install-js": "npm i babel-core babel-preset-es2015-riot buble coffee-script livescript typescript-simple",
-    "install-css": "npm i stylus nib node-sass less postcss autoprefixer",
-    "prepublish": "make build && ./node_modules/.bin/riot-bump && ./node_modules/.bin/riot-bump lib"
+    "prepublish": "make build"
   },
   "repository": {
     "type": "git",
@@ -32,13 +24,13 @@
     "compiler"
   ],
   "devDependencies": {
-    "coveralls": "^2.11.16",
-    "eslint": "^3.15.0",
+    "coveralls": "^2.12.0",
+    "eslint": "^3.17.1",
+    "esprima": "^3.1.3",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
-    "jspreproc": "^0.2.7",
     "mocha": "^3.2.0",
-    "riot-bump": "^1.0.0"
+    "rollup": "^0.41.5"
   },
   "author": "Riot maintainers team + smart people from all over the world",
   "contributors": [
