@@ -20,7 +20,7 @@ clean:
 
 test:
 	@ make build
-	@ $(ISTANBUL) cover $(MOCHA) -- test/runner.js
+	@ $(ISTANBUL) cover $(MOCHA) -- test/index.js
 
 lint:
 	@ $(ESLINT) src test

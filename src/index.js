@@ -9,10 +9,9 @@ import { parse } from './parser'
  * @returns { Object } output.code - the generated javascript code
  * @returns { Object } output.map  - source map
  */
-function compile(name, source, options) {
-  if (!name) throw `Please specify the name of the tag you want to compile`
-  const output = parse(source, options)
-  return output
+function compile(name, source, options = {}) {
+  if (!name) throw 'Please specify the name of the tag you want to compile'
+  return parse(name, source, options)
 }
 
 export default {

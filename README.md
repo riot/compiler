@@ -19,19 +19,28 @@ For example `my-tag.tag`:
     { message }
   </p>
 
-  <div if={ error }>
-    <p>{ error }</p>
-  </div>
+  {#if error}
+    <div>
+      <p>{ error }</p>
+    </div>
+  {#else}
+    no errors
+  {/if}
 
   <ul>
-    <li each={ item in items }>{ item.value }</li>
+    {#each item in items}
+      <li>{ item.value }</li>
+    {/each}
   </ul>
 </template>
 
 <script>
 export default {
+  error: 'this is an error',
+  message: 'nice message',
+  items: [{ value: 'one'}, { value: 'two'}]
   updateMessage(message) {
-    this.update({ message: 'goodbye', error: false })
+    this.update({ message, error: false })
   }
 }
 </script>
@@ -47,13 +56,11 @@ Will become:
 
 ```js
 riot.define('my-tag', {
-  store: {
-    message: 'click me',
-    error: 'i am an error',
-    items: [{ value: 'foo'}, { value: 'bar' }]
-  },
-  updateMessage() {
-    this.update({ message: 'goodbye', error: false })
+  error: 'this is an error',
+  message: 'nice message',
+  items: [{ value: 'one'}, { value: 'two'}],
+  updateMessage(message) {
+    this.update({ message, error: false })
   }
   get css() {
     return `
@@ -62,19 +69,21 @@ riot.define('my-tag', {
       }
     `
   },
-  render(h, store) {
+  render(h) {
     return h`
       <p onclick="${ this.updateMessage.bind(this, 'goodbye') }">
-        ${ store.message }
+        ${ this.message }
       </p>${
-        if (store.error) {
-          `<div>
-            <p>${ store.error }</p>
-          </div>`
-        }
+        this.error ? `
+          <div>
+            <p>${ this.error }</p>
+          </div>
+        ` : `no errors`
       }<ul>${
-          store.items.map((item) => {
-            return `<li>${ item.value }</li>`
+          Array.from(this.items).map((item) => {
+            return (`
+              <li>${ item.value }</li>
+            `)
           })
       }</ul>
     `;
@@ -97,6 +106,8 @@ Check for example [this demo](https://jsfiddle.net/gianlucaguarini/ed31q3qk/) to
 - The source code will be simplified a lot avoiding to maintain different forks for the browser/node versions
 - It will generate always sourcemaps
 - It will be simpler to validate the riot tags syntax due to a cleaner and unambigous structure
+- No need for `<virtual>` tags and other weird hacks
+- Allow the rendering of raw markup
 
 [travis-image]:  https://img.shields.io/travis/riot/compiler.svg?style=flat-square
 [travis-url]:    https://travis-ci.org/riot/compiler
