@@ -55,7 +55,6 @@ out/
 # App Files
 # --------------------
 node_modules
-bower_components
 coverage
 
 !.eslint*
