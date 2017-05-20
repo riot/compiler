@@ -34,6 +34,7 @@ describe('Compile HTML', function () {
   it('keeps interpolations', function () {
     testStr('<a href="a?b={ c }">', '<a href="a?b={c}">')
     testStr('<a id="{ a }b">', '<a id="{a}b">')
+    testStr('<div>{ (2+3)/2 }</div>', '<div>{(2+3)/2}</div>')
   })
 
   it('skips HTML comments', function () {
