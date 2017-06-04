@@ -1,7 +1,4 @@
 **/coverage/
 **/dist/
-**/test/specs/expect/
-**/test/specs/fixtures/
-**/test/specs/parsers/js/
-**/test/v223/
-**/test/perf.js
+**/test/
+!/test/runner.js
