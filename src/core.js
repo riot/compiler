@@ -385,7 +385,7 @@ var JS_ES6END = RegExp('[{}]|' + brackets.S_QBLOCKS, 'g')
  * {@link module:brackets.S_QBLOCKS|brackets.S_QBLOCKS} to skip literal string and regexes.
  * @const {RegExp}
  */
-var JS_COMMS = RegExp(brackets.R_MLCOMMS.source + '|//[^\r\n]*|' + brackets.S_QBLOCKS, 'g')
+var JS_COMMS = RegExp(brackets.R_MLCOMMS.source + '|//[^\r\n]*|' + brackets.S_QBLOCK2, 'g')
 
 /**
  * Default parser for JavaScript, supports ES6-like method syntax
@@ -436,12 +436,15 @@ function riotjs (js) {
   return parts.length ? parts.join('') + js : js
 
   // 2016-01-18: remove comments without touching qblocks (avoid reallocation)
+  // 2017-96-03: Fixes riot#2361 & riot#2369 using skipRegex from riot/parser
   function rmComms (s, r, m) {
     r.lastIndex = 0
     while ((m = r.exec(s))) {
-      if (m[0][0] === '/' && !m[1] && !m[2]) {    // $1:div, $2:regex
-        s = RE.leftContext + ' ' + RE.rightContext
-        r.lastIndex = m[3] + 1                    // $3:matchOffset
+      if (m[1]) {
+        r.lastIndex = brackets.skipRegex(s, m.index)
+      } else if (m[0][0] === '/') {
+        s = s.slice(0, m.index) + ' ' + s.slice(r.lastIndex)
+        r.lastIndex = m.index + 1
       }
     }
     return s

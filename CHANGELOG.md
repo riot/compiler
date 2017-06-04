@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.2.3
+- Fixes various issues with literal regexes.
+
 ### v3.1.4
 - Fix avoid the `filename` option for the babel-standalone parser
 

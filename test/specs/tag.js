@@ -312,6 +312,14 @@ describe('Compile tags', function () {
   it('riot#2210 Style tag get stripped from riot tag even if it\'s in a js string', function () {
     testFile('style-inside-script')
   })
+
+  it("riot#2361 '}' in output when expression contains ')/'", function () {
+    testFile('issue_2361')
+  })
+
+  it('riot#2369 regex (ending with `\\//`) in script function breaks compiler', function () {
+    testFile('issue_2369')
+  })
 })
 
 describe('The (internal) `brackets.array` function', function () {
@@ -364,4 +372,5 @@ describe('The (internal) `brackets.array` function', function () {
       arrayFn('{}')
     }).to.throwError()
   })
+
 })

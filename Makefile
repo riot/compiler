@@ -24,6 +24,7 @@ test: build test-mocha
 
 build: clean eslint pre-build
 	# build riot and es6 versions
+	@ mkdir -p $(DIST)
 	@ $(JSPP) $(JSPP_RIOT_FLAGS) src/_riot.js > $(DIST)riot.compiler.js
 	@ $(JSPP) $(JSPP_ES6_FLAGS)  src/_es6.js  > $(DIST)es6.compiler.js
 
@@ -32,7 +33,6 @@ clean:
 
 pre-build:
 	# build the node version
-	@ mkdir -p $(DIST)
 	@ $(JSPP) $(JSPP_NODE_FLAGS) src/core.js > $(LIB)compiler.js
 	@ $(JSPP) $(JSPP_NODE_FLAGS) src/safe-regex.js > $(LIB)safe-regex.js
 
