@@ -1,8 +1,9 @@
 {
   "name": "riot-compiler",
-  "version": "3.2.3",
+  "version": "3.2.4",
   "description": "Compiler for riot .tag files",
   "main": "lib/compiler.js",
+  "module": "dist/es6.compiler.js",
   "jsnext:main": "dist/es6.compiler.js",
   "directories": {
     "lib": "lib",
@@ -19,7 +20,7 @@
     "install-html": "npm i jade pug",
     "install-js": "npm i babel-core babel-preset-es2015-riot buble coffee-script livescript typescript-simple",
     "install-css": "npm i stylus nib node-sass less postcss autoprefixer",
-    "prepublish": "make build && ./node_modules/.bin/riot-bump && ./node_modules/.bin/riot-bump lib"
+    "prepublish": "make build && riot-bump && riot-bump lib"
   },
   "repository": {
     "type": "git",
@@ -52,5 +53,8 @@
   "bugs": {
     "url": "https://github.com/riot/compiler/issues"
   },
-  "homepage": "https://github.com/riot/compiler#readme"
+  "homepage": "https://github.com/riot/compiler#readme",
+  "dependencies": {
+    "skip-regex": "^0.2.0"
+  }
 }

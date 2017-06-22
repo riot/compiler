@@ -46,6 +46,7 @@ describe('Compile JS', function () {
 describe('riotjs', function () {
 
   function render (str) {
+    debugger
     return compiler.js(str, {})
   }
 

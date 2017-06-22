@@ -12,6 +12,7 @@
 var brackets  = require('./brackets')
 var parsers   = require('./parsers')
 var safeRegex = require('./safe-regex')
+var jsSplitter = require('./js-splitter')
 var path      = require('path')           // used by getCode()
 //#endif
 
@@ -371,23 +372,6 @@ function compileHTML (html, opts, pcex) {
 var JS_ES6SIGN = /^[ \t]*(((?:async|\*)\s*)?([$_A-Za-z][$\w]*))\s*\([^()]*\)\s*{/m
 
 /**
- * Regex for remotion of multiline and single-line JavaScript comments, merged with
- * {@link module:brackets.S_QBLOCKS|brackets.S_QBLOCKS} to skip literal string and regexes.
- * Used by the {@link module:compiler~riotjs|riotjs} parser.
- *
- * 2016-01-18: rewritten to not capture the brackets (reduces 9 steps)
- * @const {RegExp}
- */
-var JS_ES6END = RegExp('[{}]|' + brackets.S_QBLOCKS, 'g')
-
-/**
- * Regex for remotion of multiline and single-line JavaScript comments, merged with
- * {@link module:brackets.S_QBLOCKS|brackets.S_QBLOCKS} to skip literal string and regexes.
- * @const {RegExp}
- */
-var JS_COMMS = RegExp(brackets.R_MLCOMMS.source + '|//[^\r\n]*|' + brackets.S_QBLOCK2, 'g')
-
-/**
  * Default parser for JavaScript, supports ES6-like method syntax
  *
  * @param   {string} js - Raw JavaScript code
@@ -404,14 +388,15 @@ function riotjs (js) {
     name,
     RE = RegExp
 
-  if (~js.indexOf('/')) js = rmComms(js, JS_COMMS)
+  const src = jsSplitter(js)
+  js = src.shift().join('<%>')
 
   // 2016-01-18: Faster, only replaces the method name, captured in $1
   while ((match = js.match(JS_ES6SIGN))) {
     // save the processed part
     parts.push(RE.leftContext)
     js  = RE.rightContext
-    pos = skipBody(js, JS_ES6END)
+    pos = skipBody(js)
 
     // convert ES6 method signature to ES5 function, exclude JS keywords
     method = match[1] // the full match
@@ -433,31 +418,26 @@ function riotjs (js) {
     if (toes5 && !/^\s*.\s*bind\b/.test(js)) parts.push('.bind(this)')
   }
 
-  return parts.length ? parts.join('') + js : js
-
-  // 2016-01-18: remove comments without touching qblocks (avoid reallocation)
-  // 2017-96-03: Fixes riot#2361 & riot#2369 using skipRegex from riot/parser
-  function rmComms (s, r, m) {
-    r.lastIndex = 0
-    while ((m = r.exec(s))) {
-      if (m[1]) {
-        r.lastIndex = brackets.skipRegex(s, m.index)
-      } else if (m[0][0] === '/') {
-        s = s.slice(0, m.index) + ' ' + s.slice(r.lastIndex)
-        r.lastIndex = m.index + 1
-      }
-    }
-    return s
+  if (parts.length) {
+    js = parts.join('') + js
   }
 
-  // 2016-01-18: Search the closing bracket with regex.exec
-  function skipBody (s, r) {
-    var m, i = 1
+  if (src.length) {
+    js = js.replace(/<%>/g, function () {
+      return src.shift()
+    })
+  }
 
-    r.lastIndex = 0
-    while (i && (m = r.exec(s))) {
-      if (m[0] === '{') ++i
-      else if (m[0] === '}') --i
+  return js
+
+  // 2016-01-18: Search the closing bracket with regex.exec
+  function skipBody (s) {
+    var r = /[{}]/g
+    var i = 1
+
+    while (i && r.exec(s)) {
+      if (s[r.lastIndex - 1] === '{') ++i
+      else --i
     }
     return i ? s.length : r.lastIndex
   }

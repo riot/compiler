@@ -22,7 +22,7 @@ LIB = "./lib/"
 # default job
 test: build test-mocha
 
-build: clean eslint pre-build
+build: clean pre-build eslint
 	# build riot and es6 versions
 	@ mkdir -p $(DIST)
 	@ $(JSPP) $(JSPP_RIOT_FLAGS) src/_riot.js > $(DIST)riot.compiler.js
@@ -35,6 +35,7 @@ pre-build:
 	# build the node version
 	@ $(JSPP) $(JSPP_NODE_FLAGS) src/core.js > $(LIB)compiler.js
 	@ $(JSPP) $(JSPP_NODE_FLAGS) src/safe-regex.js > $(LIB)safe-regex.js
+	@ $(JSPP) $(JSPP_NODE_FLAGS) src/js-splitter.js > $(LIB)js-splitter.js
 
 eslint:
 	# check code style

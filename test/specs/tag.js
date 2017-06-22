@@ -83,6 +83,14 @@ describe('Compile tags', function () {
     testFile('es6-template-strings')
   })
 
+  it('Es6 template literals can be nested', function () {
+    testFile('es6-nested-tl')
+  })
+
+  it('Es6 template literals with nested regex', function () {
+    testFile('es6-nested-regex')
+  })
+
   it('Support short cut async functions', function () {
     testFile('es6-async')
   })
@@ -319,6 +327,10 @@ describe('Compile tags', function () {
 
   it('riot#2369 regex (ending with `\\//`) in script function breaks compiler', function () {
     testFile('issue_2369')
+  })
+
+  it('riot#2383 involving compilation of tag containing regex', function () {
+    testFile('issue_2383')
   })
 })
 

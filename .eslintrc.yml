@@ -18,13 +18,13 @@ root: true
 
 env:
     node: true
-    #es6: true
-
-ecmaFeatures:
-    modules: true
+    es6: true
 
 parserOptions:
-    sourceType: "module"
+  sourceType: "module"
+  ecmaVersion: 6
+  ecmaFeatures:
+    impliedStrict: true
 
     ###########################################################################
     #   GLOBALS                                                               #
@@ -142,7 +142,7 @@ rules:
     new-parens: 2               # disallow the omission of parentheses when invoking a constructor with no arguments (Default: 0)
     no-array-constructor: 2     # disallow use of the Array constructor (Default: 0)
     no-lonely-if: 2             # disallow if as the only statement in an else block
-    no-multiple-empty-lines: [2, {"max": 1}]
+    no-multiple-empty-lines: [2, {"max": 2}]
                                 # disallow multiple empty lines
     no-new-object: 2            # disallow use of the Object constructor (Default: 0)
     no-restricted-syntax: [2, "WithStatement"] # disallow use of `with` statements in code

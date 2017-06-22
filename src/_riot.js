@@ -5,6 +5,7 @@
 
 //#include_once safe-regex
 //#include_once parsers_br
+//#include_once js-splitter
 
 riot.parsers = parsers
 

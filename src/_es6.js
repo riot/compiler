@@ -14,6 +14,8 @@ import { brackets } from 'riot-tmpl'
 
 //#include parsers_br
 
+//#include js-splitter
+
 /**
  * @module compiler
  */

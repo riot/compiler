@@ -1,5 +1,10 @@
 # Compiler Changes
 
+### v3.2.4
+- Fix [riot#2369](https://github.com/riot/riot/issues/2369) : Possible bug involving compilation of tags containing regex.
+- Using the `skip-regex` function from npm for sharing bwteen modules (at future).
+- Using the `jsSplitter` function for safer replacement of JS code, part of the next compiler.
+
 ### v3.2.3
 - Fixes various issues with literal regexes.
 
