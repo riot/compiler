@@ -14,7 +14,7 @@ var skipRegex = require('skip-regex')
 var S_SQ_STR = /'[^'\n\r\\]*(?:\\(?:\r\n?|[\S\s])[^'\n\r\\]*)*'/.source
 
 var S_R_SRC1 = [
-  /\/\*[^*]*\*+(?:[^*\/][^*]*\*+)*\//.source,   // multiline comments
+  /\/\*[^*]*\*+(?:[^*/][^*]*\*+)*\//.source,   // multiline comments
   '//.*',                                 // single-line comments
   S_SQ_STR,                               // single-quoted string
   S_SQ_STR.replace(/'/g, '"'),            // double-quoted string
@@ -74,7 +74,7 @@ function jsSplitter (code, start) {
   /*#if !NODE
   var skipRegex = brackets.skipRegex
   //#endif */
-  var offset = start |= 0
+  var offset = start | 0
   var result = [[]]
   var stack = []
   var re = re1

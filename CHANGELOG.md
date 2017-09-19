@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v3.2.5
+- Update dependencies and refactor some internal code avoiding bitwise operators
+- Fix coffeescript parser require https://github.com/riot/compiler/pull/102
+
 ### v3.2.4
 - Fix [riot#2369](https://github.com/riot/riot/issues/2369) : Possible bug involving compilation of tags containing regex.
 - Using the `skip-regex` function from npm for sharing bwteen modules (at future).

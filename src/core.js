@@ -71,7 +71,7 @@ var HTML_COMMS = RegExp(/<!--(?!>)[\S\s]*?-->/.source + '|' + S_LINESTR, 'g')
  *  {@link module:compiler~parseAttribs|parseAttribs}
  * @const {RegExp}
  */
-var HTML_TAGS = /<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^"'\/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"\/>]*)*)|\s*)(\/?)>/g
+var HTML_TAGS = /<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^"'/>]*(?:(?:"[^"]*"|'[^']*'|\/[^>])[^'"/>]*)*)|\s*)(\/?)>/g
 
 /**
  * Matches spaces and tabs between HTML tags
@@ -149,7 +149,7 @@ function cleanSource (src) {
     mm,
     re = HTML_COMMS
 
-  if (~src.indexOf('\r')) {
+  if (src.indexOf('\r') !== 1) {
     src = src.replace(/\r\n?/g, '\n')
   }
 
@@ -201,7 +201,7 @@ function parseAttribs (str, pcex) {
         if (RE_HASEXPR.test(v)) {
           // renames special attributes with expressiones in their value.
           if (k === 'value') vexp = 1
-          if (~RIOT_ATTRS.indexOf(k)) k = 'riot-' + k
+          if (RIOT_ATTRS.indexOf(k) !== -1) k = 'riot-' + k
         }
         // join the key-value pair, with no spaces between the parts
         list.push(k + '=' + v)
@@ -684,7 +684,7 @@ var END_TAGS = /\/>\n|^<(?:\/?-?[A-Za-z][-\w\xA0-\xFF]*\s*|-?[A-Za-z][-\w\xA0-\x
 function _q (s, r) {
   if (!s) return "''"
   s = SQ + s.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + SQ
-  return r && ~s.indexOf('\n') ? s.replace(/\n/g, '\\n') : s
+  return r && s.indexOf('\n') !== -1 ? s.replace(/\n/g, '\\n') : s
 }
 
 /**
@@ -729,7 +729,7 @@ function splitBlocks (str) {
       k = str.lastIndexOf('<'),
       n = str.length
 
-    while (~k) {
+    while (k !== -1) {
       m = str.slice(k, n).match(END_TAGS)
       if (m) {
         k += m.index + m[0].length
@@ -788,11 +788,11 @@ function getAttrib (attribs, name) {
  */
 function unescapeHTML (str) {
   return str
-          .replace(/&amp;/g, '&')
-          .replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>')
-          .replace(/&quot;/g, '"')
-          .replace(/&#039;/g, '\'')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, '\'')
 }
 
 /**
@@ -840,12 +840,12 @@ function getCode (code, opts, attribs, base) {
   //#endif
 
   return _compileJS(
-          code,
-          opts,
-          type,
-          extend(jsParserOptions, getParserOptions(attribs)),
-          base
-        )
+    code,
+    opts,
+    type,
+    extend(jsParserOptions, getParserOptions(attribs)),
+    base
+  )
 }
 
 /**
@@ -900,7 +900,7 @@ var
    * unquoted expressions, but disallows the character '>' within unquoted attribute values.
    * @const {RegExp}
    */
-  CUST_TAG = RegExp(/^([ \t]*)<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^'"\/>]+(?:(?:@|\/[^>])[^'"\/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
+  CUST_TAG = RegExp(/^([ \t]*)<(-?[A-Za-z][-\w\xA0-\xFF]*)(?:\s+([^'"/>]+(?:(?:@|\/[^>])[^'"/>]*)*)|\s*)?(?:\/>|>[ \t]*\n?([\S\s]*)^\1<\/\2\s*>|>(.*)<\/\2\s*>)/
     .source.replace('@', S_STRINGS), 'gim'),
   /**
    * Matches `script` elements, capturing its attributes in $1 and its content in $2.
@@ -915,7 +915,7 @@ var
    */
   STYLES = /<style(\s+[^>]*)?>\n?([\S\s]*?)<\/style\s*>/gi
 
- /**
+/**
   * The main compiler processes all custom tags, one by one.
   *
   * - Sends the received source to the html parser, if any is specified
@@ -997,8 +997,8 @@ function compile (src, opts, url) {
       // process the attributes, including their expressions
       attribs = attribs && included('attribs')
         ? restoreExpr(
-            parseAttribs(
-              splitHtml(attribs, opts, pcex),
+          parseAttribs(
+            splitHtml(attribs, opts, pcex),
             pcex),
           pcex) : ''
 

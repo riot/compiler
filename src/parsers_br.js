@@ -100,7 +100,7 @@ var parsers = (function (win) {
   _p.js = {
     // Babel should be handled differently depending on the environement where we are
     es6: function (js, opts, url) {   // eslint-disable-line no-unused-vars
-/*#if NODE
+    /*#if NODE
       return _r('babel').transform(js, extend({ filename: url }, opts)).code
 //#else */
       return _r('Babel').transform( // eslint-disable-line
@@ -131,8 +131,8 @@ var parsers = (function (win) {
           ]
         },
         opts
-      )).code
-//#endif
+        )).code
+    //#endif
     },
     buble: function (js, opts, url) {
       opts = extend({
