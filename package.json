@@ -17,10 +17,10 @@
   "scripts": {
     "test": "make test",
     "prepare": "npm run install-html && npm run install-js && npm run install-css",
-    "install-html": "npm i jade pug",
-    "install-js": "npm i babel-core babel-preset-es2015-riot buble coffee-script livescript typescript-simple",
-    "install-css": "npm i stylus nib node-sass less postcss autoprefixer",
-    "prepublish": "make build && riot-bump && riot-bump lib"
+    "install-html": "npm i --no-save jade pug",
+    "install-js": "npm i --no-save babel-core babel-preset-es2015-riot buble coffee-script livescript typescript-simple",
+    "install-css": "npm i --no-save stylus nib node-sass less postcss autoprefixer",
+    "prepublishOnly": "make build && riot-bump && riot-bump lib"
   },
   "repository": {
     "type": "git",
@@ -32,14 +32,17 @@
     "tag",
     "compiler"
   ],
+  "peerDependency": {
+    "riot-tmpl": "*"
+  },
   "devDependencies": {
-    "coveralls": "^2.13.1",
-    "eslint": "^4.6.1",
+    "coveralls": "^3.0.0",
+    "eslint": "^4.8.0",
     "eslint-config-riot": "^1.0.0",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
     "jspreproc": "^0.2.7",
-    "mocha": "^3.5.0",
+    "mocha": "^4.0.1",
     "riot-bump": "^1.0.0"
   },
   "author": "Riot maintainers team + smart people from all over the world",
@@ -56,8 +59,6 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
-    "autoprefixer": "^7.1.4",
-    "postcss": "^6.0.11",
-    "skip-regex": "^0.3.0"
+    "skip-regex": "^0.3.1"
   }
 }
