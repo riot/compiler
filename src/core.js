@@ -8,7 +8,7 @@
  * @copyright Muut Inc. + contributors
  */
 'use strict'
-
+var sourcemap = require('./sourcemap')
 var brackets  = require('./brackets')
 var parsers   = require('./parsers')
 var safeRegex = require('./safe-regex')
@@ -946,6 +946,7 @@ function compile (src, opts, url) {
   var
     parts = [],
     included,
+    output = src,
     defaultParserptions = {
       // TODO: rename this key from `template` to `html`in the next major release
       template: {},
@@ -976,12 +977,12 @@ function compile (src, opts, url) {
 
   // run any custom html parser before the compilation
   if (opts.template) {
-    src = compileTemplate(src, url, opts.template, opts.parserOptions.template)
+    output = compileTemplate(output, url, opts.template, opts.parserOptions.template)
   }
 
   // each tag can have attributes first, then html markup with zero or more script
   // or style tags of different types, and finish with the untagged JS block.
-  src = cleanSource(src)
+  output = cleanSource(output)
     .replace(CUST_TAG, function (_, indent, tagName, attribs, body, body2) {
       var
         jscode = '',
@@ -1080,10 +1081,22 @@ function compile (src, opts, url) {
   //#if NODE
   if (opts.debug && url.slice(-2) !== '/.') {
     if (/^[\\/]/.test(url)) url = path.relative('.', url)
-    src = '//src: ' + url.replace(/\\/g, '/') + '\n' + src
+    output = '//src: ' + url.replace(/\\/g, '/') + '\n' + output
+  }
+
+  //
+  if (opts.sourcemap) {
+    return {
+      map: sourcemap({
+        source: src,
+        generated: output,
+        file: url
+      }),
+      code: output
+    }
   }
   //#endif
-  return src
+  return output
 }
 
 //#if NODE
