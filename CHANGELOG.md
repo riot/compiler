@@ -1,5 +1,12 @@
 # Compiler Changes
 
+### v3.3.0
+- Add initial experimental sourcemaps support via `sourcemap: true` option
+
+### v3.2.6
+- Fix #105
+- Fix #104
+
 ### v3.2.5
 - Update dependencies and refactor some internal code avoiding bitwise operators
 - Fix coffeescript parser require https://github.com/riot/compiler/pull/102

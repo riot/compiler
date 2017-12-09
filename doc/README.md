@@ -69,12 +69,29 @@ var js = compiler.compile(my_tag.innerHTML, true)
 After `npm install riot` you can do following:
 
 ```js
-var riot = require('riot')
+const riot = require('riot-compiler')
+const fs = require('fs')
+const tagPath = './src/components/component.tag'
+const tagSource = fs.readFileSync(tagPath, 'utf8')
+const options = {}
 
-var js = compiler.compile(tag)
+
+const js = compiler.compile(tagSource, options, tagPath)
 ```
 
 The compile function takes the tag definition (string) and returns JavaScript (string).
+
+#### Sourcemaps (experimental)
+
+If you will compile using the `sourcemap=true` option the compiler will return an object
+containing `code` and `sourcemap`. **The current riot compiler doesn't use a "real parser" so the generated sourcemaps might be inaccurate**
+We will generate better sourcemap results in the next riot major release.
+
+Here you can see how to generate sourcemaps reusing the code of the previous example:
+
+```js
+const { code, sourcemap } = compiler.compile(tagSource, { sourcemap: true }, tagPath)
+```
 
 ### <a name="css-parser"></a> compiler.parsers.css [tagName, css]
 
