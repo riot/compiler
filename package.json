@@ -59,6 +59,8 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
-    "skip-regex": "^0.3.1"
+    "skip-regex": "^0.3.1",
+    "source-map": "^0.6.1",
+    "string-similarity": "^1.2.0"
   }
 }
