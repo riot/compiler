@@ -6,7 +6,7 @@ ratings:
   paths:
   - "dist/compiler.js"
 
-exclude_paths:
+exclude_patterns:
   - "dist/riot.compiler.js"
   - "test/**/*"
   - "lib/**/*"

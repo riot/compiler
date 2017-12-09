@@ -15,22 +15,22 @@ module.exports = {
   */
   requireName: function (name) {
     switch (name) {
-      case 'es6':
-        return 'babel'
-      case 'babel':
-        return 'babel-core'
-      case 'javascript':
-        return 'none'
-      case 'coffee':
-      case 'coffeescript':
-        return 'coffee-script'
-      case 'scss':
-      case 'sass':
-        return 'node-sass'
-      case 'typescript':
-        return 'typescript-simple'
-      default:
-        return name
+    case 'es6':
+      return 'babel'
+    case 'babel':
+      return 'babel-core'
+    case 'javascript':
+      return 'none'
+    case 'coffee':
+    case 'coffeescript':
+      return 'coffee-script'
+    case 'scss':
+    case 'sass':
+      return 'node-sass'
+    case 'typescript':
+      return 'typescript-simple'
+    default:
+      return name
     }
   }
 }

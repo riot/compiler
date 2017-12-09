@@ -4,8 +4,6 @@ JSPP_NODE_FLAGS = $(JSPP_FLAGS) -D NODE -F jsdoc
 JSPP_RIOT_FLAGS = $(JSPP_FLAGS)
 JSPP_ES6_FLAGS  = $(JSPP_FLAGS)
 
-# Code Climate only accepts the first job of default branch
-TESTCOVER = $(TRAVIS_BRANCH) $(TRAVIS_NODE_VERSION)
 NODE_VER := $(shell node nodever)
 
 # Command line paths
@@ -50,10 +48,6 @@ test-mocha:
 
 send-coverage:
 	@ RIOT_COV=1 cat ./coverage/lcov.info | $(COVERALLS)
-ifeq ($(TESTCOVER),master 4.2)
-	@ npm install codeclimate-test-reporter
-	@ codeclimate-test-reporter < coverage/lcov.info
-endif
 
 debug: build
 	# launching node-inspector

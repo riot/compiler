@@ -35,7 +35,7 @@ _Please note: the documentation is a work in progress. Contributions are welcome
 [npm-version-image]:   https://img.shields.io/npm/v/riot-compiler.svg?style=flat-square
 [npm-downloads-image]: https://img.shields.io/npm/dm/riot-compiler.svg?style=flat-square
 [npm-url]:             https://npmjs.org/package/riot-compiler
-[coverage-image]:    https://codeclimate.com/github/riot/compiler/badges/coverage.svg
-[coverage-url]:      https://codeclimate.com/github/riot/compiler/coverage
-[codeclimate-image]: https://codeclimate.com/github/riot/compiler/badges/issue_count.svg
+[coverage-image]:    https://img.shields.io/coveralls/riot/compiler/master.svg?style=flat-square
+[coverage-url]:      https://coveralls.io/r/riot/compiler?branch=master
+[codeclimate-image]: https://api.codeclimate.com/v1/badges/37de24282e8d113bb0cc/maintainability
 [codeclimate-url]:   https://codeclimate.com/github/riot/compiler
