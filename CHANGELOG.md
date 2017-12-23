@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.3.1
+- Improve the sourcemap generation adding the `sourceContent` key
+
 ### v3.3.0
 - Add initial experimental sourcemaps support via `sourcemap: true` option
 
