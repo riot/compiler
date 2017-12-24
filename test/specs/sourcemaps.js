@@ -20,9 +20,9 @@ describe('Sourcemaps generation', function () {
     return fs.readFileSync(path.join(dir, filename), 'utf8')
   }
 
-  function compile (name) {
+  function compile (name, isInline) {
     var src = cat(fixtures, name + '.tag')
-    return render(src, name + '.tag', { sourcemap: true })
+    return render(src, name + '.tag', { sourcemap: isInline ? 'inline' : true })
   }
 
   it('It generates source and sourcemaps', function () {
@@ -30,5 +30,12 @@ describe('Sourcemaps generation', function () {
 
     expect(out.code).to.be.ok
     expect(out.sourcemap).to.be.ok
+  })
+
+  it('It generates inline sourcemaps', function () {
+    var out = compile('timetable', true)
+
+    expect(out).to.be.ok
+    expect(out).to.match(/\/\/# sourceMappingURL=/)
   })
 })

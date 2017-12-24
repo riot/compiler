@@ -1084,14 +1084,21 @@ function compile (src, opts, url) {
     output = '//src: ' + url.replace(/\\/g, '/') + '\n' + output
   }
 
-  //
   if (opts.sourcemap) {
+    var map = sourcemap({
+      source: src,
+      generated: output,
+      file: url
+    })
+
+    // handle inline sourcemaps
+    if (opts.sourcemap === 'inline') {
+      output += '\n' + sourcemap.toInlineComment(map)
+      return output
+    }
+
     return {
-      map: sourcemap({
-        source: src,
-        generated: output,
-        file: url
-      }),
+      map: map,
       code: output
     }
   }
