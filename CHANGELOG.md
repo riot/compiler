@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.4.0
+- Add inline sourcemap support via `sourcemap='inline'` option
+
 ### v3.3.1
 - Improve the sourcemap generation adding the `sourceContent` key
 

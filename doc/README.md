@@ -93,6 +93,8 @@ Here you can see how to generate sourcemaps reusing the code of the previous exa
 const { code, sourcemap } = compiler.compile(tagSource, { sourcemap: true }, tagPath)
 ```
 
+Using the `sourcemap='inline'` option, the compiler will return the compiled code appending inline the generated sourcemap
+
 ### <a name="css-parser"></a> compiler.parsers.css [tagName, css]
 
 Custom parsers that could be used to compile your tags CSS. For example:
