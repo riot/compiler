@@ -54,6 +54,8 @@ After the call you can use `my-tag` normally.
 
 A tag definition is assumed if the first non- empty character is `<`, otherwise the argument is taken as URL.
 
+<span class="tag red">Note:</span> In in-browser tag compilation, script tags are not allowed. The last closing tag defines the start of the script part of a tag.
+
 @returns the compiled JavaScript as string
 
 ### <a name="compile-to-str"></a> compiler.compile(tag, true)
