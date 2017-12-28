@@ -41,7 +41,8 @@ Compiles and executes the given `tag`. For example:
 ```html
 <template id="my_tag">
   <my-tag>
-    <p>Hello, World!</p>
+    <p>{greeting}, World!</p>
+    this.greeting = 'Hello'
   </my-tag>
 </template>
 
