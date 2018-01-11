@@ -46,5 +46,8 @@
   "bugs": {
     "url": "https://github.com/riot/compiler/issues"
   },
-  "homepage": "https://github.com/riot/compiler#readme"
+  "homepage": "https://github.com/riot/compiler#readme",
+  "dependencies": {
+    "riot-parser": "0.0.6"
+  }
 }

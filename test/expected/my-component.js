@@ -1,0 +1,1 @@
+export default riot.define('my-component')
