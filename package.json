@@ -37,12 +37,12 @@
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
-    "eslint": "^4.8.0",
+    "eslint": "^4.16.0",
     "eslint-config-riot": "^1.0.0",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
     "jspreproc": "^0.2.7",
-    "mocha": "^4.0.1",
+    "mocha": "^5.0.0",
     "riot-bump": "^1.0.0"
   },
   "author": "Riot maintainers team + smart people from all over the world",
@@ -60,7 +60,7 @@
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
     "skip-regex": "^0.3.1",
-    "source-map": "^0.6.1",
+    "source-map": "^0.7.0",
     "string-similarity": "^1.2.0"
   }
 }
