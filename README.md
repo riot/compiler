@@ -22,6 +22,7 @@ _Please note: the documentation is a work in progress. Contributions are welcome
 #### For babel users
 
 * babel - For `babel-core` v6.x - You must `npm install babel-preset-es2015-riot` too, for this to work.
+* babel - For `@babel/core` v7.x - You must set the option `"module": "false"` in order to compile your tags properly
 
 ### Known Issues
 
