@@ -316,7 +316,7 @@ function _compileHTML (html, opts, pcex) {
     html = html.trim().replace(/\s+/g, ' ') // we can trim now
 
     // restore the content of `<pre>` tags
-    if (p.length) html = html.replace(/\u0002/g, function () { return p.shift() })
+    if (p.length) html = html.replace(/\u0002/g, function () { return p.shift() }) // eslint-disable-line
   }
 
   // for `opts.compact`, remove tabs and spaces between tags
