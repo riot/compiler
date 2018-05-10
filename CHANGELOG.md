@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.5.1
+- Fix try importing `@babel/core` first and then fallback to `babel-core` for the `es6` parser
+
 ### v3.5.0
 - Add support for Babel 7
 
