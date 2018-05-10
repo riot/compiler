@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.5.0
+- Add support for Babel 7
+
 ### v3.4.0
 - Add inline sourcemap support via `sourcemap='inline'` option
 
