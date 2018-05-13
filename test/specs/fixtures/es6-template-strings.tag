@@ -2,7 +2,7 @@
   <h1>{ message }</h1>
 
   <script>
-    this.message = `http://www.riotjs.com/guide`
+    this.message = `http://www.riot.js.org/guide`
 
     this.text = `
       The message is:
