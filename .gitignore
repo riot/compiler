@@ -68,10 +68,7 @@ pids
 *.pid
 *.seed
 
-# node-waf configuration
-.lock-wscript
-
 # generated files
 /dist
-/lib/compiler.js
-/lib/safe-regex.js
+.nyc_output/
+.reify-cache/

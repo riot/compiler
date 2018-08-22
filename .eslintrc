@@ -1,0 +1,14 @@
+extends: eslint-config-riot
+
+parserOptions:
+  ecmaVersion: 8
+  sourceType: 'module'
+  ecmaFeatures:
+    experimentalObjectRestSpread: true
+
+globals:
+  sinon: true
+  expect: true
+
+rules:
+  fp/no-mutating-methods: 0

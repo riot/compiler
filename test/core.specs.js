@@ -1,6 +1,6 @@
-const { compile } = require('../dist')
-const { expect } = require('chai')
-const { getFixture, getExpected } = require('./helpers')
+import {getExpected, getFixture} from './helpers'
+import {compile} from '../src'
+import {expect} from 'chai'
 
 describe('Riot compiler - Core specs', () => {
   describe('Simple tags', () => {

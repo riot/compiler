@@ -3,7 +3,6 @@ ESLINT = ./node_modules/eslint/bin/eslint.js
 MOCHA = ./node_modules/mocha/bin/_mocha
 ROLLUP = ./node_modules/.bin/rollup
 COVERALLS = ./node_modules/coveralls/bin/coveralls.js
-ISTANBUL  = ./node_modules/istanbul/lib/cli.js
 
 # folders
 DIST = "./dist/"
@@ -20,7 +19,7 @@ clean:
 
 test:
 	@ make build
-	@ $(ISTANBUL) cover $(MOCHA) -- test/*.specs.js
+	@ npx nyc $(MOCHA) -r reify test/*.specs.js
 
 lint:
 	@ $(ESLINT) src test

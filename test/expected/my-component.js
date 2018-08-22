@@ -1,1 +1,1 @@
-export default riot.define('my-component')
+export default 'hello'

@@ -1,6 +1,6 @@
-const { normalise } = require('../dist')
-const { expect } = require('chai')
-const { getFixture } = require('./helpers')
+import {expect} from 'chai'
+import {getFixture} from './helpers'
+import {normalise} from '../dist'
 
 describe('Riot compiler - API specs', () => {
   describe('compiler.normalise', () => {
