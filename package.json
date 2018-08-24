@@ -50,7 +50,7 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
-    "riot-parser": "0.5.0",
+    "riot-parser": "^0.6.0",
     "source-map": "^0.7.3"
   }
 }
