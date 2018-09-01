@@ -1,13 +1,16 @@
+import {registerPostprocessor, registerPreprocessor} from '../src'
 import {expect} from 'chai'
-import {getFixture} from './helpers'
-import {normalise} from '../dist'
 
 describe('Riot compiler - API specs', () => {
-  describe('compiler.normalise', () => {
-    it('Leave the code untouched if no extra preparser are defined', () => {
-      return normalise(getFixture('my-component')).then(res => {
-        expect(res.code).to.be.equal(getFixture('my-component'))
-      })
+  describe('compiler.registerPreprocessor', () => {
+    it('The method registerPreprocessor is a function', () => {
+      expect(registerPreprocessor).to.be.a('function')
+    })
+  })
+
+  describe('compiler.registerPostprocessor', () => {
+    it('The method registerPostprocessor is a function', () => {
+      expect(registerPostprocessor).to.be.a('function')
     })
   })
 })

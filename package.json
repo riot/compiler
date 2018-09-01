@@ -3,8 +3,8 @@
   "version": "4.0.0-alpha.0",
   "description": "Compiler for riot .tag files",
   "main": "dist/index.js",
-  "module": "dist/index.next.js",
-  "jsnext:main": "dist/index.next.js",
+  "module": "dist/index.esm.js",
+  "jsnext:main": "dist/index.esm.js",
   "files": [
     "dist",
     "src"
@@ -32,6 +32,7 @@
     "nyc": "^12.0.2",
     "reify": "^0.17.3",
     "rollup": "^0.59.4",
+    "rollup-plugin-alias": "^1.4.0",
     "rollup-plugin-commonjs": "^9.1.3",
     "rollup-plugin-node-resolve": "^3.3.0",
     "shelljs": "^0.8.2"
@@ -50,7 +51,10 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
+    "curri": "^1.0.0",
+    "recast": "^0.15.3",
     "riot-parser": "^0.6.0",
+    "ruit": "^1.0.3",
     "source-map": "^0.7.3"
   }
 }

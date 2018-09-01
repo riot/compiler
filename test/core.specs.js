@@ -1,13 +1,14 @@
-import {getExpected, getFixture} from './helpers'
 import {compile} from '../src'
 import {expect} from 'chai'
+import {getFixture} from './helpers'
 
 describe('Riot compiler - Core specs', () => {
   describe('Simple tags', () => {
-    it('It can compile a simple template properly', () => {
-      return compile(getFixture('my-component')).then(res => {
-        expect(res.code).to.be.equal(getExpected('my-component'))
-      })
+    it('The compiler generates a sourcemap and an output', async function() {
+      const result = await compile(getFixture('my-component'))
+
+      expect(result.code).to.be.a('string')
+      expect(result.map).to.be.not.an('undefined')
     })
   })
 })

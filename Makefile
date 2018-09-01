@@ -11,8 +11,8 @@ SRC = "./src/"
 
 build:
 	@ mkdir -p $(DIST)
-	@ $(ROLLUP) $(SRC)index.js -c -f umd > $(DIST)index.js
-	@ $(ROLLUP) $(SRC)index.js -c -f es > $(DIST)index.next.js
+	@ $(ROLLUP) -c build/rollup.node.config.js
+	@ $(ROLLUP) -c build/rollup.browser.config.js
 
 clean:
 	@ rm -rf $(DIST)

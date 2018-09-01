@@ -1,0 +1,39 @@
+import { SourceMapGenerator } from 'source-map'
+
+export const Output = Object.freeze({
+  code: '',
+  map: null
+})
+
+/**
+ * Create the right output data result of a parsing
+ * @param   { Object } data - output data
+ * @param   { string } data.code - code generated
+ * @param   { SourceMapGenerator } data.map - source map generated along with the code
+ * @param   { Object } options - user options, probably containing the path to the source file
+ * @returns { Output } output container object
+ */
+export function createOutput(data, options) {
+  const output = Object.freeze({
+    ...Output,
+    ...data
+  })
+
+  if (!output.map && options && options.file) Object.assign(output, {
+    map: new SourceMapGenerator({ file: options.file })
+  })
+
+  return output
+}
+
+/**
+ * Transform the source code received via a compiler function
+ * @param   { Function } compiler - function needed to generate the output code
+ * @param   { Object } options - options to pass to the compilert
+ * @param   { string } source - source code
+ * @returns { Promise<Output> } output - the result of the compiler
+ */
+export async function transform(compiler, options, source) {
+  const result = await compiler(source, options)
+  return createOutput(result, options)
+}
