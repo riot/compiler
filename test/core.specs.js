@@ -2,7 +2,7 @@ import {compile} from '../src'
 import {expect} from 'chai'
 import {getFixture} from './helpers'
 
-describe('Riot compiler - Core specs', () => {
+describe('Core specs', () => {
   describe('Simple tags', () => {
     it('The compiler generates a sourcemap and an output', async function() {
       const result = await compile(getFixture('my-component'))

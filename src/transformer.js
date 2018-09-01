@@ -14,7 +14,7 @@ export const Output = Object.freeze({
  * @returns { Output } output container object
  */
 export function createOutput(data, options) {
-  const output = Object.freeze({
+  const output = Object.seal({
     ...Output,
     ...data
   })
@@ -34,6 +34,6 @@ export function createOutput(data, options) {
  * @returns { Promise<Output> } output - the result of the compiler
  */
 export async function transform(compiler, options, source) {
-  const result = await compiler(source, options)
+  const result = await (compiler ? compiler(source, options) : { code: source })
   return createOutput(result, options)
 }
