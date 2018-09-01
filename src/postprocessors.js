@@ -10,7 +10,7 @@ export const postprocessors = new Set()
  * @returns { Set } the postprocessors collection
  */
 export function register(postprocessor) {
-  if (postprocessor.has(postprocessor)) {
+  if (postprocessors.has(postprocessor)) {
     panic(`This postprocessor "${postprocessor.name || postprocessor.toString()}" was already registered`)
   }
 
@@ -25,11 +25,11 @@ export function register(postprocessor) {
  * @returns { Set } the postprocessors collection
  */
 export function unregister(postprocessor) {
-  if (!postprocessor.has(postprocessor)) {
+  if (!postprocessors.has(postprocessor)) {
     panic(`This postprocessor "${postprocessor.name || postprocessor.toString()}" was never registered`)
   }
 
-  postprocessors.remove(postprocessor)
+  postprocessors.delete(postprocessor)
 
   return postprocessors
 }
@@ -41,12 +41,13 @@ export function unregister(postprocessor) {
  * @returns { Promise<Output> } object containing output code and source map
  */
 export async function execute(compilerOutput, options) {
-  return Array.from(postprocessors).reduce(async function({ code, map }, postprocessor) {
+  return Array.from(postprocessors).reduce(async function(acc, postprocessor) {
+    const { code, map } = await acc
     const output = await postprocessor(code, options)
 
     return {
       code: output.code,
       map: recastUtil.composeSourceMaps(output.map, map)
     }
-  }, createOutput(compilerOutput, options))
+  }, Promise.resolve(createOutput(compilerOutput, options)))
 }
