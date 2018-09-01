@@ -10,8 +10,16 @@
     "src"
   ],
   "scripts": {
-    "test": "make test",
-    "prepublishOnly": "make build"
+    "prepare": "npm test",
+    "lint": "eslint src/ test/ rollup.config.js",
+    "cov": "nyc report --reporter=text-lcov | coveralls",
+    "cov-html": "nyc report --reporter=html",
+    "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js",
+    "pretest": "npm run build",
+    "postest": "npm run cov-html",
+    "test": "npm run lint && nyc mocha -r reify test/*.specs.js",
+    "test-debug": "mocha --inspect --inspect-brk -r reify test/*.specs.js",
+    "prepublishOnly": "npm run test"
   },
   "repository": {
     "type": "git",
@@ -37,14 +45,7 @@
     "rollup-plugin-node-resolve": "^3.3.0",
     "shelljs": "^0.8.2"
   },
-  "author": "Riot maintainers team + smart people from all over the world",
-  "contributors": [
-    "Richard Bondi https://github.com/rsbondi",
-    "Gianluca Guarini https://github.com/GianlucaGuarini",
-    "Tsutomu Kawamura https://github.com/cognitom",
-    "Alberto Martínez https://github.com/aMarCruz",
-    "Tero Piirainen  https://github.com/tipiirai"
-  ],
+  "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (http://gianlucaguarini.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/riot/compiler/issues"

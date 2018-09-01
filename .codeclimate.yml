@@ -2,11 +2,9 @@ engines:
   eslint:
     enabled: true
 
+exclude_patterns:
+  - "test"
+
 ratings:
   paths:
-  - "src/**/*"
-
-exclude_paths:
-  - "dist/riot.compiler.js"
-  - "test/**/*"
-  - "lib/**/*"
+- "src/*.js"
