@@ -1,11 +1,11 @@
 import { register as registerPostproc, execute as runPostprocessors  } from './postprocessors'
 import { register as registerPreproc, execute as runPreprocessor } from './preprocessors'
-import cssTransformer from './transformers/css'
+import cssGenerator from './generators/css'
 import curry from 'curri'
-import javascriptTransformer from './transformers/javascript'
+import javascriptGenerator from './generators/javascript'
 import riotParser from 'riot-parser'
 import ruit from 'ruit'
-import templateTransformer from './transformers/template'
+import templateGenerator from './generators/template'
 
 /**
  * Generate the output code source together with the sourcemap
@@ -14,19 +14,35 @@ import templateTransformer from './transformers/template'
  * @returns { Promise<Output> } object containing output code and source map
  */
 export async function compile(source, options = {
-  template: 'default'
+  template: 'default',
+  file: '[unknown-source-file]'
 }) {
-  const { code, map } = await runPreprocessor('template', options.template, source, options)
-  const { template, css, javascript } = riotParser(code, options)
+  const { code, map } = await runPreprocessor('template', 'default', options, source)
+  const { template, css, javascript } = riotParser(options).parse(code).output
 
-  return await ruit({ code, map },
-    curry(cssTransformer)(css, options),
-    curry(templateTransformer)(template, options),
-    curry(javascriptTransformer)(javascript, options),
+  return ruit({ code: '', map },
+    hookGenerator(cssGenerator, css, code, options),
+    hookGenerator(templateGenerator, template, code, options),
+    hookGenerator(javascriptGenerator, javascript, code, options),
     runPostprocessors,
   )
 }
 
+/**
+ * Prepare the riot parser node transformers
+ * @param   { Function } transformer - transformer function
+ * @param   { Object } sourceNode - riot parser node
+ * @param   { string } source - component source code
+ * @param   { Object } options - compiling options
+ * @returns { Promise<Output> } object containing output code and source map
+ */
+function hookGenerator(transformer, sourceNode, source, options) {
+  if (!sourceNode) {
+    return result => result
+  }
+
+  return curry(transformer)(sourceNode, source, options)
+}
 
 // This function can be used to register new preprocessors
 // a preprocessor can target either only the css or javascript nodes

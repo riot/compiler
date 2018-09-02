@@ -7,7 +7,8 @@ import { transform } from './transformer'
 export const preprocessors = Object.freeze({
   javascript: new Map(),
   css: new Map(),
-  template: new Map().set('default', code => { code })
+  template: new Map()
+    .set('default', function(code) { return { code } })
 })
 
 // throw a processor type error
