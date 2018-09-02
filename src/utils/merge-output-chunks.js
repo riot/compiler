@@ -1,4 +1,4 @@
-import recastUtil from 'recast/lib/util'
+import composeSourcemaps from './compose-sourcemaps'
 
 /**
  * Combine two code chunks into one single output object
@@ -9,6 +9,6 @@ import recastUtil from 'recast/lib/util'
 export default function mergeOutputChunks(chunk1, chunk2) {
   return {
     code: chunk1.code + chunk2.code,
-    map: recastUtil.composeSourceMaps(chunk1.map, chunk2.map)
+    map: composeSourcemaps(chunk1.map, chunk2.map)
   }
 }

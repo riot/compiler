@@ -56,6 +56,6 @@
     "recast": "^0.15.3",
     "riot-parser": "^0.6.0",
     "ruit": "^1.0.3",
-    "source-map": "^0.7.3"
+    "source-map": "~0.6.1"
   }
 }

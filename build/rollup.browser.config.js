@@ -5,7 +5,7 @@ import nodeResolve from 'rollup-plugin-node-resolve'
 import { resolve } from 'path'
 
 const sourcemapPath = resolve('./node_modules/source-map/dist/source-map')
-const nodeNativeModules = ['fs', 'path', 'assert']
+const ignredModules = ['fs', 'path', 'assert']
 
 export default {
   ...defaultConfig,
@@ -13,10 +13,10 @@ export default {
     name: 'compiler',
     file: './dist/compiler.js',
     format: 'umd',
-    globals: nodeNativeModules,
+    globals: ignredModules,
     ...defaultConfig.output
   },
-  external: nodeNativeModules,
+  external: ignredModules,
   plugins: [
     alias({
       'source-map': sourcemapPath

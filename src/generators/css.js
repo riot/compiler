@@ -1,4 +1,4 @@
-import { SourceMapGenerator } from 'source-map'
+import createSourcemap from '../utils/create-sourcemap'
 import getLineAndColumnByPosition from '../utils/get-line-and-column-by-position'
 import getPreprocessorTypeByAttribute from '../utils/get-preprocessor-type-by-attribute'
 import mergeOutputChunks from '../utils/merge-output-chunks'
@@ -29,7 +29,7 @@ function wrapOutput(code) {
 export default async function css(sourceNode, source, options, { code, map }) {
   const preprocessorType = getPreprocessorTypeByAttribute(sourceNode)
   const cssNode = sourceNode.text
-  const sourcemap = generateSourcemap(source, cssNode, options.file, {
+  const sourcemap =  generateSourcemap(source, cssNode, options.file, {
     line: splitStringByEOL(code).length,
     column: CSS_WRAPPER_PREFIX.length
   })
@@ -59,7 +59,7 @@ export default async function css(sourceNode, source, options, { code, map }) {
  * @returns { SourceMapGenerator } a sourcemap instance
  */
 function generateSourcemap(source, cssNode, file, { line, column }) {
-  const sourcemap = new SourceMapGenerator({
+  const sourcemap = createSourcemap({
     file
   })
 

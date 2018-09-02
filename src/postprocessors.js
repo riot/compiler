@@ -1,6 +1,6 @@
+import composeSourcemaps from './utils/compose-sourcemaps'
 import { createOutput } from './transformer'
 import panic from './utils/panic'
-import recastUtil from 'recast/lib/util'
 
 export const postprocessors = new Set()
 
@@ -47,7 +47,7 @@ export async function execute(compilerOutput, options) {
 
     return {
       code: output.code,
-      map: recastUtil.composeSourceMaps(output.map, map)
+      map: composeSourcemaps(output.map, map)
     }
   }, Promise.resolve(createOutput(compilerOutput, options)))
 }

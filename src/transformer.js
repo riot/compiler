@@ -1,4 +1,4 @@
-import { SourceMapGenerator } from 'source-map'
+import createSourcemap from './utils/create-sourcemap'
 
 export const Output = Object.freeze({
   code: '',
@@ -20,7 +20,7 @@ export function createOutput(data, options) {
   })
 
   if (!output.map && options && options.file) Object.assign(output, {
-    map: new SourceMapGenerator({ file: options.file })
+    map: createSourcemap({ file: options.file })
   })
 
   return output
