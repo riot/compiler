@@ -17,8 +17,8 @@
     "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js",
     "pretest": "npm run build",
     "postest": "npm run cov-html",
-    "test": "npm run lint && nyc mocha -r reify test/*.specs.js",
-    "test-debug": "mocha --inspect --inspect-brk -r reify test/*.specs.js",
+    "test": "npm run lint && nyc mocha -r reify test/*.spec.js test/**/*.spec.js",
+    "test-debug": "mocha --inspect --inspect-brk -r reify test/*.spec.js test/**/*.spec.js",
     "prepublishOnly": "npm run test"
   },
   "repository": {

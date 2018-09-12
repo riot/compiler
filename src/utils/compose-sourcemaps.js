@@ -8,7 +8,7 @@ import recastUtil from 'recast/lib/util'
  */
 export default function composeSourcemaps(formerMap, latterMap) {
   if (isNode()) {
-    if (formerMap && latterMap) {
+    if (formerMap && latterMap && latterMap.mappings) {
       return recastUtil.composeSourceMaps(formerMap.toJSON(), latterMap.toJSON())
     }
 

@@ -11,7 +11,7 @@ export default function getLineAndColumnByPosition(string, position) {
   const lines = splitStringByEOL(string.slice(0, position))
 
   return {
-    line: lines.length + 1,
+    line: lines.length,
     column: getColumn(lines[lines.length - 1])
   }
 }
