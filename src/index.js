@@ -1,11 +1,11 @@
 import { register as registerPostproc, execute as runPostprocessors  } from './postprocessors'
 import { register as registerPreproc, execute as runPreprocessor } from './preprocessors'
-import cssGenerator from './generators/css'
+import cssGenerator from './generators/css/index'
 import curry from 'curri'
-import javascriptGenerator from './generators/javascript'
+import javascriptGenerator from './generators/javascript/index'
 import riotParser from 'riot-parser'
 import ruit from 'ruit'
-import templateGenerator from './generators/template'
+import templateGenerator from './generators/template/index'
 
 /**
  * Generate the output code source together with the sourcemap
