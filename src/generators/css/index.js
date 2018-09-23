@@ -1,12 +1,10 @@
+import {CSS_EXPORT_POSTFIX, CSS_EXPORT_PREFIX} from './constants'
 import composeSourcemaps from '../../utils/compose-sourcemaps'
 import generateSourcemap from './generate-css-source-map'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import mergeOutputChunks from '../../utils/merge-output-chunks'
 import minifyString from '../../utils/minify-string'
 import preprocess from '../../utils/preprocess-node'
-
-const CSS_EXPORT_PREFIX = 'export const css = `'
-const CSS_EXPORT_POSTFIX = '`;\n'
 
 /**
  * Wrap the generate css code

@@ -27,8 +27,8 @@ describe('Generators - javascript', () => {
       file: FAKE_FILE
     }, createOutput(null, { file: FAKE_FILE }))
 
-
     expect(code).to.be.a('string')
+    expect(code).to.have.string('import moment')
     expect(code.length).to.be.ok
   })
 })
