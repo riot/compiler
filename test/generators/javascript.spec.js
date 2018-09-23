@@ -31,5 +31,4 @@ describe('Generators - javascript', () => {
     expect(code).to.be.a('string')
     expect(code.length).to.be.ok
   })
-
 })

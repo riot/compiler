@@ -1,9 +1,9 @@
+import composeSourcemaps from '../../utils/compose-sourcemaps'
 import generateSourcemap from './generate-css-source-map'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import mergeOutputChunks from '../../utils/merge-output-chunks'
 import minifyString from '../../utils/minify-string'
 import preprocess from '../../utils/preprocess-node'
-import recastUtil from 'recast/lib/util'
 
 const CSS_EXPORT_PREFIX = 'export const css = `'
 const CSS_EXPORT_POSTFIX = '`;\n'
@@ -38,7 +38,7 @@ export default async function css(sourceNode, source, options, { code, map }) {
   const output = {
     code: wrapOutput(preprocessorOutput.code),
     map: preprocessorOutput.map ?
-      recastUtil.composeSourceMaps(sourcemap, preprocessorOutput.map) :
+      composeSourcemaps(preprocessorOutput.map, sourcemap) :
       sourcemap
   }
 

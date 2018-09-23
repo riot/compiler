@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "prepare": "npm test",
-    "lint": "eslint src/ test/ rollup.config.js",
+    "lint": "eslint src/ test/ build/",
     "cov": "nyc report --reporter=text-lcov | coveralls",
     "cov-html": "nyc report --reporter=html",
     "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js",
@@ -34,9 +34,10 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "coveralls": "^3.0.1",
-    "eslint": "^4.19.1",
+    "eslint": "^5.6.0",
     "eslint-config-riot": "^2.0.0",
     "mocha": "^5.2.0",
+    "node-sass": "^4.9.3",
     "nyc": "^12.0.2",
     "reify": "^0.17.3",
     "rollup": "^0.59.4",
@@ -53,9 +54,9 @@
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
     "curri": "^1.0.0",
-    "recast": "^0.15.3",
+    "recast": "^0.15.5",
     "riot-parser": "^0.6.0",
-    "ruit": "^1.0.3",
-    "source-map": "~0.6.1"
+    "ruit": "^1.0.4",
+    "source-map": "^0.6.1"
   }
 }
