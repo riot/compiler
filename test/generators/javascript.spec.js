@@ -29,6 +29,7 @@ describe('Generators - javascript', () => {
 
     expect(code).to.be.a('string')
     expect(code).to.have.string('import moment')
+    expect(code).to.have.string('return')
     expect(code.length).to.be.ok
   })
 })
