@@ -18,14 +18,13 @@ function asJSON(map) {
  * @returns { Object } sourcemap json
  */
 export default function composeSourcemaps(formerMap, latterMap) {
-  if (isNode()) {
-    if (formerMap && latterMap && latterMap.mappings) {
-      return recastUtil.composeSourceMaps(asJSON(formerMap), asJSON(latterMap))
-    }
-
-    if (formerMap) {
-      return asJSON(formerMap)
-    }
+  if (
+    isNode() &&
+    formerMap && latterMap && latterMap.mappings
+  ) {
+    return recastUtil.composeSourceMaps(asJSON(formerMap), asJSON(latterMap))
+  } else if (isNode() && formerMap) {
+    return asJSON(formerMap)
   }
 
   return {}
