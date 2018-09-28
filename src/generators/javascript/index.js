@@ -7,13 +7,16 @@ import recast from 'recast'
 const { types } = recast
 const { builders, namedTypes } = types
 
+// true if a node is an import statement
+const isImportStatement = namedTypes.ImportDeclaration.check
+
 /**
  * Find all the import statements
  * @param   { Array } body - tree structure containing the program code
  * @returns { Array } array containing only the import statements
  */
 function filterImportStatements(body) {
-  return body.filter(node => namedTypes.ImportDeclaration.check(node))
+  return body.filter(isImportStatement)
 }
 
 /**
@@ -22,7 +25,7 @@ function filterImportStatements(body) {
  * @returns { Array } array containing all the program code except the import expressions
  */
 function filterNonImportstatements(body) {
-  return body.filter(node => !namedTypes.ImportDeclaration.check(node))
+  return body.filter(node => !isImportStatement(node))
 }
 
 /**
