@@ -12,6 +12,10 @@ const person = 'person'
 export default {
   person
 }
+
+function foo() {
+  return 'foo'
+}
 </script>
 `
 

@@ -1,19 +1,19 @@
-import {DEFAULT_EXPORT_DECLARATION, IMPORT_DECLARATION, JS_EXPORT} from './constants'
 import compose from '../../utils/compose'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import mergeOutputChunks from '../../utils/merge-output-chunks'
 import preprocess from '../../utils/preprocess-node'
 import recast from 'recast'
 
-const builders = recast.types.builders
+const { types } = recast
+const { builders, namedTypes } = types
 
 /**
  * Find all the import statements
  * @param   { Array } body - tree structure containing the program code
  * @returns { Array } array containing only the import statements
  */
-function findImports(body) {
-  return body.filter(node => node.type === IMPORT_DECLARATION)
+function filterImportStatements(body) {
+  return body.filter(node => namedTypes.ImportDeclaration.check(node))
 }
 
 /**
@@ -21,8 +21,8 @@ function findImports(body) {
  * @param   { Array } body - tree structure containing the program code
  * @returns { Array } array containing all the program code except the import expressions
  */
-function filterNonImport(body) {
-  return body.filter(node => node.type !== IMPORT_DECLARATION)
+function filterNonImportstatements(body) {
+  return body.filter(node => !namedTypes.ImportDeclaration.check(node))
 }
 
 /**
@@ -35,47 +35,28 @@ function getProgramBody(ast) {
 }
 
 /**
- * Find the `export default` expression
- * @param   { Array } body - program ast
- * @returns { Object } the content of the default export statement
- */
-function getDefaultExportDeclaration(body) {
-  return body.find(node => node.type === DEFAULT_EXPORT_DECLARATION)
-}
-
-/**
- * Get the body of an expression call function (() => )()
- * @param   { Object } node node to parse
- * @returns { Array } expression body
- */
-function getCallExpressionBody(node) {
-  return node.declaration.callee.body.body
-}
-
-/**
- * Get the path to the body array where we will inject the tag logic code
- * @param   { Object } ast - ast program
- * @returns { Array } the empty array where we will inject our tag logic
- */
-function getOutputInnerBodyScope(ast) {
-  return compose(
-    getCallExpressionBody,
-    getDefaultExportDeclaration,
-    getProgramBody
-  )(ast)
-}
-
-/**
  * Remap the content of an ast converting the default export declaration into a return statement
  * @param   { Array } body - tree structure containing the program code
  * @returns { Array } the body remapped containing the return statement
  */
 function transformExportDefaultIntoReturn(body) {
   return body.map(node => {
-    if (node.type === DEFAULT_EXPORT_DECLARATION)
+    if (namedTypes.ExportDefaultDeclaration.check(node))
       return builders.returnStatement(node.declaration)
 
     return node
+  })
+}
+
+/**
+ * Move the return statement at the end of the body
+ * @param   { Array } body - tree structure containing the program code
+ * @returns { Array } the body having the return decalration as last child
+ */
+function sortReturnStatement(body) {
+  return body.sort(a => {
+    if (namedTypes.ReturnStatement.check(a)) return 1
+    return 0
   })
 }
 
@@ -91,22 +72,28 @@ export default async function javascript(sourceNode, source, options, { code, ma
   const preprocessorName = getPreprocessorTypeByAttribute(sourceNode)
   const javascriptNode = sourceNode.text
   const preprocessorOutput = await preprocess('js', preprocessorName, options, source, javascriptNode)
-  const outputAST = recast.parse(JS_EXPORT)
   const sourceAST = recast.parse(preprocessorOutput.code)
   const sourceAstBody = getProgramBody(sourceAST)
-  const outputInnerBody = getOutputInnerBodyScope(outputAST)
+  const importStatements = filterImportStatements(sourceAstBody)
+  const tagSourceCode = compose(
+    sortReturnStatement,
+    transformExportDefaultIntoReturn,
+    filterNonImportstatements
+  )(sourceAstBody)
 
-  // insert the code into the scoped context filtering the import statements
-  // and convert the export default into "return" statement
-  outputInnerBody.push(
-    ...compose(transformExportDefaultIntoReturn, filterNonImport)(sourceAstBody)
-  )
-
-  // move the imports to the top of the output
-  outputAST.program.body = [
-    ...findImports(sourceAstBody),
-    ...getProgramBody(outputAST)
-  ]
+  // export default (function tag() { /* tag logic here * / })();
+  const outputAST = builders.program([
+    ...importStatements,
+    builders.exportDefaultDeclaration(
+      builders.callExpression(
+        builders.functionExpression(
+          builders.identifier('tag'), [],
+          builders.blockStatement(tagSourceCode)
+        ),
+        []
+      )
+    )
+  ])
 
   return mergeOutputChunks(recast.prettyPrint(outputAST), { code, map })
 }
