@@ -3,9 +3,27 @@ import { register as registerPreproc, execute as runPreprocessor } from './prepr
 import cssGenerator from './generators/css/index'
 import curry from 'curri'
 import javascriptGenerator from './generators/javascript/index'
+import recast from 'recast'
 import riotParser from 'riot-parser'
 import ruit from 'ruit'
 import templateGenerator from './generators/template/index'
+
+/**
+ * Create the initial output
+ * @param { Sourcemap } map - initial sourcemap
+ * @returns { Output } containing the initial code and  AST
+ *
+ * @example
+ * // the output represents the following string in AST
+ */
+export function createInitialInput(map) {
+  const code = 'export default { css: null, tag: null, template: null }'
+  return {
+    ast: recast.parse(code),
+    code,
+    map
+  }
+}
 
 /**
  * Generate the output code source together with the sourcemap
@@ -20,10 +38,11 @@ export async function compile(source, options = {
   const { code, map } = await runPreprocessor('template', 'default', options, source)
   const { template, css, javascript } = riotParser(options).parse(code).output
 
-  return ruit({ code: '', map },
+  return ruit(createInitialInput(map),
     hookGenerator(cssGenerator, css, code, options),
-    hookGenerator(templateGenerator, template, code, options),
     hookGenerator(javascriptGenerator, javascript, code, options),
+    hookGenerator(templateGenerator, template, code, options),
+    ({ ast }) => recast.prettyPrint(ast),
     runPostprocessors,
   )
 }

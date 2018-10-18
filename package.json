@@ -32,18 +32,19 @@
     "compiler"
   ],
   "devDependencies": {
-    "chai": "^4.1.2",
-    "coveralls": "^3.0.1",
-    "eslint": "^5.6.0",
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.2",
+    "eslint": "^5.7.0",
     "eslint-config-riot": "^2.0.0",
     "mocha": "^5.2.0",
-    "node-sass": "^4.9.3",
-    "nyc": "^12.0.2",
-    "reify": "^0.17.3",
-    "rollup": "^0.59.4",
+    "node-sass": "^4.9.4",
+    "nyc": "^13.1.0",
+    "reify": "^0.18.1",
+    "rollup": "^0.66.6",
     "rollup-plugin-alias": "^1.4.0",
-    "rollup-plugin-commonjs": "^9.1.3",
-    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-resolve": "^3.4.0",
     "shelljs": "^0.8.2"
   },
   "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (http://gianlucaguarini.com)",
@@ -54,9 +55,9 @@
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
     "curri": "^1.0.0",
-    "recast": "^0.15.5",
+    "recast": "^0.16.0",
     "riot-parser": "^0.6.0",
     "ruit": "^1.0.4",
-    "source-map": "^0.6.1"
+    "source-map": "^0.7.3"
   }
 }

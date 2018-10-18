@@ -2,6 +2,7 @@ import createSourcemap from './utils/create-sourcemap'
 
 export const Output = Object.freeze({
   code: '',
+  ast: [],
   map: null
 })
 
@@ -9,6 +10,7 @@ export const Output = Object.freeze({
  * Create the right output data result of a parsing
  * @param   { Object } data - output data
  * @param   { string } data.code - code generated
+ * @param   { AST } data.ast - ast representing the code
  * @param   { SourceMapGenerator } data.map - source map generated along with the code
  * @param   { Object } options - user options, probably containing the path to the source file
  * @returns { Output } output container object

@@ -1,6 +1,7 @@
 import {register, unregister} from '../../src/preprocessors'
 import compileCSS from '../../src/generators/css'
-import {createOutput} from '../../src/transformer'
+import {createInitialInput} from '../../src/index'
+import createSourcemap from '../../src/utils/create-sourcemap'
 import {expect} from 'chai'
 import parser  from 'riot-parser'
 import {renderSync} from 'node-sass'
@@ -41,6 +42,10 @@ function scssPreprocessor(source, { file }) {
   }
 }
 
+function createInput() {
+  return createInitialInput(createSourcemap({ file: FAKE_FILE }))
+}
+
 describe('Generators - CSS', () => {
   before(() => {
     register('css', 'scss', scssPreprocessor)
@@ -53,22 +58,24 @@ describe('Generators - CSS', () => {
   it('compile a simple css node', async function() {
     const { css } = parser().parse(simpleCSS).output
 
-    const { code, map } = await compileCSS(css, simpleCSS, {
+    const { ast, map, code } = await compileCSS(css, simpleCSS, {
       file: FAKE_FILE
-    }, createOutput(null, { file: FAKE_FILE }))
+    }, createInput())
 
-    expect(map.mappings.split(',')).to.not.be.empty
-    expect(code).to.be.a('string')
+    expect(map).to.be.ok
+    expect(ast).to.be.ok
+    expect(code).to.have.string(':root')
   })
 
   it('compile a scss file and generate a proper sourcemap', async function() {
     const { css } = parser().parse(scssCSS).output
 
-    const { code, map } = await compileCSS(css, scssCSS, {
+    const { code, ast, map } = await compileCSS(css, scssCSS, {
       file: FAKE_FILE
-    }, createOutput(null, { file: FAKE_FILE }))
+    }, createInput())
 
-    expect(map.mappings.split(',')).to.not.be.empty
-    expect(code).to.be.a('string')
+    expect(map).to.be.ok
+    expect(ast).to.be.ok
+    expect(code).to.have.string(':root')
   })
 })
