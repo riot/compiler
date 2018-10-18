@@ -9,6 +9,7 @@ const { builders, namedTypes } = types
 
 // true if a node is an import statement
 const isImportStatement = namedTypes.ImportDeclaration.check
+const isExportNamedStatement = namedTypes.ExportNamedDeclaration.check
 
 /**
  * Find all the import statements
@@ -20,12 +21,30 @@ function filterImportStatements(body) {
 }
 
 /**
+ * Find all the export statements
+ * @param   { Array } body - tree structure containing the program code
+ * @returns { Array } array containing only the export statements
+ */
+function filterExportNamedStatements(body) {
+  return body.filter(isExportNamedStatement)
+}
+
+/**
  * Find all the code in an ast program except for the import statements
  * @param   { Array } body - tree structure containing the program code
  * @returns { Array } array containing all the program code except the import expressions
  */
 function filterNonImportstatements(body) {
   return body.filter(node => !isImportStatement(node))
+}
+
+/**
+ * Find all the code in an ast program except for the export statements
+ * @param   { Array } body - tree structure containing the program code
+ * @returns { Array } array containing all the program code except the export expressions
+ */
+function filterNonExportNamedStatements(body) {
+  return body.filter(node => !isExportNamedStatement(node))
 }
 
 /**
@@ -106,14 +125,17 @@ export default async function javascript(sourceNode, source, options, { ast, map
   })
   const generatedAstBody = getProgramBody(generatedAst)
   const importStatements = filterImportStatements(generatedAstBody)
+  const exportStatements = filterExportNamedStatements(generatedAstBody)
   const tagSourceCode = compose(
     sortReturnStatement,
     transformExportDefaultIntoReturn,
-    filterNonImportstatements
+    filterNonImportstatements,
+    filterNonExportNamedStatements
   )(generatedAstBody)
 
   const outputAst = builders.program([
     ...importStatements,
+    ...exportStatements,
     ...compose(getProgramBody, extendTagProperty)(ast, tagSourceCode)
   ])
 

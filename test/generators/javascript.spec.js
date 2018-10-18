@@ -8,6 +8,8 @@ const simpleJS = `
 <script>
 import moment from 'moment'
 
+export function noop () {}
+
 const person = 'person'
 
 export default {
