@@ -2,6 +2,7 @@ import {register, unregister} from '../../src/preprocessors'
 import compileCSS from '../../src/generators/css'
 import {createInitialInput} from '../../src/index'
 import createSourcemap from '../../src/utils/create-sourcemap'
+import {evaluateScript} from '../helpers'
 import {expect} from 'chai'
 import parser  from 'riot-parser'
 import {renderSync} from 'node-sass'
@@ -61,10 +62,14 @@ describe('Generators - CSS', () => {
     const { ast, map, code } = await compileCSS(css, simpleCSS, {
       file: FAKE_FILE
     }, createInput())
+    const output = evaluateScript(code)
 
     expect(map).to.be.ok
     expect(ast).to.be.ok
     expect(code).to.have.string(':root')
+    expect(output.default.css).to.be.ok
+    expect(output.default.tag).to.be.not.ok
+    expect(output.default.template).to.be.not.ok
   })
 
   it('compile a scss file and generate a proper sourcemap', async function() {
@@ -73,9 +78,13 @@ describe('Generators - CSS', () => {
     const { code, ast, map } = await compileCSS(css, scssCSS, {
       file: FAKE_FILE
     }, createInput())
+    const output = evaluateScript(code)
 
     expect(map).to.be.ok
     expect(ast).to.be.ok
     expect(code).to.have.string(':root')
+    expect(output.default.css).to.be.ok
+    expect(output.default.tag).to.be.not.ok
+    expect(output.default.template).to.be.not.ok
   })
 })
