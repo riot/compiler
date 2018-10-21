@@ -2,8 +2,7 @@ import composeSourcemaps from '../../utils/compose-sourcemaps'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
 import recast from 'recast'
-
-const { types } = recast
+import {types} from '../../utils/build-types'
 
 /**
  * Generate the component css

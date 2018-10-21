@@ -8,6 +8,6 @@ import recast from 'recast'
  * @param   { Output } output - current compiler output
  * @returns { Promise<Output> } - enhanced output with the result of the current generator
  */
-export default async function template(sourceNode, source, options, { ast, map }) { // eslint-disable-line
+export default async function template(sourceNode, source, options, { ast, map }) {
   return { ast, map, code: recast.print(ast).code }
 }

@@ -1,10 +1,9 @@
+import {namedTypes, types} from '../../utils/build-types'
 import composeSourcemaps from '../../utils/compose-sourcemaps'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
 import recast from 'recast'
 
-const { types } = recast
-const { namedTypes } = types
 const isExportDefaultStatement = namedTypes.ExportDefaultDeclaration.check
 
 /**
