@@ -1,50 +1,28 @@
-import compose from '../../utils/compose'
 import composeSourcemaps from '../../utils/compose-sourcemaps'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
 import recast from 'recast'
 
 const { types } = recast
-const { builders, namedTypes } = types
-
-// true if a node is an import statement
-const isImportStatement = namedTypes.ImportDeclaration.check
-const isExportNamedStatement = namedTypes.ExportNamedDeclaration.check
+const { namedTypes } = types
+const isExportDefaultStatement = namedTypes.ExportDefaultDeclaration.check
 
 /**
- * Find all the import statements
+ * Find the export default statement
  * @param   { Array } body - tree structure containing the program code
- * @returns { Array } array containing only the import statements
+ * @returns { Object } node containing only the code of the export default statement
  */
-function filterImportStatements(body) {
-  return body.filter(isImportStatement)
+function findExportDefaultStatement(body) {
+  return body.find(isExportDefaultStatement)
 }
 
 /**
- * Find all the export statements
+ * Find all the code in an ast program except for the export default statements
  * @param   { Array } body - tree structure containing the program code
- * @returns { Array } array containing only the export statements
+ * @returns { Array } array containing all the program code except the export default expressions
  */
-function filterExportNamedStatements(body) {
-  return body.filter(isExportNamedStatement)
-}
-
-/**
- * Find all the code in an ast program except for the import statements
- * @param   { Array } body - tree structure containing the program code
- * @returns { Array } array containing all the program code except the import expressions
- */
-function filterNonImportstatements(body) {
-  return body.filter(node => !isImportStatement(node))
-}
-
-/**
- * Find all the code in an ast program except for the export statements
- * @param   { Array } body - tree structure containing the program code
- * @returns { Array } array containing all the program code except the export expressions
- */
-function filterNonExportNamedStatements(body) {
-  return body.filter(node => !isExportNamedStatement(node))
+function filterNonExportDefaultStatements(body) {
+  return body.filter(node => !isExportDefaultStatement(node))
 }
 
 /**
@@ -57,47 +35,16 @@ function getProgramBody(ast) {
 }
 
 /**
- * Remap the content of an ast converting the default export declaration into a return statement
- * @param   { Array } body - tree structure containing the program code
- * @returns { Array } the body remapped containing the return statement
- */
-function transformExportDefaultIntoReturn(body) {
-  return body.map(node => {
-    if (namedTypes.ExportDefaultDeclaration.check(node))
-      return builders.returnStatement(node.declaration)
-
-    return node
-  })
-}
-
-/**
- * Move the return statement at the end of the body
- * @param   { Array } body - tree structure containing the program code
- * @returns { Array } the body having the return decalration as last child
- */
-function sortReturnStatement(body) {
-  return body.sort(a => {
-    if (namedTypes.ReturnStatement.check(a)) return 1
-    return 0
-  })
-}
-
-/**
  * Extend the AST adding the new tag method containing our tag sourcecode
  * @param   { Object } ast - current output ast
- * @param   { Object } sourceAST - tag ast source code
- * @returns { Object } the output ast extended containing the tag sourcecode
+ * @param   { Object } exportDefaultNode - tag export default node
+ * @returns { Object } the output ast having the "tag" key extended with the content of the export default
  */
-function extendTagProperty(ast, sourceAST) {
+function extendTagProperty(ast, exportDefaultNode) {
   types.visit(ast, {
     visitProperty(path) {
       if (path.value.key.name === 'tag') {
-        path.value.value = builders.functionExpression(
-          null, [],
-          builders.blockStatement(sourceAST)
-        )
-        path.value.method = true
-
+        path.value.value = exportDefaultNode.declaration
         return false
       }
 
@@ -124,24 +71,19 @@ export default async function javascript(sourceNode, source, options, { ast, map
     inputSourceMap: composeSourcemaps(map, preprocessorOutput.map)
   })
   const generatedAstBody = getProgramBody(generatedAst)
-  const importStatements = filterImportStatements(generatedAstBody)
-  const exportStatements = filterExportNamedStatements(generatedAstBody)
-  const tagSourceCode = compose(
-    sortReturnStatement,
-    transformExportDefaultIntoReturn,
-    filterNonImportstatements,
-    filterNonExportNamedStatements
-  )(generatedAstBody)
+  const bodyWithoutExportDefault = filterNonExportDefaultStatements(generatedAstBody)
+  const exportDefaultNode = findExportDefaultStatement(generatedAstBody)
+  const outputBody = getProgramBody(ast)
 
-  const outputAst = builders.program([
-    ...importStatements,
-    ...exportStatements,
-    ...compose(getProgramBody, extendTagProperty)(ast, tagSourceCode)
-  ])
+  // add to the ast the "private" javascript content of our tag script node
+  outputBody.unshift(...bodyWithoutExportDefault)
+
+  // convert the export default adding its content to the "tag" property exported
+  if (exportDefaultNode) extendTagProperty(ast, exportDefaultNode)
 
   return {
-    ast: outputAst,
+    ast,
     map,
-    code: recast.print(outputAst).code
+    code: recast.print(ast).code
   }
 }

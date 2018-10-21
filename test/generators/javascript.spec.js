@@ -1,12 +1,13 @@
 import compileJavascript from '../../src/generators/javascript'
 import {createInitialInput} from '../../src/index'
 import createSourcemap from '../../src/utils/create-sourcemap'
+import {evaluateScript} from '../helpers'
 import {expect} from 'chai'
 import parser  from 'riot-parser'
 
 const simpleJS = `
 <script>
-import moment from 'moment'
+import assert from 'assert'
 
 export function noop () {}
 
@@ -36,12 +37,11 @@ describe('Generators - javascript', () => {
     const { code } = await compileJavascript(javascript, simpleJS, {
       file: FAKE_FILE
     }, createInput())
+    const output = evaluateScript(code)
 
     expect(code).to.be.a('string')
-    expect(code).to.have.string('import moment')
+    expect(code).to.have.string('import assert')
     expect(code).to.have.string('return')
-    expect(code).to.have.string('tag()')
-
-    expect(code.length).to.be.ok
+    expect(output.default.tag).to.be.ok
   })
 })

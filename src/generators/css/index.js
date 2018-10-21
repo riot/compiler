@@ -24,7 +24,7 @@ export default async function css(sourceNode, source, options, { ast, map }) {
   types.visit(ast, {
     visitProperty(path) {
       if (path.value.key.name === 'css') {
-        path.value.value = generatedCss.program.body[0]
+        path.value.value = generatedCss.program.body[0].expression
         return false
       }
 

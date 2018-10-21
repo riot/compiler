@@ -6,7 +6,7 @@
   </ul>
 
   <script>
-    import moment from 'moment'
+    import assert from 'assert'
 
     const goodbye = 'goodbye'
     export default {
