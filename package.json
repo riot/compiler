@@ -55,6 +55,7 @@
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
     "curri": "^1.0.0",
+    "globals": "^11.8.0",
     "recast": "^0.16.0",
     "riot-parser": "^0.6.0",
     "ruit": "^1.0.4",

@@ -1,4 +1,5 @@
 import {join,relative} from 'path'
+import recast from 'recast'
 import sh from 'shelljs'
 
 const FIXTURES_DIR = './test/fixtures/'
@@ -30,4 +31,14 @@ export function evaluateScript(code) {
   } finally {
     sh.rm(filePath)
   }
+}
+
+export function renderExpression(ast) {
+  return recast.print(ast).code
+    .replace('function(scope) {\n    return', '')
+    .replace('return', '')
+    .replace(/\}$/, '')
+    .replace(/\n/, '')
+    .replace(';', '')
+    .trim()
 }
