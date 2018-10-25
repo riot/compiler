@@ -38,6 +38,24 @@ describe('Generators - Template', () => {
         expect(renderExpr('{ foo: bar, buz: baz }')).to.be.equal('{ foo: scope.bar, buz: scope.baz }')
         expect(renderExpr('{ foo: { foo: bar, buz: baz }, buz: baz }')).to.be.equal('{ foo: { foo: scope.bar, buz: scope.baz }, buz: scope.baz }')
       })
+
+      it('arrays', () => {
+        expect(renderExpr('[foo, \'bar\', baz]')).to.be.equal('[scope.foo, \'bar\', scope.baz]')
+      })
+
+      it('classes declaration', () => {
+        expect(renderExpr('class Foo {}')).to.be.equal('class Foo {}')
+        expect(renderExpr('class Foo extends Bar {}')).to.be.equal('class Foo extends Bar {}')
+      })
+
+      it('classes instances', () => {
+        expect(renderExpr('new Foo()')).to.be.equal('new scope.Foo()')
+      })
+
+      it('functions declaration', () => {
+        // TODO: fix me
+        //expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
+      })
     })
   })
 })

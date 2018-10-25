@@ -5,8 +5,11 @@ import createSourcemap from '../../utils/create-sourcemap'
 import getLineAndColumnByPosition from '../../utils/get-line-and-column-by-position'
 import recast from 'recast'
 
+
 const isIdentifier = namedTypes.Identifier.check
 const isObjectExpression = namedTypes.ObjectExpression.check
+// const isArrowFunctionExpression = namedTypes.ArrowFunctionExpression.check
+
 
 const browserAPIs = Object.keys(browser)
 const builtinAPIs = Object.keys(builtin)
@@ -88,10 +91,13 @@ function visitProperty(path) {
  * @returns { Object } the ast program with all the global nodes updated
  */
 export function updateNodesScope(ast) {
+  const ignorePath = () => false
+
   types.visit(ast, {
     visitIdentifier: updateNodeScope,
     visitMemberExpression: updateNodeScope,
-    visitProperty
+    visitProperty,
+    visitClassExpression: ignorePath
   })
 
   return ast
