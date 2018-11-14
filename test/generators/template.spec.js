@@ -34,6 +34,11 @@ describe('Generators - Template', () => {
         expect(renderExpr('foo + bar')).to.be.equal('scope.foo + scope.bar')
       })
 
+      it('context transform', () => {
+        expect(renderExpr('this.foo + this.bar')).to.be.equal('scope.foo + scope.bar')
+        expect(renderExpr('this + this')).to.be.equal('scope + scope')
+      })
+
       it('objects', () => {
         expect(renderExpr('{ foo: bar, buz: baz }')).to.be.equal('{ foo: scope.bar, buz: scope.baz }')
         expect(renderExpr('{ foo: { foo: bar, buz: baz }, buz: baz }')).to.be.equal('{ foo: { foo: scope.bar, buz: scope.baz }, buz: scope.baz }')
@@ -53,8 +58,8 @@ describe('Generators - Template', () => {
       })
 
       it('functions declaration', () => {
-        // TODO: fix me
-        //expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
+        expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
+        expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + scope.baz')
       })
     })
   })

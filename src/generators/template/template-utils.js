@@ -8,11 +8,12 @@ import recast from 'recast'
 
 const isIdentifier = namedTypes.Identifier.check
 const isObjectExpression = namedTypes.ObjectExpression.check
-// const isArrowFunctionExpression = namedTypes.ArrowFunctionExpression.check
+const isThisExpression = namedTypes.ThisExpression.check
 
 
 const browserAPIs = Object.keys(browser)
 const builtinAPIs = Object.keys(builtin)
+const scope = builders.identifier(SCOPE)
 
 /**
  * Find the attribute node
@@ -39,13 +40,34 @@ export function createExpressionSourcemap(expression, sourceFile, sourceCode) {
 }
 
 /**
- * Check if a node name is part of the browser or builtin javascript api
- * @param   {string}  options.name - name of the node to check
- * @returns {boolean} true if it's a global api method
+ * Check if a node name is part of the browser or builtin javascript api or it belongs to the current scope
+ * @param   { types.NodePath } path - containing the current node visited
+ * @returns {boolean} true if it's a global api variable
  */
-function isGlobalAPI({ name }) {
-  return browserAPIs.includes(name) || builtinAPIs.includes(name)
+function isGlobal({ scope, node }) {
+  const { name } = node
+  return browserAPIs.includes(name) || builtinAPIs.includes(name) || scope.lookup(name)
 }
+
+
+/**
+ * Replace the path scope with a member Expression
+ * @param   { types.NodePath } path - containing the current node visited
+ * @param   { types.Node } property - node we want to prefix with the scope identifier
+ * @returns {undefined} this is a void function
+ */
+function replacePathScope(path, property) {
+  if (property) {
+    path.replace(builders.memberExpression(
+      scope,
+      property,
+      false
+    ))
+  } else {
+    path.replace(scope)
+  }
+}
+
 
 /**
  * Change the nodes scope adding the `scope` prefix
@@ -54,12 +76,8 @@ function isGlobalAPI({ name }) {
  * @context { types.visit }
  */
 function updateNodeScope(path) {
-  if (path.scope.isGlobal && !isGlobalAPI(path.node)) {
-    path.replace(builders.memberExpression(
-      builders.identifier(SCOPE),
-      path.node,
-      false
-    ))
+  if (!isGlobal(path)) {
+    replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
 
     return false
   }
@@ -85,6 +103,17 @@ function visitProperty(path) {
   return false
 }
 
+
+/**
+ * The this expressions should be replaced with the scope
+ * @param   { types.NodePath } path - containing the current node visited
+ * @returns { boolean } return false if we want to stop the tree traversal
+ */
+function visitThisExpression(path) {
+  path.replace(scope)
+  this.traverse(path)
+}
+
 /**
  * Update the scope of the global nodes
  * @param   { Object } ast - ast program
@@ -97,6 +126,7 @@ export function updateNodesScope(ast) {
     visitIdentifier: updateNodeScope,
     visitMemberExpression: updateNodeScope,
     visitProperty,
+    visitThisExpression,
     visitClassExpression: ignorePath
   })
 
