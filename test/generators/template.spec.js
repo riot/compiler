@@ -1,11 +1,11 @@
 import compose from '../../src/utils/compose'
 import {expect} from 'chai'
-import {expressionToScopedFunction} from '../../src/generators/template/template-utils'
 import {renderExpression} from '../helpers'
+import {toScopedFunction} from '../../src/generators/template/utils'
 
 const renderExpr = compose(
   renderExpression,
-  expressionToScopedFunction,
+  toScopedFunction,
   expr => ({ text: expr })
 )
 
