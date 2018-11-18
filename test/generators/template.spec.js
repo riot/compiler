@@ -1,13 +1,33 @@
+import {
+  BINDING_CONDITION_KEY,
+  BINDING_EVALUATE_KEY,
+  BINDING_SELECTOR_KEY,
+  BINDING_TYPE_KEY
+} from '../../src/generators/template/constants'
+import {evaluateScript, renderExpression} from '../helpers'
+import {bindingTypes} from '@riotjs/dom-bindings'
 import compose from '../../src/utils/compose'
+import each from '../../src/generators/template/each'
 import {expect} from 'chai'
-import {renderExpression} from '../helpers'
+import recast from 'recast'
+import riotParser from '@riotjs/parser'
 import {toScopedFunction} from '../../src/generators/template/utils'
 
+const FAKE_SRC_FILE = 'fake-file.js'
 const renderExpr = compose(
   renderExpression,
   toScopedFunction,
   expr => ({ text: expr })
 )
+
+const evaluateOutput = (ast, components = {}) => evaluateScript(`
+  import { bindingTypes, expressionTypes }, template from '@riotjs/dom-bindings'
+
+  export default function output(components) {
+    return ${recast.print(ast).code}
+  };
+`).default(components)
+const parse = input => riotParser().parse(input).output
 
 describe('Generators - Template', () => {
   describe('Utils', () => {
@@ -61,6 +81,21 @@ describe('Generators - Template', () => {
         expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
         expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + scope.baz')
       })
+    })
+  })
+
+  describe('Each bindings', () => {
+
+    it('Each expression simple', () => {
+      const source = '<li each={item in items}>{item}</li>'
+      const { template } = parse(source)
+      const input = each(template, 'li', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_CONDITION_KEY]).to.be.not.ok
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
     })
   })
 })

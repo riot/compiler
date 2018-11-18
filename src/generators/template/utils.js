@@ -19,10 +19,10 @@ import createSourcemap from '../../utils/create-sourcemap'
 import getLineAndColumnByPosition from '../../utils/get-line-and-column-by-position'
 import panic from '../../utils/panic'
 import recast from 'recast'
+import {simplePropertyNode} from '../../utils/custom-ast-nodes'
 
 const scope = builders.identifier(SCOPE)
-const getName = ({name}) => name
-
+const getName = node => node && node.name ? node.name : node
 
 /**
  * Find the attribute node
@@ -54,7 +54,7 @@ export function createExpressionSourcemap(expression, sourceFile, sourceCode) {
  * @returns {boolean} true if it's a global api variable
  */
 function isGlobal({ scope, node }) {
-  return isBuiltinAPI(node) || isBrowserAPI(node) || scope.lookup(getName(node))
+  return isBuiltinAPI(node) || isBrowserAPI(node) || scope && scope.lookup(getName(node))
 }
 
 /**
@@ -151,7 +151,7 @@ export function createASTFromExpression(expression, sourceFile, sourceCode) {
 }
 
 const getEachItemName = expression => isSequenceExpression(expression) ? expression.expressions[0] : expression.left
-const getEachIndexName = expression => isSequenceExpression(expression) ? expression.expressions[1].left : builders.litteral()
+const getEachIndexName = expression => isSequenceExpression(expression) ? expression.expressions[1].left : null
 const getEachValue = expression => isSequenceExpression(expression) ? expression.expressions[1].right : expression.right
 
 /**
@@ -174,15 +174,15 @@ export function getEachExpressionProperties(eachExpression, sourceFile, sourceCo
   const { expression } = firstNode
 
   return [
-    builders.property(
+    simplePropertyNode(
       BINDING_ITEM_NAME_KEY,
       compose(builders.literal, getName, getEachItemName)(expression)
     ),
-    builders.property(
+    simplePropertyNode(
       BINDING_INDEX_NAME_KEY,
       compose(builders.literal, getName, getEachIndexName)(expression)
     ),
-    builders.property(
+    simplePropertyNode(
       BINDING_EVALUATE_KEY,
       compose(toScopedFunction, getEachValue)(expression)
     )
@@ -203,10 +203,11 @@ export function getEachExpressionProperties(eachExpression, sourceFile, sourceCo
  *  toScopedFunction('foo.baz + bar') // scope.foo.baz + scope.bar
  */
 export function toScopedFunction(input, sourceFile, sourceCode) {
-  const ast = input.text ? createASTFromExpression(input, sourceFile, sourceCode) : input
+  const isDomBindingNode = !!input.text
+  const ast = isDomBindingNode ? createASTFromExpression(input, sourceFile, sourceCode) : input
   const generatedAST = updateNodesScope(ast)
-  const astBody = generatedAST.program.body
-  const expressionAST = astBody[0].expression
+  const astBody = isDomBindingNode ? generatedAST.program.body : input
+  const expressionAST = astBody[0] ? astBody[0].expression : astBody
 
   return builders.functionExpression(
     null,

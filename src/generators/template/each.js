@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   BINDING_CONDITION_KEY,
   BINDING_SELECTOR_KEY,
@@ -12,26 +13,27 @@ import {findAttribute, getEachExpressionProperties, toScopedFunction} from './ut
 import build from './builder'
 import {builders} from '../../utils/build-types'
 import {isCustom} from 'dom-nodes'
+import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import tag from './tag'
 
-export function createEachBinding(node, sourceFile, sourceCode) {
+export default function createEachBinding(node, selector, sourceFile, sourceCode) {
   const ifAttribute = findAttribute(node, IF_DIRECTIVE)
   const eachAttribute = findAttribute(node, EACH_DIRECTIVE)
   const mightBeARiotComponent = isCustom(node.name)
 
   return builders.objectExpression([
-    builders.property(BINDING_TYPE_KEY,
+    simplePropertyNode(BINDING_TYPE_KEY,
       builders.memberExpression(
         builders.identifier(BINDING_TYPES),
         builders.identifier(EACH_BINDING_TYPE),
         false
-      )
+      ),
     ),
-    builders.property(BINDING_SELECTOR_KEY, builders.litteral(node.selector)),
-    builders.property(BINDING_CONDITION_KEY,
-      ifAttribute ? toScopedFunction(ifAttribute, sourceFile, sourceCode) : builders.literal(),
+    simplePropertyNode(BINDING_SELECTOR_KEY, builders.literal(selector)),
+    simplePropertyNode(BINDING_CONDITION_KEY,
+      ifAttribute ? toScopedFunction(ifAttribute, sourceFile, sourceCode) : nullNode(),
     ),
-    builders.property(BINDING_TEMPLATE_KEY, mightBeARiotComponent ?
+    simplePropertyNode(BINDING_TEMPLATE_KEY, mightBeARiotComponent ?
       tag(node, sourceCode, sourceCode) :
       build(node, sourceFile, sourceCode)
     ),

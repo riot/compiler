@@ -4,7 +4,7 @@ import cssGenerator from './generators/css/index'
 import curry from 'curri'
 import javascriptGenerator from './generators/javascript/index'
 import recast from 'recast'
-import riotParser from 'riot-parser'
+import riotParser from '@riotjs/parser'
 import ruit from 'ruit'
 import templateGenerator from './generators/template/index'
 

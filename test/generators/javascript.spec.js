@@ -3,7 +3,7 @@ import {createInitialInput} from '../../src/index'
 import createSourcemap from '../../src/utils/create-sourcemap'
 import {evaluateScript} from '../helpers'
 import {expect} from 'chai'
-import parser  from 'riot-parser'
+import parser  from '@riotjs/parser'
 
 const simpleJS = `
 <script>

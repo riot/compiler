@@ -34,7 +34,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "coveralls": "^3.0.2",
-    "eslint": "^5.7.0",
+    "eslint": "^5.8.0",
     "eslint-config-riot": "^2.0.0",
     "mocha": "^5.2.0",
     "node-sass": "^4.9.4",
@@ -54,11 +54,12 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
+    "@riotjs/dom-bindings": "^0.5.0",
+    "@riotjs/parser": "^0.7.0",
     "curri": "^1.0.0",
     "dom-nodes": "^1.0.0",
     "globals": "^11.8.0",
     "recast": "^0.16.0",
-    "riot-parser": "^0.6.0",
     "ruit": "^1.0.4",
     "source-map": "^0.7.3"
   }
