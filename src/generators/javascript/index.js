@@ -67,6 +67,7 @@ export default async function javascript(sourceNode, source, options, { ast, map
   const javascriptNode = sourceNode.text
   const preprocessorOutput = await preprocess('js', preprocessorName, options, source, javascriptNode)
   const generatedAst = recast.parse(preprocessorOutput.code, {
+    sourceFileName: options.file,
     inputSourceMap: composeSourcemaps(map, preprocessorOutput.map)
   })
   const generatedAstBody = getProgramBody(generatedAst)

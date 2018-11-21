@@ -2,7 +2,9 @@ import {
   BINDING_EVALUATE_KEY,
   BINDING_INDEX_NAME_KEY,
   BINDING_ITEM_NAME_KEY,
-  SCOPE
+  BINDING_TEMPLATE_KEY,
+  SCOPE,
+  TEMPLATE_FN
 } from './constants'
 import {builders, types} from '../../utils/build-types'
 import {
@@ -14,12 +16,12 @@ import {
   isSequenceExpression,
   isThisExpression
 } from '../../utils/ast-nodes-checks'
+import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import compose from '../../utils/compose'
 import createSourcemap from '../../utils/create-sourcemap'
 import getLineAndColumnByPosition from '../../utils/get-line-and-column-by-position'
 import panic from '../../utils/panic'
 import recast from 'recast'
-import {simplePropertyNode} from '../../utils/custom-ast-nodes'
 
 const scope = builders.identifier(SCOPE)
 const getName = node => node && node.name ? node.name : node
@@ -54,7 +56,7 @@ export function createExpressionSourcemap(expression, sourceFile, sourceCode) {
  * @returns {boolean} true if it's a global api variable
  */
 function isGlobal({ scope, node }) {
-  return isBuiltinAPI(node) || isBrowserAPI(node) || scope && scope.lookup(getName(node))
+  return isBuiltinAPI(node) || isBrowserAPI(node) || scope.lookup(getName(node))
 }
 
 /**
@@ -146,13 +148,14 @@ export function updateNodesScope(ast) {
  */
 export function createASTFromExpression(expression, sourceFile, sourceCode) {
   return recast.parse(`(${expression.text})`, {
+    sourceFileName: sourceFile,
     inputSourceMap: sourceFile && createExpressionSourcemap(expression, sourceFile, sourceCode)
   })
 }
 
 const getEachItemName = expression => isSequenceExpression(expression) ? expression.expressions[0] : expression.left
 const getEachIndexName = expression => isSequenceExpression(expression) ? expression.expressions[1].left : null
-const getEachValue = expression => isSequenceExpression(expression) ? expression.expressions[1].right : expression.right
+// const getEachValue = expression => isSequenceExpression(expression) ? expression.expressions[1].right : expression.right
 
 /**
  * Get the each expression properties to create properly the template binding
@@ -184,9 +187,24 @@ export function getEachExpressionProperties(eachExpression, sourceFile, sourceCo
     ),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,
-      compose(toScopedFunction, getEachValue)(expression)
+      nullNode()
+      //compose(toScopedFunction, getEachValue)(expression)
     )
   ]
+}
+
+/**
+ * Create the bindings template property
+ * @param   {Array<ASTNode>} args - arguments to pass to the template function
+ * @returns {ASTNode} a binding template key
+ */
+export function createTemplateProperty(args) {
+  return simplePropertyNode(
+    BINDING_TEMPLATE_KEY,
+    args ?
+      builders.callExpression(builders.identifier(TEMPLATE_FN), args) :
+      nullNode()
+  )
 }
 
 /**

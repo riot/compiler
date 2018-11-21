@@ -1,19 +1,17 @@
-/* eslint-disable */
 import {
   BINDING_CONDITION_KEY,
   BINDING_SELECTOR_KEY,
-  BINDING_TEMPLATE_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
   EACH_BINDING_TYPE,
   EACH_DIRECTIVE,
   IF_DIRECTIVE
 } from './constants'
-import {findAttribute, getEachExpressionProperties, toScopedFunction} from './utils'
+import {createTemplateProperty, findAttribute, getEachExpressionProperties, toScopedFunction} from './utils'
+import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import build from './builder'
 import {builders} from '../../utils/build-types'
 import {isCustom} from 'dom-nodes'
-import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import tag from './tag'
 
 export default function createEachBinding(node, selector, sourceFile, sourceCode) {
@@ -33,9 +31,8 @@ export default function createEachBinding(node, selector, sourceFile, sourceCode
     simplePropertyNode(BINDING_CONDITION_KEY,
       ifAttribute ? toScopedFunction(ifAttribute, sourceFile, sourceCode) : nullNode(),
     ),
-    simplePropertyNode(BINDING_TEMPLATE_KEY, mightBeARiotComponent ?
-      tag(node, sourceCode, sourceCode) :
-      build(node, sourceFile, sourceCode)
+    createTemplateProperty(
+      (mightBeARiotComponent ? tag : build)(node, sourceCode, sourceCode)
     ),
     ...getEachExpressionProperties(eachAttribute.expressions[0])
   ])
