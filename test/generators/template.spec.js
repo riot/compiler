@@ -148,5 +148,21 @@ describe('Generators - Template', () => {
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(output[BINDING_EVALUATE_KEY]({items})).to.be.deep.equal([1,2,3])
     })
+
+    it('Each cast a string attribute to expression', () => {
+      const source = '<li each="(item, index) in items" if="item > 1">{item}</li>'
+      const { template } = parse(source)
+      const input = each(template, 'li', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_CONDITION_KEY]).to.be.ok
+      expect(output[BINDING_CONDITION_KEY]({item: 2})).to.be.ok
+      expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.deep.equal([1,2,3])
+    })
   })
 })
