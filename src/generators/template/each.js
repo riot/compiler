@@ -7,10 +7,17 @@ import {
   EACH_DIRECTIVE,
   IF_DIRECTIVE
 } from './constants'
-import {createTemplateProperty, findAttribute, getEachExpressionProperties, toScopedFunction} from './utils'
+import {
+  createTemplateProperty,
+  findAttribute,
+  getAttributeExpression,
+  getEachExpressionProperties,
+  toScopedFunction
+} from './utils'
 import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import build from './builder'
 import {builders} from '../../utils/build-types'
+import compose from '../../utils/compose'
 import {isCustom} from 'dom-nodes'
 import tag from './tag'
 
@@ -29,11 +36,11 @@ export default function createEachBinding(node, selector, sourceFile, sourceCode
     ),
     simplePropertyNode(BINDING_SELECTOR_KEY, builders.literal(selector)),
     simplePropertyNode(BINDING_CONDITION_KEY,
-      ifAttribute ? toScopedFunction(ifAttribute, sourceFile, sourceCode) : nullNode(),
+      ifAttribute ? toScopedFunction(getAttributeExpression(ifAttribute), sourceFile, sourceCode) : nullNode(),
     ),
     createTemplateProperty(
       (mightBeARiotComponent ? tag : build)(node, sourceCode, sourceCode)
     ),
-    ...getEachExpressionProperties(eachAttribute.expressions[0])
+    ...compose(getEachExpressionProperties, getAttributeExpression)(eachAttribute)
   ])
 }

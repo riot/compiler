@@ -153,9 +153,9 @@ export function createASTFromExpression(expression, sourceFile, sourceCode) {
   })
 }
 
-const getEachItemName = expression => isSequenceExpression(expression) ? expression.expressions[0] : expression.left
-const getEachIndexName = expression => isSequenceExpression(expression) ? expression.expressions[1].left : null
-// const getEachValue = expression => isSequenceExpression(expression) ? expression.expressions[1].right : expression.right
+const getEachItemName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[0] : expression.left
+const getEachIndexName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[1] : null
+const getEachValue = expression => expression.right
 
 /**
  * Get the each expression properties to create properly the template binding
@@ -187,8 +187,14 @@ export function getEachExpressionProperties(eachExpression, sourceFile, sourceCo
     ),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,
-      nullNode()
-      //compose(toScopedFunction, getEachValue)(expression)
+      compose(
+        e => toScopedFunction(e, sourceFile, sourceCode),
+        e => ({
+          ...eachExpression,
+          text: recast.print(e).code
+        }),
+        getEachValue
+      )(expression)
     )
   ]
 }
@@ -208,8 +214,21 @@ export function createTemplateProperty(args) {
 }
 
 /**
+ * Try to get the expression of an attribute node
+ * @param   { RiotParser.Node.Attribute } attribute - riot parser attribute node
+ * @returns { RiotParser.Node.Expression } attribute expression value
+ */
+export function getAttributeExpression(attribute) {
+  return attribute.expressions ? attribute.expressions[0] : {
+    // if no expression was found try to typecast the attribute value
+    ...attribute,
+    text: attribute.value
+  }
+}
+
+/**
  * Convert any parser option to a valid template one
- * @param   { DOMBindings.Expression|ASTNode } input - expression parsed by the riot parser or an AST tree
+ * @param   { RiotParser.Node.Expression } expression - expression parsed by the riot parser
  * @param   { string } sourceFile - original tag file
  * @param   { string } sourceCode - original tag source code
  * @returns { Object } a FunctionExpression object
@@ -220,11 +239,10 @@ export function createTemplateProperty(args) {
  * @example
  *  toScopedFunction('foo.baz + bar') // scope.foo.baz + scope.bar
  */
-export function toScopedFunction(input, sourceFile, sourceCode) {
-  const isDomBindingNode = !!input.text
-  const ast = isDomBindingNode ? createASTFromExpression(input, sourceFile, sourceCode) : input
+export function toScopedFunction(expression, sourceFile, sourceCode) {
+  const ast = createASTFromExpression(expression, sourceFile, sourceCode)
   const generatedAST = updateNodesScope(ast)
-  const astBody = isDomBindingNode ? generatedAST.program.body : input
+  const astBody = generatedAST.program.body
   const expressionAST = astBody[0] ? astBody[0].expression : astBody
 
   return builders.functionExpression(

@@ -1,6 +1,7 @@
 import {
   BINDING_CONDITION_KEY,
-  // BINDING_EVALUATE_KEY,
+  BINDING_EVALUATE_KEY,
+  BINDING_INDEX_NAME_KEY,
   BINDING_SELECTOR_KEY,
   BINDING_TEMPLATE_KEY,
   BINDING_TYPE_KEY
@@ -86,7 +87,6 @@ describe('Generators - Template', () => {
   })
 
   describe('Each bindings', () => {
-
     it('Each expression simple', () => {
       const source = '<li each={item in items}>{item}</li>'
       const { template } = parse(source)
@@ -94,12 +94,59 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
 
       expect(output[BINDING_CONDITION_KEY]).to.be.not.ok
+      expect(output[BINDING_INDEX_NAME_KEY]).to.be.not.ok
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
-      // TODO: fix the evaluate method
-      // expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
-      // expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.equal([1,2,3])
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.deep.equal([1,2,3])
+    })
+
+    it('Each expression with index', () => {
+      const source = '<li each={(item, index) in items}>{item}</li>'
+      const { template } = parse(source)
+      const input = each(template, 'li', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_CONDITION_KEY]).to.be.not.ok
+      expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.deep.equal([1,2,3])
+    })
+
+    it('Each expression with condition index', () => {
+      const source = '<li each={(item, index) in items} if={item > 1}>{item}</li>'
+      const { template } = parse(source)
+      const input = each(template, 'li', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_CONDITION_KEY]).to.be.ok
+      expect(output[BINDING_CONDITION_KEY]({item: 2})).to.be.ok
+      expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.deep.equal([1,2,3])
+    })
+
+    it('Each complex expression', () => {
+      const source = '<li each={(item, index) in items()}>{item}</li>'
+      const { template } = parse(source)
+      const input = each(template, 'li', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const items = () => [1, 2, 3]
+
+      expect(output[BINDING_CONDITION_KEY]).to.be.not
+      expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(output[BINDING_EVALUATE_KEY]({items})).to.be.deep.equal([1,2,3])
     })
   })
 })
