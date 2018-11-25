@@ -22,6 +22,6 @@ import { foo,
     time(){
         return Date()
     }
-
+    import('foo').then(this.update)
     </script>
 </import>
