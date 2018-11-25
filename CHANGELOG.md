@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.5.2
+- Fix es6 dynamic imports https://github.com/riot/riot/issues/2641
+
 ### v3.5.1
 - Fix try importing `@babel/core` first and then fallback to `babel-core` for the `es6` parser
 
