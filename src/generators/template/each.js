@@ -1,6 +1,5 @@
 import {
   BINDING_CONDITION_KEY,
-  BINDING_SELECTOR_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
   EACH_BINDING_TYPE,
@@ -8,6 +7,7 @@ import {
   IF_DIRECTIVE
 } from './constants'
 import {
+  createSelectorProperties,
   createTemplateProperty,
   findAttribute,
   getAttributeExpression,
@@ -21,7 +21,16 @@ import compose from '../../utils/compose'
 import {isCustom} from 'dom-nodes'
 import tag from './tag'
 
-export default function createEachBinding(node, selector, sourceFile, sourceCode) {
+
+/**
+ * Transform a RiotParser.Node.Tag into an each binding
+ * @param   { RiotParser.Node.Tag } node - tag containing the each attribute
+ * @param   { string } selectorAttribute - attribute needed to select the target node
+ * @param   { stiring } sourceFile - source file path
+ * @param   { string } sourceCode - original source
+ * @returns { AST.Node } an each binding node
+ */
+export default function createEachBinding(node, selectorAttribute, sourceFile, sourceCode) {
   const ifAttribute = findAttribute(node, IF_DIRECTIVE)
   const eachAttribute = findAttribute(node, EACH_DIRECTIVE)
   const mightBeARiotComponent = isCustom(node.name)
@@ -34,13 +43,13 @@ export default function createEachBinding(node, selector, sourceFile, sourceCode
         false
       ),
     ),
-    simplePropertyNode(BINDING_SELECTOR_KEY, builders.literal(selector)),
     simplePropertyNode(BINDING_CONDITION_KEY,
       ifAttribute ? toScopedFunction(getAttributeExpression(ifAttribute), sourceFile, sourceCode) : nullNode(),
     ),
     createTemplateProperty(
       (mightBeARiotComponent ? tag : build)(node, sourceCode, sourceCode)
     ),
+    ...createSelectorProperties(selectorAttribute),
     ...compose(getEachExpressionProperties, getAttributeExpression)(eachAttribute)
   ])
 }

@@ -9,8 +9,9 @@ import {
 import {evaluateScript, renderExpression} from '../helpers'
 import {bindingTypes} from '@riotjs/dom-bindings'
 import compose from '../../src/utils/compose'
-import each from '../../src/generators/template/each'
+import eachBinding from '../../src/generators/template/each'
 import {expect} from 'chai'
+import ifBinding from '../../src/generators/template/if'
 import recast from 'recast'
 import riotParser from '@riotjs/parser'
 import {toScopedFunction} from '../../src/generators/template/utils'
@@ -44,6 +45,7 @@ describe('Generators - Template', () => {
 
       it('primitves', () => {
         expect(renderExpr('true')).to.be.equal('true')
+        expect(renderExpr('1 > 2')).to.be.equal('1 > 2')
         expect(renderExpr('null')).to.be.equal('null')
         expect(renderExpr('\'hello\'')).to.be.equal('\'hello\'')
         expect(renderExpr('undefined')).to.be.equal('undefined')
@@ -88,14 +90,14 @@ describe('Generators - Template', () => {
 
   describe('Each bindings', () => {
     it('Each expression simple', () => {
-      const source = '<li each={item in items}>{item}</li>'
+      const source = '<li expr0 each={item in items}>{item}</li>'
       const { template } = parse(source)
-      const input = each(template, 'li', FAKE_SRC_FILE, source)
+      const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
 
       expect(output[BINDING_CONDITION_KEY]).to.be.not.ok
       expect(output[BINDING_INDEX_NAME_KEY]).to.be.not.ok
-      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
@@ -103,14 +105,14 @@ describe('Generators - Template', () => {
     })
 
     it('Each expression with index', () => {
-      const source = '<li each={(item, index) in items}>{item}</li>'
+      const source = '<li expr0 each={(item, index) in items}>{item}</li>'
       const { template } = parse(source)
-      const input = each(template, 'li', FAKE_SRC_FILE, source)
+      const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
 
       expect(output[BINDING_CONDITION_KEY]).to.be.not.ok
       expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
-      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
@@ -118,15 +120,15 @@ describe('Generators - Template', () => {
     })
 
     it('Each expression with condition index', () => {
-      const source = '<li each={(item, index) in items} if={item > 1}>{item}</li>'
+      const source = '<li expr0 each={(item, index) in items} if={item > 1}>{item}</li>'
       const { template } = parse(source)
-      const input = each(template, 'li', FAKE_SRC_FILE, source)
+      const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
 
       expect(output[BINDING_CONDITION_KEY]).to.be.ok
       expect(output[BINDING_CONDITION_KEY]({item: 2})).to.be.ok
       expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
-      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
@@ -134,15 +136,15 @@ describe('Generators - Template', () => {
     })
 
     it('Each complex expression', () => {
-      const source = '<li each={(item, index) in items()}>{item}</li>'
+      const source = '<li expr0 each={(item, index) in items()}>{item}</li>'
       const { template } = parse(source)
-      const input = each(template, 'li', FAKE_SRC_FILE, source)
+      const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
       const items = () => [1, 2, 3]
 
       expect(output[BINDING_CONDITION_KEY]).to.be.not
       expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
-      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
@@ -150,19 +152,65 @@ describe('Generators - Template', () => {
     })
 
     it('Each cast a string attribute to expression', () => {
-      const source = '<li each="(item, index) in items" if="item > 1">{item}</li>'
+      const source = '<li expr0 each="(item, index) in items" if="item > 1">{item}</li>'
       const { template } = parse(source)
-      const input = each(template, 'li', FAKE_SRC_FILE, source)
+      const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
 
       expect(output[BINDING_CONDITION_KEY]).to.be.ok
       expect(output[BINDING_CONDITION_KEY]({item: 2})).to.be.ok
       expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
-      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('li')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.deep.equal([1,2,3])
+    })
+  })
+
+  describe('If bindings', () => {
+    it('If expression false', () => {
+      const source = '<p expr0 if={1 > 2}>Hello</p>'
+      const { template } = parse(source)
+      const input = ifBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.IF)
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+
+      expect(output[BINDING_EVALUATE_KEY]()).to.be.equal(false)
+    })
+
+    it('If expression truthy', () => {
+      const source = '<p expr0 if={"foo bar"}>Hello</p>'
+      const { template } = parse(source)
+      const input = ifBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.IF)
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+
+      expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('foo bar')
+    })
+
+    it('If expression nested object', () => {
+      const source = '<p expr0 if={opts.isVisible}>Hello</p>'
+      const { template } = parse(source)
+      const input = ifBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.IF)
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+
+      expect(output[BINDING_EVALUATE_KEY]({ opts: {
+        isVisible: false
+      }})).to.be.equal(false)
     })
   })
 })

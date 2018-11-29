@@ -2,6 +2,8 @@ import {
   BINDING_EVALUATE_KEY,
   BINDING_INDEX_NAME_KEY,
   BINDING_ITEM_NAME_KEY,
+  BINDING_REDUNDANT_ATTRIBUTE_KEY,
+  BINDING_SELECTOR_KEY,
   BINDING_TEMPLATE_KEY,
   SCOPE,
   TEMPLATE_FN
@@ -156,6 +158,7 @@ export function createASTFromExpression(expression, sourceFile, sourceCode) {
 const getEachItemName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[0] : expression.left
 const getEachIndexName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[1] : null
 const getEachValue = expression => expression.right
+const nameToliteral = compose(builders.literal, getName)
 
 /**
  * Get the each expression properties to create properly the template binding
@@ -176,14 +179,15 @@ export function getEachExpressionProperties(eachExpression, sourceFile, sourceCo
 
   const { expression } = firstNode
 
+
   return [
     simplePropertyNode(
       BINDING_ITEM_NAME_KEY,
-      compose(builders.literal, getName, getEachItemName)(expression)
+      compose(nameToliteral, getEachItemName)(expression)
     ),
     simplePropertyNode(
       BINDING_INDEX_NAME_KEY,
-      compose(builders.literal, getName, getEachIndexName)(expression)
+      compose(nameToliteral, getEachIndexName)(expression)
     ),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,
@@ -252,4 +256,26 @@ export function toScopedFunction(expression, sourceFile, sourceCode) {
       expressionAST
     )])
   )
+}
+
+/**
+ * Convert any DOM attribute into a valid DOM selector useful for the querySelector API
+ * @param   { string } attributeName - name of the attribute to query
+ * @returns { string } the attribute transformed to a query selector
+ */
+export const attributeNameToDOMQuerySelector = attributeName => `[${attributeName}]`
+
+
+/**
+ * Create the properties to query a DOM node
+ * @param   { string } attributeName - attribute name needed to identify a DOM node
+ * @returns { Array<AST.Node> } array containing the selector properties needed for the binding
+ */
+export function createSelectorProperties(attributeName) {
+  return [
+    simplePropertyNode(BINDING_REDUNDANT_ATTRIBUTE_KEY, builders.literal(attributeName)),
+    simplePropertyNode(BINDING_SELECTOR_KEY,
+      compose(builders.literal, attributeNameToDOMQuerySelector)(attributeName)
+    )
+  ]
 }
