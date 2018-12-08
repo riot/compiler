@@ -1,6 +1,7 @@
 import {
   BINDING_CONDITION_KEY,
   BINDING_EVALUATE_KEY,
+  BINDING_GET_KEY_KEY,
   BINDING_INDEX_NAME_KEY,
   BINDING_SELECTOR_KEY,
   BINDING_TEMPLATE_KEY,
@@ -97,6 +98,7 @@ describe('Generators - Template', () => {
 
       expect(output[BINDING_CONDITION_KEY]).to.be.not.ok
       expect(output[BINDING_INDEX_NAME_KEY]).to.be.not.ok
+      expect(output[BINDING_GET_KEY_KEY]).to.be.not.ok
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
@@ -127,6 +129,23 @@ describe('Generators - Template', () => {
 
       expect(output[BINDING_CONDITION_KEY]).to.be.ok
       expect(output[BINDING_CONDITION_KEY]({item: 2})).to.be.ok
+      expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.deep.equal([1,2,3])
+    })
+
+    it('Each expression with key attribute', () => {
+      const source = '<li expr0 each={(item, index) in items} key={item} if={item > 1}>{item}</li>'
+      const { template } = parse(source)
+      const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_CONDITION_KEY]).to.be.ok
+      expect(output[BINDING_CONDITION_KEY]({item: 2})).to.be.ok
+      expect(output[BINDING_GET_KEY_KEY]({item: 2})).to.be.equal(2)
       expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)

@@ -17,9 +17,11 @@ export const BINDING_TYPE_KEY = 'type'
 export const BINDING_REDUNDANT_ATTRIBUTE_KEY = 'redundantAttribute'
 export const BINDING_CONDITION_KEY = 'condition'
 export const BINDING_ITEM_NAME_KEY = 'itemName'
+export const BINDING_GET_KEY_KEY = 'getKey'
 export const BINDING_INDEX_NAME_KEY = 'indexName'
 export const BINDING_EVALUATE_KEY = 'evaluate'
 
 // DOM directives
 export const IF_DIRECTIVE = 'if'
 export const EACH_DIRECTIVE = 'each'
+export const KEY_ATTRIBUTE = 'key'

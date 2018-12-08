@@ -1,10 +1,12 @@
 import {
   BINDING_CONDITION_KEY,
+  BINDING_GET_KEY_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
   EACH_BINDING_TYPE,
   EACH_DIRECTIVE,
-  IF_DIRECTIVE
+  IF_DIRECTIVE,
+  KEY_ATTRIBUTE
 } from './constants'
 import {
   createSelectorProperties,
@@ -33,7 +35,9 @@ import tag from './tag'
 export default function createEachBinding(node, selectorAttribute, sourceFile, sourceCode) {
   const ifAttribute = findAttribute(node, IF_DIRECTIVE)
   const eachAttribute = findAttribute(node, EACH_DIRECTIVE)
+  const keyAttribute = findAttribute(node, KEY_ATTRIBUTE)
   const mightBeARiotComponent = isCustom(node.name)
+  const attributeOrNull = attribute => attribute ? toScopedFunction(getAttributeExpression(attribute), sourceFile, sourceCode) : nullNode()
 
   return builders.objectExpression([
     simplePropertyNode(BINDING_TYPE_KEY,
@@ -43,9 +47,8 @@ export default function createEachBinding(node, selectorAttribute, sourceFile, s
         false
       ),
     ),
-    simplePropertyNode(BINDING_CONDITION_KEY,
-      ifAttribute ? toScopedFunction(getAttributeExpression(ifAttribute), sourceFile, sourceCode) : nullNode(),
-    ),
+    simplePropertyNode(BINDING_GET_KEY_KEY, attributeOrNull(keyAttribute)),
+    simplePropertyNode(BINDING_CONDITION_KEY, attributeOrNull(ifAttribute)),
     createTemplateProperty(
       (mightBeARiotComponent ? tag : build)(node, sourceCode, sourceCode)
     ),
