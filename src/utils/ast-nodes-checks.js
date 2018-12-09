@@ -5,6 +5,7 @@ const browserAPIs = Object.keys(browser)
 const builtinAPIs = Object.keys(builtin)
 
 export const isIdentifier = namedTypes.Identifier.check
+export const isLiteral = namedTypes.Literal.check
 export const isExpressionStatement = namedTypes.ExpressionStatement.check
 export const isObjectExpression = namedTypes.ObjectExpression.check
 export const isThisExpression = namedTypes.ThisExpression.check

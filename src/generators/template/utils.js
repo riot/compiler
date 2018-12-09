@@ -14,6 +14,7 @@ import {
   isBuiltinAPI,
   isExpressionStatement,
   isIdentifier,
+  isLiteral,
   isObjectExpression,
   isSequenceExpression,
   isThisExpression
@@ -205,15 +206,13 @@ export function getEachExpressionProperties(eachExpression, sourceFile, sourceCo
 
 /**
  * Create the bindings template property
- * @param   {Array<ASTNode>} args - arguments to pass to the template function
+ * @param   {Array} args - arguments to pass to the template function
  * @returns {ASTNode} a binding template key
  */
 export function createTemplateProperty(args) {
   return simplePropertyNode(
     BINDING_TEMPLATE_KEY,
-    args ?
-      builders.callExpression(builders.identifier(TEMPLATE_FN), args) :
-      nullNode()
+    args ? callTemplateFunction(...args) : nullNode()
   )
 }
 
@@ -259,12 +258,42 @@ export function toScopedFunction(expression, sourceFile, sourceCode) {
 }
 
 /**
+ * Transform a template provided in different forms into a literal expression
+ * @param   {Array|string|Node.Literal} template - template to transform into literal
+ * @returns {Node.Literal} literal expression containing the template string
+ */
+export function templateToLiteral(template) {
+  switch (true) {
+  case isLiteral(template):
+    return template
+  case Array.isArray(template):
+    return builders.literal(template.join(''))
+  case typeof template === 'string':
+    return builders.literal(template)
+  default:
+    return nullNode()
+  }
+}
+
+/**
+ * Create the template call function
+ * @param   {Array|string|Node.Literal} template - template string
+ * @param   {Array<AST.Nodes>} bindings - template bindings provided as AST nodes
+ * @returns {Node.CallExpression} template call expression
+ */
+export function callTemplateFunction(template, bindings) {
+  return builders.callExpression(builders.identifier(TEMPLATE_FN), [
+    templateToLiteral(template),
+    bindings ? bindings : nullNode()
+  ])
+}
+
+/**
  * Convert any DOM attribute into a valid DOM selector useful for the querySelector API
  * @param   { string } attributeName - name of the attribute to query
  * @returns { string } the attribute transformed to a query selector
  */
 export const attributeNameToDOMQuerySelector = attributeName => `[${attributeName}]`
-
 
 /**
  * Create the properties to query a DOM node
