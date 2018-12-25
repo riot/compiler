@@ -7,7 +7,7 @@ import {
   EACH_DIRECTIVE,
   IF_DIRECTIVE,
   KEY_ATTRIBUTE
-} from './constants'
+} from '../constants'
 import {
   createSelectorProperties,
   createTemplateProperty,
@@ -15,11 +15,11 @@ import {
   getAttributeExpression,
   getEachExpressionProperties,
   toScopedFunction
-} from './utils'
-import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
-import build from './builder'
-import {builders} from '../../utils/build-types'
-import compose from '../../utils/compose'
+} from '../utils'
+import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
+import build from '../builder'
+import {builders} from '../../../utils/build-types'
+import compose from '../../../utils/compose'
 import {isCustom} from 'dom-nodes'
 import tag from './tag'
 

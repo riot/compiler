@@ -3,12 +3,13 @@ export const EACH_BINDING_TYPE = 'EACH'
 export const IF_BINDING_TYPE = 'IF'
 export const TAG_BINDING_TYPE = 'TAG'
 
-export const EXPRESSION_TYPE = 'expressionTypes'
+export const EXPRESSION_TYPES = 'expressionTypes'
 export const ATTRIBUTE_EXPRESSION_TYPE = 'ATTRIBUTE'
 export const VALUE_EXPRESSION_TYPE = 'VALUE'
 
 export const TEMPLATE_FN = 'template'
 export const SCOPE = 'scope'
+export const COMPONENTS_REGISTRY = 'components'
 
 // keys needed to create the DOM bindings
 export const BINDING_SELECTOR_KEY = 'selector'

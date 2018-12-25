@@ -2,6 +2,7 @@ import alias from 'rollup-plugin-alias'
 import builtins from 'rollup-plugin-node-builtins'
 import commonjs from 'rollup-plugin-commonjs'
 import defaultConfig from './rollup.config'
+import json from 'rollup-plugin-json'
 import nodeResolve from 'rollup-plugin-node-resolve'
 import { resolve } from 'path'
 
@@ -20,6 +21,7 @@ export default {
   external: ignredModules,
   plugins: [
     builtins(),
+    json(),
     alias({
       'source-map': sourcemapPath
     }),

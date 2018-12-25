@@ -4,17 +4,17 @@ import {
   BINDING_TYPE_KEY,
   IF_BINDING_TYPE,
   IF_DIRECTIVE
-} from './constants'
+} from '../constants'
 import {
   createSelectorProperties,
   createTemplateProperty,
   findAttribute,
   toScopedFunction
-} from './utils'
-import build from './builder'
-import {builders} from '../../utils/build-types'
+} from '../utils'
+import build from '../builder'
+import {builders} from '../../../utils/build-types'
 import {isCustom} from 'dom-nodes'
-import {simplePropertyNode} from '../../utils/custom-ast-nodes'
+import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import tag from './tag'
 
 
