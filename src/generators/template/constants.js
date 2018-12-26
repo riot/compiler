@@ -26,3 +26,13 @@ export const BINDING_EVALUATE_KEY = 'evaluate'
 export const IF_DIRECTIVE = 'if'
 export const EACH_DIRECTIVE = 'each'
 export const KEY_ATTRIBUTE = 'key'
+
+export const TEXT_NODE_EXPRESSION_PLACEHOLDER = '<!---->'
+export const BINDING_SELECTOR_PREFIX = 'expr'
+
+// Riot Parser constants
+// TODO: import them from the @riotjs/parser
+export const IS_RAW_NODE = 'isRaw'
+export const IS_VOID_NODE = 'isVoid'
+export const IS_CUSTOM_NODE = 'isCustom'
+export const IS_BOOLEAN_ATTRIBUTE = 'isBoolean'

@@ -4,9 +4,17 @@ import {
   BINDING_ITEM_NAME_KEY,
   BINDING_REDUNDANT_ATTRIBUTE_KEY,
   BINDING_SELECTOR_KEY,
+  BINDING_SELECTOR_PREFIX,
   BINDING_TEMPLATE_KEY,
+  EACH_DIRECTIVE,
+  IF_DIRECTIVE,
+  IS_BOOLEAN_ATTRIBUTE,
+  IS_CUSTOM_NODE,
+  IS_VOID_NODE,
+  KEY_ATTRIBUTE,
   SCOPE,
-  TEMPLATE_FN
+  TEMPLATE_FN,
+  TEXT_NODE_EXPRESSION_PLACEHOLDER
 } from './constants'
 import {builders, types} from '../../utils/build-types'
 import {
@@ -22,7 +30,9 @@ import {
 import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import compose from '../../utils/compose'
 import createSourcemap from '../../utils/create-sourcemap'
+import curry from 'curri'
 import getLineAndColumnByPosition from '../../utils/get-line-and-column-by-position'
+import {nodeTypes} from '@riotjs/parser'
 import panic from '../../utils/panic'
 import recast from 'recast'
 
@@ -31,13 +41,17 @@ const getName = node => node && node.name ? node.name : node
 
 /**
  * Find the attribute node
- * @param   { riotParser.nodeTypes.TAG } node - a tag node
  * @param   { string } name -  name of the attribute we want to find
+ * @param   { riotParser.nodeTypes.TAG } node - a tag node
  * @returns { riotParser.nodeTypes.ATTR } attribute node
  */
-export function findAttribute(node, name) {
+export function findAttribute(name, node) {
   return node.attributes && node.attributes.find(attr => getName(attr) === name)
 }
+
+export const findIfAttribute = curry(findAttribute)(IF_DIRECTIVE)
+export const findEachAttribute = curry(findAttribute)(EACH_DIRECTIVE)
+export const findKeyAttribute = curry(findAttribute)(KEY_ATTRIBUTE)
 
 export function createExpressionSourcemap(expression, sourceFile, sourceCode) {
   const sourcemap = createSourcemap({ file: sourceFile })
@@ -58,7 +72,7 @@ export function createExpressionSourcemap(expression, sourceFile, sourceCode) {
  * @param   { types.NodePath } path - containing the current node visited
  * @returns {boolean} true if it's a global api variable
  */
-function isGlobal({ scope, node }) {
+export function isGlobal({ scope, node }) {
   return isBuiltinAPI(node) || isBrowserAPI(node) || scope.lookup(getName(node))
 }
 
@@ -179,7 +193,6 @@ export function getEachExpressionProperties(eachExpression, sourceFile, sourceCo
   }
 
   const { expression } = firstNode
-
 
   return [
     simplePropertyNode(
@@ -308,3 +321,125 @@ export function createSelectorProperties(attributeName) {
     )
   ]
 }
+
+/**
+ * Get all the child nodes of a RiotParser.Node
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {Array<RiotParser.Node>} all the child nodes found
+ */
+export function getChildNodes(node) {
+  return node.nodes ? node.nodes : []
+}
+
+/**
+ * Find all the node attributes that are not expressions
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {Array} list of all the static attributes
+ */
+export function findStaticAttributes(node) {
+  return node.attributes ? node.attributes.filter(attribute => !hasExpressions(attribute)) : []
+}
+
+/**
+ * True if the node has the isCustom attribute set
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true if either it's a riot component or a custom element
+ */
+export function isCustomNode(node) {
+  return !!node[IS_CUSTOM_NODE]
+}
+
+/**
+ * True if the node has the isVoid attribute set
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true if the node is self closing
+ */
+export function isVoidNode(node) {
+  return !!node[IS_VOID_NODE]
+}
+
+/**
+ * True if the riot parser did find a tag node
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true only for the tag nodes
+ */
+export function isTagNode(node) {
+  return node.type === nodeTypes.TAG
+}
+
+/**
+ * True if the riot parser did find a text node
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true only for the text nodes
+ */
+export function isTextNode(node) {
+  return node.type === nodeTypes.TEXT
+}
+
+/**
+ * True if the node has expressions or expression attributes
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} ditto
+ */
+export function hasExpressions(node) {
+  return !!(
+    node.expressions ||
+    (node.attributes && node.attributes.some(attribute => hasExpressions(attribute)))
+  )
+}
+
+/**
+ * Convert all the node static attributes to strings
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {string} all the node static concatenated as string
+ */
+export function staticAttributesToString(node) {
+  return findStaticAttributes(node)
+    .map(attribute => attribute[IS_BOOLEAN_ATTRIBUTE] || !attribute.value ?
+      attribute.name :
+      `${attribute.name}="${attribute.value}"`
+    ).join(' ')
+}
+
+
+/**
+ * Convert a riot parser opening node into a string
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {string} the node as string
+ */
+export function startNodeToString(node) {
+  const attributes = staticAttributesToString(node)
+
+  switch(true) {
+  case isTagNode(node):
+    return `<${node.name} ${attributes} ${isVoidNode(node) ? '/' : ''}>`
+  case isTextNode(node):
+    return hasExpressions(node) ? TEXT_NODE_EXPRESSION_PLACEHOLDER : node.text
+  default:
+    return ''
+  }
+}
+
+/**
+ * True if the tag has not expression set nor bindings directives
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true only if it's a static node that doesn't need bindings or expressions
+ */
+export function isStaticNode(node) {
+  return [
+    hasExpressions,
+    findEachAttribute,
+    findIfAttribute,
+    isCustomNode
+  ].every(test => !test(node))
+}
+
+
+/**
+ * Create a selector that will be used to find the node via dom-bindings
+ * @param   {number} id - temporary variable that will be increased anytime this function will be called
+ * @returns {string} selector attribute needed to bind a riot expression
+ */
+export const createBindingSelector = (function createSelector(id = 0) {
+  return () => `${BINDING_SELECTOR_PREFIX}${id++}`
+}())

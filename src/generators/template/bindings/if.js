@@ -2,18 +2,18 @@ import {
   BINDING_EVALUATE_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
-  IF_BINDING_TYPE,
-  IF_DIRECTIVE
+  IF_BINDING_TYPE
 } from '../constants'
 import {
   createSelectorProperties,
   createTemplateProperty,
-  findAttribute,
+  findIfAttribute,
+  getChildNodes,
+  isCustomNode,
   toScopedFunction
 } from '../utils'
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
-import {isCustom} from 'dom-nodes'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import tag from './tag'
 
@@ -26,9 +26,9 @@ import tag from './tag'
  * @param   { string } sourceCode - original source
  * @returns { AST.Node } an each binding node
  */
-export default function createIFBinding(node, selectorAttribute, sourceFile, sourceCode) {
-  const ifAttribute = findAttribute(node, IF_DIRECTIVE)
-  const mightBeARiotComponent = isCustom(node.name)
+export default function createIfBinding(node, selectorAttribute, sourceFile, sourceCode) {
+  const ifAttribute = findIfAttribute(node)
+  const mightBeARiotComponent = isCustomNode(node)
 
   return builders.objectExpression([
     simplePropertyNode(BINDING_TYPE_KEY,
@@ -44,7 +44,7 @@ export default function createIFBinding(node, selectorAttribute, sourceFile, sou
     ),
     ...createSelectorProperties(selectorAttribute),
     createTemplateProperty(
-      (mightBeARiotComponent ? tag : build)(node, sourceCode, sourceCode)
+      (mightBeARiotComponent ? tag : build)({ nodes: getChildNodes(node) }, sourceCode, sourceCode)
     )
   ])
 }

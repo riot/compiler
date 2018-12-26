@@ -3,24 +3,25 @@ import {
   BINDING_GET_KEY_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
-  EACH_BINDING_TYPE,
-  EACH_DIRECTIVE,
-  IF_DIRECTIVE,
-  KEY_ATTRIBUTE
+  EACH_BINDING_TYPE
 } from '../constants'
 import {
   createSelectorProperties,
   createTemplateProperty,
-  findAttribute,
+  findEachAttribute,
+  findIfAttribute,
+  findKeyAttribute,
   getAttributeExpression,
+  getChildNodes,
   getEachExpressionProperties,
+  isCustomNode,
   toScopedFunction
 } from '../utils'
+
 import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
 import compose from '../../../utils/compose'
-import {isCustom} from 'dom-nodes'
 import tag from './tag'
 
 
@@ -33,10 +34,12 @@ import tag from './tag'
  * @returns { AST.Node } an each binding node
  */
 export default function createEachBinding(node, selectorAttribute, sourceFile, sourceCode) {
-  const ifAttribute = findAttribute(node, IF_DIRECTIVE)
-  const eachAttribute = findAttribute(node, EACH_DIRECTIVE)
-  const keyAttribute = findAttribute(node, KEY_ATTRIBUTE)
-  const mightBeARiotComponent = isCustom(node.name)
+  const [ifAttribute, eachAttribute, keyAttribute] = [
+    findIfAttribute,
+    findEachAttribute,
+    findKeyAttribute
+  ].map(f => f(node))
+  const mightBeARiotComponent = isCustomNode(node)
   const attributeOrNull = attribute => attribute ? toScopedFunction(getAttributeExpression(attribute), sourceFile, sourceCode) : nullNode()
 
   return builders.objectExpression([
@@ -50,7 +53,10 @@ export default function createEachBinding(node, selectorAttribute, sourceFile, s
     simplePropertyNode(BINDING_GET_KEY_KEY, attributeOrNull(keyAttribute)),
     simplePropertyNode(BINDING_CONDITION_KEY, attributeOrNull(ifAttribute)),
     createTemplateProperty(
-      (mightBeARiotComponent ? tag : build)(node, sourceCode, sourceCode)
+      (mightBeARiotComponent ? tag : build)({
+        attributes: node.attributes || [],
+        nodes: getChildNodes(node)
+      }, sourceCode, sourceCode)
     ),
     ...createSelectorProperties(selectorAttribute),
     ...compose(getEachExpressionProperties, getAttributeExpression)(eachAttribute)

@@ -26,7 +26,13 @@ function extendTemplateProperty(ast, sourceFile, sourceCode, sourceNode) {
           ].map(builders.identifier),
           builders.blockStatement([
             builders.returnStatement(
-              callTemplateFunction(...build(sourceNode, sourceCode, sourceNode))
+              callTemplateFunction(
+                ...build(
+                  sourceNode,
+                  sourceFile,
+                  sourceCode
+                )
+              )
             )
           ])
         )
