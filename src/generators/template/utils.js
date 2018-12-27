@@ -22,7 +22,6 @@ import {
   isBuiltinAPI,
   isExpressionStatement,
   isIdentifier,
-  isLiteral,
   isObjectExpression,
   isSequenceExpression,
   isThisExpression
@@ -271,24 +270,6 @@ export function toScopedFunction(expression, sourceFile, sourceCode) {
 }
 
 /**
- * Transform a template provided in different forms into a literal expression
- * @param   {Array|string|Node.Literal} template - template to transform into literal
- * @returns {Node.Literal} literal expression containing the template string
- */
-export function templateToLiteral(template) {
-  switch (true) {
-  case isLiteral(template):
-    return template
-  case Array.isArray(template):
-    return builders.literal(template.join(''))
-  case typeof template === 'string':
-    return builders.literal(template)
-  default:
-    return nullNode()
-  }
-}
-
-/**
  * Create the template call function
  * @param   {Array|string|Node.Literal} template - template string
  * @param   {Array<AST.Nodes>} bindings - template bindings provided as AST nodes
@@ -296,8 +277,8 @@ export function templateToLiteral(template) {
  */
 export function callTemplateFunction(template, bindings) {
   return builders.callExpression(builders.identifier(TEMPLATE_FN), [
-    templateToLiteral(template),
-    bindings ? bindings : nullNode()
+    template ? builders.literal(template) : nullNode(),
+    bindings ? builders.arrayExpression(bindings) : nullNode()
   ])
 }
 
@@ -323,11 +304,23 @@ export function createSelectorProperties(attributeName) {
 }
 
 /**
+ * Create a root node proxing only its nodes and attributes
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {RiotParser.Node} root node
+ */
+export function createRootNode(node) {
+  return {
+    nodes: getChildrenNodes(node),
+    attributes: node.attributes
+  }
+}
+
+/**
  * Get all the child nodes of a RiotParser.Node
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {Array<RiotParser.Node>} all the child nodes found
  */
-export function getChildNodes(node) {
+export function getChildrenNodes(node) {
   return node.nodes ? node.nodes : []
 }
 
@@ -338,6 +331,15 @@ export function getChildNodes(node) {
  */
 export function findStaticAttributes(node) {
   return node.attributes ? node.attributes.filter(attribute => !hasExpressions(attribute)) : []
+}
+
+/**
+ * Find all the node attributes that have expressions
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {Array} list of all the dynamic attributes
+ */
+export function findDynamicAttributes(node) {
+  return node.attributes ? node.attributes.filter(attribute => hasExpressions(attribute)) : []
 }
 
 /**
@@ -384,7 +386,10 @@ export function isTextNode(node) {
 export function hasExpressions(node) {
   return !!(
     node.expressions ||
-    (node.attributes && node.attributes.some(attribute => hasExpressions(attribute)))
+    // has expression attributes
+    (node.attributes && node.attributes.some(attribute => hasExpressions(attribute))) ||
+    // has child text nodes with expressions
+    (node.nodes && node.nodes.some(node => isTextNode(node) && hasExpressions(node)))
   )
 }
 
@@ -407,17 +412,26 @@ export function staticAttributesToString(node) {
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {string} the node as string
  */
-export function startNodeToString(node) {
+export function nodeToString(node) {
   const attributes = staticAttributesToString(node)
 
   switch(true) {
   case isTagNode(node):
-    return `<${node.name} ${attributes} ${isVoidNode(node) ? '/' : ''}>`
+    return `<${node.name}${attributes ? ` ${attributes}` : ''}${isVoidNode(node) ? '/' : ''}>`
   case isTextNode(node):
     return hasExpressions(node) ? TEXT_NODE_EXPRESSION_PLACEHOLDER : node.text
   default:
     return ''
   }
+}
+
+/**
+ * Close an html node
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {string} the closing tag of the html tag node passed to this function
+ */
+export function closeTag(node) {
+  return `<${node.name}/>`
 }
 
 /**

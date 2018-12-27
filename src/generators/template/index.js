@@ -1,7 +1,7 @@
 import {BINDING_TYPES, COMPONENTS_REGISTRY, EXPRESSION_TYPES, TEMPLATE_FN} from './constants'
 import {builders, types} from '../../utils/build-types'
+import {callTemplateFunction, createRootNode} from './utils'
 import build from './builder'
-import {callTemplateFunction} from './utils'
 import recast from 'recast'
 
 /**
@@ -28,7 +28,7 @@ function extendTemplateProperty(ast, sourceFile, sourceCode, sourceNode) {
             builders.returnStatement(
               callTemplateFunction(
                 ...build(
-                  sourceNode,
+                  createRootNode(sourceNode),
                   sourceFile,
                   sourceCode
                 )
