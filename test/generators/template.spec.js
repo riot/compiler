@@ -278,6 +278,30 @@ describe('Generators - Template', () => {
       expect(html).to.be.equal('<p expr></p>')
     })
 
+    it('Each and if binding on the same tag', () => {
+      const source = '<p each={item in items} if={foo}>{item}</p>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<p expr></p>')
+    })
+
+    it('Simple void tag', () => {
+      const source = '<input/>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal(source)
+    })
+
+    it('You don\'t know HTML, void tags correction', () => {
+      const source = '<img></img>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<img/>')
+    })
+
     it('Simple tag binding', () => {
       const source = '<my-tag>foo bar</my-tag>'
       const { template } = parse(source)
