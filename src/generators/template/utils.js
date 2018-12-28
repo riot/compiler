@@ -392,6 +392,34 @@ export function isTextNode(node) {
 }
 
 /**
+ * True if the node is of type attribute
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true only for attribute nodes
+ */
+export function isAttributeNode(node) {
+  return node.type === nodeTypes.ATTR
+}
+
+/**
+ * True if the node is an attribute and its name is "value"
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true only for value attribute nodes
+ */
+export function isValueAttribute(node) {
+  return isAttributeNode(node) && node.name === 'value'
+}
+
+/**
+ * True if the node is an attribute and a DOM handler
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true only for dom listener attribute nodes
+ */
+export const isEventAttribute = (() => {
+  const EVENT_ATTR_RE = /^on/
+  return node => isAttributeNode(node) && EVENT_ATTR_RE.test(node.name)
+})()
+
+/**
  * True if the node has expressions or expression attributes
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {boolean} ditto
