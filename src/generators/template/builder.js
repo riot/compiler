@@ -2,11 +2,11 @@ import {
   closeTag,
   createBindingSelector,
   findDynamicAttributes,
-  findEachAttribute,
-  findIfAttribute,
   getChildrenNodes,
   getNodeAttributes,
   getNodeBindingSelector,
+  hasEachAttribute,
+  hasIfAttribute,
   hasItsOwnTemplate,
   isCustomNode,
   isStaticNode,
@@ -85,10 +85,10 @@ function createTagWithBindings(sourceNode, sourceFile, sourceCode) {
 
   switch(true) {
   // EACH bindings have prio 1
-  case findEachAttribute(cloneNode):
+  case hasEachAttribute(cloneNode):
     return [tagOpeningHTML, [eachBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
   // IF bindings have prio 2
-  case findIfAttribute(cloneNode):
+  case hasIfAttribute(cloneNode):
     return [tagOpeningHTML, [ifBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
   // TAG bindings have prio 3
   case isCustomNode(cloneNode):

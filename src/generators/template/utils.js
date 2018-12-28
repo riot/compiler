@@ -51,6 +51,9 @@ export function findAttribute(name, node) {
 export const findIfAttribute = curry(findAttribute)(IF_DIRECTIVE)
 export const findEachAttribute = curry(findAttribute)(EACH_DIRECTIVE)
 export const findKeyAttribute = curry(findAttribute)(KEY_ATTRIBUTE)
+export const hasIfAttribute = compose(Boolean, findIfAttribute)
+export const hasEachAttribute = compose(Boolean, findEachAttribute)
+export const hasKeyAttribute = compose(Boolean, findKeyAttribute)
 
 export function createExpressionSourcemap(expression, sourceFile, sourceCode) {
   const sourcemap = createSourcemap({ file: sourceFile })

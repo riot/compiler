@@ -16,7 +16,7 @@ export default async function css(sourceNode, source, options, { ast, map }) {
   const preprocessorName = getPreprocessorTypeByAttribute(sourceNode)
   const cssNode = sourceNode.text
   const preprocessorOutput = await preprocess('css', preprocessorName, options, source, cssNode)
-  const generatedCss = recast.parse(`\`${preprocessorOutput.code}\``, {
+  const generatedCss = recast.parse(`\`${preprocessorOutput.code.trim()}\``, {
     sourceFileName: options.file,
     inputSourceMap: composeSourcemaps(map, preprocessorOutput.map)
   })

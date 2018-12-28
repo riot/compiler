@@ -10,7 +10,7 @@ const uid = (() => {
 })()
 
 export function getFixture(name) {
-  return String(sh.cat(`${FIXTURES_DIR}${name}.tag`))
+  return String(sh.cat(`${FIXTURES_DIR}${name}.riot`))
 }
 
 export function getExpected(name) {
