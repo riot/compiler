@@ -6,10 +6,13 @@ import {
   findIfAttribute,
   getChildrenNodes,
   getNodeAttributes,
+  getNodeBindingSelector,
+  hasItsOwnTemplate,
   isCustomNode,
   isStaticNode,
   isTagNode,
   isTextNode,
+  isVoidNode,
   nodeToString
 } from './utils'
 import cloneDeep from '../../utils/clone-deep'
@@ -54,7 +57,14 @@ function createDynamicNode(sourceNode, sourceFile, sourceCode, state) {
   case isTagNode(sourceNode):
     return createTagWithBindings(sourceNode, sourceFile, sourceCode, state)
   case isTextNode(sourceNode):
-    return [nodeToString(sourceNode), simpleBinding(sourceNode, sourceFile, sourceCode, state)]
+    return [nodeToString(sourceNode), [simpleBinding(
+      sourceNode,
+      getNodeBindingSelector(state.parent),
+      sourceFile,
+      sourceCode,
+      // get the index of the text expression
+      state.parent ? state.parent.nodes.indexOf(sourceCode) : 0
+    )]]
   default:
     return ['', []]
   }
@@ -68,7 +78,7 @@ function createDynamicNode(sourceNode, sourceFile, sourceCode, state) {
  * @param   {BuildingState} state - state representing the current building tree state during the recursion
  * @returns {Array} array containing the html output and bindings for the current node
  */
-function createTagWithBindings(sourceNode, sourceFile, sourceCode, state) {
+function createTagWithBindings(sourceNode, sourceFile, sourceCode) {
   const bindingsSelector = createBindingSelector()
   const cloneNode = createBindingsTag(sourceNode, bindingsSelector)
   const tagOpeningHTML = nodeToString(cloneNode)
@@ -76,30 +86,30 @@ function createTagWithBindings(sourceNode, sourceFile, sourceCode, state) {
   switch(true) {
   // EACH bindings have prio 1
   case findEachAttribute(cloneNode):
-    return [tagOpeningHTML, eachBinding(sourceNode, bindingsSelector, sourceFile, sourceCode)]
+    return [tagOpeningHTML, [eachBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
   // IF bindings have prio 2
   case findIfAttribute(cloneNode):
-    return [tagOpeningHTML, ifBinding(sourceNode, bindingsSelector, sourceFile, sourceCode)]
+    return [tagOpeningHTML, [ifBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
   // TAG bindings have prio 3
   case isCustomNode(cloneNode):
-    return [tagOpeningHTML, tagBinding(sourceNode, bindingsSelector, sourceFile, sourceCode)]
+    return [tagOpeningHTML, [tagBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
   // attribute bindings come as last
   default:
-    return [tagOpeningHTML, ...createAttributeExpressions(sourceNode, sourceFile, sourceCode, state)]
+    return [tagOpeningHTML, [...createAttributeExpressions(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
   }
 }
 
 /**
  * Create the attribute bindings
  * @param   {RiotParser.Node} sourceNode - any kind of node parsed via riot parser
+ * @param   {string} bindingsSelector - selector needed for the binding
  * @param   {stiring} sourceFile - source file path
  * @param   {string} sourceCode - original source
- * @param   {BuildingState} state - state representing the current building tree state during the recursion
  * @returns {Array} array containing all the attribute bindings
  */
-function createAttributeExpressions(sourceNode, sourceFile, sourceCode, state) {
+function createAttributeExpressions(sourceNode, bindingsSelector, sourceFile, sourceCode) {
   return findDynamicAttributes(sourceNode)
-    .map(attribute => simpleBinding(attribute, sourceFile, sourceCode, state))
+    .map(attribute => simpleBinding(attribute, bindingsSelector, sourceFile, sourceCode))
 }
 
 /**
@@ -138,15 +148,15 @@ export default function build(
   currentState.html.push(...nodeHTML)
   currentState.bindings.push(...nodeBindings)
 
-  // do recursion
-  // this tag has children
-  if (childrenNodes.length) {
-    childrenNodes.forEach(node => build(node, sourceFile, sourceCode, { parent: sourceNode }))
+  // do recursion if
+  // this tag has children and it's has no special directive bound to it
+  if (childrenNodes.length && !hasItsOwnTemplate(sourceNode)) {
+    childrenNodes.forEach(node => build(node, sourceFile, sourceCode, { parent: sourceNode, ...currentState }))
+  }
 
-    // close the tags having children
-    if (isTagNode(sourceNode)) {
-      currentState.html.push(closeTag(sourceNode))
-    }
+  // close the tag if it's not a void one
+  if (isTagNode(sourceNode) && !isVoidNode(sourceNode)) {
+    currentState.html.push(closeTag(sourceNode))
   }
 
   return [

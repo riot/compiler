@@ -404,6 +404,15 @@ export function hasExpressions(node) {
 }
 
 /**
+ * Get the binding selector attribute of any riot parser node if it has one
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {string|null} the selector name if the node has one
+ */
+export function getNodeBindingSelector(node) {
+  return node && node.bindingsSelector || null
+}
+
+/**
  * Convert all the node static attributes to strings
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {string} all the node static concatenated as string
@@ -441,11 +450,11 @@ export function nodeToString(node) {
  * @returns {string} the closing tag of the html tag node passed to this function
  */
 export function closeTag(node) {
-  return `<${node.name}/>`
+  return node.name ? `</${node.name}>` : ''
 }
 
 /**
- * True if the tag has not expression set nor bindings directives
+ * True if the node has not expression set nor bindings directives
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {boolean} true only if it's a static node that doesn't need bindings or expressions
  */
@@ -456,6 +465,19 @@ export function isStaticNode(node) {
     findIfAttribute,
     isCustomNode
   ].every(test => !test(node))
+}
+
+/**
+ * True if the node is a directive having its own template
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true only for the IF EACH and TAG bindings
+ */
+export function hasItsOwnTemplate(node) {
+  return [
+    findEachAttribute,
+    findIfAttribute,
+    isCustomNode
+  ].some(test => test(node))
 }
 
 

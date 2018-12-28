@@ -9,6 +9,7 @@ import {
 } from '../../src/generators/template/constants'
 import {evaluateScript, renderExpression} from '../helpers'
 import {bindingTypes} from '@riotjs/dom-bindings'
+import builder from '../../src/generators/template/builder'
 import compose from '../../src/utils/compose'
 import eachBinding from '../../src/generators/template/bindings/each'
 import {expect} from 'chai'
@@ -23,6 +24,9 @@ const renderExpr = compose(
   toScopedFunction,
   expr => ({ text: expr })
 )
+
+const removeIdFromExpessionBindings = str => str.replace(/expr(\d+)/g, 'expr')
+const buildSimpleTemplate = compose(removeIdFromExpessionBindings, res => res[0], builder)
 
 const evaluateOutput = (ast, components = {}) => evaluateScript(`
   import { bindingTypes, expressionTypes, template } from '@riotjs/dom-bindings'
@@ -230,6 +234,72 @@ describe('Generators - Template', () => {
       expect(output[BINDING_EVALUATE_KEY]({ opts: {
         isVisible: false
       }})).to.be.equal(false)
+    })
+  })
+
+  describe('Template builder', () => {
+    it('Simple node', () => {
+      const source = '<p>foo bar</p>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal(source)
+    })
+
+    it('Simple text expression', () => {
+      const source = '<p>your {name}</p>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<p expr><!----></p>')
+    })
+
+    it('Multiple text expressions', () => {
+      const source = '<p>{user} {name}</p>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<p expr><!----></p>')
+    })
+
+    it('Simple if binding', () => {
+      const source = '<p if={foo}>foo bar</p>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<p expr></p>')
+    })
+
+    it('Simple each binding', () => {
+      const source = '<p each={item in items}>{item}</p>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<p expr></p>')
+    })
+
+    it('Simple tag binding', () => {
+      const source = '<my-tag>foo bar</my-tag>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<my-tag expr></my-tag>')
+    })
+
+    it('Nested list', () => {
+      const source = '<ul><li>1</li><li>2</li><li>3</li></ul>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal(source)
+    })
+
+    it('Nested list with expression', () => {
+      const source = '<ul><li>1</li><li>{two}</li><li>3</li></ul>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<ul><li>1</li><li expr><!----></li><li>3</li></ul>')
     })
   })
 })
