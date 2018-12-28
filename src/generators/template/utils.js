@@ -311,7 +311,8 @@ export function createSelectorProperties(attributeName) {
 export function createRootNode(node) {
   return {
     nodes: getChildrenNodes(node),
-    attributes: node.attributes
+    // root nodes shuold't have directives
+    attributes: getNodeAttributes(node).filter(attribute => ![IF_DIRECTIVE, EACH_DIRECTIVE].includes(attribute.name))
   }
 }
 
@@ -325,12 +326,21 @@ export function getChildrenNodes(node) {
 }
 
 /**
+ * Get all the attributes of a riot parser node
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {Array<RiotParser.Node.Attribute>} all the attributes find
+ */
+export function getNodeAttributes(node) {
+  return node.attributes ? node.attributes : []
+}
+
+/**
  * Find all the node attributes that are not expressions
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {Array} list of all the static attributes
  */
 export function findStaticAttributes(node) {
-  return node.attributes ? node.attributes.filter(attribute => !hasExpressions(attribute)) : []
+  return getNodeAttributes(node).filter(attribute => !hasExpressions(attribute))
 }
 
 /**
@@ -339,7 +349,7 @@ export function findStaticAttributes(node) {
  * @returns {Array} list of all the dynamic attributes
  */
 export function findDynamicAttributes(node) {
-  return node.attributes ? node.attributes.filter(attribute => hasExpressions(attribute)) : []
+  return getNodeAttributes(node).filter(hasExpressions)
 }
 
 /**
@@ -387,7 +397,7 @@ export function hasExpressions(node) {
   return !!(
     node.expressions ||
     // has expression attributes
-    (node.attributes && node.attributes.some(attribute => hasExpressions(attribute))) ||
+    (getNodeAttributes(node).some(attribute => hasExpressions(attribute))) ||
     // has child text nodes with expressions
     (node.nodes && node.nodes.some(node => isTextNode(node) && hasExpressions(node)))
   )

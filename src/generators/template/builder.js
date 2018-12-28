@@ -5,6 +5,7 @@ import {
   findEachAttribute,
   findIfAttribute,
   getChildrenNodes,
+  getNodeAttributes,
   isCustomNode,
   isStaticNode,
   isTagNode,
@@ -36,7 +37,7 @@ function createBindingsTag(sourceNode, bindingsSelector) {
     // inject the selector bindings into the node attributes
     attributes: [{
       name: bindingsSelector
-    }, ...(sourceNode.attributes || [])]
+    }, ...getNodeAttributes(sourceNode)]
   }
 }
 
