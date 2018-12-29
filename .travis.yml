@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - "6"
+  - 10
 
 branches:
   only:
@@ -12,7 +12,7 @@ install:
   - npm i
   - npm run prepare
 
-after_success: make send-coverage
+after_success: npm run cov
 
 notifications:
   email: false
