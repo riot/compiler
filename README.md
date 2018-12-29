@@ -13,7 +13,7 @@ npm i @riotjs/compiler -D
 
 ## Usage
 
-The riot compiler is completely asynchronous and it can accepts only strings:
+The riot compiler is completely asynchronous and it can compile only strings:
 
 ```js
 import { compile } from '@riotjs/compiler'
@@ -21,7 +21,7 @@ import { compile } from '@riotjs/compiler'
 const { code, map } = await compile('<p>{hello}</p>')
 ```
 
-You can compile your tags also using preprocessors and postprocessors for example:
+You can compile your tags also using the new `registerPreprocessor` and `registerPostprocessor` APIs for example:
 
 ```js
 import { compiler, registerPreprocessor, registerPostprocessor } from '@riotjs/compiler'
@@ -29,11 +29,15 @@ import pug from 'pug'
 import buble from 'buble'
 
 // process your tag template before it will be compiled
-registerPreprocessor('template', 'pug', pug.compile)
+registerPreprocessor('template', 'pug', async function(code, { file }) {
+  console.log('your file path is:', file)
+  return await pug.compile(code)
+})
 
 // your compiler output will pass from here
-registerPostprocessor(function(code) {
-  return buble.transform(code)
+registerPostprocessor(async function(code, { file }) {
+  console.log('your file path is:', file)
+  return await buble.transform(code)
 })
 
 const { code, map } = await compile('<p>{hello}</p>', {
@@ -42,6 +46,38 @@ const { code, map } = await compile('<p>{hello}</p>', {
 })
 ```
 
+## API
+
+### compile(string, options)
+#### @returns `<Promise>{ code, map }` output that can be used by Riot.js
+
+- *string*: is your tag source code
+- *options*: the options should contain the `file` key identifying the source of the string to compile and
+the `template` preprocessor to use as string
+
+Note: specific preprocessors like the `css` or the `javascript` ones can be enabled simply specifying the `type` attribute
+in the tag source code for example
+
+```html
+<my-tag>
+  <style type='scss'>
+    // ...
+  </style>
+</my-tag>
+```
+
+### registerPreprocessor(type, id, preprocessorFn)
+#### @returns `Object` containing all the preprocessors registered
+
+- *type*: either one of `template` `css` or `javascript`
+- *id*: unique preprocessor identifier
+- *preprocessorFn*: function receiving the code as first argument and the current options as second, it can be also asynchronous
+
+
+### registerPostprocessor(postprocessorFn)
+#### @returns `Set` containing all the postprocessors registered
+
+- *postprocessorFn*: function receiving the compiler output as first argument and the current options as second, it can be also asynchronous
 
 
 [travis-image]:  https://img.shields.io/travis/riot/compiler.svg?style=flat-square

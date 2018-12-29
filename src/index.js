@@ -36,7 +36,7 @@ export async function compile(source, options = {
   template: 'default',
   file: '[unknown-source-file]'
 }) {
-  const { code, map } = await runPreprocessor('template', 'default', options, source)
+  const { code, map } = await runPreprocessor('template', options.template || 'default', options, source)
   const { template, css, javascript } = riotParser(options).parse(code).output
 
   return ruit(createInitialInput(map),
