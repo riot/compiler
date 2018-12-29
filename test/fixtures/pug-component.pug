@@ -1,0 +1,16 @@
+pug-component
+  p {hello}
+
+  script.
+    export default {
+      foo: 'foo'
+    }
+
+  style(type='scss').
+    p {
+      color: black;
+
+      & {
+        color: red;
+      }
+    }

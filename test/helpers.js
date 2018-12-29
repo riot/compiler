@@ -1,5 +1,6 @@
 import {join,relative} from 'path'
 import recast from 'recast'
+import {renderSync} from 'node-sass'
 import sh from 'shelljs'
 
 const FIXTURES_DIR = './test/fixtures/'
@@ -10,11 +11,25 @@ const uid = (() => {
 })()
 
 export function getFixture(name) {
-  return String(sh.cat(`${FIXTURES_DIR}${name}.riot`))
+  return String(sh.cat(`${FIXTURES_DIR}${name}`))
 }
 
 export function getExpected(name) {
   return String(sh.cat(`${EXPECTED_DIR}${name}.js`))
+}
+
+export function scssPreprocessor(source, { file }) {
+  const result = renderSync({
+    file: file,
+    data: source,
+    outFile: file,
+    sourceMap: true
+  })
+
+  return {
+    code: String(result.css),
+    map: result.map
+  }
 }
 
 export function evaluateScript(code) {

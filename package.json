@@ -10,7 +10,7 @@
     "src"
   ],
   "scripts": {
-    "prepare": "npm test",
+    "prepare": "npm i pug@2.0.3 node-sass@4.9.4",
     "lint": "eslint src/ test/ build/",
     "cov": "nyc report --reporter=text-lcov | coveralls",
     "cov-html": "nyc report --reporter=html",
@@ -37,7 +37,6 @@
     "eslint": "^5.8.0",
     "eslint-config-riot": "^2.0.0",
     "mocha": "^5.2.0",
-    "node-sass": "^4.9.4",
     "nyc": "^13.1.0",
     "reify": "^0.18.1",
     "rollup": "^0.66.6",
@@ -60,6 +59,8 @@
     "curri": "^1.0.0",
     "dom-nodes": "^1.0.0",
     "globals": "^11.8.0",
+    "node-sass": "^4.9.4",
+    "pug": "^2.0.3",
     "recast": "^0.16.0",
     "ruit": "^1.0.4",
     "source-map": "^0.7.3"

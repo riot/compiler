@@ -1,11 +1,10 @@
+import {evaluateScript, scssPreprocessor} from '../helpers'
 import {register, unregister} from '../../src/preprocessors'
 import compileCSS from '../../src/generators/css'
 import {createInitialInput} from '../../src/index'
 import createSourcemap from '../../src/utils/create-sourcemap'
-import {evaluateScript} from '../helpers'
 import {expect} from 'chai'
 import parser  from '@riotjs/parser'
-import {renderSync} from 'node-sass'
 
 const simpleCSS = `
 <style>
@@ -28,20 +27,6 @@ const scssCSS = `
 </style>
 `
 const FAKE_FILE = 'fake-file.js'
-
-function scssPreprocessor(source, { file }) {
-  const result = renderSync({
-    file: file,
-    data: source,
-    outFile: file,
-    sourceMap: true
-  })
-
-  return {
-    code: String(result.css),
-    map: JSON.parse(result.map)
-  }
-}
 
 function createInput() {
   return createInitialInput(createSourcemap({ file: FAKE_FILE }))
