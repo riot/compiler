@@ -1,22 +1,31 @@
 import {
+  BINDING_ATTRIBUTES_KEY,
+  BINDING_BINDINGS_KEY,
   BINDING_CONDITION_KEY,
   BINDING_EVALUATE_KEY,
+  BINDING_EXPRESSIONS_KEY,
   BINDING_GET_KEY_KEY,
+  BINDING_HTML_KEY,
+  BINDING_ID_KEY,
   BINDING_INDEX_NAME_KEY,
+  BINDING_NAME_KEY,
   BINDING_SELECTOR_KEY,
   BINDING_TEMPLATE_KEY,
   BINDING_TYPE_KEY
 } from '../../src/generators/template/constants'
+import {bindingTypes, expressionTypes} from '@riotjs/dom-bindings'
 import {evaluateScript, renderExpression} from '../helpers'
 import {mergeNodeExpressions, toScopedFunction} from '../../src/generators/template/utils'
-import {bindingTypes} from '@riotjs/dom-bindings'
 import builder from '../../src/generators/template/builder'
 import compose from '../../src/utils/compose'
+import curry from 'curri'
 import eachBinding from '../../src/generators/template/bindings/each'
 import {expect} from 'chai'
 import ifBinding from '../../src/generators/template/bindings/if'
 import recast from 'recast'
 import riotParser from '@riotjs/parser'
+import simpleBinding from '../../src/generators/template/bindings/simple'
+import tagBinding from '../../src/generators/template/bindings/tag'
 
 const FAKE_SRC_FILE = 'fake-file.js'
 const renderExpr = compose(
@@ -24,6 +33,8 @@ const renderExpr = compose(
   toScopedFunction,
   expr => ({ text: expr })
 )
+
+const getSlotById = (slots, id) => slots.find(slot => slot[BINDING_ID_KEY] === id)
 
 const removeIdFromExpessionBindings = str => str.replace(/expr(\d+)/g, 'expr')
 const buildSimpleTemplate = compose(removeIdFromExpessionBindings, res => res[0], builder)
@@ -125,6 +136,201 @@ describe('Generators - Template', () => {
       })
 
       expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('`${foo} + ${bar}`')
+    })
+
+    it('Simple attribute expression', () => {
+      const source = '<li class={foo}></li>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_NAME_KEY]).to.be.equal('class')
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+    })
+
+    it('Multiple attribute expressions', () => {
+      const source = '<li class={foo} id={bar}></li>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const [classExpression, idExpression] = output.expressions
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(classExpression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(classExpression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(classExpression[BINDING_NAME_KEY]).to.be.equal('class')
+      expect(classExpression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+
+      expect(idExpression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(idExpression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(idExpression[BINDING_NAME_KEY]).to.be.equal('id')
+      expect(idExpression[BINDING_EVALUATE_KEY]({bar: 'bar'})).to.be.equal('bar')
+    })
+
+    it('Multiple mixed attribute expressions', () => {
+      const source = '<input class={foo} value={bar}/>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const [classExpression, valueExpression] = output.expressions
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(classExpression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(classExpression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(classExpression[BINDING_NAME_KEY]).to.be.equal('class')
+      expect(classExpression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+
+      expect(valueExpression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(valueExpression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.VALUE)
+      expect(valueExpression[BINDING_EVALUATE_KEY]({bar: 'bar'})).to.be.equal('bar')
+    })
+
+    it('Simple value expression', () => {
+      const source = '<input value={foo}/>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.VALUE)
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+    })
+
+    it('Simple event expression', () => {
+      const source = '<input oninput={foo}/>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_NAME_KEY]).to.be.equal('oninput')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.EVENT)
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+    })
+
+    it('Complex event expression', () => {
+      const source = '<input oninput={() => foo}/>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+      console.log(expression[BINDING_EVALUATE_KEY].toString()) // eslint-disable-line
+
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})()).to.be.equal('foo')
+    })
+
+    it('Simple text expression', () => {
+      const source = '<div>{foo}</div>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.TEXT)
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+    })
+
+    it('Multiple text expressions', () => {
+      const source = '<div>{foo} + {bar}</div>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.TEXT)
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo', bar: 'bar'})).to.be.equal('foo + bar')
+    })
+  })
+
+
+  describe('Tag bindings', () => {
+    it('Simple tag binding with default slot', () => {
+      const source = '<my-tag class={foo} id="my-id"><p>hello</p></my-tag>'
+      const { template } = parse(source)
+      const input = tagBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const defaultSlot = output.slots[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
+
+      expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal('<p>hello</p>')
+      expect(defaultSlot[BINDING_BINDINGS_KEY]).to.be.deep.equal([])
+      expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
+      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
+      expect(output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+      expect(output[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY]()).to.be.equal('my-id')
+    })
+
+    it('Tag binding with default slot with expressions', () => {
+      const source = '<my-tag><p>{greeting}</p></my-tag>'
+      const { template } = parse(source)
+      const input = tagBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const defaultSlot = output.slots[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
+
+      expect(removeIdFromExpessionBindings(defaultSlot[BINDING_HTML_KEY]))
+        .to.be.equal('<p expr><!----></p>')
+      expect(defaultSlot[BINDING_BINDINGS_KEY]).to.have.length(1)
+      expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
+      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(0)
+    })
+
+    it('Tag binding with multiple slots with expressions', () => {
+      const source = `
+        <my-tag>
+          <p slot="header">{greeting}</p>
+          <b>hey</b>
+          <div slot="footer">{footer}</div>
+          <i>{there}</i>
+        </my-tag>
+        `
+      const { template } = parse(source)
+      const input = tagBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const getSlot = curry(getSlotById)(output.slots)
+      const headerSlot = getSlot('header')
+      const footerSlot = getSlot('footer')
+      const defaultSlot = getSlot('default')
+
+      expect(removeIdFromExpessionBindings(headerSlot[BINDING_HTML_KEY]))
+        .to.be.equal('<p expr><!----></p>')
+      expect(
+        headerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({greeting: 'hi'}))
+        .to.have.be.equal('hi')
+
+      expect(removeIdFromExpessionBindings(footerSlot[BINDING_HTML_KEY]))
+        .to.be.equal('<div expr><!----></div>')
+      expect(
+        footerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({footer: 'hi'}))
+        .to.have.be.equal('hi')
+
+      expect(removeIdFromExpessionBindings(defaultSlot[BINDING_HTML_KEY]))
+        .to.be.equal('<b>hey</b><i expr><!----></i>')
+      expect(
+        defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({there: 'hi'}))
+        .to.have.be.equal('hi')
     })
   })
 

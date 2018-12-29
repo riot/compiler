@@ -9,6 +9,13 @@ import {builders} from '../../../utils/build-types'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import {toScopedFunction} from '../utils'
 
+/**
+ * Create a simple event expression
+ * @param   {RiotParser.Node.Attr} sourceNode - attribute containing the event handlers
+ * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceCode - original source
+ * @returns {AST.Node} object containing the expression binding keys
+ */
 export default function createEventExpression(sourceNode, sourceFile, sourceCode) {
   return builders.objectExpression([
     simplePropertyNode(BINDING_TYPE_KEY,

@@ -12,6 +12,14 @@ import {
 import {builders} from '../../../utils/build-types'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 
+/**
+ * Create a text expression
+ * @param   {RiotParser.Node.Text} sourceNode - text node to parse
+ * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceCode - original source
+ * @param   {number} childNodeIndex - position of the child text node in its parent children nodes
+ * @returns {AST.Node} object containing the expression binding keys
+ */
 export default function createTextExpression(sourceNode, sourceFile, sourceCode, childNodeIndex) {
   return builders.objectExpression([
     simplePropertyNode(BINDING_TYPE_KEY,

@@ -362,7 +362,7 @@ export function createRootNode(node) {
  * @returns {Array<RiotParser.Node>} all the child nodes found
  */
 export function getChildrenNodes(node) {
-  return node.nodes ? node.nodes : []
+  return node && node.nodes ? node.nodes : []
 }
 
 /**
@@ -429,15 +429,6 @@ export function isTextNode(node) {
 }
 
 /**
- * True if the node is of type attribute
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true only for attribute nodes
- */
-export function isAttributeNode(node) {
-  return node.type === nodeTypes.ATTR
-}
-
-/**
  * True if the node parsed is the root one
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {boolean} true only for the root nodes
@@ -452,7 +443,7 @@ export function isRootNode(node) {
  * @returns {boolean} true only for value attribute nodes
  */
 export function isValueAttribute(node) {
-  return isAttributeNode(node) && node.name === 'value'
+  return node.name === 'value'
 }
 
 /**
@@ -462,7 +453,7 @@ export function isValueAttribute(node) {
  */
 export const isEventAttribute = (() => {
   const EVENT_ATTR_RE = /^on/
-  return node => isAttributeNode(node) && EVENT_ATTR_RE.test(node.name)
+  return node => EVENT_ATTR_RE.test(node.name)
 })()
 
 /**

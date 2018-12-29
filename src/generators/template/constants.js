@@ -16,6 +16,7 @@ export const COMPONENTS_REGISTRY = 'components'
 
 // keys needed to create the DOM bindings
 export const BINDING_SELECTOR_KEY = 'selector'
+export const BINDING_COMPONENTS_KEY = 'components'
 export const BINDING_TEMPLATE_KEY = 'template'
 export const BINDING_TYPE_KEY = 'type'
 export const BINDING_REDUNDANT_ATTRIBUTE_KEY = 'redundantAttribute'
@@ -25,13 +26,20 @@ export const BINDING_GET_KEY_KEY = 'getKey'
 export const BINDING_INDEX_NAME_KEY = 'indexName'
 export const BINDING_EVALUATE_KEY = 'evaluate'
 export const BINDING_NAME_KEY = 'name'
+export const BINDING_SLOTS_KEY = 'slots'
 export const BINDING_EXPRESSIONS_KEY = 'expressions'
 export const BINDING_CHILD_NODE_INDEX_KEY = 'childNodeIndex'
+// slots keys
+export const BINDING_BINDINGS_KEY = 'bindings'
+export const BINDING_ID_KEY = 'id'
+export const BINDING_HTML_KEY = 'html'
+export const BINDING_ATTRIBUTES_KEY = 'attributes'
 
 // DOM directives
 export const IF_DIRECTIVE = 'if'
 export const EACH_DIRECTIVE = 'each'
 export const KEY_ATTRIBUTE = 'key'
+export const SLOT_ATTRIBUTE = 'slot'
 
 export const TEXT_NODE_EXPRESSION_PLACEHOLDER = '<!---->'
 export const BINDING_SELECTOR_PREFIX = 'expr'
