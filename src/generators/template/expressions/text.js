@@ -6,14 +6,13 @@ import {
   TEXT_EXPRESSION_TYPE
 } from '../constants'
 import {
-  createSelectorProperties,
   mergeNodeExpressions,
   toScopedFunction
 } from '../utils'
 import {builders} from '../../../utils/build-types'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 
-export default function createTextExpression(sourceNode, selectorAttribute, sourceFile, sourceCode, childNodeIndex) {
+export default function createTextExpression(sourceNode, sourceFile, sourceCode, childNodeIndex) {
   return builders.objectExpression([
     simplePropertyNode(BINDING_TYPE_KEY,
       builders.memberExpression(
@@ -33,7 +32,6 @@ export default function createTextExpression(sourceNode, selectorAttribute, sour
         end: sourceNode.end,
         text: mergeNodeExpressions(sourceNode)
       }, sourceFile, sourceCode)
-    ),
-    ...createSelectorProperties(selectorAttribute)
+    )
   ])
 }

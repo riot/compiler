@@ -5,14 +5,11 @@ import {
   EVENT_EXPRESSION_TYPE,
   EXPRESSION_TYPES
 } from '../constants'
-import {
-  createSelectorProperties,
-  toScopedFunction
-} from '../utils'
 import {builders} from '../../../utils/build-types'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
+import {toScopedFunction} from '../utils'
 
-export default function createEventExpression(sourceNode, selectorAttribute, sourceFile, sourceCode) {
+export default function createEventExpression(sourceNode, sourceFile, sourceCode) {
   return builders.objectExpression([
     simplePropertyNode(BINDING_TYPE_KEY,
       builders.memberExpression(
@@ -21,11 +18,10 @@ export default function createEventExpression(sourceNode, selectorAttribute, sou
         false
       ),
     ),
-    simplePropertyNode(BINDING_NAME_KEY, builders.identifier(sourceNode.name)),
+    simplePropertyNode(BINDING_NAME_KEY, builders.literal(sourceNode.name)),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,
       toScopedFunction(sourceNode.expressions[0], sourceFile, sourceCode)
-    ),
-    ...createSelectorProperties(selectorAttribute)
+    )
   ])
 }

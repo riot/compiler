@@ -349,8 +349,10 @@ export function createSelectorProperties(attributeName) {
 export function createRootNode(node) {
   return {
     nodes: getChildrenNodes(node),
+    isRoot: true,
     // root nodes shuold't have directives
-    attributes: getNodeAttributes(node).filter(attribute => ![IF_DIRECTIVE, EACH_DIRECTIVE].includes(attribute.name))
+    attributes: getNodeAttributes(node)
+      .filter(attribute => ![IF_DIRECTIVE, EACH_DIRECTIVE, KEY_ATTRIBUTE].includes(attribute.name))
   }
 }
 
@@ -436,6 +438,15 @@ export function isAttributeNode(node) {
 }
 
 /**
+ * True if the node parsed is the root one
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true only for the root nodes
+ */
+export function isRootNode(node) {
+  return node.isRoot
+}
+
+/**
  * True if the node is an attribute and its name is "value"
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {boolean} true only for value attribute nodes
@@ -467,15 +478,6 @@ export function hasExpressions(node) {
     // has child text nodes with expressions
     (node.nodes && node.nodes.some(node => isTextNode(node) && hasExpressions(node)))
   )
-}
-
-/**
- * Get the binding selector attribute of any riot parser node if it has one
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {string|null} the selector name if the node has one
- */
-export function getNodeBindingSelector(node) {
-  return node && node.bindingsSelector || null
 }
 
 /**

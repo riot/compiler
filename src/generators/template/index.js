@@ -1,6 +1,7 @@
 import {BINDING_TYPES, COMPONENTS_REGISTRY, EXPRESSION_TYPES, TEMPLATE_FN} from './constants'
 import {builders, types} from '../../utils/build-types'
 import {callTemplateFunction, createRootNode} from './utils'
+import {TAG_TEMPLATE_PROPERTY} from '../constants'
 import build from './builder'
 import recast from 'recast'
 
@@ -15,7 +16,7 @@ import recast from 'recast'
 function extendTemplateProperty(ast, sourceFile, sourceCode, sourceNode) {
   types.visit(ast, {
     visitProperty(path) {
-      if (path.value.key.name === 'template') {
+      if (path.value.key.name === TAG_TEMPLATE_PROPERTY) {
         path.value.value = builders.functionExpression(
           null,
           [

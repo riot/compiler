@@ -1,14 +1,13 @@
 import {
   closeTag,
   createBindingSelector,
-  findDynamicAttributes,
   getChildrenNodes,
   getNodeAttributes,
-  getNodeBindingSelector,
   hasEachAttribute,
   hasIfAttribute,
   hasItsOwnTemplate,
   isCustomNode,
+  isRootNode,
   isStaticNode,
   isTagNode,
   isTextNode,
@@ -31,12 +30,13 @@ const BuildingState = Object.freeze({
  * Nodes having bindings should be cloned and new selector properties should be added to them
  * @param   {RiotParser.Node} sourceNode - any kind of node parsed via riot parser
  * @param   {string} bindingsSelector - temporary string to identify the current node
- * @returns {RiotParser.Node} the original node parsed having the additional `bindingsSelector` property
+ * @returns {RiotParser.Node} the original node parsed having the new binding selector attribute
  */
 function createBindingsTag(sourceNode, bindingsSelector) {
+  if (!bindingsSelector) return sourceNode
+
   return {
     ...sourceNode,
-    bindingsSelector,
     // inject the selector bindings into the node attributes
     attributes: [{
       name: bindingsSelector
@@ -54,19 +54,11 @@ function createBindingsTag(sourceNode, bindingsSelector) {
  */
 function createDynamicNode(sourceNode, sourceFile, sourceCode, state) {
   switch (true) {
-  case isTagNode(sourceNode):
-    return createTagWithBindings(sourceNode, sourceFile, sourceCode, state)
   case isTextNode(sourceNode):
-    return [nodeToString(sourceNode), [simpleBinding(
-      sourceNode,
-      getNodeBindingSelector(state.parent),
-      sourceFile,
-      sourceCode,
-      // get the index of the text expression
-      state.parent ? state.parent.nodes.indexOf(sourceCode) : 0
-    )]]
+    // text nodes will not have any bindings
+    return [nodeToString(sourceNode), []]
   default:
-    return ['', []]
+    return createTagWithBindings(sourceNode, sourceFile, sourceCode, state)
   }
 }
 
@@ -79,7 +71,7 @@ function createDynamicNode(sourceNode, sourceFile, sourceCode, state) {
  * @returns {Array} array containing the html output and bindings for the current node
  */
 function createTagWithBindings(sourceNode, sourceFile, sourceCode) {
-  const bindingsSelector = createBindingSelector()
+  const bindingsSelector = isRootNode(sourceNode) ? null : createBindingSelector()
   const cloneNode = createBindingsTag(sourceNode, bindingsSelector)
   const tagOpeningHTML = nodeToString(cloneNode)
 
@@ -93,23 +85,10 @@ function createTagWithBindings(sourceNode, sourceFile, sourceCode) {
   // TAG bindings have prio 3
   case isCustomNode(cloneNode):
     return [tagOpeningHTML, [tagBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
-  // attribute bindings come as last
+  // this node has expressions bound to it
   default:
-    return [tagOpeningHTML, [...createAttributeExpressions(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
+    return [tagOpeningHTML, [simpleBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
   }
-}
-
-/**
- * Create the attribute bindings
- * @param   {RiotParser.Node} sourceNode - any kind of node parsed via riot parser
- * @param   {string} bindingsSelector - selector needed for the binding
- * @param   {stiring} sourceFile - source file path
- * @param   {string} sourceCode - original source
- * @returns {Array} array containing all the attribute bindings
- */
-function createAttributeExpressions(sourceNode, bindingsSelector, sourceFile, sourceCode) {
-  return findDynamicAttributes(sourceNode)
-    .map(attribute => simpleBinding(attribute, bindingsSelector, sourceFile, sourceCode))
 }
 
 /**

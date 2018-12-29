@@ -1,3 +1,4 @@
+import {TAG_CSS_PROPERTY} from '../constants'
 import composeSourcemaps from '../../utils/compose-sourcemaps'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
@@ -23,7 +24,7 @@ export default async function css(sourceNode, source, options, { ast, map }) {
 
   types.visit(ast, {
     visitProperty(path) {
-      if (path.value.key.name === 'css') {
+      if (path.value.key.name === TAG_CSS_PROPERTY) {
         path.value.value = generatedCss.program.body[0].expression
         return false
       }

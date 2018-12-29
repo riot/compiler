@@ -1,4 +1,5 @@
 import {namedTypes, types} from '../../utils/build-types'
+import {TAG_LOGIC_PROPERTY} from '../constants'
 import composeSourcemaps from '../../utils/compose-sourcemaps'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
@@ -42,7 +43,7 @@ function getProgramBody(ast) {
 function extendTagProperty(ast, exportDefaultNode) {
   types.visit(ast, {
     visitProperty(path) {
-      if (path.value.key.name === 'tag') {
+      if (path.value.key.name === TAG_LOGIC_PROPERTY) {
         path.value.value = exportDefaultNode.declaration
         return false
       }

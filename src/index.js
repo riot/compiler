@@ -1,3 +1,4 @@
+import { TAG_CSS_PROPERTY, TAG_LOGIC_PROPERTY, TAG_TEMPLATE_PROPERTY} from './generators/constants'
 import { register as registerPostproc, execute as runPostprocessors  } from './postprocessors'
 import { register as registerPreproc, execute as runPreprocessor } from './preprocessors'
 import cssGenerator from './generators/css/index'
@@ -17,7 +18,7 @@ import templateGenerator from './generators/template/index'
  * // the output represents the following string in AST
  */
 export function createInitialInput(map) {
-  const code = 'export default { css: null, tag: null, template: null }'
+  const code = `export default { ${TAG_CSS_PROPERTY}: null, ${TAG_LOGIC_PROPERTY}: null, ${TAG_TEMPLATE_PROPERTY}: null }`
   return {
     ast: recast.parse(code),
     code,

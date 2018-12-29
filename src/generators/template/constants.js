@@ -25,6 +25,7 @@ export const BINDING_GET_KEY_KEY = 'getKey'
 export const BINDING_INDEX_NAME_KEY = 'indexName'
 export const BINDING_EVALUATE_KEY = 'evaluate'
 export const BINDING_NAME_KEY = 'name'
+export const BINDING_EXPRESSIONS_KEY = 'expressions'
 export const BINDING_CHILD_NODE_INDEX_KEY = 'childNodeIndex'
 
 // DOM directives
