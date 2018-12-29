@@ -3,9 +3,12 @@ export const EACH_BINDING_TYPE = 'EACH'
 export const IF_BINDING_TYPE = 'IF'
 export const TAG_BINDING_TYPE = 'TAG'
 
+
 export const EXPRESSION_TYPES = 'expressionTypes'
 export const ATTRIBUTE_EXPRESSION_TYPE = 'ATTRIBUTE'
 export const VALUE_EXPRESSION_TYPE = 'VALUE'
+export const TEXT_EXPRESSION_TYPE = 'TEXT'
+export const EVENT_EXPRESSION_TYPE = 'EVENT'
 
 export const TEMPLATE_FN = 'template'
 export const SCOPE = 'scope'
@@ -21,6 +24,8 @@ export const BINDING_ITEM_NAME_KEY = 'itemName'
 export const BINDING_GET_KEY_KEY = 'getKey'
 export const BINDING_INDEX_NAME_KEY = 'indexName'
 export const BINDING_EVALUATE_KEY = 'evaluate'
+export const BINDING_NAME_KEY = 'name'
+export const BINDING_CHILD_NODE_INDEX_KEY = 'childNodeIndex'
 
 // DOM directives
 export const IF_DIRECTIVE = 'if'

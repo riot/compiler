@@ -149,7 +149,7 @@ export default function build(
   currentState.bindings.push(...nodeBindings)
 
   // do recursion if
-  // this tag has children and it's has no special directive bound to it
+  // this tag has children and it has no special directives bound to it
   if (childrenNodes.length && !hasItsOwnTemplate(sourceNode)) {
     childrenNodes.forEach(node => build(node, sourceFile, sourceCode, { parent: sourceNode, ...currentState }))
   }

@@ -1,4 +1,3 @@
-
 import {isEventAttribute, isTextNode, isValueAttribute} from '../utils'
 import attributeExpression from '../expressions/attribute'
 import eventExpression from '../expressions/event'

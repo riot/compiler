@@ -8,6 +8,7 @@ import {
   BINDING_TYPE_KEY
 } from '../../src/generators/template/constants'
 import {evaluateScript, renderExpression} from '../helpers'
+import {mergeNodeExpressions, toScopedFunction} from '../../src/generators/template/utils'
 import {bindingTypes} from '@riotjs/dom-bindings'
 import builder from '../../src/generators/template/builder'
 import compose from '../../src/utils/compose'
@@ -16,7 +17,6 @@ import {expect} from 'chai'
 import ifBinding from '../../src/generators/template/bindings/if'
 import recast from 'recast'
 import riotParser from '@riotjs/parser'
-import {toScopedFunction} from '../../src/generators/template/utils'
 
 const FAKE_SRC_FILE = 'fake-file.js'
 const renderExpr = compose(
@@ -35,7 +35,7 @@ const evaluateOutput = (ast, components = {}) => evaluateScript(`
     return ${recast.print(ast).code}
   }
 `).default(components)
-const parse = input => riotParser().parse(input).output
+const parse = (input, options) => riotParser(options).parse(input).output
 
 describe('Generators - Template', () => {
   describe('Utils', () => {
@@ -90,6 +90,41 @@ describe('Generators - Template', () => {
         expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
         expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + scope.baz')
       })
+    })
+  })
+
+  describe('Simple bindings', () => {
+    it('Multiple expressions will be merged into template literal', () => {
+      const source = '<p>{foo} + {bar}</p>'
+      const { template } = parse(source)
+
+      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('`${foo} + ${bar}`')
+    })
+
+    it('Complex multiple expressions will be merged into template literal', () => {
+      const source = `
+      <p>{foo} + {bar}
+      foo bar   {baz}
+      </p>`
+      const { template } = parse(source)
+
+      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('`${foo} + ${bar}\n      foo bar   ${baz}\n      `')
+    })
+
+    it('Simple expressions will be left untouchted', () => {
+      const source = '<p>{foo}</p>'
+      const { template } = parse(source)
+
+      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('foo')
+    })
+
+    it('Different template brakets will be merged into template literal', () => {
+      const source = '<p>[[[[foo]]]] + [[[[bar]]]]</p>'
+      const { template } = parse(source, {
+        brackets: ['[[[[', ']]]]']
+      })
+
+      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('`${foo} + ${bar}`')
     })
   })
 

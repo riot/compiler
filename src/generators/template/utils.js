@@ -273,6 +273,41 @@ export function toScopedFunction(expression, sourceFile, sourceCode) {
 }
 
 /**
+ * Wrap a string in a template literal expression
+ * @param   {string} string - target string
+ * @returns {string} a template literal
+ */
+export function wrapInBacktick(string) {
+  return `\`${string}\``
+}
+
+/**
+ * Simple bindings might contain multiple expressions like for example: "{foo} and {bar}"
+ * This helper aims to merge them in a template literal if it's necessary
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {string} either a string representing a template literal or simply the first expression matched
+ */
+export function mergeNodeExpressions(node) {
+  if (node.expressions.length === 1) {
+    return node.expressions[0].text
+  }
+
+  const charAddedProIteration = 3 // ${}
+
+  // a tricky way to merge nodes containing multiple expressions in the same string
+  const values = node.expressions.reduce((string, expression, index) => {
+    const bracketsLength = expression.end - expression.start - expression.text.length
+    const offset = index * (charAddedProIteration - bracketsLength)
+    const expressionStart = expression.start - node.start + offset
+    const expressionEnd = expression.end - node.start + offset
+
+    return `${string.substring(0, expressionStart)}$\{${expression.text}}${string.substring(expressionEnd)}`
+  }, node.text)
+
+  return wrapInBacktick(values)
+}
+
+/**
  * Create the template call function
  * @param   {Array|string|Node.Literal} template - template string
  * @param   {Array<AST.Nodes>} bindings - template bindings provided as AST nodes
@@ -298,12 +333,12 @@ export const attributeNameToDOMQuerySelector = attributeName => `[${attributeNam
  * @returns { Array<AST.Node> } array containing the selector properties needed for the binding
  */
 export function createSelectorProperties(attributeName) {
-  return [
+  return attributeName ? [
     simplePropertyNode(BINDING_REDUNDANT_ATTRIBUTE_KEY, builders.literal(attributeName)),
     simplePropertyNode(BINDING_SELECTOR_KEY,
       compose(builders.literal, attributeNameToDOMQuerySelector)(attributeName)
     )
-  ]
+  ] : []
 }
 
 /**
