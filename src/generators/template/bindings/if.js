@@ -15,7 +15,7 @@ import {
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
-import tag from './tag'
+import tagBinding from './tag'
 
 
 /**
@@ -43,8 +43,9 @@ export default function createIfBinding(sourceNode, selectorAttribute, sourceFil
       toScopedFunction(ifAttribute.expressions[0], sourceFile, sourceCode)
     ),
     ...createSelectorProperties(selectorAttribute),
-    createTemplateProperty(
-      (mightBeARiotComponent ? tag : build)(createRootNode(sourceNode), sourceCode, sourceCode)
+    createTemplateProperty(mightBeARiotComponent ?
+      [null, [tagBinding(sourceNode, null, sourceCode, sourceCode)]] :
+      build(createRootNode(sourceNode), sourceCode, sourceCode)
     )
   ])
 }

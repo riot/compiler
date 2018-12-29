@@ -13,6 +13,7 @@ import {
   IS_VOID_NODE,
   KEY_ATTRIBUTE,
   SCOPE,
+  SLOT_ATTRIBUTE,
   TEMPLATE_FN,
   TEXT_NODE_EXPRESSION_PLACEHOLDER
 } from './constants'
@@ -85,15 +86,11 @@ export function isGlobal({ scope, node }) {
  * @returns {undefined} this is a void function
  */
 function replacePathScope(path, property) {
-  if (property) {
-    path.replace(builders.memberExpression(
-      scope,
-      property,
-      false
-    ))
-  } else {
-    path.replace(scope)
-  }
+  path.replace(builders.memberExpression(
+    scope,
+    property,
+    false
+  ))
 }
 
 /**
@@ -342,6 +339,15 @@ export function createSelectorProperties(attributeName) {
 }
 
 /**
+ * Clean binding or custom attributes
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {Array<RiotParser.Node.Attr>} only the attributes that are not bindings or directives
+ */
+export function cleanAttributes(node) {
+  return getNodeAttributes(node).filter(attribute => ![IF_DIRECTIVE, EACH_DIRECTIVE, KEY_ATTRIBUTE, SLOT_ATTRIBUTE].includes(attribute.name))
+}
+
+/**
  * Create a root node proxing only its nodes and attributes
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {RiotParser.Node} root node
@@ -351,8 +357,7 @@ export function createRootNode(node) {
     nodes: getChildrenNodes(node),
     isRoot: true,
     // root nodes shuold't have directives
-    attributes: getNodeAttributes(node)
-      .filter(attribute => ![IF_DIRECTIVE, EACH_DIRECTIVE, KEY_ATTRIBUTE].includes(attribute.name))
+    attributes: cleanAttributes(node)
   }
 }
 

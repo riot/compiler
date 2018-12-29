@@ -227,7 +227,6 @@ describe('Generators - Template', () => {
       const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
-      console.log(expression[BINDING_EVALUATE_KEY].toString()) // eslint-disable-line
 
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})()).to.be.equal('foo')
     })
@@ -430,11 +429,39 @@ describe('Generators - Template', () => {
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.deep.equal([1,2,3])
     })
+
+    it('Each binding on custom tag', () => {
+      const source = '<my-tag expr0 each="(item, index) in items">{item}</my-tag>'
+      const { template } = parse(source)
+      const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_INDEX_NAME_KEY]).to.be.equal('index')
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.deep.equal([1,2,3])
+    })
   })
 
   describe('If bindings', () => {
     it('If expression false', () => {
       const source = '<p expr0 if={1 > 2}>Hello</p>'
+      const { template } = parse(source)
+      const input = ifBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.IF)
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
+      expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
+
+      expect(output[BINDING_EVALUATE_KEY]()).to.be.equal(false)
+    })
+
+    it('If expression on custom tag', () => {
+      const source = '<my-tag expr0 if={1 > 2}>Hello</my-tag>'
       const { template } = parse(source)
       const input = ifBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
@@ -479,6 +506,15 @@ describe('Generators - Template', () => {
   })
 
   describe('Template builder', () => {
+    it('Throw in case of no template to parse', () => {
+      expect(() => builder(null)).to.throw
+    })
+
+    it('No template no party', () => {
+      const [html] = builder({}, FAKE_SRC_FILE, '')
+      expect(html).to.be.equal('')
+    })
+
     it('Simple node', () => {
       const source = '<p>foo bar</p>'
       const { template } = parse(source)
@@ -501,6 +537,33 @@ describe('Generators - Template', () => {
       const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
 
       expect(html).to.be.equal('<p expr><!----></p>')
+    })
+
+    it('Boolean attribute', () => {
+      const source = '<video loop muted></video>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal(source)
+    })
+
+    /*
+    COMING SOON...
+    it('Spread attribute', () => {
+      const source = '<div {...foo.bar}></div>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<div></div>')
+    })
+    */
+
+    it('Static attribute', () => {
+      const source = '<video class="hello"></video>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal(source)
     })
 
     it('Simple if binding', () => {

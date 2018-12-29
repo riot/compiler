@@ -22,7 +22,7 @@ import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
 import compose from '../../../utils/compose'
-import tag from './tag'
+import tagBinding from './tag'
 
 
 /**
@@ -52,8 +52,9 @@ export default function createEachBinding(sourceNode, selectorAttribute, sourceF
     ),
     simplePropertyNode(BINDING_GET_KEY_KEY, attributeOrNull(keyAttribute)),
     simplePropertyNode(BINDING_CONDITION_KEY, attributeOrNull(ifAttribute)),
-    createTemplateProperty(
-      (mightBeARiotComponent ? tag : build)(createRootNode(sourceNode), sourceCode, sourceCode)
+    createTemplateProperty(mightBeARiotComponent ?
+      [null, [tagBinding(sourceNode, null, sourceCode, sourceCode)]] :
+      build(createRootNode(sourceNode), sourceCode, sourceCode)
     ),
     ...createSelectorProperties(selectorAttribute),
     ...compose(getEachExpressionProperties, getAttributeExpression)(eachAttribute)

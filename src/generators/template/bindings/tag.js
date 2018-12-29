@@ -12,6 +12,7 @@ import {
   TAG_BINDING_TYPE
 } from '../constants'
 import {
+  cleanAttributes,
   createSelectorProperties,
   getChildrenNodes,
   getNodeAttributes
@@ -56,7 +57,7 @@ function buildSlot(id, sourceNode, sourceFile, sourceCode) {
   const cloneNode = {
     ...sourceNode,
     // avoid to render the slot attribute
-    attributes: [...getNodeAttributes(sourceNode).filter(attribute => attribute.name !== SLOT_ATTRIBUTE)]
+    attributes: getNodeAttributes(sourceNode).filter(attribute => attribute.name !== SLOT_ATTRIBUTE)
   }
   const [html, bindings] = build(cloneNode, sourceFile, sourceCode)
 
@@ -102,8 +103,8 @@ export default function createTagBinding(sourceNode, selectorAttribute, sourceFi
       ...Object.entries(groupSlots(sourceNode)).map(([key, value]) => buildSlot(key, value, sourceFile, sourceCode))
     ])),
     simplePropertyNode(BINDING_ATTRIBUTES_KEY, builders.arrayExpression([
-      ...getNodeAttributes(sourceNode)
-        .filter(attribute => ![selectorAttribute, SLOT_ATTRIBUTE].includes(attribute.name))
+      ...cleanAttributes(sourceNode)
+        .filter(attribute => attribute.name !== selectorAttribute)
         .map(attribute => attributeExpression(attribute, sourceFile, sourceCode))
     ])),
     ...createSelectorProperties(selectorAttribute)

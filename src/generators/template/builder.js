@@ -17,6 +17,7 @@ import {
 import cloneDeep from '../../utils/clone-deep'
 import eachBinding from './bindings/each'
 import ifBinding from './bindings/if'
+import panic from '../../utils/panic'
 import simpleBinding from './bindings/simple'
 import tagBinding from './bindings/tag'
 
@@ -119,6 +120,8 @@ export default function build(
   sourceCode,
   state
 ) {
+  if (!sourceNode) panic('Something went wrong with your tag DOM parsing, your tag template can\'t be created')
+
   const [nodeHTML, nodeBindings] = parseNode(sourceNode, sourceFile, sourceCode, state)
   const childrenNodes = getChildrenNodes(sourceNode)
   const currentState = { ...cloneDeep(BuildingState), ...state }
