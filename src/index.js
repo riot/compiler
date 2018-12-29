@@ -28,7 +28,7 @@ export function createInitialInput(map) {
 
 /**
  * Generate the output code source together with the sourcemap
- * @param   { string } source - source code of the tag we will need to compile
+ * @param { string } source - source code of the tag we will need to compile
  * @param { string } options - compiling options
  * @returns { Promise<Output> } object containing output code and source map
  */
