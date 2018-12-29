@@ -83,7 +83,7 @@ in the tag source code for example
 [travis-image]:  https://img.shields.io/travis/riot/compiler.svg?style=flat-square
 [travis-url]:    https://travis-ci.org/riot/compiler
 [license-image]: https://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
-[license-url]:   LICENSE.txt
+[license-url]:   LICENSE
 [npm-version-image]:   https://img.shields.io/npm/v/riotjs@compiler.svg?style=flat-square
 [npm-downloads-image]: https://img.shields.io/npm/dm/riotjs@compiler.svg?style=flat-square
 [npm-url]:             https://npmjs.org/package/riotjs@compiler
