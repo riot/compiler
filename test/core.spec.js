@@ -14,6 +14,39 @@ describe('Core specs', () => {
       expect(result.map).to.be.not.an('undefined')
       expect(output.default).to.have.all.keys('tag', 'css', 'template')
     })
+
+    it('Tags without css and javascript can be properly compiled', async function() {
+      const result = await compile(getFixture('only-html.riot'))
+      const output = evaluateScript(result.code)
+
+      expect(result.code).to.be.a('string')
+      expect(result.map).to.be.not.an('undefined')
+      expect(output.default.css).to.be.not.ok
+      expect(output.default.tag).to.be.not.ok
+      expect(output.default.template).to.be.ok
+    })
+
+    it('Tags without html and javascript can be properly compiled', async function() {
+      const result = await compile(getFixture('only-css.riot'))
+      const output = evaluateScript(result.code)
+
+      expect(result.code).to.be.a('string')
+      expect(result.map).to.be.not.an('undefined')
+      expect(output.default.css).to.be.ok
+      expect(output.default.tag).to.be.not.ok
+      expect(output.default.template).to.be.not.ok
+    })
+
+    it('Tags without html and css can be properly compiled', async function() {
+      const result = await compile(getFixture('only-javascript.riot'))
+      const output = evaluateScript(result.code)
+
+      expect(result.code).to.be.a('string')
+      expect(result.map).to.be.not.an('undefined')
+      expect(output.default.css).to.be.not.ok
+      expect(output.default.tag).to.be.ok
+      expect(output.default.template).to.be.not.ok
+    })
   })
 
   describe('Preprocessed tags', () => {
@@ -33,6 +66,7 @@ describe('Core specs', () => {
       unregister('css', 'scss')
       unregister('template', 'pug')
     })
+
     it('The Pug and scss preprocessors work as expected', async function() {
       const result = await compile(getFixture('pug-component.pug'), {
         template: 'pug',

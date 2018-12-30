@@ -57,7 +57,7 @@ export async function compile(source, options = {
  * @returns { Promise<Output> } object containing output code and source map
  */
 function hookGenerator(transformer, sourceNode, source, options) {
-  if (!sourceNode) {
+  if (!sourceNode || (sourceNode.nodes && !sourceNode.nodes.length)) {
     return result => result
   }
 
