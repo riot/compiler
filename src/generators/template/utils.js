@@ -10,6 +10,7 @@ import {
   IF_DIRECTIVE,
   IS_BOOLEAN_ATTRIBUTE,
   IS_CUSTOM_NODE,
+  IS_DIRECTIVE,
   IS_SPREAD_ATTRIBUTE,
   IS_VOID_NODE,
   KEY_ATTRIBUTE,
@@ -53,9 +54,11 @@ export function findAttribute(name, node) {
 export const findIfAttribute = curry(findAttribute)(IF_DIRECTIVE)
 export const findEachAttribute = curry(findAttribute)(EACH_DIRECTIVE)
 export const findKeyAttribute = curry(findAttribute)(KEY_ATTRIBUTE)
+export const findIsAttribute = curry(findAttribute)(IS_DIRECTIVE)
 export const hasIfAttribute = compose(Boolean, findIfAttribute)
 export const hasEachAttribute = compose(Boolean, findEachAttribute)
 export const hasKeyAttribute = compose(Boolean, findKeyAttribute)
+export const hasIsAttribute = compose(Boolean, findIsAttribute)
 
 export function createExpressionSourcemap(expression, sourceFile, sourceCode) {
   const sourcemap = createSourcemap({ file: sourceFile })
@@ -345,7 +348,13 @@ export function createSelectorProperties(attributeName) {
  * @returns {Array<RiotParser.Node.Attr>} only the attributes that are not bindings or directives
  */
 export function cleanAttributes(node) {
-  return getNodeAttributes(node).filter(attribute => ![IF_DIRECTIVE, EACH_DIRECTIVE, KEY_ATTRIBUTE, SLOT_ATTRIBUTE].includes(attribute.name))
+  return getNodeAttributes(node).filter(attribute => ![
+    IF_DIRECTIVE,
+    EACH_DIRECTIVE,
+    KEY_ATTRIBUTE,
+    SLOT_ATTRIBUTE,
+    IS_DIRECTIVE
+  ].includes(attribute.name))
 }
 
 /**
@@ -379,6 +388,15 @@ export function getChildrenNodes(node) {
 export function getNodeAttributes(node) {
   return node.attributes ? node.attributes : []
 }
+/**
+ * Get the name of a custom node
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {string} the value of the is attribute or of the tag name
+ */
+export function getCustomNodeName(node) {
+  const isAttribute = findIsAttribute(node)
+  return isAttribute ? isAttribute.value : getName(node)
+}
 
 /**
  * Find all the node attributes that are not expressions
@@ -404,8 +422,9 @@ export function findDynamicAttributes(node) {
  * @returns {boolean} true if either it's a riot component or a custom element
  */
 export function isCustomNode(node) {
-  return !!node[IS_CUSTOM_NODE]
+  return !!(node[IS_CUSTOM_NODE] || hasIsAttribute(node))
 }
+
 
 /**
  * True if the node has the isVoid attribute set

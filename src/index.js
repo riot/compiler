@@ -38,13 +38,17 @@ export async function compile(source, options = {
 }) {
   const { code, map } = await runPreprocessor('template', options.template || 'default', options, source)
   const { template, css, javascript } = riotParser(options).parse(code).output
+  // generate the tag name in runtime
+  Object.assign(options, {
+    tagName: template.name
+  })
 
   return ruit(createInitialInput(map),
     hookGenerator(cssGenerator, css, code, options),
     hookGenerator(javascriptGenerator, javascript, code, options),
     hookGenerator(templateGenerator, template, code, options),
     ({ ast }) => recast.prettyPrint(ast),
-    runPostprocessors,
+    (result) => runPostprocessors(result, options),
   )
 }
 

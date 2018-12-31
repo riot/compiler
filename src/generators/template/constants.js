@@ -42,6 +42,7 @@ export const IF_DIRECTIVE = 'if'
 export const EACH_DIRECTIVE = 'each'
 export const KEY_ATTRIBUTE = 'key'
 export const SLOT_ATTRIBUTE = 'slot'
+export const IS_DIRECTIVE = 'is'
 
 export const TEXT_NODE_EXPRESSION_PLACEHOLDER = '<!---->'
 export const BINDING_SELECTOR_PREFIX = 'expr'

@@ -15,6 +15,7 @@ import {
   cleanAttributes,
   createSelectorProperties,
   getChildrenNodes,
+  getCustomNodeName,
   getNodeAttributes
 } from '../utils'
 import attributeExpression from '../expressions/attribute'
@@ -96,7 +97,7 @@ export default function createTagBinding(sourceNode, selectorAttribute, sourceFi
     ),
     simplePropertyNode(BINDING_COMPONENTS_KEY, builders.memberExpression(
       builders.identifier(COMPONENTS_REGISTRY),
-      builders.literal(sourceNode.name),
+      builders.literal(getCustomNodeName(sourceNode)),
       true
     )),
     simplePropertyNode(BINDING_SLOTS_KEY, builders.arrayExpression([

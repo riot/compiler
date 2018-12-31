@@ -626,6 +626,14 @@ describe('Generators - Template', () => {
       expect(html).to.be.equal('<my-tag expr></my-tag>')
     })
 
+    it('Tag binding via is attribute', () => {
+      const source = '<div is="my-tag">foo bar</div>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<div expr is="my-tag"></div>')
+    })
+
     it('Nested list', () => {
       const source = '<ul><li>1</li><li>2</li><li>3</li></ul>'
       const { template } = parse(source)
