@@ -1,5 +1,10 @@
 # Compiler Changes
 
+### v4.0.0-alpha.2
+- Add support for the spread attributes `<a {...foo}/>`
+- Add the `tagName` to the compiler options in runtime
+- Fix the options were not passed to the postprocessor
+
 ### v4.0.0-alpha.1
 
 - New complete rewrite from scratch
