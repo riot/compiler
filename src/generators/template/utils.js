@@ -10,6 +10,7 @@ import {
   IF_DIRECTIVE,
   IS_BOOLEAN_ATTRIBUTE,
   IS_CUSTOM_NODE,
+  IS_SPREAD_ATTRIBUTE,
   IS_VOID_NODE,
   KEY_ATTRIBUTE,
   SCOPE,
@@ -440,6 +441,15 @@ export function isTextNode(node) {
  */
 export function isRootNode(node) {
   return node.isRoot
+}
+
+/**
+ * True if the attribute parsed is of type spread one
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true if the attribute node is of type spread
+ */
+export function isSpreadAttribute(node) {
+  return node[IS_SPREAD_ATTRIBUTE]
 }
 
 /**

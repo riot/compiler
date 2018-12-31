@@ -39,7 +39,7 @@
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "reify": "^0.18.1",
-    "rollup": "^0.66.6",
+    "rollup": "^1.0.0",
     "rollup-plugin-alias": "^1.4.0",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-json": "^3.1.0",
@@ -55,7 +55,7 @@
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
     "@riotjs/dom-bindings": "^0.5.0",
-    "@riotjs/parser": "^0.7.0",
+    "@riotjs/parser": "^0.8.1",
     "curri": "^1.0.0",
     "dom-nodes": "^1.0.0",
     "globals": "^11.8.0",

@@ -153,6 +153,21 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
     })
 
+    it('Spread attribute expression', () => {
+      const source = '<li {...foo}></li>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_NAME_KEY]).to.be.not.ok
+      expect(expression[BINDING_EVALUATE_KEY]({foo: {bar: 'bar'}})).to.be.deep.equal({bar: 'bar'})
+    })
+
     it('Multiple attribute expressions', () => {
       const source = '<li class={foo} id={bar}></li>'
       const { template } = parse(source)
@@ -547,16 +562,13 @@ describe('Generators - Template', () => {
       expect(html).to.be.equal(source)
     })
 
-    /*
-    COMING SOON...
     it('Spread attribute', () => {
       const source = '<div {...foo.bar}></div>'
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
 
-      expect(html).to.be.equal('<div></div>')
+      expect(html).to.be.equal('<div expr></div>')
     })
-    */
 
     it('Static attribute', () => {
       const source = '<video class="hello"></video>'

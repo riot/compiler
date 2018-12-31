@@ -1,3 +1,5 @@
+// import {IS_BOOLEAN,IS_CUSTOM,IS_RAW,IS_SPREAD,IS_VOID} from '@riotjs/parser/src/constants'
+
 export const BINDING_TYPES = 'bindingTypes'
 export const EACH_BINDING_TYPE = 'EACH'
 export const IF_BINDING_TYPE = 'IF'
@@ -46,7 +48,9 @@ export const BINDING_SELECTOR_PREFIX = 'expr'
 
 // Riot Parser constants
 // TODO: import them from the @riotjs/parser
+// reify doesn't like it https://github.com/benjamn/reify/issues/216
 export const IS_RAW_NODE = 'isRaw'
 export const IS_VOID_NODE = 'isVoid'
 export const IS_CUSTOM_NODE = 'isCustom'
 export const IS_BOOLEAN_ATTRIBUTE = 'isBoolean'
+export const IS_SPREAD_ATTRIBUTE = 'isSpread'
