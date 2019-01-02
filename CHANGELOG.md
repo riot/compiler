@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.4
+- Fix issues related to the member expressions traversal and the scope
+
 ### v4.0.0-alpha.3
 - Fix issue with custom tags and no slots
 
