@@ -105,12 +105,25 @@ function replacePathScope(path, property) {
  */
 function updateNodeScope(path) {
   if (!isGlobal(path)) {
-    replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
+    replacePathScope(path, path.node)
 
     return false
   }
 
   this.traverse(path)
+}
+
+/**
+ * Change the scope of the member expressions
+ * @param   { types.NodePath } path - containing the current node visited
+ * @returns { boolean } return always false because we want to check only the first node object
+ */
+function updateMemberExpressions(path) {
+  if (!isGlobal({ node: path.node.object, scope: path.scope })) {
+    replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
+  }
+
+  return false
 }
 
 /**
@@ -150,7 +163,7 @@ export function updateNodesScope(ast) {
 
   types.visit(ast, {
     visitIdentifier: updateNodeScope,
-    visitMemberExpression: updateNodeScope,
+    visitMemberExpression: updateMemberExpressions,
     visitProperty,
     visitThisExpression,
     visitClassExpression: ignorePath
@@ -266,7 +279,7 @@ export function toScopedFunction(expression, sourceFile, sourceCode) {
 
   return builders.functionExpression(
     null,
-    [builders.identifier(SCOPE)],
+    [scope],
     builders.blockStatement([builders.returnStatement(
       expressionAST
     )])

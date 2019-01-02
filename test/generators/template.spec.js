@@ -68,6 +68,13 @@ describe('Generators - Template', () => {
         expect(renderExpr('RegExp')).to.be.equal('RegExp')
         expect(renderExpr('Number')).to.be.equal('Number')
         expect(renderExpr('Boolean')).to.be.equal('Boolean')
+        expect(renderExpr('Array')).to.be.equal('Array')
+      })
+
+      it('primitve calls', () => {
+        expect(renderExpr('Array.from(foo.bar)')).to.be.equal('Array.from(scope.foo.bar)')
+        expect(renderExpr('window.isNaN(foo.bar)')).to.be.equal('window.isNaN(scope.foo.bar)')
+        expect(renderExpr('new RegExp(foo.bar, "g")')).to.be.equal('new RegExp(scope.foo.bar, "g")')
       })
 
       it('simple sum', () => {
