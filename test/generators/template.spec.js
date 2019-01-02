@@ -276,6 +276,20 @@ describe('Generators - Template', () => {
 
 
   describe('Tag bindings', () => {
+    it('Simple tag binding without slots', () => {
+      const source = '<my-tag class={foo} id="my-id"></my-tag>'
+      const { template } = parse(source)
+      const input = tagBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
+      expect(output.slots).to.have.length(0)
+      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
+      expect(output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+      expect(output[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY]()).to.be.equal('my-id')
+    })
+
     it('Simple tag binding with default slot', () => {
       const source = '<my-tag class={foo} id="my-id"><p>hello</p></my-tag>'
       const { template } = parse(source)

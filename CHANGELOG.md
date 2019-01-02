@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.3
+- Fix issue with custom tags and no slots
+
 ### v4.0.0-alpha.2
 - Add support for the spread attributes `<a {...foo}/>`
 - Add the `tagName` to the compiler options in runtime

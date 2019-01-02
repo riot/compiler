@@ -101,7 +101,9 @@ export default function createTagBinding(sourceNode, selectorAttribute, sourceFi
       true
     )),
     simplePropertyNode(BINDING_SLOTS_KEY, builders.arrayExpression([
-      ...Object.entries(groupSlots(sourceNode)).map(([key, value]) => buildSlot(key, value, sourceFile, sourceCode))
+      ...Object.entries(groupSlots(sourceNode))
+        .filter(([,value]) => value)
+        .map(([key, value]) => buildSlot(key, value, sourceFile, sourceCode))
     ])),
     simplePropertyNode(BINDING_ATTRIBUTES_KEY, builders.arrayExpression([
       ...cleanAttributes(sourceNode)
