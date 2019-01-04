@@ -113,6 +113,12 @@ describe('Scoped CSS', function () {
     expect(render('@keyframes fade { from { opacity: 1; } to { opacity: 0; } }'))
         .to.equal('@keyframes fade { from { opacity: 1; } to { opacity: 0; } }')
   })
+
+  it('not add my-tag to :host', function () {
+    expect(render(':host { color: red; }'))
+        .to.equal(':host { color: red; }')
+  })
+
   it('not add my-tag to parcentage values in @keyframes', function () {
     expect(render('@keyframes fade { 10% { opacity: 1; } 85% { opacity: 0; } }'))
         .to.equal('@keyframes fade { 10% { opacity: 1; } 85% { opacity: 0; } }')

@@ -523,6 +523,7 @@ var CSS_SELECTOR = RegExp('([{}]|^)[; ]*((?:[^@ ;{}][^{}]*)?[^@ ;{}:] ?)(?={)|' 
  */
 function scopedCSS (tag, css) {
   var scope = ':scope'
+  var selectorsBlacklist = ['from', 'to', ':host']
 
   return css.replace(CSS_SELECTOR, function (m, p1, p2) {
     // skip quoted strings
@@ -538,7 +539,7 @@ function scopedCSS (tag, css) {
       }
 
       // skips the keywords and percents of css animations
-      if (!s || s === 'from' || s === 'to' || s.slice(-1) === '%') {
+      if (!s || selectorsBlacklist.indexOf(s) > -1 || s.slice(-1) === '%') {
         return sel
       }
 
