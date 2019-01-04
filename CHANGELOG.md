@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.5.3
+- Fix avoid prefixing the `:host` selector https://github.com/riot/custom-elements/issues/1
+
 ### v3.5.2
 - Fix es6 dynamic imports https://github.com/riot/riot/issues/2641
 
