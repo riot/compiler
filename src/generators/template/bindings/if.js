@@ -5,6 +5,7 @@ import {
   IF_BINDING_TYPE
 } from '../constants'
 import {
+  cloneNodeWithoutSelectorAttribute,
   createRootNode,
   createSelectorProperties,
   createTemplateProperty,
@@ -44,7 +45,14 @@ export default function createIfBinding(sourceNode, selectorAttribute, sourceFil
     ),
     ...createSelectorProperties(selectorAttribute),
     createTemplateProperty(mightBeARiotComponent ?
-      [null, [tagBinding(sourceNode, null, sourceCode, sourceCode)]] :
+      [null, [
+        tagBinding(
+          cloneNodeWithoutSelectorAttribute(sourceNode),
+          null,
+          sourceCode,
+          sourceCode
+        )]
+      ] :
       build(createRootNode(sourceNode), sourceCode, sourceCode)
     )
   ])

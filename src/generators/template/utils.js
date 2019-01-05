@@ -371,6 +371,19 @@ export function cleanAttributes(node) {
 }
 
 /**
+ * Clone the node filtering out the selector attribute from the attributes list
+ * @param   {RiotParser.Node} node - riot parser node
+ * @param   {string} selectorAttribute - name of the selector attribute to filter out
+ * @returns {RiotParser.Node} the node with the attribute cleaned up
+ */
+export function cloneNodeWithoutSelectorAttribute(node, selectorAttribute) {
+  return {
+    ...node,
+    attributes: getNodeAttributes(node).filter(attribute => attribute.name !== selectorAttribute)
+  }
+}
+
+/**
  * Create a root node proxing only its nodes and attributes
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {RiotParser.Node} root node

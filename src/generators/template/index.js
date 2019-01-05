@@ -1,4 +1,4 @@
-import {BINDING_TYPES, COMPONENTS_REGISTRY, EXPRESSION_TYPES, TEMPLATE_FN} from './constants'
+import {BINDING_TYPES, EXPRESSION_TYPES, GET_COMPONENT_FN, TEMPLATE_FN} from './constants'
 import {builders, types} from '../../utils/build-types'
 import {callTemplateFunction, createRootNode} from './utils'
 import {TAG_TEMPLATE_PROPERTY} from '../constants'
@@ -23,7 +23,7 @@ function extendTemplateProperty(ast, sourceFile, sourceCode, sourceNode) {
             TEMPLATE_FN,
             EXPRESSION_TYPES,
             BINDING_TYPES,
-            COMPONENTS_REGISTRY
+            GET_COMPONENT_FN
           ].map(builders.identifier),
           builders.blockStatement([
             builders.returnStatement(

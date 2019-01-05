@@ -6,6 +6,7 @@ import {
   EACH_BINDING_TYPE
 } from '../constants'
 import {
+  cloneNodeWithoutSelectorAttribute,
   createRootNode,
   createSelectorProperties,
   createTemplateProperty,
@@ -53,7 +54,14 @@ export default function createEachBinding(sourceNode, selectorAttribute, sourceF
     simplePropertyNode(BINDING_GET_KEY_KEY, attributeOrNull(keyAttribute)),
     simplePropertyNode(BINDING_CONDITION_KEY, attributeOrNull(ifAttribute)),
     createTemplateProperty(mightBeARiotComponent ?
-      [null, [tagBinding(sourceNode, null, sourceCode, sourceCode)]] :
+      [null, [
+        tagBinding(
+          cloneNodeWithoutSelectorAttribute(sourceNode),
+          null,
+          sourceCode,
+          sourceCode
+        )]
+      ] :
       build(createRootNode(sourceNode), sourceCode, sourceCode)
     ),
     ...createSelectorProperties(selectorAttribute),

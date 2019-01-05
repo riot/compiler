@@ -39,13 +39,13 @@ const getSlotById = (slots, id) => slots.find(slot => slot[BINDING_ID_KEY] === i
 const removeIdFromExpessionBindings = str => str.replace(/expr(\d+)/g, 'expr')
 const buildSimpleTemplate = compose(removeIdFromExpessionBindings, res => res[0], builder)
 
-const evaluateOutput = (ast, components = {}) => evaluateScript(`
+const evaluateOutput = (ast, getComponent = () => null) => evaluateScript(`
   import { bindingTypes, expressionTypes, template } from '@riotjs/dom-bindings'
 
-  export default function output(components) {
+  export default function output(getComponent) {
     return ${recast.print(ast).code}
   }
-`).default(components)
+`).default(getComponent)
 const parse = (input, options) => riotParser(options).parse(input).output
 
 describe('Generators - Template', () => {

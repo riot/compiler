@@ -14,11 +14,11 @@ export const EVENT_EXPRESSION_TYPE = 'EVENT'
 
 export const TEMPLATE_FN = 'template'
 export const SCOPE = 'scope'
-export const COMPONENTS_REGISTRY = 'components'
+export const GET_COMPONENT_FN = 'getComponent'
 
 // keys needed to create the DOM bindings
 export const BINDING_SELECTOR_KEY = 'selector'
-export const BINDING_COMPONENTS_KEY = 'components'
+export const BINDING_GET_COMPONENT_KEY = 'getComponent'
 export const BINDING_TEMPLATE_KEY = 'template'
 export const BINDING_TYPE_KEY = 'type'
 export const BINDING_REDUNDANT_ATTRIBUTE_KEY = 'redundantAttribute'

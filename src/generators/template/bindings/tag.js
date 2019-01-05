@@ -1,13 +1,14 @@
 import {
   BINDING_ATTRIBUTES_KEY,
   BINDING_BINDINGS_KEY,
-  BINDING_COMPONENTS_KEY,
+  BINDING_GET_COMPONENT_KEY,
   BINDING_HTML_KEY,
   BINDING_ID_KEY,
+  BINDING_NAME_KEY,
   BINDING_SLOTS_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
-  COMPONENTS_REGISTRY,
+  GET_COMPONENT_FN,
   SLOT_ATTRIBUTE,
   TAG_BINDING_TYPE
 } from '../constants'
@@ -95,11 +96,8 @@ export default function createTagBinding(sourceNode, selectorAttribute, sourceFi
         false
       ),
     ),
-    simplePropertyNode(BINDING_COMPONENTS_KEY, builders.memberExpression(
-      builders.identifier(COMPONENTS_REGISTRY),
-      builders.literal(getCustomNodeName(sourceNode)),
-      true
-    )),
+    simplePropertyNode(BINDING_GET_COMPONENT_KEY, builders.identifier(GET_COMPONENT_FN)),
+    simplePropertyNode(BINDING_NAME_KEY, builders.literal(getCustomNodeName(sourceNode))),
     simplePropertyNode(BINDING_SLOTS_KEY, builders.arrayExpression([
       ...Object.entries(groupSlots(sourceNode))
         .filter(([,value]) => value)
