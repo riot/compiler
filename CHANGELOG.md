@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.5
+- Update the tag bindings API to get the component implementation via function
+
 ### v4.0.0-alpha.4
 - Fix issues related to the member expressions traversal and the scope
 
