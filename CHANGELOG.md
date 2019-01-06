@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.6
+- Fix issue with the object expressions scoping
+
 ### v4.0.0-alpha.5
 - Update the tag bindings API to get the component implementation via function
 
