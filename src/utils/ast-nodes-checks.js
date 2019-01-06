@@ -14,3 +14,4 @@ export const isBinaryExpression = namedTypes.BinaryExpression.check
 
 export const isBrowserAPI = ({name}) => browserAPIs.includes(name)
 export const isBuiltinAPI = ({name}) => builtinAPIs.includes(name)
+export const isRaw = (node) => node && node.raw

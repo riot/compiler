@@ -25,7 +25,7 @@ import {
   isBuiltinAPI,
   isExpressionStatement,
   isIdentifier,
-  isObjectExpression,
+  isRaw,
   isSequenceExpression,
   isThisExpression
 } from '../../utils/ast-nodes-checks'
@@ -80,7 +80,7 @@ export function createExpressionSourcemap(expression, sourceFile, sourceCode) {
  * @returns {boolean} true if it's a global api variable
  */
 export function isGlobal({ scope, node }) {
-  return isBuiltinAPI(node) || isBrowserAPI(node) || scope.lookup(getName(node))
+  return isRaw(node) || isBuiltinAPI(node) || isBrowserAPI(node) || scope.lookup(getName(node))
 }
 
 /**
@@ -118,13 +118,14 @@ function updateNodeScope(path) {
  * @param   { types.NodePath } path - containing the current node visited
  * @returns { boolean } return always false because we want to check only the first node object
  */
-function updateMemberExpressions(path) {
+function visitMemberExpression(path) {
   if (!isGlobal({ node: path.node.object, scope: path.scope })) {
     replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
   }
 
   return false
 }
+
 
 /**
  * Objects properties should be handled a bit differently from the Identifier
@@ -136,7 +137,7 @@ function visitProperty(path) {
 
   if (isIdentifier(value)) {
     updateNodeScope(path.get('value'))
-  } else if (isObjectExpression(value)) {
+  } else {
     this.traverse(path.get('value'))
   }
 
@@ -163,7 +164,7 @@ export function updateNodesScope(ast) {
 
   types.visit(ast, {
     visitIdentifier: updateNodeScope,
-    visitMemberExpression: updateMemberExpressions,
+    visitMemberExpression,
     visitProperty,
     visitThisExpression,
     visitClassExpression: ignorePath

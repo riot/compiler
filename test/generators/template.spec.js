@@ -88,6 +88,7 @@ describe('Generators - Template', () => {
 
       it('objects', () => {
         expect(renderExpr('{ foo: bar, buz: baz }')).to.be.equal('{ foo: scope.bar, buz: scope.baz }')
+        expect(renderExpr('{ foo: i%2 }')).to.be.equal('{ foo: scope.i%2 }')
         expect(renderExpr('{ foo: { foo: bar, buz: baz }, buz: baz }')).to.be.equal('{ foo: { foo: scope.bar, buz: scope.baz }, buz: scope.baz }')
       })
 
