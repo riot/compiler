@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.0.0-alpha.7
+- Add support for the scoped css
+- Update the Tag bindings output to support dynamic tags
+
 ### v4.0.0-alpha.6
 - Fix issue with the object expressions scoping
 

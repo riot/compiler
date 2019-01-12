@@ -416,13 +416,22 @@ export function getNodeAttributes(node) {
   return node.attributes ? node.attributes : []
 }
 /**
- * Get the name of a custom node
+ * Get the name of a custom node transforming it into an expression node
  * @param   {RiotParser.Node} node - riot parser node
- * @returns {string} the value of the is attribute or of the tag name
+ * @returns {RiotParser.Node.Attr} the node name as expression attribute
  */
-export function getCustomNodeName(node) {
+export function getCustomNodeNameAsExpression(node) {
   const isAttribute = findIsAttribute(node)
-  return isAttribute ? isAttribute.value : getName(node)
+  const toRawString = val => `'${val}'`
+
+  if (isAttribute) {
+    return isAttribute.expressions ? isAttribute.expressions[0] : {
+      ...isAttribute,
+      text: toRawString(isAttribute.value)
+    }
+  }
+
+  return { ...node, text: toRawString(getName(node)) }
 }
 
 /**

@@ -8,7 +8,7 @@ import parser  from '@riotjs/parser'
 
 const simpleCSS = `
 <style>
-  :root {
+  :host {
     color: 'red';
   }
 </style>
@@ -17,7 +17,7 @@ const simpleCSS = `
 
 const scssCSS = `
 <style type='scss'>
-  :root {
+  :host {
     color: 'red';
 
     & {
@@ -45,13 +45,33 @@ describe('Generators - CSS', () => {
     const { css } = parser().parse(simpleCSS).output
 
     const { ast, map, code } = await compileCSS(css, simpleCSS, {
-      file: FAKE_FILE
+      file: FAKE_FILE,
+      scopedCss: true,
+      tagName: 'my-tag'
     }, createInput())
     const output = evaluateScript(code)
 
     expect(map).to.be.ok
     expect(ast).to.be.ok
-    expect(code).to.have.string(':root')
+    expect(code).to.have.string('my-tag')
+    expect(output.default.css).to.be.ok
+    expect(output.default.tag).to.be.not.ok
+    expect(output.default.template).to.be.not.ok
+  })
+
+  it('compile a simple css without scoping the css', async function() {
+    const { css } = parser().parse(simpleCSS).output
+
+    const { ast, map, code } = await compileCSS(css, simpleCSS, {
+      file: FAKE_FILE,
+      scopedCss: false,
+      tagName: 'my-tag'
+    }, createInput())
+    const output = evaluateScript(code)
+
+    expect(map).to.be.ok
+    expect(ast).to.be.ok
+    expect(code).to.have.string(':host')
     expect(output.default.css).to.be.ok
     expect(output.default.tag).to.be.not.ok
     expect(output.default.template).to.be.not.ok
@@ -61,13 +81,15 @@ describe('Generators - CSS', () => {
     const { css } = parser().parse(scssCSS).output
 
     const { code, ast, map } = await compileCSS(css, scssCSS, {
-      file: FAKE_FILE
+      file: FAKE_FILE,
+      scopedCss: true,
+      tagName: 'my-tag'
     }, createInput())
     const output = evaluateScript(code)
 
     expect(map).to.be.ok
     expect(ast).to.be.ok
-    expect(code).to.have.string(':root')
+    expect(code).to.have.string('my-tag')
     expect(output.default.css).to.be.ok
     expect(output.default.tag).to.be.not.ok
     expect(output.default.template).to.be.not.ok

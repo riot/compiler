@@ -292,6 +292,7 @@ describe('Generators - Template', () => {
 
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
+      expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
       expect(output.slots).to.have.length(0)
       expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
       expect(output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
@@ -307,6 +308,7 @@ describe('Generators - Template', () => {
 
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
+      expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
 
       expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal('<p>hello</p>')
       expect(defaultSlot[BINDING_BINDINGS_KEY]).to.be.deep.equal([])
@@ -325,6 +327,7 @@ describe('Generators - Template', () => {
 
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
+      expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
 
       expect(removeIdFromExpessionBindings(defaultSlot[BINDING_HTML_KEY]))
         .to.be.equal('<p expr><!----></p>')

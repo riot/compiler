@@ -9,6 +9,12 @@ import riotParser from '@riotjs/parser'
 import ruit from 'ruit'
 import templateGenerator from './generators/template/index'
 
+const DEFAULT_OPTIONS = {
+  template: 'default',
+  file: '[unknown-source-file]',
+  scopedCss: true
+}
+
 /**
  * Create the initial output
  * @param { Sourcemap } map - initial sourcemap
@@ -32,23 +38,26 @@ export function createInitialInput(map) {
  * @param { string } options - compiling options
  * @returns { Promise<Output> } object containing output code and source map
  */
-export async function compile(source, options = {
-  template: 'default',
-  file: '[unknown-source-file]'
-}) {
-  const { code, map } = await runPreprocessor('template', options.template || 'default', options, source)
-  const { template, css, javascript } = riotParser(options).parse(code).output
+export async function compile(source, options = {}) {
+  const opts = {
+    ...DEFAULT_OPTIONS,
+    ...options
+  }
+
+  const { code, map } = await runPreprocessor('template', opts.template, opts, source)
+  const { template, css, javascript } = riotParser(opts).parse(code).output
+
   // generate the tag name in runtime
-  Object.assign(options, {
+  Object.assign(opts, {
     tagName: template.name
   })
 
   return ruit(createInitialInput(map),
-    hookGenerator(cssGenerator, css, code, options),
-    hookGenerator(javascriptGenerator, javascript, code, options),
-    hookGenerator(templateGenerator, template, code, options),
+    hookGenerator(cssGenerator, css, code, opts),
+    hookGenerator(javascriptGenerator, javascript, code, opts),
+    hookGenerator(templateGenerator, template, code, opts),
     ({ ast }) => recast.prettyPrint(ast),
-    (result) => runPostprocessors(result, options),
+    (result) => runPostprocessors(result, opts),
   )
 }
 

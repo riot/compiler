@@ -1,10 +1,10 @@
 import {
   BINDING_ATTRIBUTES_KEY,
   BINDING_BINDINGS_KEY,
+  BINDING_EVALUATE_KEY,
   BINDING_GET_COMPONENT_KEY,
   BINDING_HTML_KEY,
   BINDING_ID_KEY,
-  BINDING_NAME_KEY,
   BINDING_SLOTS_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
@@ -16,8 +16,9 @@ import {
   cleanAttributes,
   createSelectorProperties,
   getChildrenNodes,
-  getCustomNodeName,
-  getNodeAttributes
+  getCustomNodeNameAsExpression,
+  getNodeAttributes,
+  toScopedFunction
 } from '../utils'
 import attributeExpression from '../expressions/attribute'
 import build from '../builder'
@@ -97,7 +98,10 @@ export default function createTagBinding(sourceNode, selectorAttribute, sourceFi
       ),
     ),
     simplePropertyNode(BINDING_GET_COMPONENT_KEY, builders.identifier(GET_COMPONENT_FN)),
-    simplePropertyNode(BINDING_NAME_KEY, builders.literal(getCustomNodeName(sourceNode))),
+    simplePropertyNode(
+      BINDING_EVALUATE_KEY,
+      toScopedFunction(getCustomNodeNameAsExpression(sourceNode), sourceFile, sourceCode)
+    ),
     simplePropertyNode(BINDING_SLOTS_KEY, builders.arrayExpression([
       ...Object.entries(groupSlots(sourceNode))
         .filter(([,value]) => value)
