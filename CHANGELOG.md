@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.9
+- Fix move `recast` into the package dependencies
+
 ### v4.0.0-alpha.8
 - Enhance the source map generation
 - Improve performance
