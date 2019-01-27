@@ -18,11 +18,11 @@ export function getExpected(name) {
   return String(sh.cat(`${EXPECTED_DIR}${name}.js`))
 }
 
-export function scssPreprocessor(source, { file }) {
+export function scssPreprocessor(source, { options }) {
   const result = renderSync({
-    file: file,
+    file: options.file,
     data: source,
-    outFile: file,
+    outFile: options.file,
     sourceMap: true
   })
 

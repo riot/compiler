@@ -33,7 +33,7 @@ describe('Transformer', () => {
     })
 
     it('create an output object with a sourcemap if the file option was provided', () => {
-      const result = createOutput({ code: 'foo' }, { file: 'foo.js' })
+      const result = createOutput({ code: 'foo' }, { options: { file: 'foo.js' }})
 
       expect(result.code).to.be.equal('foo')
       expect(result.map).to.be.not.equal(null)

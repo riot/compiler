@@ -45,7 +45,7 @@ export async function compile(source, options = {}) {
     ...options
   }
 
-  const { code, map } = await runPreprocessor('template', opts.template, opts, source)
+  const { code, map } = await runPreprocessor('template', opts.template, {}, source)
   const { template, css, javascript } = riotParser(opts).parse(code).output
   const meta = {
     options: opts,
@@ -59,13 +59,13 @@ export async function compile(source, options = {}) {
 
   return ruit(
     createInitialInput(map),
-    hookGenerator(cssGenerator, css, code, opts),
-    hookGenerator(javascriptGenerator, javascript, code, opts),
-    hookGenerator(templateGenerator, template, code, opts),
+    hookGenerator(cssGenerator, css, code, meta),
+    hookGenerator(javascriptGenerator, javascript, code, meta),
+    hookGenerator(templateGenerator, template, code, meta),
     ast => recast.print(ast, {
       sourceMapName: 'map.json'
     }),
-    result => runPostprocessors(result, opts),
+    result => runPostprocessors(result, meta),
     result => ({
       ...result,
       meta
@@ -78,15 +78,15 @@ export async function compile(source, options = {}) {
  * @param   { Function } transformer - transformer function
  * @param   { Object } sourceNode - riot parser node
  * @param   { string } source - component source code
- * @param   { Object } options - compiling options
+ * @param   { Object } meta - compilation meta information
  * @returns { Promise<Output> } object containing output code and source map
  */
-function hookGenerator(transformer, sourceNode, source, options) {
+function hookGenerator(transformer, sourceNode, source, meta) {
   if (!sourceNode || (sourceNode.nodes && !sourceNode.nodes.length)) {
     return result => result
   }
 
-  return curry(transformer)(sourceNode, source, options)
+  return curry(transformer)(sourceNode, source, meta)
 }
 
 // This function can be used to register new preprocessors

@@ -45,11 +45,10 @@ describe('Generators - CSS', () => {
   it('compile a simple css node', async function() {
     const { css } = parser().parse(simpleCSS).output
 
-    const ast = await compileCSS(css, simpleCSS, {
+    const ast = await compileCSS(css, simpleCSS, { options: {
       file: FAKE_FILE,
-      scopedCss: true,
-      tagName: 'my-tag'
-    }, createInput())
+      scopedCss: true
+    }, tagName: 'my-tag' }, createInput())
     const {code} = recast.print(ast)
 
     const output = evaluateScript(code)
@@ -64,11 +63,10 @@ describe('Generators - CSS', () => {
   it('compile a simple css without scoping the css', async function() {
     const { css } = parser().parse(simpleCSS).output
 
-    const ast = await compileCSS(css, simpleCSS, {
+    const ast = await compileCSS(css, simpleCSS,  { options: {
       file: FAKE_FILE,
-      scopedCss: false,
-      tagName: 'my-tag'
-    }, createInput())
+      scopedCss: false
+    }, tagName: 'my-tag'}, createInput())
     const {code} = recast.print(ast)
     const output = evaluateScript(code)
 
@@ -82,16 +80,15 @@ describe('Generators - CSS', () => {
   it('compile a scss file and generate a proper sourcemap', async function() {
     const { css } = parser().parse(scssCSS).output
 
-    const ast = await compileCSS(css, scssCSS, {
+    const ast = await compileCSS(css, scssCSS, { options: {
       file: FAKE_FILE,
-      scopedCss: true,
-      tagName: 'my-tag'
-    }, createInput())
+      scopedCss: true
+    }, tagName: 'my-tag'}, createInput())
     const {code} = recast.print(ast)
     const output = evaluateScript(code)
 
     expect(ast).to.be.ok
-    expect(code).to.have.string('my-tag')
+    expect(code).to.have.string('[is="my-tag"]')
     expect(output.default.css).to.be.ok
     expect(output.default.tag).to.be.not.ok
     expect(output.default.template).to.be.not.ok

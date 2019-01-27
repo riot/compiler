@@ -61,13 +61,13 @@ export function unregister(type, name) {
  * Exec the compilation of a preprocessor
  * @param   { string } type - preprocessor type either 'js', 'css' or 'template'
  * @param   { string } name - unique preprocessor id
- * @param   { Object } options - preprocessor options
+ * @param   { Object } meta - preprocessor meta information
  * @param   { string } source - source code
  * @returns { Promise<Output> } object containing a sourcemap and a code string
  */
-export async function execute(type, name, options, source) {
+export async function execute(type, name, meta, source) {
   if (!preprocessors[type]) preprocessorTypeError(type)
   if (!preprocessors[type].has(name)) preprocessorNameNotFoundError(name)
 
-  return await transform(preprocessors[type].get(name), options, source)
+  return await transform(preprocessors[type].get(name), meta, source)
 }

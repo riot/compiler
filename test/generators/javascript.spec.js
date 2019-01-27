@@ -35,9 +35,9 @@ describe('Generators - javascript', () => {
   it('compile a simple javascript code', async function() {
     const { javascript } = parser().parse(simpleJS).output
 
-    const ast = await compileJavascript(javascript, simpleJS, {
+    const ast = await compileJavascript(javascript, simpleJS, { options: {
       file: FAKE_FILE
-    }, createInput())
+    }}, createInput())
     const {code} = recast.print(ast)
     const output = evaluateScript(code)
 

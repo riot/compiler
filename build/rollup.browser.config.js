@@ -34,7 +34,7 @@ export default {
     commonjs({
       include: 'node_modules/**',
       namedExports: {
-        [sourcemapPath]: ['SourceMapGenerator', 'SourceMapConsumer']
+        [sourcemapPath]: ['SourceMapGenerator', 'SourceMapConsumer', 'SourceNode']
       },
       ignoreGlobal: true
     })

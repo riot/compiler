@@ -1,4 +1,4 @@
-import createSourcemap from './create-sourcemap'
+import { SourceNode } from 'source-map'
 import getLineAndColumnByPosition from './get-line-and-column-by-position'
 
 /**
@@ -9,17 +9,9 @@ import getLineAndColumnByPosition from './get-line-and-column-by-position'
  * @returns {SourceMapGenerator} source map generated
  */
 export default function createNodeSourcemap(node, sourceFile, sourceCode) {
-  const sourcemap = createSourcemap({ file: sourceFile })
+  const {line, column} = getLineAndColumnByPosition(sourceCode, node.start)
 
-  ;[node.start, node.end].forEach(position => {
-    const location = getLineAndColumnByPosition(sourceCode, position)
-
-    sourcemap.addMapping({
-      source: sourceFile,
-      generated: location,
-      original: location
-    })
-  })
-
-  return sourcemap
+  return new SourceNode(null, null, sourceFile, [
+    new SourceNode(line, column, sourceFile, sourceCode.slice(node.start, node.end))
+  ])
 }

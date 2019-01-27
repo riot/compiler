@@ -13,18 +13,18 @@ export const Output = Object.freeze({
  * @param   { string } data.code - code generated
  * @param   { AST } data.ast - ast representing the code
  * @param   { SourceMapGenerator } data.map - source map generated along with the code
- * @param   { Object } options - user options, probably containing the path to the source file
+ * @param   { Object } meta - compilation meta infomration
  * @returns { Output } output container object
  */
-export function createOutput(data, options) {
+export function createOutput(data, meta) {
   const output = Object.seal({
     ...Output,
     ...data,
-    meta: { options }
+    meta
   })
 
-  if (!output.map && options && options.file) Object.assign(output, {
-    map: createSourcemap({ file: options.file })
+  if (!output.map && meta && meta.options && meta.options.file) Object.assign(output, {
+    map: createSourcemap({ file: meta.options.file })
   })
 
   return output
@@ -33,11 +33,11 @@ export function createOutput(data, options) {
 /**
  * Transform the source code received via a compiler function
  * @param   { Function } compiler - function needed to generate the output code
- * @param   { Object } options - options to pass to the compilert
+ * @param   { Object } meta - compilation meta information
  * @param   { string } source - source code
  * @returns { Promise<Output> } output - the result of the compiler
  */
-export async function transform(compiler, options, source) {
-  const result = await (compiler ? compiler(source, options) : { code: source })
-  return createOutput(result, options)
+export async function transform(compiler, meta, source) {
+  const result = await (compiler ? compiler(source, meta) : { code: source })
+  return createOutput(result, meta)
 }
