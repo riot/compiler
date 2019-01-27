@@ -5,6 +5,7 @@ import {createInitialInput} from '../../src/index'
 import createSourcemap from '../../src/utils/create-sourcemap'
 import {expect} from 'chai'
 import parser  from '@riotjs/parser'
+import recast from 'recast'
 
 const simpleCSS = `
 <style>
@@ -44,14 +45,15 @@ describe('Generators - CSS', () => {
   it('compile a simple css node', async function() {
     const { css } = parser().parse(simpleCSS).output
 
-    const { ast, map, code } = await compileCSS(css, simpleCSS, {
+    const ast = await compileCSS(css, simpleCSS, {
       file: FAKE_FILE,
       scopedCss: true,
       tagName: 'my-tag'
     }, createInput())
+    const {code} = recast.print(ast)
+
     const output = evaluateScript(code)
 
-    expect(map).to.be.ok
     expect(ast).to.be.ok
     expect(code).to.have.string('my-tag')
     expect(output.default.css).to.be.ok
@@ -62,14 +64,14 @@ describe('Generators - CSS', () => {
   it('compile a simple css without scoping the css', async function() {
     const { css } = parser().parse(simpleCSS).output
 
-    const { ast, map, code } = await compileCSS(css, simpleCSS, {
+    const ast = await compileCSS(css, simpleCSS, {
       file: FAKE_FILE,
       scopedCss: false,
       tagName: 'my-tag'
     }, createInput())
+    const {code} = recast.print(ast)
     const output = evaluateScript(code)
 
-    expect(map).to.be.ok
     expect(ast).to.be.ok
     expect(code).to.have.string(':host')
     expect(output.default.css).to.be.ok
@@ -80,14 +82,14 @@ describe('Generators - CSS', () => {
   it('compile a scss file and generate a proper sourcemap', async function() {
     const { css } = parser().parse(scssCSS).output
 
-    const { code, ast, map } = await compileCSS(css, scssCSS, {
+    const ast = await compileCSS(css, scssCSS, {
       file: FAKE_FILE,
       scopedCss: true,
       tagName: 'my-tag'
     }, createInput())
+    const {code} = recast.print(ast)
     const output = evaluateScript(code)
 
-    expect(map).to.be.ok
     expect(ast).to.be.ok
     expect(code).to.have.string('my-tag')
     expect(output.default.css).to.be.ok

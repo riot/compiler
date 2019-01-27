@@ -3,6 +3,7 @@ import createSourcemap from './utils/create-sourcemap'
 export const Output = Object.freeze({
   code: '',
   ast: [],
+  meta: {},
   map: null
 })
 
@@ -18,7 +19,8 @@ export const Output = Object.freeze({
 export function createOutput(data, options) {
   const output = Object.seal({
     ...Output,
-    ...data
+    ...data,
+    meta: { options }
   })
 
   if (!output.map && options && options.file) Object.assign(output, {

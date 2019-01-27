@@ -1,5 +1,6 @@
 import {compile, registerPreprocessor} from '../src'
 import {evaluateScript, getFixture, scssPreprocessor} from './helpers'
+import {SourceMapConsumer} from 'source-map'
 import {expect} from 'chai'
 import pug from 'pug'
 import {unregister} from '../src/preprocessors'
@@ -9,18 +10,28 @@ describe('Core specs', () => {
     it('The compiler generates a sourcemap and an output', async function() {
       const result = await compile(getFixture('my-component.riot'))
       const output = evaluateScript(result.code)
+      const sourcemapConsumer = await new SourceMapConsumer(result.map)
 
+      expect(sourcemapConsumer.hasContentsOfAllSources()).to.be.ok
       expect(result.code).to.be.a('string')
       expect(result.map).to.be.not.an('undefined')
+      expect(result.meta).to.be.an('object')
+      expect(result.meta.tagName).to.be.equal('my-component')
       expect(output.default).to.have.all.keys('tag', 'css', 'template')
+
+      sourcemapConsumer.destroy()
     })
 
     it('Tags without css and javascript can be properly compiled', async function() {
       const result = await compile(getFixture('only-html.riot'))
       const output = evaluateScript(result.code)
+      const sourcemapConsumer = await new SourceMapConsumer(result.map)
 
+      expect(sourcemapConsumer.hasContentsOfAllSources()).to.be.ok
       expect(result.code).to.be.a('string')
       expect(result.map).to.be.not.an('undefined')
+      expect(result.meta).to.be.an('object')
+      expect(result.meta.tagName).to.be.equal('only-html')
       expect(output.default.css).to.be.not.ok
       expect(output.default.tag).to.be.not.ok
       expect(output.default.template).to.be.ok
@@ -29,9 +40,13 @@ describe('Core specs', () => {
     it('Tags without html and javascript can be properly compiled', async function() {
       const result = await compile(getFixture('only-css.riot'))
       const output = evaluateScript(result.code)
+      const sourcemapConsumer = await new SourceMapConsumer(result.map)
 
+      expect(sourcemapConsumer.hasContentsOfAllSources()).to.be.ok
       expect(result.code).to.be.a('string')
       expect(result.map).to.be.not.an('undefined')
+      expect(result.meta).to.be.an('object')
+      expect(result.meta.tagName).to.be.equal('only-css')
       expect(output.default.css).to.be.ok
       expect(output.default.tag).to.be.not.ok
       expect(output.default.template).to.be.not.ok
@@ -40,9 +55,13 @@ describe('Core specs', () => {
     it('Tags without html and css can be properly compiled', async function() {
       const result = await compile(getFixture('only-javascript.riot'))
       const output = evaluateScript(result.code)
+      const sourcemapConsumer = await new SourceMapConsumer(result.map)
 
+      expect(sourcemapConsumer.hasContentsOfAllSources()).to.be.ok
       expect(result.code).to.be.a('string')
       expect(result.map).to.be.not.an('undefined')
+      expect(result.meta).to.be.an('object')
+      expect(result.meta.tagName).to.be.equal('only-javascript')
       expect(output.default.css).to.be.not.ok
       expect(output.default.tag).to.be.ok
       expect(output.default.template).to.be.not.ok
@@ -73,9 +92,13 @@ describe('Core specs', () => {
         file: 'pug-component.pug'
       })
       const output = evaluateScript(result.code)
+      const sourcemapConsumer = await new SourceMapConsumer(result.map)
 
+      expect(sourcemapConsumer.hasContentsOfAllSources()).to.be.ok
       expect(result.code).to.be.a('string')
       expect(result.map).to.be.not.an('undefined')
+      expect(result.meta).to.be.an('object')
+      expect(result.meta.tagName).to.be.equal('pug-component')
       expect(output.default).to.have.all.keys('tag', 'css', 'template')
       expect(output.default.tag.foo).to.be.ok
     })

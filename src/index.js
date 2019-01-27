@@ -3,6 +3,7 @@ import { register as registerPostproc, execute as runPostprocessors  } from './p
 import { register as registerPreproc, execute as runPreprocessor } from './preprocessors'
 import cssGenerator from './generators/css/index'
 import curry from 'curri'
+import generateAST from './utils/generate-ast'
 import javascriptGenerator from './generators/javascript/index'
 import recast from 'recast'
 import riotParser from '@riotjs/parser'
@@ -16,20 +17,20 @@ const DEFAULT_OPTIONS = {
 }
 
 /**
- * Create the initial output
+ * Create the initial AST
  * @param { Sourcemap } map - initial sourcemap
- * @returns { Output } containing the initial code and  AST
+ * @param { string } file - path to the original source file
+ * @returns { AST } the initial AST
  *
  * @example
  * // the output represents the following string in AST
  */
-export function createInitialInput(map) {
+export function createInitialInput(map, file) {
   const code = `export default { ${TAG_CSS_PROPERTY}: null, ${TAG_LOGIC_PROPERTY}: null, ${TAG_TEMPLATE_PROPERTY}: null }`
-  return {
-    ast: recast.parse(code),
-    code,
-    map
-  }
+  return generateAST(code, {
+    sourceFileName: file,
+    inputSourceMap: map
+  })
 }
 
 /**
@@ -46,18 +47,29 @@ export async function compile(source, options = {}) {
 
   const { code, map } = await runPreprocessor('template', opts.template, opts, source)
   const { template, css, javascript } = riotParser(opts).parse(code).output
+  const meta = {
+    options: opts,
+    tagName: template.name,
+    fragments: {
+      template,
+      css,
+      javascript
+    }
+  }
 
-  // generate the tag name in runtime
-  Object.assign(opts, {
-    tagName: template.name
-  })
-
-  return ruit(createInitialInput(map),
+  return ruit(
+    createInitialInput(map),
     hookGenerator(cssGenerator, css, code, opts),
     hookGenerator(javascriptGenerator, javascript, code, opts),
     hookGenerator(templateGenerator, template, code, opts),
-    ({ ast }) => recast.prettyPrint(ast),
-    (result) => runPostprocessors(result, opts),
+    ast => recast.print(ast, {
+      sourceMapName: 'map.json'
+    }),
+    result => runPostprocessors(result, opts),
+    result => ({
+      ...result,
+      meta
+    })
   )
 }
 

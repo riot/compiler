@@ -15,7 +15,10 @@ export default {
     name: 'compiler',
     file: './dist/compiler.js',
     format: 'umd',
-    globals: ignredModules,
+    globals: ignredModules.reduce((acc, dep) => ({
+      [dep]: dep,
+      ...acc
+    }), {}),
     ...defaultConfig.output
   },
   external: ignredModules,

@@ -4,6 +4,7 @@ import createSourcemap from '../../src/utils/create-sourcemap'
 import {evaluateScript} from '../helpers'
 import {expect} from 'chai'
 import parser  from '@riotjs/parser'
+import recast from 'recast'
 
 const simpleJS = `
 <script>
@@ -34,9 +35,10 @@ describe('Generators - javascript', () => {
   it('compile a simple javascript code', async function() {
     const { javascript } = parser().parse(simpleJS).output
 
-    const { code } = await compileJavascript(javascript, simpleJS, {
+    const ast = await compileJavascript(javascript, simpleJS, {
       file: FAKE_FILE
     }, createInput())
+    const {code} = recast.print(ast)
     const output = evaluateScript(code)
 
     expect(code).to.be.a('string')

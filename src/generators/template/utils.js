@@ -31,9 +31,9 @@ import {
 } from '../../utils/ast-nodes-checks'
 import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import compose from '../../utils/compose'
-import createSourcemap from '../../utils/create-sourcemap'
+import createNodeSourcemap from '../../utils/create-node-sourcemap'
 import curry from 'curri'
-import getLineAndColumnByPosition from '../../utils/get-line-and-column-by-position'
+import generateAST from '../../utils/generate-ast'
 import {nodeTypes} from '@riotjs/parser'
 import panic from '../../utils/panic'
 import recast from 'recast'
@@ -59,20 +59,6 @@ export const hasIfAttribute = compose(Boolean, findIfAttribute)
 export const hasEachAttribute = compose(Boolean, findEachAttribute)
 export const hasKeyAttribute = compose(Boolean, findKeyAttribute)
 export const hasIsAttribute = compose(Boolean, findIsAttribute)
-
-export function createExpressionSourcemap(expression, sourceFile, sourceCode) {
-  const sourcemap = createSourcemap({ file: sourceFile })
-
-  ;[expression.start, expression.end].forEach(position => {
-    const location = getLineAndColumnByPosition(sourceCode, position)
-
-    sourcemap.addMapping({
-      source: sourceFile,
-      generated: location,
-      original: location
-    })
-  })
-}
 
 /**
  * Check if a node name is part of the browser or builtin javascript api or it belongs to the current scope
@@ -181,9 +167,9 @@ export function updateNodesScope(ast) {
  * @returns { Object } the ast generated
  */
 export function createASTFromExpression(expression, sourceFile, sourceCode) {
-  return recast.parse(`(${expression.text})`, {
+  return generateAST(`(${expression.text})`, {
     sourceFileName: sourceFile,
-    inputSourceMap: sourceFile && createExpressionSourcemap(expression, sourceFile, sourceCode)
+    inputSourceMap: sourceFile && createNodeSourcemap(expression, sourceFile, sourceCode)
   })
 }
 
