@@ -1,5 +1,10 @@
 # Compiler Changes
 
+### v4.0.0-alpha.8
+- Enhance the source map generation
+- Improve performance
+- Update npm dependencies
+
 ### v4.0.0-alpha.7
 - Add support for the scoped css
 - Update the Tag bindings output to support dynamic tags
