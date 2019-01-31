@@ -1,9 +1,10 @@
 import { TAG_CSS_PROPERTY, TAG_LOGIC_PROPERTY, TAG_TEMPLATE_PROPERTY} from './generators/constants'
+import { nullNode, simplePropertyNode } from './utils/custom-ast-nodes'
 import { register as registerPostproc, execute as runPostprocessors  } from './postprocessors'
 import { register as registerPreproc, execute as runPreprocessor } from './preprocessors'
+import {builders} from './utils/build-types'
 import cssGenerator from './generators/css/index'
 import curry from 'curri'
-import generateAST from './utils/generate-ast'
 import javascriptGenerator from './generators/javascript/index'
 import recast from 'recast'
 import riotParser from '@riotjs/parser'
@@ -18,19 +19,29 @@ const DEFAULT_OPTIONS = {
 
 /**
  * Create the initial AST
- * @param { Sourcemap } map - initial sourcemap
- * @param { string } file - path to the original source file
  * @returns { AST } the initial AST
  *
  * @example
  * // the output represents the following string in AST
  */
-export function createInitialInput(map, file) {
-  const code = `export default { ${TAG_CSS_PROPERTY}: null, ${TAG_LOGIC_PROPERTY}: null, ${TAG_TEMPLATE_PROPERTY}: null }`
-  return generateAST(code, {
-    sourceFileName: file,
-    inputSourceMap: map
-  })
+export function createInitialInput() {
+  /*
+  generates
+  export default {
+     ${TAG_CSS_PROPERTY}: null,
+     ${TAG_LOGIC_PROPERTY}: null,
+     ${TAG_TEMPLATE_PROPERTY}: null
+  }
+  */
+  return builders.program([
+    builders.exportDefaultDeclaration(
+      builders.objectExpression([
+        simplePropertyNode(TAG_CSS_PROPERTY, nullNode()),
+        simplePropertyNode(TAG_LOGIC_PROPERTY, nullNode()),
+        simplePropertyNode(TAG_TEMPLATE_PROPERTY, nullNode())
+      ])
+    )]
+  )
 }
 
 /**
@@ -44,26 +55,32 @@ export async function compile(source, options = {}) {
     ...DEFAULT_OPTIONS,
     ...options
   }
-
-  const { code, map } = await runPreprocessor('template', opts.template, {}, source)
-  const { template, css, javascript } = riotParser(opts).parse(code).output
   const meta = {
-    options: opts,
+    source,
+    options: opts
+  }
+
+  const { code, map } = await runPreprocessor('template', opts.template, meta, source)
+  const { template, css, javascript } = riotParser(opts).parse(code).output
+
+  // extend the meta object with the result of the parsing
+  Object.assign(meta, {
     tagName: template.name,
     fragments: {
       template,
       css,
       javascript
     }
-  }
+  })
 
   return ruit(
-    createInitialInput(map),
+    createInitialInput(),
     hookGenerator(cssGenerator, css, code, meta),
     hookGenerator(javascriptGenerator, javascript, code, meta),
     hookGenerator(templateGenerator, template, code, meta),
     ast => recast.print(ast, {
-      sourceMapName: 'map.json'
+      sourceMapName: 'map.json',
+      inputSourcemap: map
     }),
     result => runPostprocessors(result, meta),
     result => ({

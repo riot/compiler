@@ -1,6 +1,5 @@
 import {TAG_LOGIC_PROPERTY} from '../constants'
-import composeSourcemaps from '../../utils/compose-sourcemaps'
-import createNodeSourcemap from '../../utils/create-node-sourcemap'
+import addLinesOffset from '../../utils/add-lines-offset'
 import generateAST from '../../utils/generate-ast'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import {isExportDefaultStatement} from '../../utils/ast-nodes-checks'
@@ -31,7 +30,7 @@ function filterNonExportDefaultStatements(body) {
  * @returns { Array } array containing the program code
  */
 function getProgramBody(ast) {
-  return ast.program.body
+  return ast.body || ast.program.body
 }
 
 /**
@@ -43,7 +42,7 @@ function getProgramBody(ast) {
 function extendTagProperty(ast, exportDefaultNode) {
   types.visit(ast, {
     visitProperty(path) {
-      if (path.value.key.name === TAG_LOGIC_PROPERTY) {
+      if (path.value.key.value === TAG_LOGIC_PROPERTY) {
         path.value.value = exportDefaultNode.declaration
         return false
       }
@@ -68,18 +67,17 @@ export default async function javascript(sourceNode, source, meta, ast) {
   const javascriptNode = sourceNode.text
   const { options } = meta
   const preprocessorOutput = await preprocess('js', preprocessorName, meta, source, javascriptNode)
-  const jsInputSourceMap = composeSourcemaps(
-    createNodeSourcemap(sourceNode, options.file, source),
-    preprocessorOutput.map
+
+  const generatedAst = generateAST(
+    addLinesOffset(preprocessorOutput.code, source, sourceNode, -1), {
+      sourceFileName: options.file
+    }
   )
-  const generatedAst = generateAST(preprocessorOutput.code, {
-    sourceFileName: options.file,
-    inputSourceMap: jsInputSourceMap
-  })
 
   const generatedAstBody = getProgramBody(generatedAst)
   const bodyWithoutExportDefault = filterNonExportDefaultStatements(generatedAstBody)
   const exportDefaultNode = findExportDefaultStatement(generatedAstBody)
+
   const outputBody = getProgramBody(ast)
 
   // add to the ast the "private" javascript content of our tag script node

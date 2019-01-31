@@ -62,7 +62,7 @@ export default function createEachBinding(sourceNode, selectorAttribute, sourceF
           sourceCode
         )]
       ] :
-      build(createRootNode(sourceNode), sourceCode, sourceCode)
+      build(createRootNode(sourceNode), sourceFile, sourceCode)
     ),
     ...createSelectorProperties(selectorAttribute),
     ...compose(getEachExpressionProperties, getAttributeExpression)(eachAttribute)

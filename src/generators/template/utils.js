@@ -30,6 +30,7 @@ import {
   isThisExpression
 } from '../../utils/ast-nodes-checks'
 import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
+import addLinesOffset from '../../utils/add-lines-offset'
 import compose from '../../utils/compose'
 import createNodeSourcemap from '../../utils/create-node-sourcemap'
 import curry from 'curri'
@@ -167,7 +168,11 @@ export function updateNodesScope(ast) {
  * @returns { Object } the ast generated
  */
 export function createASTFromExpression(expression, sourceFile, sourceCode) {
-  return generateAST(`(${expression.text})`, {
+  const code = sourceFile ?
+    addLinesOffset(expression.text, sourceCode, expression) :
+    expression.text
+
+  return generateAST(`(${code})`, {
     sourceFileName: sourceFile,
     inputSourceMap: sourceFile && createNodeSourcemap(expression, sourceFile, sourceCode)
   })

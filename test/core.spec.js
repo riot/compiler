@@ -62,6 +62,7 @@ describe('Core specs', () => {
       expect(result.map).to.be.not.an('undefined')
       expect(result.meta).to.be.an('object')
       expect(result.meta.tagName).to.be.equal('only-javascript')
+
       expect(output.default.css).to.be.not.ok
       expect(output.default.tag).to.be.ok
       expect(output.default.template).to.be.not.ok
