@@ -5,9 +5,9 @@ import getLineAndColumnByPosition from './get-line-and-column-by-position'
  * @param {string} input - input string
  * @param {string} source - original source code
  * @param {RiotParser.Node} node - node that we are going to transform
- * @param {number} offset - additional offset needed to skip the line of the <script> and <style> tags
  * @return {string} the input string with the offset properly set
  */
-export default function addLineOffset(input, source, node, offset = 0) {
-  return `${'\n'.repeat(getLineAndColumnByPosition(source, node.start).line + offset)}${input}`
+export default function addLineOffset(input, source, node) {
+  const {column, line} = getLineAndColumnByPosition(source, node.start)
+  return `${'\n'.repeat(line - 1)}${' '.repeat(column)}${input}`
 }

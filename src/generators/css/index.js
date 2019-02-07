@@ -1,5 +1,4 @@
 import {TAG_CSS_PROPERTY} from '../constants'
-import addLinesOffset from '../../utils/add-lines-offset'
 import generateAST from '../../utils/generate-ast'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
@@ -86,11 +85,9 @@ export default async function css(sourceNode, source, meta, ast) {
   types.visit(ast, {
     visitProperty(path) {
       if (path.value.key.value === TAG_CSS_PROPERTY) {
-        path.value.value = generateAST(
-          `\`${addLinesOffset(cssCode, source, sourceNode, -1)}\``, {
-            sourceFileName: options.file
-          }
-        )
+        path.value.value = generateAST(`\`${cssCode}\``, {
+          sourceFileName: options.file
+        })
 
         return false
       }

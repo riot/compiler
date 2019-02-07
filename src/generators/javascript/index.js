@@ -69,10 +69,9 @@ export default async function javascript(sourceNode, source, meta, ast) {
   const preprocessorOutput = await preprocess('js', preprocessorName, meta, source, javascriptNode)
 
   const generatedAst = generateAST(
-    addLinesOffset(preprocessorOutput.code, source, sourceNode, -1), {
+    addLinesOffset(preprocessorOutput.code, source, sourceNode), {
       sourceFileName: options.file
-    }
-  )
+    })
 
   const generatedAstBody = getProgramBody(generatedAst)
   const bodyWithoutExportDefault = filterNonExportDefaultStatements(generatedAstBody)

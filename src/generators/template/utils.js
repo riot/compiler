@@ -32,7 +32,6 @@ import {
 import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
 import compose from '../../utils/compose'
-import createNodeSourcemap from '../../utils/create-node-sourcemap'
 import curry from 'curri'
 import generateAST from '../../utils/generate-ast'
 import {nodeTypes} from '@riotjs/parser'
@@ -173,8 +172,7 @@ export function createASTFromExpression(expression, sourceFile, sourceCode) {
     expression.text
 
   return generateAST(`(${code})`, {
-    sourceFileName: sourceFile,
-    inputSourceMap: sourceFile && createNodeSourcemap(expression, sourceFile, sourceCode)
+    sourceFileName: sourceFile
   })
 }
 
