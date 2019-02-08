@@ -6,7 +6,7 @@ import getLineAndColumnByPosition from '../src/utils/get-line-and-column-by-posi
 
 const getLines = source => source.split('\n')
 
-function getSourceByPositions(source, positions) {
+function getSourceByOutputPositions(source, positions) {
   const lines = getLines(source)
 
   return positions.reduce((string, {column, line}) => {
@@ -18,8 +18,8 @@ function getGeneatedPositions(sourcemapConsumer, source, positions) {
   return positions.map(position => sourcemapConsumer.generatedPositionFor({...position, source}))
 }
 
-function getSourceByPosiion(source, line, start, end) {
-  return getLines(source)[line - 1].slice(start - 1, end - 1)
+function getSourceByPosition(source, line, start, end) {
+  return getLines(source)[line - 1].slice(start, end + 1)
 }
 
 describe('Column and line position helpers', () => {
@@ -55,8 +55,8 @@ describe('Sourcemap specs', () => {
 
     // in the js part
     // const
-    expect(getSourceByPosiion(source, 15, 5, 10)).to.be.equal(
-      getSourceByPositions(output,
+    expect(getSourceByPosition(source, 15, 4, 8)).to.be.equal(
+      getSourceByOutputPositions(output,
         getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
           {line: 15, column: 4},
           {line: 15, column: 5},
@@ -69,32 +69,29 @@ describe('Sourcemap specs', () => {
 
     // in the template
     // value
-    expect(getSourceByPosiion(source, 5, 59, 64)).to.be.equal(
-      getSourceByPositions(output,
+    expect(getSourceByPosition(source, 5, 58, 62)).to.be.equal(
+      getSourceByOutputPositions(output,
         getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
-          {line: 5, column: 57},
           {line: 5, column: 58},
           {line: 5, column: 59},
           {line: 5, column: 60},
-          {line: 5, column: 61}
+          {line: 5, column: 61},
+          {line: 5, column: 62}
         ])
       )
     )
 
     // bar
-    // TODO: get preciser expression maps
-    /*expect(getSourceByPosiion(source, 9, 10, 13)).to.be.equal(
-      getSourceByPositions(output,
+    expect(getSourceByPosition(source, 9, 9, 11)).to.be.equal(
+      getSourceByOutputPositions(output,
         getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
+          {line: 9, column: 9},
           {line: 9, column: 10},
-          {line: 9, column: 11},
-          {line: 9, column: 12},
-          {line: 9, column: 13}
+          {line: 9, column: 11}
         ])
       )
-    )*/
+    )
 
     sourcemapConsumer.destroy()
-
   })
 })

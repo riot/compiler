@@ -17,6 +17,7 @@ import {bindingTypes, expressionTypes} from '@riotjs/dom-bindings'
 import {evaluateScript, renderExpression} from '../helpers'
 import {mergeNodeExpressions, toScopedFunction} from '../../src/generators/template/utils'
 import builder from '../../src/generators/template/builder'
+import {builders} from '../../src/utils/build-types'
 import compose from '../../src/utils/compose'
 import curry from 'curri'
 import eachBinding from '../../src/generators/template/bindings/each'
@@ -297,6 +298,23 @@ describe('Generators - Template', () => {
       expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
       expect(output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
       expect(output[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY]()).to.be.equal('my-id')
+    })
+
+    it('Children tags do not inherit "expr" and "is" attributes', () => {
+      const source = '<div><p is="my-tag" class={foo} id="my-id"></p></div>'
+      const { template } = parse(source)
+      const bindings = evaluateOutput(
+        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1])
+      )
+      const tagBinding = bindings[0]
+
+      expect(tagBinding[BINDING_SELECTOR_KEY]).to.be.ok
+      expect(tagBinding[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
+      expect(tagBinding[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
+      expect(tagBinding.slots).to.have.length(0)
+      expect(tagBinding[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
+      expect(tagBinding[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+      expect(tagBinding[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY]()).to.be.equal('my-id')
     })
 
     it('Simple tag binding with default slot', () => {

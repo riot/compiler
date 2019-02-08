@@ -9,5 +9,5 @@ import getLineAndColumnByPosition from './get-line-and-column-by-position'
  */
 export default function addLineOffset(input, source, node) {
   const {column, line} = getLineAndColumnByPosition(source, node.start)
-  return `${'\n'.repeat(line - 1)}${' '.repeat(column)}${input}`
+  return `${'\n'.repeat(line - 1)}${' '.repeat(column + 1)}${input}`
 }
