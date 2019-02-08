@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.0.0-alpha.10
+- Update enhance sourcemaps generation
+- Change second arguments for the pre/post processors. The `meta` object will contain info about the current compilation
+
 ### v4.0.0-alpha.9
 - Fix move `recast` into the package dependencies
 

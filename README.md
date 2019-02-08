@@ -29,13 +29,15 @@ import pug from 'pug'
 import buble from 'buble'
 
 // process your tag template before it will be compiled
-registerPreprocessor('template', 'pug', async function(code, { file }) {
+registerPreprocessor('template', 'pug', async function(code, { meta }) {
+  const { file } = meta
   console.log('your file path is:', file)
   return await pug.compile(code)
 })
 
 // your compiler output will pass from here
-registerPostprocessor(async function(code, { file }) {
+registerPostprocessor(async function(code, { meta }) {
+  const { file } = meta
   console.log('your file path is:', file)
   return await buble.transform(code)
 })
