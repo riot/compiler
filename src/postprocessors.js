@@ -47,7 +47,7 @@ export async function execute(compilerOutput, meta) {
 
     return {
       code: output.code,
-      map: composeSourcemaps(output.map, map)
+      map: composeSourcemaps(map, output.map)
     }
   }, Promise.resolve(createOutput(compilerOutput, meta)))
 }

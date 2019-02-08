@@ -17,15 +17,17 @@ export const Output = Object.freeze({
  * @returns { Output } output container object
  */
 export function createOutput(data, meta) {
-  const output = Object.seal({
+  const output = {
     ...Output,
     ...data,
     meta
-  })
+  }
 
-  if (!output.map && meta && meta.options && meta.options.file) Object.assign(output, {
-    map: createSourcemap({ file: meta.options.file })
-  })
+  if (!output.map && meta && meta.options && meta.options.file)
+    return {
+      ...output,
+      map: createSourcemap({ file: meta.options.file })
+    }
 
   return output
 }

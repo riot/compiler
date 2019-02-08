@@ -53,7 +53,7 @@ export default function createIfBinding(sourceNode, selectorAttribute, sourceFil
           sourceCode
         )]
       ] :
-      build(createRootNode(sourceNode), sourceCode, sourceCode)
+      build(createRootNode(sourceNode), sourceFile, sourceCode)
     )
   ])
 }

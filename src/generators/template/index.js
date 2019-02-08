@@ -15,7 +15,7 @@ import build from './builder'
 function extendTemplateProperty(ast, sourceFile, sourceCode, sourceNode) {
   types.visit(ast, {
     visitProperty(path) {
-      if (path.value.key.name === TAG_TEMPLATE_PROPERTY) {
+      if (path.value.key.value === TAG_TEMPLATE_PROPERTY) {
         path.value.value = builders.functionExpression(
           null,
           [

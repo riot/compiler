@@ -1,4 +1,3 @@
-import getColumn from './get-column'
 import splitStringByEOL from './split-string-by-EOL'
 
 /**
@@ -12,6 +11,6 @@ export default function getLineAndColumnByPosition(string, position) {
 
   return {
     line: lines.length,
-    column: getColumn(lines[lines.length - 1])
+    column: lines[lines.length - 1].length
   }
 }

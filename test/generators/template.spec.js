@@ -17,6 +17,7 @@ import {bindingTypes, expressionTypes} from '@riotjs/dom-bindings'
 import {evaluateScript, renderExpression} from '../helpers'
 import {mergeNodeExpressions, toScopedFunction} from '../../src/generators/template/utils'
 import builder from '../../src/generators/template/builder'
+import {builders} from '../../src/utils/build-types'
 import compose from '../../src/utils/compose'
 import curry from 'curri'
 import eachBinding from '../../src/generators/template/bindings/each'
@@ -34,8 +35,8 @@ const renderExpr = compose(
   expr => ({ text: expr })
 )
 
+const renderTextNode = (node, source) => recast.print(mergeNodeExpressions(node, FAKE_SRC_FILE, source)).code
 const getSlotById = (slots, id) => slots.find(slot => slot[BINDING_ID_KEY] === id)
-
 const removeIdFromExpessionBindings = str => str.replace(/expr(\d+)/g, 'expr')
 const buildSimpleTemplate = compose(removeIdFromExpessionBindings, res => res[0], builder)
 
@@ -117,24 +118,24 @@ describe('Generators - Template', () => {
       const source = '<p>{foo} + {bar}</p>'
       const { template } = parse(source)
 
-      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('`${foo} + ${bar}`')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('`${scope.foo} + ${scope.bar}`')
     })
 
     it('Complex multiple expressions will be merged into template literal', () => {
       const source = `
       <p>{foo} + {bar}
       foo bar   {baz}
-      </p>`
+      bar</p>`
       const { template } = parse(source)
 
-      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('`${foo} + ${bar}\n      foo bar   ${baz}\n      `')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('`${scope.foo} + ${scope.bar}\n      foo bar   ${scope.baz}\n      bar`')
     })
 
     it('Simple expressions will be left untouchted', () => {
       const source = '<p>{foo}</p>'
       const { template } = parse(source)
 
-      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('foo')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('scope.foo')
     })
 
     it('Different template brakets will be merged into template literal', () => {
@@ -143,7 +144,7 @@ describe('Generators - Template', () => {
         brackets: ['[[[[', ']]]]']
       })
 
-      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('`${foo} + ${bar}`')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('`${scope.foo} + ${scope.bar}`')
     })
 
     it('Simple attribute expression', () => {
@@ -297,6 +298,23 @@ describe('Generators - Template', () => {
       expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
       expect(output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
       expect(output[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY]()).to.be.equal('my-id')
+    })
+
+    it('Children tags do not inherit "expr" and "is" attributes', () => {
+      const source = '<div><p is="my-tag" class={foo} id="my-id"></p></div>'
+      const { template } = parse(source)
+      const bindings = evaluateOutput(
+        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1])
+      )
+      const tagBinding = bindings[0]
+
+      expect(tagBinding[BINDING_SELECTOR_KEY]).to.be.ok
+      expect(tagBinding[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
+      expect(tagBinding[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
+      expect(tagBinding.slots).to.have.length(0)
+      expect(tagBinding[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
+      expect(tagBinding[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+      expect(tagBinding[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY]()).to.be.equal('my-id')
     })
 
     it('Simple tag binding with default slot', () => {
