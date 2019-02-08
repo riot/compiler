@@ -34,8 +34,8 @@ const renderExpr = compose(
   expr => ({ text: expr })
 )
 
+const renderTextNode = (node, source) => recast.print(mergeNodeExpressions(node, FAKE_SRC_FILE, source)).code
 const getSlotById = (slots, id) => slots.find(slot => slot[BINDING_ID_KEY] === id)
-
 const removeIdFromExpessionBindings = str => str.replace(/expr(\d+)/g, 'expr')
 const buildSimpleTemplate = compose(removeIdFromExpessionBindings, res => res[0], builder)
 
@@ -117,24 +117,24 @@ describe('Generators - Template', () => {
       const source = '<p>{foo} + {bar}</p>'
       const { template } = parse(source)
 
-      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('`${foo} + ${bar}`')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('`${scope.foo} + ${scope.bar}`')
     })
 
     it('Complex multiple expressions will be merged into template literal', () => {
       const source = `
       <p>{foo} + {bar}
       foo bar   {baz}
-      </p>`
+      bar</p>`
       const { template } = parse(source)
 
-      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('`${foo} + ${bar}\n      foo bar   ${baz}\n      `')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('`${scope.foo} + ${scope.bar}\n      foo bar   ${scope.baz}\n      bar`')
     })
 
     it('Simple expressions will be left untouchted', () => {
       const source = '<p>{foo}</p>'
       const { template } = parse(source)
 
-      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('foo')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('scope.foo')
     })
 
     it('Different template brakets will be merged into template literal', () => {
@@ -143,7 +143,7 @@ describe('Generators - Template', () => {
         brackets: ['[[[[', ']]]]']
       })
 
-      expect(mergeNodeExpressions(template.nodes[0])).to.be.equal('`${foo} + ${bar}`')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('`${scope.foo} + ${scope.bar}`')
     })
 
     it('Simple attribute expression', () => {

@@ -1,8 +1,7 @@
+import {builders, types} from '../../utils/build-types'
 import {TAG_CSS_PROPERTY} from '../constants'
-import generateAST from '../../utils/generate-ast'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
-import {types} from '../../utils/build-types'
 
 /**
  * Source for creating regexes matching valid quoted, single-line JavaScript strings.
@@ -85,9 +84,10 @@ export default async function css(sourceNode, source, meta, ast) {
   types.visit(ast, {
     visitProperty(path) {
       if (path.value.key.value === TAG_CSS_PROPERTY) {
-        path.value.value = generateAST(`\`${cssCode}\``, {
-          sourceFileName: options.file
-        })
+        path.value.value = builders.templateLiteral(
+          [builders.templateElement({ raw: cssCode, cooked: '' }, false)],
+          []
+        )
 
         return false
       }

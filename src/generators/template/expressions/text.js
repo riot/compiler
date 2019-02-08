@@ -5,10 +5,7 @@ import {
   EXPRESSION_TYPES,
   TEXT_EXPRESSION_TYPE
 } from '../constants'
-import {
-  mergeNodeExpressions,
-  toScopedFunction
-} from '../utils'
+import {mergeNodeExpressions,wrapASTInFunctionWithScope} from '../utils'
 import {builders} from '../../../utils/build-types'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 
@@ -35,11 +32,9 @@ export default function createTextExpression(sourceNode, sourceFile, sourceCode,
     ),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,
-      toScopedFunction({
-        start: sourceNode.start,
-        end: sourceNode.end,
-        text: mergeNodeExpressions(sourceNode)
-      }, sourceFile, sourceCode)
+      wrapASTInFunctionWithScope(
+        mergeNodeExpressions(sourceNode, sourceFile, sourceCode)
+      )
     )
   ])
 }

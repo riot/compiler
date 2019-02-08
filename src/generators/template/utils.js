@@ -34,6 +34,7 @@ import addLinesOffset from '../../utils/add-lines-offset'
 import compose from '../../utils/compose'
 import curry from 'curri'
 import generateAST from '../../utils/generate-ast'
+import generateLiteralStringChunksFromNode from '../../utils/generate-literal-string-chunk-from-node'
 import {nodeTypes} from '@riotjs/parser'
 import panic from '../../utils/panic'
 import recast from 'recast'
@@ -193,7 +194,6 @@ export function getEachExpressionProperties(eachExpression, sourceFile, sourceCo
   const body = ast.program.body
   const firstNode = body[0]
 
-
   if (!isExpressionStatement(firstNode)) {
     panic(`The each directives supported should be of type "ExpressionStatement",you have provided a "${firstNode.type}"`)
   }
@@ -249,6 +249,21 @@ export function getAttributeExpression(attribute) {
 }
 
 /**
+ * Wrap the ast generated in a function call providing the scope argument
+ * @param   {Object} ast - function body
+ * @returns {FunctionExpresion} function having the scope argument injected
+ */
+export function wrapASTInFunctionWithScope(ast) {
+  return builders.functionExpression(
+    null,
+    [scope],
+    builders.blockStatement([builders.returnStatement(
+      ast
+    )])
+  )
+}
+
+/**
  * Convert any parser option to a valid template one
  * @param   { RiotParser.Node.Expression } expression - expression parsed by the riot parser
  * @param   { string } sourceFile - original tag file
@@ -262,53 +277,49 @@ export function getAttributeExpression(attribute) {
  *  toScopedFunction('foo.baz + bar') // scope.foo.baz + scope.bar
  */
 export function toScopedFunction(expression, sourceFile, sourceCode) {
-  const ast = createASTFromExpression(expression, sourceFile, sourceCode)
-  const generatedAST = updateNodesScope(ast)
-  const astBody = generatedAST.program.body
-  const expressionAST = astBody[0] ? astBody[0].expression : astBody
+  return compose(
+    wrapASTInFunctionWithScope,
+    transformExpression,
+  )(expression, sourceFile, sourceCode)
+}
 
-  return builders.functionExpression(
-    null,
-    [scope],
-    builders.blockStatement([builders.returnStatement(
-      expressionAST
-    )])
-  )
+export function transformExpression(expression, sourceFile, sourceCode) {
+  return compose(
+    getExpressionAST,
+    updateNodesScope,
+    createASTFromExpression
+  )(expression, sourceFile, sourceCode)
 }
 
 /**
- * Wrap a string in a template literal expression
- * @param   {string} string - target string
- * @returns {string} a template literal
+ * Get the parsed AST expression of riot expression node
+ * @param   {AST.Program} sourceAST - raw node parsed
+ * @returns {AST.Expression} program expression output
  */
-export function wrapInBacktick(string) {
-  return `\`${string}\``
+export function getExpressionAST(sourceAST) {
+  const astBody = sourceAST.program.body
+
+  return astBody[0] ? astBody[0].expression : astBody
 }
 
 /**
  * Simple bindings might contain multiple expressions like for example: "{foo} and {bar}"
  * This helper aims to merge them in a template literal if it's necessary
  * @param   {RiotParser.Node} node - riot parser node
- * @returns {string} either a string representing a template literal or simply the first expression matched
+ * @param   {string} sourceFile - original tag file
+ * @param   {string} sourceCode - original tag source code
+ * @returns { Object } a FunctionExpression object
  */
-export function mergeNodeExpressions(node) {
-  if (node.expressions.length === 1) {
-    return node.expressions[0].text
-  }
+export function mergeNodeExpressions(node, sourceFile, sourceCode) {
+  if (node.expressions.length === 1)
+    return transformExpression(node.expressions[0], sourceFile, sourceCode)
 
-  const charAddedProIteration = 3 // ${}
+  const pureStringChunks = generateLiteralStringChunksFromNode(node, sourceCode)
 
-  // a tricky way to merge nodes containing multiple expressions in the same string
-  const values = node.expressions.reduce((string, expression, index) => {
-    const bracketsLength = expression.end - expression.start - expression.text.length
-    const offset = index * (charAddedProIteration - bracketsLength)
-    const expressionStart = expression.start - node.start + offset
-    const expressionEnd = expression.end - node.start + offset
-
-    return `${string.substring(0, expressionStart)}$\{${expression.text}}${string.substring(expressionEnd)}`
-  }, node.text)
-
-  return wrapInBacktick(values)
+  return builders.templateLiteral(
+    pureStringChunks.map(str => builders.templateElement({ raw: str, cooked: '' }, false)),
+    node.expressions.map(expression => transformExpression(expression, sourceFile, sourceCode))
+  )
 }
 
 /**

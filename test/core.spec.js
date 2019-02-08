@@ -40,9 +40,7 @@ describe('Core specs', () => {
     it('Tags without html and javascript can be properly compiled', async function() {
       const result = await compile(getFixture('only-css.riot'))
       const output = evaluateScript(result.code)
-      const sourcemapConsumer = await new SourceMapConsumer(result.map)
 
-      expect(sourcemapConsumer.hasContentsOfAllSources()).to.be.ok
       expect(result.code).to.be.a('string')
       expect(result.map).to.be.not.an('undefined')
       expect(result.meta).to.be.an('object')
