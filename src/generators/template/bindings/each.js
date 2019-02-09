@@ -1,12 +1,16 @@
 import {
   BINDING_CONDITION_KEY,
+  BINDING_EVALUATE_KEY,
   BINDING_GET_KEY_KEY,
+  BINDING_INDEX_NAME_KEY,
+  BINDING_ITEM_NAME_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
   EACH_BINDING_TYPE
 } from '../constants'
 import {
   cloneNodeWithoutSelectorAttribute,
+  createASTFromExpression,
   createRootNode,
   createSelectorProperties,
   createTemplateProperty,
@@ -14,16 +18,71 @@ import {
   findIfAttribute,
   findKeyAttribute,
   getAttributeExpression,
-  getEachExpressionProperties,
+  getName,
   isCustomNode,
   toScopedFunction
 } from '../utils'
 
+import {isExpressionStatement, isSequenceExpression} from '../../../utils/ast-nodes-checks'
 import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
 import compose from '../../../utils/compose'
+import panic from '../../../utils/panic'
+import recast from 'recast'
 import tagBinding from './tag'
+
+const getEachItemName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[0] : expression.left
+const getEachIndexName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[1] : null
+const getEachValue = expression => expression.right
+const nameToliteral = compose(builders.literal, getName)
+
+const generateEachItemNameKey = expression => simplePropertyNode(
+  BINDING_ITEM_NAME_KEY,
+  compose(nameToliteral, getEachItemName)(expression)
+)
+
+const generateEachIndexNameKey = expression => simplePropertyNode(
+  BINDING_INDEX_NAME_KEY,
+  compose(nameToliteral, getEachIndexName)(expression)
+)
+
+const generateEachEvaluateKey = (expression, eachExpression, sourceFile, sourceCode) => simplePropertyNode(
+  BINDING_EVALUATE_KEY,
+  compose(
+    e => toScopedFunction(e, sourceFile, sourceCode),
+    e => ({
+      ...eachExpression,
+      text: recast.print(e).code
+    }),
+    getEachValue
+  )(expression)
+)
+
+/**
+ * Get the each expression properties to create properly the template binding
+ * @param   { DomBinding.Expression } eachExpression - original each expression data
+ * @param   { string } sourceFile - original tag file
+ * @param   { string } sourceCode - original tag source code
+ * @returns { Array } AST nodes that are needed to build an each binding
+ */
+export function generateEachExpressionProperties(eachExpression, sourceFile, sourceCode) {
+  const ast = createASTFromExpression(eachExpression, sourceFile, sourceCode)
+  const body = ast.program.body
+  const firstNode = body[0]
+
+  if (!isExpressionStatement(firstNode)) {
+    panic(`The each directives supported should be of type "ExpressionStatement",you have provided a "${firstNode.type}"`)
+  }
+
+  const { expression } = firstNode
+
+  return [
+    generateEachItemNameKey(expression),
+    generateEachIndexNameKey(expression),
+    generateEachEvaluateKey(expression, eachExpression, sourceFile, sourceCode)
+  ]
+}
 
 
 /**
@@ -65,6 +124,6 @@ export default function createEachBinding(sourceNode, selectorAttribute, sourceF
       build(createRootNode(sourceNode), sourceFile, sourceCode)
     ),
     ...createSelectorProperties(selectorAttribute),
-    ...compose(getEachExpressionProperties, getAttributeExpression)(eachAttribute)
+    ...compose(generateEachExpressionProperties, getAttributeExpression)(eachAttribute)
   ])
 }

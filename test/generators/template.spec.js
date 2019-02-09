@@ -122,8 +122,7 @@ describe('Generators - Template', () => {
     })
 
     it('Complex multiple expressions will be merged into template literal', () => {
-      const source = `
-      <p>{foo} + {bar}
+      const source = `<p>{foo} + {bar}
       foo bar   {baz}
       bar</p>`
       const { template } = parse(source)
@@ -667,6 +666,14 @@ describe('Generators - Template', () => {
       const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
 
       expect(html).to.be.equal('<my-tag expr></my-tag>')
+    })
+
+    it('Slot shouldn\'t be considered custom tags', () => {
+      const source = '<slot/>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<slot></slot>')
     })
 
     it('Tag binding via is attribute', () => {

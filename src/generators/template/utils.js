@@ -1,7 +1,4 @@
 import {
-  BINDING_EVALUATE_KEY,
-  BINDING_INDEX_NAME_KEY,
-  BINDING_ITEM_NAME_KEY,
   BINDING_REDUNDANT_ATTRIBUTE_KEY,
   BINDING_SELECTOR_KEY,
   BINDING_SELECTOR_PREFIX,
@@ -23,10 +20,8 @@ import {builders, types} from '../../utils/build-types'
 import {
   isBrowserAPI,
   isBuiltinAPI,
-  isExpressionStatement,
   isIdentifier,
   isRaw,
-  isSequenceExpression,
   isThisExpression
 } from '../../utils/ast-nodes-checks'
 import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
@@ -36,11 +31,11 @@ import curry from 'curri'
 import generateAST from '../../utils/generate-ast'
 import generateLiteralStringChunksFromNode from '../../utils/generate-literal-string-chunk-from-node'
 import {nodeTypes} from '@riotjs/parser'
-import panic from '../../utils/panic'
+
 import recast from 'recast'
 
 const scope = builders.identifier(SCOPE)
-const getName = node => node && node.name ? node.name : node
+export const getName = node => node && node.name ? node.name : node
 
 /**
  * Find the attribute node
@@ -177,52 +172,6 @@ export function createASTFromExpression(expression, sourceFile, sourceCode) {
   })
 }
 
-const getEachItemName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[0] : expression.left
-const getEachIndexName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[1] : null
-const getEachValue = expression => expression.right
-const nameToliteral = compose(builders.literal, getName)
-
-/**
- * Get the each expression properties to create properly the template binding
- * @param   { DomBinding.Expression } eachExpression - original each expression data
- * @param   { string } sourceFile - original tag file
- * @param   { string } sourceCode - original tag source code
- * @returns { Array } AST nodes that are needed to build an each binding
- */
-export function getEachExpressionProperties(eachExpression, sourceFile, sourceCode) {
-  const ast = createASTFromExpression(eachExpression, sourceFile, sourceCode)
-  const body = ast.program.body
-  const firstNode = body[0]
-
-  if (!isExpressionStatement(firstNode)) {
-    panic(`The each directives supported should be of type "ExpressionStatement",you have provided a "${firstNode.type}"`)
-  }
-
-  const { expression } = firstNode
-
-  return [
-    simplePropertyNode(
-      BINDING_ITEM_NAME_KEY,
-      compose(nameToliteral, getEachItemName)(expression)
-    ),
-    simplePropertyNode(
-      BINDING_INDEX_NAME_KEY,
-      compose(nameToliteral, getEachIndexName)(expression)
-    ),
-    simplePropertyNode(
-      BINDING_EVALUATE_KEY,
-      compose(
-        e => toScopedFunction(e, sourceFile, sourceCode),
-        e => ({
-          ...eachExpression,
-          text: recast.print(e).code
-        }),
-        getEachValue
-      )(expression)
-    )
-  ]
-}
-
 /**
  * Create the bindings template property
  * @param   {Array} args - arguments to pass to the template function
@@ -283,6 +232,13 @@ export function toScopedFunction(expression, sourceFile, sourceCode) {
   )(expression, sourceFile, sourceCode)
 }
 
+/**
+ * Transform an expression node updating its global scope
+ * @param   {RiotParser.Node.Expr} expression - riot parser expression node
+ * @param   {string} sourceFile - source file
+ * @param   {string} sourceCode - source code
+ * @returns {ASTExpression} ast expression generated from the riot parser expression node
+ */
 export function transformExpression(expression, sourceFile, sourceCode) {
   return compose(
     getExpressionAST,
@@ -308,18 +264,26 @@ export function getExpressionAST(sourceAST) {
  * @param   {RiotParser.Node} node - riot parser node
  * @param   {string} sourceFile - original tag file
  * @param   {string} sourceCode - original tag source code
- * @returns { Object } a FunctionExpression object
+ * @returns { Object } a template literal expression object
  */
 export function mergeNodeExpressions(node, sourceFile, sourceCode) {
   if (node.expressions.length === 1)
     return transformExpression(node.expressions[0], sourceFile, sourceCode)
 
   const pureStringChunks = generateLiteralStringChunksFromNode(node, sourceCode)
-
-  return builders.templateLiteral(
-    pureStringChunks.map(str => builders.templateElement({ raw: str, cooked: '' }, false)),
+  const literalAST = builders.templateLiteral(
+    pureStringChunks.map((str, i) => builders.templateElement(
+      { raw: str, cooked: str },
+      // tail?
+      i === pureStringChunks.length - 1)
+    ),
     node.expressions.map(expression => transformExpression(expression, sourceFile, sourceCode))
   )
+
+  return compose(getExpressionAST, createASTFromExpression)({
+    ...node,
+    text: recast.print(literalAST).code
+  }, sourceFile, sourceCode)
 }
 
 /**

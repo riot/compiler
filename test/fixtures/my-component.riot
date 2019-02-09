@@ -4,7 +4,11 @@
   <ul>
     <li onclick={ onClick } each={ item in items }>{ item.value }</li>
   </ul>
-
+  <div>
+    Title
+    {foo.baz}
+    {foo.baz}
+  </div>
   <my-component each={letter in foo.bar}>{letter}</my-component>
   <my-component if={foo.bar}>{foo.bar}</my-component>
 

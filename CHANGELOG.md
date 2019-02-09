@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.0.0-alpha.13
+- Fix sourcemap for the multiple text expressions
+- Check make sure that `slot` tags will not be considered custom tags
+
 ### v4.0.0-alpha.12
 - Fix sourcemap `sourcesContent` property
 - Update sourcemap filename

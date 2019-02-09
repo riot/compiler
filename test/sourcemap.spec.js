@@ -65,14 +65,14 @@ describe('Sourcemap specs', () => {
 
     // in the js part
     // const
-    expect(getSourceByPosition(source, 15, 4, 8)).to.be.equal(
+    expect(getSourceByPosition(source, 19, 4, 8)).to.be.equal(
       getSourceByOutputPositions(output,
         getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
-          {line: 15, column: 4},
-          {line: 15, column: 5},
-          {line: 15, column: 6},
-          {line: 15, column: 7},
-          {line: 15, column: 8}
+          {line: 19, column: 4},
+          {line: 19, column: 5},
+          {line: 19, column: 6},
+          {line: 19, column: 7},
+          {line: 19, column: 8}
         ])
       )
     )
@@ -92,12 +92,24 @@ describe('Sourcemap specs', () => {
     )
 
     // bar
-    expect(getSourceByPosition(source, 9, 34, 36)).to.be.equal(
+    expect(getSourceByPosition(source, 13, 34, 36)).to.be.equal(
       getSourceByOutputPositions(output,
         getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
-          {line: 9, column: 34},
-          {line: 9, column: 35},
-          {line: 9, column: 36}
+          {line: 13, column: 34},
+          {line: 13, column: 35},
+          {line: 13, column: 36}
+        ])
+      )
+    )
+
+    // baz
+
+    expect(getSourceByPosition(source, 9, 9, 11)).to.be.equal(
+      getSourceByOutputPositions(output,
+        getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
+          {line: 10, column: 16},
+          {line: 10, column: 17},
+          {line: 10, column: 18}
         ])
       )
     )
