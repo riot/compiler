@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.11
+- Fix sourcemap generation for the `if` and `each` tag bindings
+
 ### v4.0.0-alpha.10
 - Update enhance sourcemaps generation
 - Change second arguments for the pre/post processors. The `meta` object will contain info about the current compilation
