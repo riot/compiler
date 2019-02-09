@@ -49,7 +49,7 @@ export default function createIfBinding(sourceNode, selectorAttribute, sourceFil
         tagBinding(
           cloneNodeWithoutSelectorAttribute(sourceNode),
           null,
-          sourceCode,
+          sourceFile,
           sourceCode
         )]
       ] :

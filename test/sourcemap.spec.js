@@ -43,6 +43,15 @@ describe('Column and line position helpers', () => {
 })
 
 describe('Sourcemap specs', () => {
+  it('Sourcemaps should contain only one source', async function() {
+    const source = getFixture('my-component.riot')
+    const {map} = await compile(source, {
+      file: 'my-component.riot'
+    })
+
+    expect(map.sources).to.have.length(1)
+  })
+
   it('Sourcemaps contain info about css, javascript and template', async function() {
     const source = getFixture('my-component.riot')
     const result = await compile(source, {
@@ -82,12 +91,12 @@ describe('Sourcemap specs', () => {
     )
 
     // bar
-    expect(getSourceByPosition(source, 9, 9, 11)).to.be.equal(
+    expect(getSourceByPosition(source, 9, 34, 36)).to.be.equal(
       getSourceByOutputPositions(output,
         getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
-          {line: 9, column: 9},
-          {line: 9, column: 10},
-          {line: 9, column: 11}
+          {line: 9, column: 34},
+          {line: 9, column: 35},
+          {line: 9, column: 36}
         ])
       )
     )
