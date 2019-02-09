@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.0.0-alpha.12
+- Fix sourcemap `sourcesContent` property
+- Update sourcemap filename
+
 ### v4.0.0-alpha.11
 - Fix sourcemap generation for the `if` and `each` tag bindings
 

@@ -9,6 +9,7 @@ import javascriptGenerator from './generators/javascript/index'
 import recast from 'recast'
 import riotParser from '@riotjs/parser'
 import ruit from 'ruit'
+import sourcemapAsJSON from './utils/sourcemap-as-json'
 import templateGenerator from './generators/template/index'
 
 const DEFAULT_OPTIONS = {
@@ -45,6 +46,29 @@ export function createInitialInput() {
 }
 
 /**
+ * Make sure the input sourcemap is valid otherwise we ignore it
+ * @param   {SourceMapGenerator} map - preprocessor source map
+ * @returns {Object} sourcemap as json or nothing
+ */
+function normaliseInputSourceMap(map) {
+  const inputSourceMap = sourcemapAsJSON(map)
+  return inputSourceMap && inputSourceMap.mappings && inputSourceMap.mappings.length ? inputSourceMap : null
+}
+
+/**
+ * Override the sourcemap content making sure it will always contain the tag source code
+ * @param   {Object} map - sourcemap as json
+ * @param   {string} source - component source code
+ * @returns {Object} original source map with the "sourcesContent" property overriden
+ */
+function overrideSourcemapContent(map, source) {
+  return {
+    ...map,
+    sourcesContent: [source]
+  }
+}
+
+/**
  * Generate the output code source together with the sourcemap
  * @param { string } source - source code of the tag we will need to compile
  * @param { string } options - compiling options
@@ -78,9 +102,13 @@ export async function compile(source, options = {}) {
     hookGenerator(cssGenerator, css, code, meta),
     hookGenerator(javascriptGenerator, javascript, code, meta),
     hookGenerator(templateGenerator, template, code, meta),
-    ast => recast.print(ast, {
-      sourceMapName: 'map.json',
-      inputSourcemap: map
+    ast => meta.ast = ast && recast.print(ast, {
+      sourceMapName: `${options.file}.map`,
+      inputSourceMap: normaliseInputSourceMap(map)
+    }),
+    result => ({
+      ...result,
+      map: overrideSourcemapContent(result.map, source)
     }),
     result => runPostprocessors(result, meta),
     result => ({

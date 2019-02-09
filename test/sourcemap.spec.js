@@ -50,6 +50,7 @@ describe('Sourcemap specs', () => {
     })
 
     expect(map.sources).to.have.length(1)
+    expect(map.sourcesContent[0]).to.be.equal(source)
   })
 
   it('Sourcemaps contain info about css, javascript and template', async function() {

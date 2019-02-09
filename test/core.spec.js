@@ -86,13 +86,16 @@ describe('Core specs', () => {
     })
 
     it('The Pug and scss preprocessors work as expected', async function() {
-      const result = await compile(getFixture('pug-component.pug'), {
+      const input = getFixture('pug-component.pug')
+      const result = await compile(input, {
         template: 'pug',
         file: 'pug-component.pug'
       })
       const output = evaluateScript(result.code)
       const sourcemapConsumer = await new SourceMapConsumer(result.map)
 
+      expect(result.map.sources).to.have.length(1)
+      expect(result.map.sourcesContent[0]).to.be.equal(input)
       expect(sourcemapConsumer.hasContentsOfAllSources()).to.be.ok
       expect(result.code).to.be.a('string')
       expect(result.map).to.be.not.an('undefined')
