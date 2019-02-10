@@ -29,10 +29,7 @@ import addLinesOffset from '../../utils/add-lines-offset'
 import compose from '../../utils/compose'
 import curry from 'curri'
 import generateAST from '../../utils/generate-ast'
-import generateLiteralStringChunksFromNode from '../../utils/generate-literal-string-chunk-from-node'
 import {nodeTypes} from '@riotjs/parser'
-
-import recast from 'recast'
 
 const scope = builders.identifier(SCOPE)
 export const getName = node => node && node.name ? node.name : node
@@ -256,34 +253,6 @@ export function getExpressionAST(sourceAST) {
   const astBody = sourceAST.program.body
 
   return astBody[0] ? astBody[0].expression : astBody
-}
-
-/**
- * Simple bindings might contain multiple expressions like for example: "{foo} and {bar}"
- * This helper aims to merge them in a template literal if it's necessary
- * @param   {RiotParser.Node} node - riot parser node
- * @param   {string} sourceFile - original tag file
- * @param   {string} sourceCode - original tag source code
- * @returns { Object } a template literal expression object
- */
-export function mergeNodeExpressions(node, sourceFile, sourceCode) {
-  if (node.expressions.length === 1)
-    return transformExpression(node.expressions[0], sourceFile, sourceCode)
-
-  const pureStringChunks = generateLiteralStringChunksFromNode(node, sourceCode)
-  const literalAST = builders.templateLiteral(
-    pureStringChunks.map((str, i) => builders.templateElement(
-      { raw: str, cooked: str },
-      // tail?
-      i === pureStringChunks.length - 1)
-    ),
-    node.expressions.map(expression => transformExpression(expression, sourceFile, sourceCode))
-  )
-
-  return compose(getExpressionAST, createASTFromExpression)({
-    ...node,
-    text: recast.print(literalAST).code
-  }, sourceFile, sourceCode)
 }
 
 /**

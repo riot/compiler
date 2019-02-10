@@ -1,7 +1,8 @@
+import {babelPreprocessor, getFixture} from './helpers'
+import {register, unregister} from '../src/preprocessors'
 import {SourceMapConsumer} from 'source-map'
 import {compile} from '../src'
 import {expect} from 'chai'
-import {getFixture} from './helpers'
 import getLineAndColumnByPosition from '../src/utils/get-line-and-column-by-position'
 
 const getLines = source => source.split('\n')
@@ -107,13 +108,81 @@ describe('Sourcemap specs', () => {
     expect(getSourceByPosition(source, 9, 9, 11)).to.be.equal(
       getSourceByOutputPositions(output,
         getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
-          {line: 10, column: 16},
-          {line: 10, column: 17},
-          {line: 10, column: 18}
+          {line: 10, column: 9},
+          {line: 10, column: 10},
+          {line: 10, column: 11}
         ])
       )
     )
 
     sourcemapConsumer.destroy()
+  })
+
+  it('Sourcemaps work also with preprocessors', async function() {
+    register('javascript', 'babel', babelPreprocessor)
+
+    const source = getFixture('my-babel-component.riot')
+    const result = await compile(source, {
+      file: 'my-babel-component.riot'
+    })
+    const output = result.code
+    const sourcemapConsumer = await new SourceMapConsumer(result.map)
+
+    expect(sourcemapConsumer.sourceContentFor('my-babel-component.riot')).to.be.ok
+
+    // in the js part
+    // const
+    expect(getSourceByPosition(source, 19, 4, 8)).to.be.equal(
+      getSourceByOutputPositions(output,
+        getGeneatedPositions(sourcemapConsumer, 'my-babel-component.riot', [
+          {line: 19, column: 4},
+          {line: 19, column: 5},
+          {line: 19, column: 6},
+          {line: 19, column: 7},
+          {line: 19, column: 8}
+        ])
+      )
+    )
+
+    // in the template
+    // value
+    expect(getSourceByPosition(source, 5, 58, 62)).to.be.equal(
+      getSourceByOutputPositions(output,
+        getGeneatedPositions(sourcemapConsumer, 'my-babel-component.riot', [
+          {line: 5, column: 58},
+          {line: 5, column: 59},
+          {line: 5, column: 60},
+          {line: 5, column: 61},
+          {line: 5, column: 62}
+        ])
+      )
+    )
+
+    // bar
+    expect(getSourceByPosition(source, 13, 34, 36)).to.be.equal(
+      getSourceByOutputPositions(output,
+        getGeneatedPositions(sourcemapConsumer, 'my-babel-component.riot', [
+          {line: 13, column: 34},
+          {line: 13, column: 35},
+          {line: 13, column: 36}
+        ])
+      )
+    )
+
+    // baz
+
+    expect(getSourceByPosition(source, 9, 9, 11)).to.be.equal(
+      getSourceByOutputPositions(output,
+        getGeneatedPositions(sourcemapConsumer, 'my-babel-component.riot', [
+          {line: 10, column: 9},
+          {line: 10, column: 10},
+          {line: 10, column: 11}
+        ])
+      )
+    )
+
+    sourcemapConsumer.destroy()
+
+    unregister('javascript', 'babel')
   })
 })

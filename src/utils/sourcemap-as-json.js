@@ -5,6 +5,6 @@
  * @returns { Object } the source map as JSON
  */
 export default function sourcemapAsJSON(map) {
-  if (map.toJSON) return map.toJSON()
+  if (map && map.toJSON) return map.toJSON()
   return map
 }

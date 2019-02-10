@@ -28,8 +28,8 @@ import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
 import compose from '../../../utils/compose'
+import generateJavascript from '../../../utils/generate-javascript'
 import panic from '../../../utils/panic'
-import recast from 'recast'
 import tagBinding from './tag'
 
 const getEachItemName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[0] : expression.left
@@ -53,7 +53,7 @@ const generateEachEvaluateKey = (expression, eachExpression, sourceFile, sourceC
     e => toScopedFunction(e, sourceFile, sourceCode),
     e => ({
       ...eachExpression,
-      text: recast.print(e).code
+      text: generateJavascript(e).code
     }),
     getEachValue
   )(expression)

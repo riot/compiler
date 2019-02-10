@@ -1,4 +1,5 @@
 import {join,relative} from 'path'
+import babel from '@babel/core'
 import recast from 'recast'
 import {renderSync} from 'node-sass'
 import sh from 'shelljs'
@@ -16,6 +17,25 @@ export function getFixture(name) {
 
 export function getExpected(name) {
   return String(sh.cat(`${EXPECTED_DIR}${name}.js`))
+}
+
+export function babelPreprocessor(source, meta) {
+  return babel.transform(source, {
+    sourceMaps: true,
+    retainLines: true,
+    sourceFileName: meta.options.file,
+    presets:   [[
+      '@babel/env',
+      {
+        targets: {
+          ie: '9'
+        },
+        loose: true,
+        modules: false,
+        useBuiltIns: 'usage'
+      }
+    ]]
+  })
 }
 
 export function scssPreprocessor(source, { options }) {

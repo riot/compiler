@@ -15,18 +15,19 @@ import {
 } from '../../src/generators/template/constants'
 import {bindingTypes, expressionTypes} from '@riotjs/dom-bindings'
 import {evaluateScript, renderExpression} from '../helpers'
-import {mergeNodeExpressions, toScopedFunction} from '../../src/generators/template/utils'
 import builder from '../../src/generators/template/builder'
 import {builders} from '../../src/utils/build-types'
 import compose from '../../src/utils/compose'
 import curry from 'curri'
 import eachBinding from '../../src/generators/template/bindings/each'
 import {expect} from 'chai'
+import generateJavascript from '../../src/utils/generate-javascript'
 import ifBinding from '../../src/generators/template/bindings/if'
-import recast from 'recast'
+import {mergeNodeExpressions} from '../../src/generators/template/expressions/text'
 import riotParser from '@riotjs/parser'
 import simpleBinding from '../../src/generators/template/bindings/simple'
 import tagBinding from '../../src/generators/template/bindings/tag'
+import {toScopedFunction} from '../../src/generators/template/utils'
 
 const FAKE_SRC_FILE = 'fake-file.js'
 const renderExpr = compose(
@@ -35,7 +36,10 @@ const renderExpr = compose(
   expr => ({ text: expr })
 )
 
-const renderTextNode = (node, source) => recast.print(mergeNodeExpressions(node, FAKE_SRC_FILE, source)).code
+const renderTextNode = (node, source) => generateJavascript(
+  mergeNodeExpressions(node, FAKE_SRC_FILE, source)
+).code.replace('.join(\'\')', '')
+
 const getSlotById = (slots, id) => slots.find(slot => slot[BINDING_ID_KEY] === id)
 const removeIdFromExpessionBindings = str => str.replace(/expr(\d+)/g, 'expr')
 const buildSimpleTemplate = compose(removeIdFromExpessionBindings, res => res[0], builder)
@@ -44,7 +48,7 @@ const evaluateOutput = (ast, getComponent = () => null) => evaluateScript(`
   import { bindingTypes, expressionTypes, template } from '@riotjs/dom-bindings'
 
   export default function output(getComponent) {
-    return ${recast.print(ast).code}
+    return ${generateJavascript(ast).code}
   }
 `).default(getComponent)
 const parse = (input, options) => riotParser(options).parse(input).output
@@ -118,16 +122,18 @@ describe('Generators - Template', () => {
       const source = '<p>{foo} + {bar}</p>'
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('`${scope.foo} + ${scope.bar}`')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[scope.foo, \' + \', scope.bar]')
     })
 
     it('Complex multiple expressions will be merged into template literal', () => {
-      const source = `<p>{foo} + {bar}
+      const source = `
+      <p>
+      {foo} + {bar}
       foo bar   {baz}
       bar</p>`
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('`${scope.foo} + ${scope.bar}\n      foo bar   ${scope.baz}\n      bar`')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  \'\\n      \',\n  scope.foo,\n  \' + \',\n  scope.bar,\n  \'\\n      foo bar   \',\n  scope.baz,\n  \'\\n      bar\'\n]')
     })
 
     it('Simple expressions will be left untouchted', () => {
@@ -143,7 +149,7 @@ describe('Generators - Template', () => {
         brackets: ['[[[[', ']]]]']
       })
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('`${scope.foo} + ${scope.bar}`')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[scope.foo, \' + \', scope.bar]')
     })
 
     it('Simple attribute expression', () => {

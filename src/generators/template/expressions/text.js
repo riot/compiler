@@ -5,9 +5,65 @@ import {
   EXPRESSION_TYPES,
   TEXT_EXPRESSION_TYPE
 } from '../constants'
-import {mergeNodeExpressions,wrapASTInFunctionWithScope} from '../utils'
+import {nullNode,simplePropertyNode} from '../../../utils/custom-ast-nodes'
+import {transformExpression, wrapASTInFunctionWithScope} from '../utils'
 import {builders} from '../../../utils/build-types'
-import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
+import {isLiteral} from '../../../utils/ast-nodes-checks'
+
+/**
+ * Generate the pure immutable string chunks from a RiotParser.Node.Text
+ * @param   {RiotParser.Node.Text} node - riot parser text node
+ * @param   {string} sourceCode sourceCode - source code
+ * @returns {Array} array containing the immutable string chunks
+ */
+function generateLiteralStringChunksFromNode(node, sourceCode) {
+  return node.expressions.reduce((chunks, expression, index) => {
+    const start = index ? node.expressions[index - 1].end : node.start
+
+    chunks.push(sourceCode.substring(start, expression.start))
+
+    // add the tail to the string
+    if (index === node.expressions.length - 1)
+      chunks.push(sourceCode.substring(expression.end, node.end))
+
+    return chunks
+  }, [])
+}
+
+/**
+ * Simple bindings might contain multiple expressions like for example: "{foo} and {bar}"
+ * This helper aims to merge them in a template literal if it's necessary
+ * @param   {RiotParser.Node} node - riot parser node
+ * @param   {string} sourceFile - original tag file
+ * @param   {string} sourceCode - original tag source code
+ * @returns { Object } a template literal expression object
+ */
+export function mergeNodeExpressions(node, sourceFile, sourceCode) {
+  if (node.expressions.length === 1)
+    return transformExpression(node.expressions[0], sourceFile, sourceCode)
+
+  const pureStringChunks = generateLiteralStringChunksFromNode(node, sourceCode)
+  const stringsArray = pureStringChunks.reduce((acc, str, index) => {
+    const expr = node.expressions[index]
+
+    return [
+      ...acc,
+      builders.literal(str),
+      expr ? transformExpression(expr, sourceFile, sourceCode) : nullNode()
+    ]
+  }, [])
+    // filter the empty literal expressions
+    .filter(expr => !isLiteral(expr) || expr.value) // eslint-disable-line
+
+  return builders.callExpression(
+    builders.memberExpression(
+      builders.arrayExpression(stringsArray),
+      builders.identifier('join'),
+      false
+    ),
+    [builders.literal('')],
+  )
+}
 
 /**
  * Create a text expression

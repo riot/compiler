@@ -1,4 +1,5 @@
 import {execute, preprocessors, register, unregister} from '../src/preprocessors'
+import {babelPreprocessor} from './helpers'
 import {expect} from 'chai'
 
 describe('Preprocessors', () => {
@@ -93,6 +94,17 @@ describe('Preprocessors', () => {
       expect(result.code).to.be.equal('bar')
 
       unregister('javascript', 'foo')
+    })
+  })
+
+  describe('javascript preprocessors', () => {
+    it('babel can generate valid javascript output', async function() {
+      register('javascript', 'babel', babelPreprocessor)
+
+      const result = await execute('javascript', 'babel', { options: { file: 'fake-file.riot' }}, '() => \'hello\'')
+      expect(result.code).to.be.match(/return 'hello'/)
+
+      unregister('javascript', 'babel')
     })
   })
 })

@@ -5,8 +5,9 @@ import { register as registerPreproc, execute as runPreprocessor } from './prepr
 import {builders} from './utils/build-types'
 import cssGenerator from './generators/css/index'
 import curry from 'curri'
+import generateJavascript from './utils/generate-javascript'
+import isEmptySourcemap from './utils/is-empty-sourcemap'
 import javascriptGenerator from './generators/javascript/index'
-import recast from 'recast'
 import riotParser from '@riotjs/parser'
 import ruit from 'ruit'
 import sourcemapAsJSON from './utils/sourcemap-as-json'
@@ -52,7 +53,7 @@ export function createInitialInput() {
  */
 function normaliseInputSourceMap(map) {
   const inputSourceMap = sourcemapAsJSON(map)
-  return inputSourceMap && inputSourceMap.mappings && inputSourceMap.mappings.length ? inputSourceMap : null
+  return isEmptySourcemap(inputSourceMap) ? null : inputSourceMap
 }
 
 /**
@@ -102,7 +103,7 @@ export async function compile(source, options = {}) {
     hookGenerator(cssGenerator, css, code, meta),
     hookGenerator(javascriptGenerator, javascript, code, meta),
     hookGenerator(templateGenerator, template, code, meta),
-    ast => meta.ast = ast && recast.print(ast, {
+    ast => meta.ast = ast && generateJavascript(ast, {
       sourceMapName: `${options.file}.map`,
       inputSourceMap: normaliseInputSourceMap(map)
     }),

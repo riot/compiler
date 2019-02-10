@@ -2,8 +2,10 @@ import {TAG_LOGIC_PROPERTY} from '../constants'
 import addLinesOffset from '../../utils/add-lines-offset'
 import generateAST from '../../utils/generate-ast'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
+import isEmptySourcemap from '../../utils/is-empty-sourcemap'
 import {isExportDefaultStatement} from '../../utils/ast-nodes-checks'
 import preprocess from '../../utils/preprocess-node'
+import sourcemapToJSON from '../../utils/sourcemap-as-json'
 import {types} from '../../utils/build-types'
 
 /**
@@ -64,19 +66,20 @@ function extendTagProperty(ast, exportDefaultNode) {
  */
 export default async function javascript(sourceNode, source, meta, ast) {
   const preprocessorName = getPreprocessorTypeByAttribute(sourceNode)
-  const javascriptNode = sourceNode.text
+  const javascriptNode = addLinesOffset(sourceNode.text.text, source, sourceNode)
   const { options } = meta
-  const preprocessorOutput = await preprocess('js', preprocessorName, meta, source, javascriptNode)
-
-  const generatedAst = generateAST(
-    addLinesOffset(preprocessorOutput.code, source, sourceNode), {
-      sourceFileName: options.file
-    })
-
+  const preprocessorOutput = await preprocess('javascript', preprocessorName, meta, source, {
+    ...sourceNode,
+    text: javascriptNode
+  })
+  const inputSourceMap = sourcemapToJSON(preprocessorOutput.map)
+  const generatedAst = generateAST(preprocessorOutput.code, {
+    sourceFileName: options.file,
+    inputSourceMap: isEmptySourcemap(inputSourceMap) ? null : inputSourceMap
+  })
   const generatedAstBody = getProgramBody(generatedAst)
   const bodyWithoutExportDefault = filterNonExportDefaultStatements(generatedAstBody)
   const exportDefaultNode = findExportDefaultStatement(generatedAstBody)
-
   const outputBody = getProgramBody(ast)
 
   // add to the ast the "private" javascript content of our tag script node
