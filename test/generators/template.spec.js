@@ -355,6 +355,25 @@ describe('Generators - Template', () => {
       expect(removeIdFromExpessionBindings(defaultSlot[BINDING_HTML_KEY]))
         .to.be.equal('<p expr><!----></p>')
       expect(defaultSlot[BINDING_BINDINGS_KEY]).to.have.length(1)
+      expect(defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_SELECTOR_KEY]).to.be.ok
+      expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
+      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(0)
+    })
+
+    it('Tag binding with default slot with only text expressions', () => {
+      const source = '<my-tag>{greeting}</my-tag>'
+      const { template } = parse(source)
+      const input = tagBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const defaultSlot = output.slots[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
+      expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
+
+      expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal('<!---->')
+      expect(defaultSlot[BINDING_BINDINGS_KEY]).to.have.length(1)
+      expect(defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_SELECTOR_KEY]).to.be.not.ok
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
       expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(0)
     })

@@ -14,6 +14,7 @@ import {
 } from '../constants'
 import {
   cleanAttributes,
+  createRootNode,
   createSelectorProperties,
   getChildrenNodes,
   getCustomNodeNameAsExpression,
@@ -37,9 +38,9 @@ function groupSlots(sourceNode) {
     if (slotAttribute) {
       acc[slotAttribute.value] = node
     } else {
-      acc.default = {
+      acc.default = createRootNode({
         nodes: [...getChildrenNodes(acc.default), node]
-      }
+      })
     }
 
     return acc
