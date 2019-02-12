@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.15
+- Fix slots root nodes handling
+
 ### v4.0.0-alpha.14
 - Add sourcemap tests for babel preprocessor
 - Update handling of multiple line text expressions, from template literal to array
