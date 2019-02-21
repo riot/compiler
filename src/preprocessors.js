@@ -7,8 +7,7 @@ import { transform } from './transformer'
 export const preprocessors = Object.freeze({
   javascript: new Map(),
   css: new Map(),
-  template: new Map()
-    .set('default', function(code) { return { code } })
+  template: new Map().set('default', code => ({ code }))
 })
 
 // throw a processor type error
@@ -63,11 +62,11 @@ export function unregister(type, name) {
  * @param   { string } name - unique preprocessor id
  * @param   { Object } meta - preprocessor meta information
  * @param   { string } source - source code
- * @returns { Promise<Output> } object containing a sourcemap and a code string
+ * @returns { Output } object containing a sourcemap and a code string
  */
-export async function execute(type, name, meta, source) {
+export function execute(type, name, meta, source) {
   if (!preprocessors[type]) preprocessorTypeError(type)
   if (!preprocessors[type].has(name)) preprocessorNameNotFoundError(name)
 
-  return await transform(preprocessors[type].get(name), meta, source)
+  return transform(preprocessors[type].get(name), meta, source)
 }

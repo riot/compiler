@@ -3,13 +3,13 @@ import { nullNode, simplePropertyNode } from './utils/custom-ast-nodes'
 import { register as registerPostproc, execute as runPostprocessors  } from './postprocessors'
 import { register as registerPreproc, execute as runPreprocessor } from './preprocessors'
 import {builders} from './utils/build-types'
+import compose from './utils/compose'
 import cssGenerator from './generators/css/index'
 import curry from 'curri'
 import generateJavascript from './utils/generate-javascript'
 import isEmptySourcemap from './utils/is-empty-sourcemap'
 import javascriptGenerator from './generators/javascript/index'
 import riotParser from '@riotjs/parser'
-import ruit from 'ruit'
 import sourcemapAsJSON from './utils/sourcemap-as-json'
 import templateGenerator from './generators/template/index'
 
@@ -70,23 +70,34 @@ function overrideSourcemapContent(map, source) {
 }
 
 /**
- * Generate the output code source together with the sourcemap
+ * Create the compilation meta object
  * @param { string } source - source code of the tag we will need to compile
  * @param { string } options - compiling options
- * @returns { Promise<Output> } object containing output code and source map
+ * @returns {Object} meta object
  */
-export async function compile(source, options = {}) {
-  const opts = {
-    ...DEFAULT_OPTIONS,
-    ...options
+function createMeta(source, options) {
+  return {
+    tagName: null,
+    fragments: null,
+    options: {
+      ...DEFAULT_OPTIONS,
+      ...options
+    },
+    source
   }
-  const meta = {
-    source,
-    options: opts
-  }
+}
 
-  const { code, map } = await runPreprocessor('template', opts.template, meta, source)
-  const { template, css, javascript } = riotParser(opts).parse(code).output
+/**
+ * Generate the output code source together with the sourcemap
+ * @param { string } source - source code of the tag we will need to compile
+ * @param { string } opts - compiling options
+ * @returns { Output } object containing output code and source map
+ */
+export function compile(source, opts = {}) {
+  const meta = createMeta(source, opts)
+  const {options} = meta
+  const { code, map } = runPreprocessor('template', options.template, meta, source)
+  const { template, css, javascript } = riotParser(options).parse(code).output
 
   // extend the meta object with the result of the parsing
   Object.assign(meta, {
@@ -98,25 +109,24 @@ export async function compile(source, options = {}) {
     }
   })
 
-  return ruit(
-    createInitialInput(),
-    hookGenerator(cssGenerator, css, code, meta),
-    hookGenerator(javascriptGenerator, javascript, code, meta),
-    hookGenerator(templateGenerator, template, code, meta),
-    ast => meta.ast = ast && generateJavascript(ast, {
-      sourceMapName: `${options.file}.map`,
-      inputSourceMap: normaliseInputSourceMap(map)
-    }),
+  return compose(
     result => ({
       ...result,
-      map: overrideSourcemapContent(result.map, source)
+      meta
     }),
     result => runPostprocessors(result, meta),
     result => ({
       ...result,
-      meta
-    })
-  )
+      map: overrideSourcemapContent(result.map, source)
+    }),
+    ast => meta.ast = ast && generateJavascript(ast, {
+      sourceMapName: `${options.file}.map`,
+      inputSourceMap: normaliseInputSourceMap(map)
+    }),
+    hookGenerator(templateGenerator, template, code, meta),
+    hookGenerator(javascriptGenerator, javascript, code, meta),
+    hookGenerator(cssGenerator, css, code, meta),
+  )(createInitialInput())
 }
 
 /**

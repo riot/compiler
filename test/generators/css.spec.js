@@ -42,10 +42,10 @@ describe('Generators - CSS', () => {
     unregister('css', 'scss')
   })
 
-  it('compile a simple css node', async function() {
+  it('compile a simple css node', () => {
     const { css } = parser().parse(simpleCSS).output
 
-    const ast = await compileCSS(css, simpleCSS, { options: {
+    const ast = compileCSS(css, simpleCSS, { options: {
       file: FAKE_FILE,
       scopedCss: true
     }, tagName: 'my-tag' }, createInput())
@@ -60,10 +60,10 @@ describe('Generators - CSS', () => {
     expect(output.default.template).to.be.not.ok
   })
 
-  it('compile a simple css without scoping the css', async function() {
+  it('compile a simple css without scoping the css', () => {
     const { css } = parser().parse(simpleCSS).output
 
-    const ast = await compileCSS(css, simpleCSS,  { options: {
+    const ast = compileCSS(css, simpleCSS,  { options: {
       file: FAKE_FILE,
       scopedCss: false
     }, tagName: 'my-tag'}, createInput())
@@ -77,10 +77,10 @@ describe('Generators - CSS', () => {
     expect(output.default.template).to.be.not.ok
   })
 
-  it('compile a scss file and generate a proper sourcemap', async function() {
+  it('compile a scss file and generate a proper sourcemap', () => {
     const { css } = parser().parse(scssCSS).output
 
-    const ast = await compileCSS(css, scssCSS, { options: {
+    const ast = compileCSS(css, scssCSS, { options: {
       file: FAKE_FILE,
       scopedCss: true
     }, tagName: 'my-tag'}, createInput())

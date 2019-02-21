@@ -32,10 +32,10 @@ function createInput() {
 }
 
 describe('Generators - javascript', () => {
-  it('compile a simple javascript code', async function() {
+  it('compile a simple javascript code', () => {
     const { javascript } = parser().parse(simpleJS).output
 
-    const ast = await compileJavascript(javascript, simpleJS, { options: {
+    const ast = compileJavascript(javascript, simpleJS, { options: {
       file: FAKE_FILE
     }}, createInput())
     const {code} = recast.print(ast)

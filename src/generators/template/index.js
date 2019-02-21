@@ -55,7 +55,7 @@ function extendTemplateProperty(ast, sourceFile, sourceCode, sourceNode) {
  * @param   { AST } ast - current AST output
  * @returns { AST } the AST generated
  */
-export default async function template(sourceNode, source, meta, ast) {
+export default function template(sourceNode, source, meta, ast) {
   const { options } = meta
   return  extendTemplateProperty(ast, options.file, source, sourceNode)
 }

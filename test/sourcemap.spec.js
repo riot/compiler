@@ -44,9 +44,9 @@ describe('Column and line position helpers', () => {
 })
 
 describe('Sourcemap specs', () => {
-  it('Sourcemaps should contain only one source', async function() {
+  it('Sourcemaps should contain only one source', () => {
     const source = getFixture('my-component.riot')
-    const {map} = await compile(source, {
+    const {map} = compile(source, {
       file: 'my-component.riot'
     })
 
@@ -56,7 +56,7 @@ describe('Sourcemap specs', () => {
 
   it('Sourcemaps contain info about css, javascript and template', async function() {
     const source = getFixture('my-component.riot')
-    const result = await compile(source, {
+    const result = compile(source, {
       file: 'my-component.riot'
     })
     const output = result.code
@@ -122,7 +122,7 @@ describe('Sourcemap specs', () => {
     register('javascript', 'babel', babelPreprocessor)
 
     const source = getFixture('my-babel-component.riot')
-    const result = await compile(source, {
+    const result = compile(source, {
       file: 'my-babel-component.riot'
     })
     const output = result.code

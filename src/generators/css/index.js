@@ -71,11 +71,11 @@ function scopedCSS(tag, css) {
  * @param   { AST } ast - current AST output
  * @returns { AST } the AST generated
  */
-export default async function css(sourceNode, source, meta, ast) {
+export default function css(sourceNode, source, meta, ast) {
   const preprocessorName = getPreprocessorTypeByAttribute(sourceNode)
   const { options } = meta
   const cssNode = sourceNode.text
-  const preprocessorOutput = await preprocess('css', preprocessorName, meta, source, cssNode)
+  const preprocessorOutput = preprocess('css', preprocessorName, meta, source, cssNode)
   const cssCode = (options.scopedCss ?
     scopedCSS(meta.tagName, preprocessorOutput.code) :
     preprocessorOutput.code

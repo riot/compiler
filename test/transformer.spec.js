@@ -3,8 +3,8 @@ import {expect} from 'chai'
 
 describe('Transformer', () => {
   describe('transformer.transform', () => {
-    it('can convert properly the input received using a custom compiler', async function() {
-      const result = await transform((source, options) => {
+    it('can convert properly the input received using a custom compiler', () => {
+      const result = transform((source, options) => {
         return {
           code: `Hello ${source}, ${options.name}`,
           map: {}
@@ -17,8 +17,8 @@ describe('Transformer', () => {
       expect(result.map).to.be.an('object')
     })
 
-    it('leave the input as it is without a compiler', async function() {
-      const result = await transform(null, null, 'foo')
+    it('leave the input as it is without a compiler', () => {
+      const result = transform(null, null, 'foo')
 
       expect(result.code).to.be.equal('foo')
     })

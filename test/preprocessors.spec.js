@@ -75,21 +75,21 @@ describe('Preprocessors', () => {
   })
 
   describe('preprocessors.execute', () => {
-    it('preprocessors without type can not be executed', (done) => {
-      execute(null).catch(() => done())
+    it('preprocessors without type can not be executed', () => {
+      expect(() => execute(null)).to.throw()
     })
 
-    it('preprocessors without name can not be executed', (done) => {
-      execute('template', null).catch(() => done())
+    it('preprocessors without name can not be executed', () => {
+      expect(() => execute('template', null)).to.throw()
     })
 
-    it('preprocessors never registered can not be executed', (done) => {
-      execute('template', 'bar').catch(() => done())
+    it('preprocessors never registered can not be executed', () => {
+      expect(() => execute('template', 'bar')).to.throw()
     })
 
-    it('registered preprocessors can be executed', async function() {
+    it('registered preprocessors can be executed', () => {
       register('javascript', 'foo', preprocessor)
-      const result = await execute('javascript', 'foo', null, 'foo')
+      const result = execute('javascript', 'foo', null, 'foo')
 
       expect(result.code).to.be.equal('bar')
 
@@ -98,10 +98,10 @@ describe('Preprocessors', () => {
   })
 
   describe('javascript preprocessors', () => {
-    it('babel can generate valid javascript output', async function() {
+    it('babel can generate valid javascript output', () => {
       register('javascript', 'babel', babelPreprocessor)
 
-      const result = await execute('javascript', 'babel', { options: { file: 'fake-file.riot' }}, '() => \'hello\'')
+      const result = execute('javascript', 'babel', { options: { file: 'fake-file.riot' }}, '() => \'hello\'')
       expect(result.code).to.be.match(/return 'hello'/)
 
       unregister('javascript', 'babel')

@@ -40,21 +40,21 @@ describe('Postprocessors', () => {
   })
 
   describe('postprocessors.execute', () => {
-    it('postprocessors can be properly executed', async function() {
+    it('postprocessors can be properly executed', () => {
       register(postprocessor)
 
-      const result = await execute({ code: 'foo' })
+      const result = execute({ code: 'foo' })
 
       expect(result.code).to.be.equal('bar')
 
       unregister(postprocessor)
     })
 
-    it('postprocessors can be properly executed in series', async function() {
+    it('postprocessors can be properly executed in series', () => {
       register(postprocessor)
       register(postprocessor2)
 
-      const result = await execute({ code: 'foo' })
+      const result = execute({ code: 'foo' })
 
       expect(result.code).to.be.equal('baz')
 

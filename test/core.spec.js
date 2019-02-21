@@ -8,7 +8,7 @@ import {unregister} from '../src/preprocessors'
 describe('Core specs', () => {
   describe('Simple tags', () => {
     it('The compiler generates a sourcemap and an output', async function() {
-      const result = await compile(getFixture('my-component.riot'))
+      const result = compile(getFixture('my-component.riot'))
       const output = evaluateScript(result.code)
       const sourcemapConsumer = await new SourceMapConsumer(result.map)
 
@@ -23,7 +23,7 @@ describe('Core specs', () => {
     })
 
     it('Tags without css and javascript can be properly compiled', async function() {
-      const result = await compile(getFixture('only-html.riot'))
+      const result = compile(getFixture('only-html.riot'))
       const output = evaluateScript(result.code)
       const sourcemapConsumer = await new SourceMapConsumer(result.map)
 
@@ -38,7 +38,7 @@ describe('Core specs', () => {
     })
 
     it('Tags without html and javascript can be properly compiled', async function() {
-      const result = await compile(getFixture('only-css.riot'))
+      const result = compile(getFixture('only-css.riot'))
       const output = evaluateScript(result.code)
 
       expect(result.code).to.be.a('string')
@@ -51,7 +51,7 @@ describe('Core specs', () => {
     })
 
     it('Tags without html and css can be properly compiled', async function() {
-      const result = await compile(getFixture('only-javascript.riot'))
+      const result = compile(getFixture('only-javascript.riot'))
       const output = evaluateScript(result.code)
       const sourcemapConsumer = await new SourceMapConsumer(result.map)
 
@@ -87,7 +87,7 @@ describe('Core specs', () => {
 
     it('The Pug and scss preprocessors work as expected', async function() {
       const input = getFixture('pug-component.pug')
-      const result = await compile(input, {
+      const result = compile(input, {
         template: 'pug',
         file: 'pug-component.pug'
       })

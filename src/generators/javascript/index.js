@@ -64,11 +64,11 @@ function extendTagProperty(ast, exportDefaultNode) {
  * @param   { AST } ast - current AST output
  * @returns { AST } the AST generated
  */
-export default async function javascript(sourceNode, source, meta, ast) {
+export default function javascript(sourceNode, source, meta, ast) {
   const preprocessorName = getPreprocessorTypeByAttribute(sourceNode)
   const javascriptNode = addLinesOffset(sourceNode.text.text, source, sourceNode)
   const { options } = meta
-  const preprocessorOutput = await preprocess('javascript', preprocessorName, meta, source, {
+  const preprocessorOutput = preprocess('javascript', preprocessorName, meta, source, {
     ...sourceNode,
     text: javascriptNode
   })

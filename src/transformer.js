@@ -37,9 +37,9 @@ export function createOutput(data, meta) {
  * @param   { Function } compiler - function needed to generate the output code
  * @param   { Object } meta - compilation meta information
  * @param   { string } source - source code
- * @returns { Promise<Output> } output - the result of the compiler
+ * @returns { Output } output - the result of the compiler
  */
-export async function transform(compiler, meta, source) {
-  const result = await (compiler ? compiler(source, meta) : { code: source })
+export function transform(compiler, meta, source) {
+  const result = (compiler ? compiler(source, meta) : { code: source })
   return createOutput(result, meta)
 }
