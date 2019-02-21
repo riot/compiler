@@ -13,12 +13,12 @@ npm i @riotjs/compiler -D
 
 ## Usage
 
-The riot compiler is completely asynchronous and it can compile only strings:
+The riot compiler can compile only strings:
 
 ```js
 import { compile } from '@riotjs/compiler'
 
-const { code, map } = await compile('<p>{hello}</p>')
+const { code, map } = compile('<p>{hello}</p>')
 ```
 
 You can compile your tags also using the new `registerPreprocessor` and `registerPostprocessor` APIs for example:
@@ -29,20 +29,20 @@ import pug from 'pug'
 import buble from 'buble'
 
 // process your tag template before it will be compiled
-registerPreprocessor('template', 'pug', async function(code, { options }) {
+registerPreprocessor('template', 'pug', function(code, { options }) {
   const { file } = options
   console.log('your file path is:', file)
-  return await pug.compile(code)
+  return pug.compile(code)
 })
 
 // your compiler output will pass from here
-registerPostprocessor(async function(code, { options }) {
+registerPostprocessor(function(code, { options }) {
   const { file } = options
   console.log('your file path is:', file)
-  return await buble.transform(code)
+  return buble.transform(code)
 })
 
-const { code, map } = await compile('<p>{hello}</p>', {
+const { code, map } = compile('<p>{hello}</p>', {
   // specify the template preprocessor
   template: 'pug'
 })
@@ -73,13 +73,12 @@ in the tag source code for example
 
 - *type*: either one of `template` `css` or `javascript`
 - *id*: unique preprocessor identifier
-- *preprocessorFn*: function receiving the code as first argument and the current options as second, it can be also asynchronous
-
+- *preprocessorFn*: function receiving the code as first argument and the current options as second
 
 ### registerPostprocessor(postprocessorFn)
 #### @returns `Set` containing all the postprocessors registered
 
-- *postprocessorFn*: function receiving the compiler output as first argument and the current options as second, it can be also asynchronous
+- *postprocessorFn*: function receiving the compiler output as first argument and the current options as second
 
 
 [travis-image]:  https://img.shields.io/travis/riot/compiler.svg?style=flat-square

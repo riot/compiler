@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.16
+- *Breaking change*: make the compiler API synchronous
+
 ### v4.0.0-alpha.15
 - Fix slots root nodes handling
 
