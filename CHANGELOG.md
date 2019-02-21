@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.17
+- Remove unused dev dependencies
+
 ### v4.0.0-alpha.16
 - *Breaking change*: make the compiler API synchronous
 
