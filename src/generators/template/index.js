@@ -1,7 +1,7 @@
 import {BINDING_TYPES, EXPRESSION_TYPES, GET_COMPONENT_FN, TEMPLATE_FN} from './constants'
 import {builders, types} from '../../utils/build-types'
 import {callTemplateFunction, createRootNode} from './utils'
-import {TAG_TEMPLATE_PROPERTY} from '../constants'
+import {TAG_TEMPLATE_PROPERTY} from '../../constants'
 import build from './builder'
 
 /**

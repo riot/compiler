@@ -2,7 +2,6 @@ import {evaluateScript, scssPreprocessor} from '../helpers'
 import {register, unregister} from '../../src/preprocessors'
 import compileCSS from '../../src/generators/css'
 import {createInitialInput} from '../../src/index'
-import createSourcemap from '../../src/utils/create-sourcemap'
 import {expect} from 'chai'
 import parser  from '@riotjs/parser'
 import recast from 'recast'
@@ -30,7 +29,7 @@ const scssCSS = `
 const FAKE_FILE = 'fake-file.js'
 
 function createInput() {
-  return createInitialInput(createSourcemap({ file: FAKE_FILE }))
+  return createInitialInput({ tagName: 'my-tag' })
 }
 
 describe('Generators - CSS', () => {

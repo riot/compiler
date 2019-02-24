@@ -693,6 +693,14 @@ describe('Generators - Template', () => {
       expect(html).to.be.equal('<my-tag expr></my-tag>')
     })
 
+    it('Custom self-closed tag binding', () => {
+      const source = '<my-tag/>   '
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<my-tag expr></my-tag>')
+    })
+
     it('Slot shouldn\'t be considered custom tags', () => {
       const source = '<slot/>'
       const { template } = parse(source)

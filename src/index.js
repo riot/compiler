@@ -1,4 +1,4 @@
-import { TAG_CSS_PROPERTY, TAG_LOGIC_PROPERTY, TAG_TEMPLATE_PROPERTY} from './generators/constants'
+import { TAG_CSS_PROPERTY, TAG_LOGIC_PROPERTY, TAG_NAME_PROPERTY, TAG_TEMPLATE_PROPERTY } from './constants'
 import { nullNode, simplePropertyNode } from './utils/custom-ast-nodes'
 import { register as registerPostproc, execute as runPostprocessors  } from './postprocessors'
 import { register as registerPreproc, execute as runPreprocessor } from './preprocessors'
@@ -21,12 +21,13 @@ const DEFAULT_OPTIONS = {
 
 /**
  * Create the initial AST
+ * @param {string} tagName - the name of the component we have compiled
  * @returns { AST } the initial AST
  *
  * @example
  * // the output represents the following string in AST
  */
-export function createInitialInput() {
+export function createInitialInput({tagName}) {
   /*
   generates
   export default {
@@ -40,7 +41,8 @@ export function createInitialInput() {
       builders.objectExpression([
         simplePropertyNode(TAG_CSS_PROPERTY, nullNode()),
         simplePropertyNode(TAG_LOGIC_PROPERTY, nullNode()),
-        simplePropertyNode(TAG_TEMPLATE_PROPERTY, nullNode())
+        simplePropertyNode(TAG_TEMPLATE_PROPERTY, nullNode()),
+        simplePropertyNode(TAG_NAME_PROPERTY, builders.literal(tagName))
       ])
     )]
   )
@@ -126,7 +128,7 @@ export function compile(source, opts = {}) {
     hookGenerator(templateGenerator, template, code, meta),
     hookGenerator(javascriptGenerator, javascript, code, meta),
     hookGenerator(cssGenerator, css, code, meta),
-  )(createInitialInput())
+  )(createInitialInput(meta))
 }
 
 /**

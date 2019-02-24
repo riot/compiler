@@ -17,7 +17,7 @@ describe('Core specs', () => {
       expect(result.map).to.be.not.an('undefined')
       expect(result.meta).to.be.an('object')
       expect(result.meta.tagName).to.be.equal('my-component')
-      expect(output.default).to.have.all.keys('tag', 'css', 'template')
+      expect(output.default).to.have.all.keys('tag', 'css', 'template', 'name')
 
       sourcemapConsumer.destroy()
     })
@@ -101,7 +101,7 @@ describe('Core specs', () => {
       expect(result.map).to.be.not.an('undefined')
       expect(result.meta).to.be.an('object')
       expect(result.meta.tagName).to.be.equal('pug-component')
-      expect(output.default).to.have.all.keys('tag', 'css', 'template')
+      expect(output.default).to.have.all.keys('tag', 'css', 'template', 'name')
       expect(output.default.tag.foo).to.be.ok
     })
   })

@@ -32,7 +32,7 @@ import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
  * @returns {Object} object containing all the slots grouped by name
  */
 function groupSlots(sourceNode) {
-  return sourceNode.nodes.reduce((acc, node) => {
+  return getChildrenNodes(sourceNode).reduce((acc, node) => {
     const slotAttribute = findSlotAttribute(node)
 
     if (slotAttribute) {

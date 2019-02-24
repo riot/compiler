@@ -1,5 +1,5 @@
 import {builders, types} from '../../utils/build-types'
-import {TAG_CSS_PROPERTY} from '../constants'
+import {TAG_CSS_PROPERTY} from '../../constants'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
 

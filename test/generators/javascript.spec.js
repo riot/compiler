@@ -1,6 +1,5 @@
 import compileJavascript from '../../src/generators/javascript'
 import {createInitialInput} from '../../src/index'
-import createSourcemap from '../../src/utils/create-sourcemap'
 import {evaluateScript} from '../helpers'
 import {expect} from 'chai'
 import parser  from '@riotjs/parser'
@@ -28,7 +27,7 @@ function foo() {
 const FAKE_FILE = 'fake-file.js'
 
 function createInput() {
-  return createInitialInput(createSourcemap({ file: FAKE_FILE }))
+  return createInitialInput({ tagName: 'my-tag' })
 }
 
 describe('Generators - javascript', () => {

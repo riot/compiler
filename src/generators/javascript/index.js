@@ -1,4 +1,4 @@
-import {TAG_LOGIC_PROPERTY} from '../constants'
+import {TAG_LOGIC_PROPERTY} from '../../constants'
 import addLinesOffset from '../../utils/add-lines-offset'
 import generateAST from '../../utils/generate-ast'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
