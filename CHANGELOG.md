@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.0.0-alpha.18
+- Add the `name` key to the tag exports
+- Fix self-closed tag bindings
+
 ### v4.0.0-alpha.17
 - Remove unused dev dependencies
 

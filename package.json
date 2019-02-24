@@ -1,6 +1,6 @@
 {
   "name": "@riotjs/compiler",
-  "version": "4.0.0-alpha.17",
+  "version": "4.0.0-alpha.18",
   "description": "Compiler for riot .tag files",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
