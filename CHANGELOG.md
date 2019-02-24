@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.20
+- Fix handle escaped chars
+
 ### v4.0.0-alpha.19
 - Fix bug in nodes with a single expression
 
