@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-alpha.19
+- Fix bug in nodes with a single expression
+
 ### v4.0.0-alpha.18
 - Add the `name` key to the tag exports
 - Fix self-closed tag bindings
