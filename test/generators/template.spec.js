@@ -131,9 +131,19 @@ describe('Generators - Template', () => {
       foo bar
       bar</p>`
       const { template } = parse(source)
-      console.log(renderTextNode(template.nodes[0], source)) // eslint-disable-line
 
       expect(renderTextNode(template.nodes[0], source)).to.be.equal('[scope.foo, \'\\n      foo bar\\n      bar\']')
+    })
+
+    it('Escaped expression will be unescaped', () => {
+      const source = `
+      <p>\\{foo}
+      {bar}
+      foo bar
+      bar</p>`
+      const { template } = parse(source)
+
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\'{foo}\\n      \', scope.bar, \'\\n      foo bar\\n      bar\']')
     })
 
     it('Complex multiple expressions will be merged with the plain text', () => {
@@ -662,6 +672,22 @@ describe('Generators - Template', () => {
       const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
 
       expect(html).to.be.equal('<p expr></p>')
+    })
+
+    it('Escaped text expression', () => {
+      const source = '<p>foo \\{bar}</p>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<p>foo {bar}</p>')
+    })
+
+    it('Escaped attribute', () => {
+      const source = '<p name="\\{bar}">foo</p>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<p name="{bar}">foo</p>')
     })
 
     it('Simple each binding', () => {

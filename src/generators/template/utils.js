@@ -30,6 +30,7 @@ import compose from '../../utils/compose'
 import curry from 'curri'
 import generateAST from '../../utils/generate-ast'
 import {nodeTypes} from '@riotjs/parser'
+import unescapeChar from '../../utils/unescape-char'
 
 const scope = builders.identifier(SCOPE)
 export const getName = node => node && node.name ? node.name : node
@@ -483,8 +484,25 @@ export function staticAttributesToString(node) {
   return findStaticAttributes(node)
     .map(attribute => attribute[IS_BOOLEAN_ATTRIBUTE] || !attribute.value ?
       attribute.name :
-      `${attribute.name}="${attribute.value}"`
+      `${attribute.name}="${unescapeNode(attribute, 'value').value}"`
     ).join(' ')
+}
+
+/**
+ * Make sure that node escaped chars will be unescaped
+ * @param   {RiotParser.Node} node - riot parser node
+ * @param   {string} key - key property to unescape
+ * @returns {RiotParser.Node} node with the text property unescaped
+ */
+export function unescapeNode(node, key) {
+  if (node.unescape) {
+    return {
+      ...node,
+      [key]: unescapeChar(node[key], node.unescape)
+    }
+  }
+
+  return node
 }
 
 
@@ -500,7 +518,7 @@ export function nodeToString(node) {
   case isTagNode(node):
     return `<${node.name}${attributes ? ` ${attributes}` : ''}${isVoidNode(node) ? '/' : ''}>`
   case isTextNode(node):
-    return hasExpressions(node) ? TEXT_NODE_EXPRESSION_PLACEHOLDER : node.text
+    return hasExpressions(node) ? TEXT_NODE_EXPRESSION_PLACEHOLDER : unescapeNode(node, 'text').text
   default:
     return ''
   }

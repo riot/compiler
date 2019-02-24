@@ -9,6 +9,7 @@ import {nullNode,simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import {transformExpression, wrapASTInFunctionWithScope} from '../utils'
 import {builders} from '../../../utils/build-types'
 import {isLiteral} from '../../../utils/ast-nodes-checks'
+import unescapeChar from '../../../utils/unescape-char'
 
 /**
  * Generate the pure immutable string chunks from a RiotParser.Node.Text
@@ -27,7 +28,7 @@ function generateLiteralStringChunksFromNode(node, sourceCode) {
       chunks.push(sourceCode.substring(expression.end, node.end))
 
     return chunks
-  }, [])
+  }, []).map(str => node.unescape ? unescapeChar(str, node.unescape) : str)
 }
 
 /**
