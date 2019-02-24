@@ -39,7 +39,7 @@ function generateLiteralStringChunksFromNode(node, sourceCode) {
  * @returns { Object } a template literal expression object
  */
 export function mergeNodeExpressions(node, sourceFile, sourceCode) {
-  if (node.expressions.length === 1)
+  if (node.parts.length === 1)
     return transformExpression(node.expressions[0], sourceFile, sourceCode)
 
   const pureStringChunks = generateLiteralStringChunksFromNode(node, sourceCode)

@@ -118,14 +118,25 @@ describe('Generators - Template', () => {
   })
 
   describe('Simple bindings', () => {
-    it('Multiple expressions will be merged into template literal', () => {
+    it('Multiple expressions will be merged with the plain text', () => {
       const source = '<p>{foo} + {bar}</p>'
       const { template } = parse(source)
 
       expect(renderTextNode(template.nodes[0], source)).to.be.equal('[scope.foo, \' + \', scope.bar]')
     })
 
-    it('Complex multiple expressions will be merged into template literal', () => {
+    it('Complex single expression will be merged with the plain text', () => {
+      const source = `
+      <p>{foo}
+      foo bar
+      bar</p>`
+      const { template } = parse(source)
+      console.log(renderTextNode(template.nodes[0], source)) // eslint-disable-line
+
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[scope.foo, \'\\n      foo bar\\n      bar\']')
+    })
+
+    it('Complex multiple expressions will be merged with the plain text', () => {
       const source = `
       <p>
       {foo} + {bar}
@@ -143,7 +154,7 @@ describe('Generators - Template', () => {
       expect(renderTextNode(template.nodes[0], source)).to.be.equal('scope.foo')
     })
 
-    it('Different template brakets will be merged into template literal', () => {
+    it('Different template brakets will be merged with the plain text', () => {
       const source = '<p>[[[[foo]]]] + [[[[bar]]]]</p>'
       const { template } = parse(source, {
         brackets: ['[[[[', ']]]]']
