@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v3.6.0
+- Add the option to avoid prefixing the css closing https://github.com/riot/custom-elements/issues/1
+
 ### v3.5.3
 - Fix avoid prefixing the `:host` selector https://github.com/riot/custom-elements/issues/1
 
