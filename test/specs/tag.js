@@ -31,9 +31,9 @@ describe('Compile tags', function () {
     return fs.readFileSync(path.join(dir, filename), 'utf8')
   }
 
-  function testFile (name, save) {
+  function testFile (name, save, opts) {
     var src = cat(fixtures, name + '.tag'),
-      js = render(src, name + '.tag')
+      js = render(src, name + '.tag', opts)
 
     if (save) {
       fs.writeFile(path.join(expected, name + '_out.js'), js, function (err) {
@@ -65,6 +65,16 @@ describe('Compile tags', function () {
 
   it('CSS @apply Rules', function () {
     testFile('css-apply')
+  })
+
+  it('Unprefixed css', function () {
+    testFile('unprefixed-css', false, {
+      parserOptions: {
+        style: {
+          prefixCSS: false
+        }
+      }
+    })
   })
 
   it('Quotes before ending HTML bracket', function () {

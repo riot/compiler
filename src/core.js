@@ -584,9 +584,11 @@ function _compileCSS (css, tag, type, opts) {
     }
   }
 
+
   // remove comments, compact and trim whitespace
   css = css.replace(brackets.R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
-  if (tag) css = scopedCSS(tag, css)
+  if (tag && (!opts.parserOpts || opts.parserOpts.prefixCSS))
+    css = scopedCSS(tag, css)
 
   return css
 }
@@ -952,7 +954,9 @@ function compile (src, opts, url) {
       // TODO: rename this key from `template` to `html`in the next major release
       template: {},
       js: {},
-      style: {}
+      style: {
+        prefixCSS: true
+      }
     }
 
   if (!opts) opts = {}
