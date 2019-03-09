@@ -17,7 +17,7 @@ describe('Core specs', () => {
       expect(result.map).to.be.not.an('undefined')
       expect(result.meta).to.be.an('object')
       expect(result.meta.tagName).to.be.equal('my-component')
-      expect(output.default).to.have.all.keys('tag', 'css', 'template', 'name')
+      expect(output.default).to.have.all.keys('exports', 'css', 'template', 'name')
 
       sourcemapConsumer.destroy()
     })
@@ -33,7 +33,7 @@ describe('Core specs', () => {
       expect(result.meta).to.be.an('object')
       expect(result.meta.tagName).to.be.equal('only-html')
       expect(output.default.css).to.be.not.ok
-      expect(output.default.tag).to.be.not.ok
+      expect(output.default.exports).to.be.not.ok
       expect(output.default.template).to.be.ok
     })
 
@@ -46,7 +46,7 @@ describe('Core specs', () => {
       expect(result.meta).to.be.an('object')
       expect(result.meta.tagName).to.be.equal('only-css')
       expect(output.default.css).to.be.ok
-      expect(output.default.tag).to.be.not.ok
+      expect(output.default.exports).to.be.not.ok
       expect(output.default.template).to.be.not.ok
     })
 
@@ -62,7 +62,7 @@ describe('Core specs', () => {
       expect(result.meta.tagName).to.be.equal('only-javascript')
 
       expect(output.default.css).to.be.not.ok
-      expect(output.default.tag).to.be.ok
+      expect(output.default.exports).to.be.ok
       expect(output.default.template).to.be.not.ok
     })
   })
@@ -101,8 +101,8 @@ describe('Core specs', () => {
       expect(result.map).to.be.not.an('undefined')
       expect(result.meta).to.be.an('object')
       expect(result.meta.tagName).to.be.equal('pug-component')
-      expect(output.default).to.have.all.keys('tag', 'css', 'template', 'name')
-      expect(output.default.tag.foo).to.be.ok
+      expect(output.default).to.have.all.keys('exports', 'css', 'template', 'name')
+      expect(output.default.exports.foo).to.be.ok
     })
   })
 })

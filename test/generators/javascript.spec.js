@@ -43,7 +43,7 @@ describe('Generators - javascript', () => {
     expect(code).to.be.a('string')
     expect(code).to.have.string('import assert')
     expect(code).to.have.string('return')
-    expect(output.default.tag).to.be.ok
+    expect(output.default.exports).to.be.ok
     expect(output.default.css).to.be.not.ok
     expect(output.default.template).to.be.not.ok
   })
