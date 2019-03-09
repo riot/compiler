@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-beta.1
+- Update rename the `tag` property `exports`
+
 ### v4.0.0-alpha.20
 - Fix handle escaped chars
 
