@@ -5,8 +5,8 @@ import {
   EXPRESSION_TYPES,
   TEXT_EXPRESSION_TYPE
 } from '../constants'
+import {createArrayString, transformExpression, wrapASTInFunctionWithScope} from '../utils'
 import {nullNode,simplePropertyNode} from '../../../utils/custom-ast-nodes'
-import {transformExpression, wrapASTInFunctionWithScope} from '../utils'
 import {builders} from '../../../utils/build-types'
 import {isLiteral} from '../../../utils/ast-nodes-checks'
 import unescapeChar from '../../../utils/unescape-char'
@@ -54,16 +54,9 @@ export function mergeNodeExpressions(node, sourceFile, sourceCode) {
     ]
   }, [])
     // filter the empty literal expressions
-    .filter(expr => !isLiteral(expr) || expr.value) // eslint-disable-line
+    .filter(expr => !isLiteral(expr) || expr.value)
 
-  return builders.callExpression(
-    builders.memberExpression(
-      builders.arrayExpression(stringsArray),
-      builders.identifier('join'),
-      false
-    ),
-    [builders.literal('')],
-  )
+  return createArrayString(stringsArray)
 }
 
 /**

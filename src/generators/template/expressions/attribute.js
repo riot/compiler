@@ -5,9 +5,34 @@ import {
   BINDING_TYPE_KEY,
   EXPRESSION_TYPES
 } from '../constants'
-import {hasExpressions, isSpreadAttribute, toScopedFunction} from '../utils'
+import {createArrayString, hasExpressions, isSpreadAttribute, transformExpression, wrapASTInFunctionWithScope} from '../utils'
 import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import {builders} from '../../../utils/build-types'
+
+
+/**
+ * Simple expression bindings might contain multiple expressions like for example: "class="{foo} red {bar}""
+ * This helper aims to merge them in a template literal if it's necessary
+ * @param   {RiotParser.Attr} node - riot parser node
+ * @param   {string} sourceFile - original tag file
+ * @param   {string} sourceCode - original tag source code
+ * @returns { Object } a template literal expression object
+ */
+export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
+  if (!node.parts)
+    return transformExpression(node.expressions[0], sourceFile, sourceCode)
+
+  const stringsArray = node.parts.reduce((acc, str) => {
+    const expression = node.expressions.find(e => e.text === str)
+
+    return [
+      ...acc,
+      expression ? transformExpression(expression, sourceFile, sourceCode) : builders.literal(str)
+    ]
+  }, [])
+
+  return createArrayString(stringsArray)
+}
 
 /**
  * Create a simple attribute expression
@@ -30,7 +55,7 @@ export default function createAttributeExpression(sourceNode, sourceFile, source
       BINDING_EVALUATE_KEY,
       hasExpressions(sourceNode) ?
         // dynamic attribute
-        toScopedFunction(sourceNode.expressions[0], sourceFile, sourceCode) :
+        wrapASTInFunctionWithScope(mergeAttributeExpressions(sourceNode, sourceFile, sourceCode)) :
         // static attribute
         builders.functionExpression(
           null,

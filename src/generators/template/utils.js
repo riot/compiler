@@ -560,6 +560,21 @@ export function hasItsOwnTemplate(node) {
   ].some(test => test(node))
 }
 
+/**
+ * Create a strings array with the `join` call to transform it into a string
+ * @param   {Array} stringsArray - array containing all the strings to concatenate
+ * @returns {AST.CallExpression} array with a `join` call
+ */
+export function createArrayString(stringsArray) {
+  return builders.callExpression(
+    builders.memberExpression(
+      builders.arrayExpression(stringsArray),
+      builders.identifier('join'),
+      false
+    ),
+    [builders.literal('')],
+  )
+}
 
 /**
  * Create a selector that will be used to find the node via dom-bindings
