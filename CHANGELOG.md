@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-beta.2
+- Add support for multiple expressions on the same attribute node
+
 ### v4.0.0-beta.1
 - Update rename the `tag` property `exports`
 
