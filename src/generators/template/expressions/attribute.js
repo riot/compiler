@@ -19,7 +19,7 @@ import {builders} from '../../../utils/build-types'
  * @returns { Object } a template literal expression object
  */
 export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
-  if (!node.parts)
+  if (!node.parts || node.parts.length === 1)
     return transformExpression(node.expressions[0], sourceFile, sourceCode)
 
   const stringsArray = node.parts.reduce((acc, str) => {

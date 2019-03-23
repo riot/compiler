@@ -203,6 +203,21 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: {bar: 'bar'}})).to.be.deep.equal({bar: 'bar'})
     })
 
+    it('Object attribute expression', () => {
+      const source = '<li foo={store}></li>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_NAME_KEY]).to.be.ok
+      expect(expression[BINDING_EVALUATE_KEY]({store: {foo: 'foo'}})).to.be.deep.equal({foo: 'foo'})
+    })
+
     it('Merge attribute expression with strings', () => {
       const source = '<li class="red {foo}"></li>'
       const { template } = parse(source)
