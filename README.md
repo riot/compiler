@@ -85,9 +85,9 @@ in the tag source code for example
 [travis-url]:    https://travis-ci.org/riot/compiler
 [license-image]: https://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
 [license-url]:   LICENSE
-[npm-version-image]:   https://img.shields.io/npm/v/riotjs@compiler.svg?style=flat-square
-[npm-downloads-image]: https://img.shields.io/npm/dm/riotjs@compiler.svg?style=flat-square
-[npm-url]:             https://npmjs.org/package/riotjs@compiler
+[npm-version-image]:   https://img.shields.io/npm/v/@riotjs/compiler.svg?style=flat-square
+[npm-downloads-image]: https://img.shields.io/npm/dm/@riotjs/compiler.svg?style=flat-square
+[npm-url]:             https://npmjs.org/package/@riotjs/compiler
 [coverage-image]:    https://img.shields.io/coveralls/riot/compiler/master.svg?style=flat-square
 [coverage-url]:      https://coveralls.io/r/riot/compiler?branch=master
 [codeclimate-image]: https://api.codeclimate.com/v1/badges/37de24282e8d113bb0cc/maintainability
