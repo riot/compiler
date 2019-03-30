@@ -27,7 +27,7 @@ import {isExpressionStatement, isSequenceExpression} from '../../../utils/ast-no
 import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
-import compose from '../../../utils/compose'
+import compose from 'cumpa'
 import generateJavascript from '../../../utils/generate-javascript'
 import panic from '../../../utils/panic'
 import tagBinding from './tag'

@@ -26,7 +26,7 @@ import {
 } from '../../utils/ast-nodes-checks'
 import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
-import compose from '../../utils/compose'
+import compose from 'cumpa'
 import curry from 'curri'
 import generateAST from '../../utils/generate-ast'
 import {nodeTypes} from '@riotjs/parser'
