@@ -23,13 +23,14 @@ export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
     return transformExpression(node.expressions[0], sourceFile, sourceCode)
 
   const stringsArray = node.parts.reduce((acc, str) => {
-    const expression = node.expressions.find(e => e.text === str)
+    const expression = node.expressions.find(e => e.text.trim() === str)
 
     return [
       ...acc,
       expression ? transformExpression(expression, sourceFile, sourceCode) : builders.literal(str)
     ]
   }, [])
+
 
   return createArrayString(stringsArray)
 }
