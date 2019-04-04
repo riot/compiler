@@ -248,6 +248,21 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo', bar: 'bar'})).to.be.equal('bar__red foo')
     })
 
+    it('Merge multiple attribute expressions with spaces in expressions', () => {
+      const source = '<li class="{ bar }-{ foo }"></li>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_NAME_KEY]).to.be.equal('class')
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo', bar: 'bar'})).to.be.equal('bar-foo')
+    })
+
     it('Multiple attribute expressions', () => {
       const source = '<li class={foo} id={bar}></li>'
       const { template } = parse(source)
