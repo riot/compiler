@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.0.0-beta.5
+- Fix https://github.com/riot/riot/issues/2669
+
 ### v4.0.0-beta.3
 - Fix https://github.com/riot/compiler/issues/115
 
