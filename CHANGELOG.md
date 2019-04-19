@@ -1,5 +1,13 @@
 # Compiler Changes
 
+### v4.0.0
+- Complete rewrite **not backward compatible**
+- New output compatible only for Riot.js 4.0.0
+- Add better sourcemaps generation
+- Add the `@riotjs/parser` fixing odd issues with regex like [#114](https://github.com/riot/compiler/issues/114)
+- Improve the code generation strategy preferring AST to regex parsing
+- Remove all the preprocessors from the core in favor of `registerPreprocessor` and `registerPostprocessor` instead
+
 ### v4.0.0-beta.5
 - Fix https://github.com/riot/riot/issues/2669
 
