@@ -65,6 +65,36 @@ describe('Core specs', () => {
       expect(output.default.exports).to.be.ok
       expect(output.default.template).to.be.not.ok
     })
+
+    it('Tags with empty <script> generate a sourcemap and an output', async function() {
+      const result = compile(getFixture('empty-script.riot'))
+      const output = evaluateScript(result.code)
+      const sourcemapConsumer = await new SourceMapConsumer(result.map)
+
+      expect(sourcemapConsumer.hasContentsOfAllSources()).to.be.ok
+      expect(result.code).to.be.a('string')
+      expect(result.map).to.be.not.an('undefined')
+      expect(result.meta).to.be.an('object')
+      expect(result.meta.tagName).to.be.equal('empty-script')
+      expect(output.default).to.have.all.keys('exports', 'css', 'template', 'name')
+
+      sourcemapConsumer.destroy()
+    })
+
+    it('Tags with empty <style> generate a sourcemap and an output', async function() {
+      const result = compile(getFixture('empty-style.riot'))
+      const output = evaluateScript(result.code)
+      const sourcemapConsumer = await new SourceMapConsumer(result.map)
+
+      expect(sourcemapConsumer.hasContentsOfAllSources()).to.be.ok
+      expect(result.code).to.be.a('string')
+      expect(result.map).to.be.not.an('undefined')
+      expect(result.meta).to.be.an('object')
+      expect(result.meta.tagName).to.be.equal('empty-style')
+      expect(output.default).to.have.all.keys('exports', 'css', 'template', 'name')
+
+      sourcemapConsumer.destroy()
+    })
   })
 
   describe('Preprocessed tags', () => {

@@ -140,7 +140,13 @@ export function compile(source, opts = {}) {
  * @returns { Promise<Output> } object containing output code and source map
  */
 function hookGenerator(transformer, sourceNode, source, meta) {
-  if (!sourceNode || (sourceNode.nodes && !sourceNode.nodes.length)) {
+  if (
+    // filter missing nodes
+    !sourceNode ||
+    // filter nodes without children
+    (sourceNode.nodes && !sourceNode.nodes.length) ||
+    // filter empty javascript and css nodes
+    (!sourceNode.nodes && !sourceNode.text)) {
     return result => result
   }
 
