@@ -7,7 +7,7 @@
 
 ## Important
 
-This compiler will not work with older riot version.
+This compiler will not work with older Riot.js versions.
 It's designed to work with Riot.js > 4.0.0.
 For Riot.js < 4.0.0 please check the [v3](https://github.com/riot/compiler/tree/v3) branch
 
