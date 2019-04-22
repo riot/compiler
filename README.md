@@ -40,7 +40,7 @@ registerPreprocessor('template', 'pug', function(code, { options }) {
   console.log('your file path is:', file)
   
   return {
-    code: return pug.render(code),
+    code: pug.render(code),
     // no sourcemap here
     map: null
   }
