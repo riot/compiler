@@ -38,13 +38,20 @@ import buble from 'buble'
 registerPreprocessor('template', 'pug', function(code, { options }) {
   const { file } = options
   console.log('your file path is:', file)
-  return pug.compile(code)
+  
+  return {
+    code: return pug.render(code),
+    // no sourcemap here
+    map: null
+  }
 })
 
 // your compiler output will pass from here
 registerPostprocessor(function(code, { options }) {
   const { file } = options
   console.log('your file path is:', file)
+  
+  // notice that buble.transform returns {code, map}
   return buble.transform(code)
 })
 
