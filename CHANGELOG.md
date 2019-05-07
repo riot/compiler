@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.0.1
+
+- Fix attributes mixed with expressions [riot#2681](https://github.com/riot/riot/issues/2681)
+
 ### v4.0.0
 - Complete rewrite **not backward compatible**
 - New output compatible only for Riot.js 4.0.0
