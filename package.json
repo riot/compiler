@@ -15,11 +15,10 @@
     "cov": "nyc report --reporter=text-lcov | coveralls",
     "cov-html": "nyc report --reporter=html",
     "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js",
-    "pretest": "npm run build",
     "postest": "npm run cov-html",
     "test": "npm run lint && nyc mocha -r reify test/*.spec.js test/**/*.spec.js",
     "debug": "mocha --inspect --inspect-brk -r reify test/*.spec.js test/**/*.spec.js",
-    "prepublishOnly": "npm run test"
+    "prepublishOnly": "npm run build && npm run test"
   },
   "repository": {
     "type": "git",

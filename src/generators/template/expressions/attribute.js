@@ -8,6 +8,7 @@ import {
 import {createArrayString, hasExpressions, isSpreadAttribute, transformExpression, wrapASTInFunctionWithScope} from '../utils'
 import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import {builders} from '../../../utils/build-types'
+import {isLiteral} from '../../../utils/ast-nodes-checks'
 
 
 /**
@@ -22,14 +23,20 @@ export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
   if (!node.parts || node.parts.length === 1)
     return transformExpression(node.expressions[0], sourceFile, sourceCode)
 
-  const stringsArray = node.parts.reduce((acc, str) => {
-    const expression = node.expressions.find(e => e.text.trim() === str)
+  const lastExpression = node.expressions[node.expressions.length - 1]
+  const tail = sourceCode.substring(lastExpression.end, node.end).replace(/"|'/, '')
 
-    return [
-      ...acc,
-      expression ? transformExpression(expression, sourceFile, sourceCode) : builders.literal(str)
-    ]
-  }, [])
+  const stringsArray = [
+    ...node.parts.reduce((acc, str) => {
+      const expression = node.expressions.find(e => e.text.trim() === str)
+
+      return [
+        ...acc,
+        expression ? transformExpression(expression, sourceFile, sourceCode) : builders.literal(str)
+      ]
+    }, []),
+    builders.literal(tail)
+  ].filter(expr => !isLiteral(expr) || expr.value)
 
 
   return createArrayString(stringsArray)

@@ -203,6 +203,21 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: {bar: 'bar'}})).to.be.deep.equal({bar: 'bar'})
     })
 
+    it('Spread + each attribute expression ', () => {
+      const source = '<li each={item in items} {...foo}></li>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[1]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_NAME_KEY]).to.be.not.ok
+      expect(expression[BINDING_EVALUATE_KEY]({foo: {bar: 'bar'}})).to.be.deep.equal({bar: 'bar'})
+    })
+
     it('Object attribute expression', () => {
       const source = '<li foo={store}></li>'
       const { template } = parse(source)
@@ -219,7 +234,7 @@ describe('Generators - Template', () => {
     })
 
     it('Merge attribute expression with strings', () => {
-      const source = '<li class="red {foo}"></li>'
+      const source = '<li class="red {foo} bar"></li>'
       const { template } = parse(source)
       const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
@@ -230,7 +245,8 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
       expect(expression[BINDING_NAME_KEY]).to.be.equal('class')
-      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('red foo')
+
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('red foo bar')
     })
 
     it('Merge multiple attribute expressions', () => {
