@@ -1,7 +1,9 @@
 # Compiler Changes
 
-### v4.0.1
+### v4.0.2
+- Fix spread operator on each directives [riot#2679](https://github.com/riot/riot/issues/2679)
 
+### v4.0.1
 - Fix attributes mixed with expressions [riot#2681](https://github.com/riot/riot/issues/2681)
 
 ### v4.0.0
