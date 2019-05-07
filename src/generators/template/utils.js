@@ -314,7 +314,7 @@ export function cleanAttributes(node) {
 export function cloneNodeWithoutSelectorAttribute(node, selectorAttribute) {
   return {
     ...node,
-    attributes: getNodeAttributes(node).filter(attribute => attribute.name !== selectorAttribute)
+    attributes: getNodeAttributes(node).filter(attribute => attribute.name === selectorAttribute)
   }
 }
 

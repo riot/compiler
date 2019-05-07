@@ -87,7 +87,7 @@ function findSlotAttribute(sourceNode) {
  * @param   { string } selectorAttribute - attribute needed to select the target node
  * @param   { stiring } sourceFile - source file path
  * @param   { string } sourceCode - original source
- * @returns { AST.Node } an each binding node
+ * @returns { AST.Node } tag binding node
  */
 export default function createTagBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
   return builders.objectExpression([

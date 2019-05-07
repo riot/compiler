@@ -218,6 +218,21 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: {bar: 'bar'}})).to.be.deep.equal({bar: 'bar'})
     })
 
+    it('Spread + each attribute on custom node', () => {
+      const source = '<my-tag each={item in items} {...foo}></my-tag>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[1]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_NAME_KEY]).to.be.not.ok
+      expect(expression[BINDING_EVALUATE_KEY]({foo: {bar: 'bar'}})).to.be.deep.equal({bar: 'bar'})
+    })
+
     it('Object attribute expression', () => {
       const source = '<li foo={store}></li>'
       const { template } = parse(source)
@@ -621,6 +636,22 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.deep.equal([1,2,3])
+    })
+
+    it('Spread + each attribute on custom node', () => {
+      const source = '<my-tag each={item in items} {...foo}></my-tag>'
+      const { template } = parse(source)
+      const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.template.bindingsData[0].attributes[0]
+
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_NAME_KEY]).to.be.not.ok
+      expect(expression[BINDING_EVALUATE_KEY]({foo: {bar: 'bar'}})).to.be.deep.equal({bar: 'bar'})
     })
   })
 
