@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.0.3
+
+- Fix attributes handling on custom children nodes [riot#2680](https://github.com/riot/riot/issues/2680)
+
 ### v4.0.2
 - Fix spread operator on each directives [riot#2679](https://github.com/riot/riot/issues/2679)
 
