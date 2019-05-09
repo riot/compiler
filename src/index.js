@@ -104,18 +104,11 @@ export function compile(source, opts = {}) {
   // extend the meta object with the result of the parsing
   Object.assign(meta, {
     tagName: template.name,
-    fragments: {
-      template,
-      css,
-      javascript
-    }
+    fragments: { template, css, javascript }
   })
 
   return compose(
-    result => ({
-      ...result,
-      meta
-    }),
+    result => ({ ...result, meta }),
     result => runPostprocessors(result, meta),
     result => ({
       ...result,
