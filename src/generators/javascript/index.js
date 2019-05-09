@@ -68,7 +68,7 @@ export default function javascript(sourceNode, source, meta, ast) {
   const preprocessorName = getPreprocessorTypeByAttribute(sourceNode)
   const javascriptNode = addLinesOffset(sourceNode.text.text, source, sourceNode)
   const { options } = meta
-  const preprocessorOutput = preprocess('javascript', preprocessorName, meta, source, {
+  const preprocessorOutput = preprocess('javascript', preprocessorName, meta, {
     ...sourceNode,
     text: javascriptNode
   })

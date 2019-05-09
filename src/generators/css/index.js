@@ -75,7 +75,7 @@ export default function css(sourceNode, source, meta, ast) {
   const preprocessorName = getPreprocessorTypeByAttribute(sourceNode)
   const { options } = meta
   const cssNode = sourceNode.text
-  const preprocessorOutput = preprocess('css', preprocessorName, meta, source, cssNode)
+  const preprocessorOutput = preprocess('css', preprocessorName, meta, cssNode)
   const cssCode = (options.scopedCss ?
     scopedCSS(meta.tagName, preprocessorOutput.code) :
     preprocessorOutput.code
