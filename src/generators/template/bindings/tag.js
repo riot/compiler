@@ -16,6 +16,7 @@ import {
   cleanAttributes,
   createRootNode,
   createSelectorProperties,
+  getAttributesWithoutSelector,
   getChildrenNodes,
   getCustomNodeNameAsExpression,
   getNodeAttributes,
@@ -24,6 +25,7 @@ import {
 import attributeExpression from '../expressions/attribute'
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
+import compose from 'cumpa'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 
 /**
@@ -81,6 +83,7 @@ function findSlotAttribute(sourceNode) {
   return getNodeAttributes(sourceNode).find(attribute => attribute.name === SLOT_ATTRIBUTE)
 }
 
+
 /**
  * Transform a RiotParser.Node.Tag into a tag binding
  * @param   { RiotParser.Node.Tag } sourceNode - the custom tag
@@ -90,6 +93,8 @@ function findSlotAttribute(sourceNode) {
  * @returns { AST.Node } tag binding node
  */
 export default function createTagBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
+  const createAttributeExpression = attribute => attributeExpression(attribute, sourceFile, sourceCode)
+
   return builders.objectExpression([
     simplePropertyNode(BINDING_TYPE_KEY,
       builders.memberExpression(
@@ -104,14 +109,19 @@ export default function createTagBinding(sourceNode, selectorAttribute, sourceFi
       toScopedFunction(getCustomNodeNameAsExpression(sourceNode), sourceFile, sourceCode)
     ),
     simplePropertyNode(BINDING_SLOTS_KEY, builders.arrayExpression([
-      ...Object.entries(groupSlots(sourceNode))
-        .filter(([,value]) => value)
-        .map(([key, value]) => buildSlot(key, value, sourceFile, sourceCode))
+      ...compose(
+        slots => slots.map(([key, value]) => buildSlot(key, value, sourceFile, sourceCode)),
+        slots => slots.filter(([,value]) => value),
+        Object.entries,
+        groupSlots
+      )(sourceNode)
     ])),
     simplePropertyNode(BINDING_ATTRIBUTES_KEY, builders.arrayExpression([
-      ...cleanAttributes(sourceNode)
-        .filter(attribute => attribute.name !== selectorAttribute)
-        .map(attribute => attributeExpression(attribute, sourceFile, sourceCode))
+      ...compose(
+        attributes => attributes.map(createAttributeExpression),
+        attributes => getAttributesWithoutSelector(attributes, selectorAttribute), // eslint-disable-line
+        cleanAttributes
+      )(sourceNode)
     ])),
     ...createSelectorProperties(selectorAttribute)
   ])

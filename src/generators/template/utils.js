@@ -314,8 +314,22 @@ export function cleanAttributes(node) {
 export function cloneNodeWithoutSelectorAttribute(node, selectorAttribute) {
   return {
     ...node,
-    attributes: getNodeAttributes(node).filter(attribute => attribute.name === selectorAttribute)
+    attributes: getAttributesWithoutSelector(getNodeAttributes(node), selectorAttribute)
   }
+}
+
+
+/**
+ * Get the node attributes without the selector one
+ * @param   {Array<RiotParser.Attr>} attributes - attributes list
+ * @param   {string} selectorAttribute - name of the selector attribute to filter out
+ * @returns {Array<RiotParser.Attr>} filtered attributes
+ */
+export function getAttributesWithoutSelector(attributes, selectorAttribute) {
+  if (selectorAttribute)
+    return attributes.filter(attribute => attribute.name !== selectorAttribute)
+
+  return attributes
 }
 
 /**
