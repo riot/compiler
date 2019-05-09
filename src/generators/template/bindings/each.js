@@ -89,7 +89,7 @@ export function generateEachExpressionProperties(eachExpression, sourceFile, sou
  * Transform a RiotParser.Node.Tag into an each binding
  * @param   { RiotParser.Node.Tag } sourceNode - tag containing the each attribute
  * @param   { string } selectorAttribute - attribute needed to select the target node
- * @param   { stiring } sourceFile - source file path
+ * @param   { string } sourceFile - source file path
  * @param   { string } sourceCode - original source
  * @returns { AST.Node } an each binding node
  */

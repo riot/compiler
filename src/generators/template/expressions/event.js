@@ -12,7 +12,7 @@ import {toScopedFunction} from '../utils'
 /**
  * Create a simple event expression
  * @param   {RiotParser.Node.Attr} sourceNode - attribute containing the event handlers
- * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @returns {AST.Node} object containing the expression binding keys
  */

@@ -48,7 +48,7 @@ function createBindingsTag(sourceNode, bindingsSelector) {
 /**
  * Create a generic dynamic node (text or tag) and generate its bindings
  * @param   {RiotParser.Node} sourceNode - any kind of node parsed via riot parser
- * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @param   {BuildingState} state - state representing the current building tree state during the recursion
  * @returns {Array} array containing the html output and bindings for the current node
@@ -66,7 +66,7 @@ function createDynamicNode(sourceNode, sourceFile, sourceCode, state) {
 /**
  * Create only a dynamic tag node with generating a custom selector and its bindings
  * @param   {RiotParser.Node} sourceNode - any kind of node parsed via riot parser
- * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @param   {BuildingState} state - state representing the current building tree state during the recursion
  * @returns {Array} array containing the html output and bindings for the current node
@@ -95,7 +95,7 @@ function createTagWithBindings(sourceNode, sourceFile, sourceCode) {
 /**
  * Parse a node trying to extract its template and bindings
  * @param   {RiotParser.Node} sourceNode - any kind of node parsed via riot parser
- * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @param   {BuildingState} state - state representing the current building tree state during the recursion
  * @returns {Array} array containing the html output and bindings for the current node
@@ -109,7 +109,7 @@ function parseNode(sourceNode, sourceFile, sourceCode, state) {
 /**
  * Build the template and the bindings
  * @param   {RiotParser.Node} sourceNode - any kind of node parsed via riot parser
- * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @param   {BuildingState} state - state representing the current building tree state during the recursion
  * @returns {Array} array containing the html output and the dom bindings

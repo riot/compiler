@@ -62,7 +62,7 @@ export function mergeNodeExpressions(node, sourceFile, sourceCode) {
 /**
  * Create a text expression
  * @param   {RiotParser.Node.Text} sourceNode - text node to parse
- * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @param   {number} childNodeIndex - position of the child text node in its parent children nodes
  * @returns {AST.Node} object containing the expression binding keys

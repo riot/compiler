@@ -45,7 +45,7 @@ export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
 /**
  * Create a simple attribute expression
  * @param   {RiotParser.Node.Attr} sourceNode - the custom tag
- * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @returns {AST.Node} object containing the expression binding keys
  */

@@ -55,7 +55,7 @@ function groupSlots(sourceNode) {
  * Create the slot entity to pass to the riot-dom bindings
  * @param   {string} id - slot id
  * @param   {RiotParser.Node.Tag} sourceNode - slot root node
- * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @returns {AST.Node} ast node containing the slot object properties
  */
@@ -75,6 +75,44 @@ function buildSlot(id, sourceNode, sourceFile, sourceCode) {
 }
 
 /**
+ * Create the AST array containing the slots
+ * @param   { RiotParser.Node.Tag } sourceNode - the custom tag
+ * @param   { string } sourceFile - source file path
+ * @param   { string } sourceCode - original source
+ * @returns {AST.ArrayExpression} array containing the attributes to bind
+ */
+function createSlotsArray(sourceNode, sourceFile, sourceCode) {
+  return builders.arrayExpression([
+    ...compose(
+      slots => slots.map(([key, value]) => buildSlot(key, value, sourceFile, sourceCode)),
+      slots => slots.filter(([,value]) => value),
+      Object.entries,
+      groupSlots
+    )(sourceNode)
+  ])
+}
+
+/**
+ * Create the AST array containing the attributes to bind to this node
+ * @param   { RiotParser.Node.Tag } sourceNode - the custom tag
+ * @param   { string } selectorAttribute - attribute needed to select the target node
+ * @param   { string } sourceFile - source file path
+ * @param   { string } sourceCode - original source
+ * @returns {AST.ArrayExpression} array containing the slot objects
+ */
+function createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sourceCode) {
+  const createAttributeExpression = attribute => attributeExpression(attribute, sourceFile, sourceCode)
+
+  return builders.arrayExpression([
+    ...compose(
+      attributes => attributes.map(createAttributeExpression),
+      attributes => getAttributesWithoutSelector(attributes, selectorAttribute), // eslint-disable-line
+      cleanAttributes
+    )(sourceNode)
+  ])
+}
+
+/**
  * Find the slot attribute if it exists
  * @param   {RiotParser.Node.Tag} sourceNode - the custom tag
  * @returns {RiotParser.Node.Attr|undefined} the slot attribute found
@@ -83,18 +121,15 @@ function findSlotAttribute(sourceNode) {
   return getNodeAttributes(sourceNode).find(attribute => attribute.name === SLOT_ATTRIBUTE)
 }
 
-
 /**
  * Transform a RiotParser.Node.Tag into a tag binding
  * @param   { RiotParser.Node.Tag } sourceNode - the custom tag
  * @param   { string } selectorAttribute - attribute needed to select the target node
- * @param   { stiring } sourceFile - source file path
+ * @param   { string } sourceFile - source file path
  * @param   { string } sourceCode - original source
  * @returns { AST.Node } tag binding node
  */
 export default function createTagBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
-  const createAttributeExpression = attribute => attributeExpression(attribute, sourceFile, sourceCode)
-
   return builders.objectExpression([
     simplePropertyNode(BINDING_TYPE_KEY,
       builders.memberExpression(
@@ -108,21 +143,11 @@ export default function createTagBinding(sourceNode, selectorAttribute, sourceFi
       BINDING_EVALUATE_KEY,
       toScopedFunction(getCustomNodeNameAsExpression(sourceNode), sourceFile, sourceCode)
     ),
-    simplePropertyNode(BINDING_SLOTS_KEY, builders.arrayExpression([
-      ...compose(
-        slots => slots.map(([key, value]) => buildSlot(key, value, sourceFile, sourceCode)),
-        slots => slots.filter(([,value]) => value),
-        Object.entries,
-        groupSlots
-      )(sourceNode)
-    ])),
-    simplePropertyNode(BINDING_ATTRIBUTES_KEY, builders.arrayExpression([
-      ...compose(
-        attributes => attributes.map(createAttributeExpression),
-        attributes => getAttributesWithoutSelector(attributes, selectorAttribute), // eslint-disable-line
-        cleanAttributes
-      )(sourceNode)
-    ])),
+    simplePropertyNode(BINDING_SLOTS_KEY, createSlotsArray(sourceNode, sourceFile, sourceCode)),
+    simplePropertyNode(
+      BINDING_ATTRIBUTES_KEY,
+      createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sourceCode)
+    ),
     ...createSelectorProperties(selectorAttribute)
   ])
 }

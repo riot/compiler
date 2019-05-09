@@ -31,7 +31,7 @@ function createExpression(sourceNode, sourceFile, sourceCode, childNodeIndex) {
 /**
  * Create the attribute expressions
  * @param   {RiotParser.Node} sourceNode - any kind of node parsed via riot parser
- * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @returns {Array} array containing all the attribute expressions
  */
@@ -43,7 +43,7 @@ function createAttributeExpressions(sourceNode, sourceFile, sourceCode) {
 /**
  * Create the text node expressions
  * @param   {RiotParser.Node} sourceNode - any kind of node parsed via riot parser
- * @param   {stiring} sourceFile - source file path
+ * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @returns {Array} array containing all the text node expressions
  */
@@ -65,7 +65,7 @@ function createTextNodeExpressions(sourceNode, sourceFile, sourceCode) {
  * Add a simple binding to a riot parser node
  * @param   { RiotParser.Node.Tag } sourceNode - tag containing the if attribute
  * @param   { string } selectorAttribute - attribute needed to select the target node
- * @param   { stiring } sourceFile - source file path
+ * @param   { string } sourceFile - source file path
  * @param   { string } sourceCode - original source
  * @returns { AST.Node } an each binding node
  */
