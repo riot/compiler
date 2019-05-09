@@ -5,31 +5,25 @@ import {
   IF_BINDING_TYPE
 } from '../constants'
 import {
-  cloneNodeWithoutSelectorAttribute,
-  createRootNode,
   createSelectorProperties,
   createTemplateProperty,
   findIfAttribute,
-  isCustomNode,
   toScopedFunction
 } from '../utils'
-import build from '../builder'
 import {builders} from '../../../utils/build-types'
+import {createNestedBindings} from '../builder'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
-import tagBinding from './tag'
-
 
 /**
  * Transform a RiotParser.Node.Tag into an if binding
  * @param   { RiotParser.Node.Tag } sourceNode - tag containing the if attribute
  * @param   { string } selectorAttribute - attribute needed to select the target node
- * @param   { string } sourceFile - source file path
+ * @param   { stiring } sourceFile - source file path
  * @param   { string } sourceCode - original source
  * @returns { AST.Node } an each binding node
  */
 export default function createIfBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
   const ifAttribute = findIfAttribute(sourceNode)
-  const mightBeARiotComponent = isCustomNode(sourceNode)
 
   return builders.objectExpression([
     simplePropertyNode(BINDING_TYPE_KEY,
@@ -44,16 +38,6 @@ export default function createIfBinding(sourceNode, selectorAttribute, sourceFil
       toScopedFunction(ifAttribute.expressions[0], sourceFile, sourceCode)
     ),
     ...createSelectorProperties(selectorAttribute),
-    createTemplateProperty(mightBeARiotComponent ?
-      [null, [
-        tagBinding(
-          cloneNodeWithoutSelectorAttribute(sourceNode),
-          null,
-          sourceFile,
-          sourceCode
-        )]
-      ] :
-      build(createRootNode(sourceNode), sourceFile, sourceCode)
-    )
+    createTemplateProperty(createNestedBindings(sourceNode, sourceFile, sourceCode))
   ])
 }

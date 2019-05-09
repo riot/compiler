@@ -9,9 +9,7 @@ import {
   EACH_BINDING_TYPE
 } from '../constants'
 import {
-  cloneNodeWithoutSelectorAttribute,
   createASTFromExpression,
-  createRootNode,
   createSelectorProperties,
   createTemplateProperty,
   findEachAttribute,
@@ -19,18 +17,16 @@ import {
   findKeyAttribute,
   getAttributeExpression,
   getName,
-  isCustomNode,
   toScopedFunction
 } from '../utils'
 
 import {isExpressionStatement, isSequenceExpression} from '../../../utils/ast-nodes-checks'
 import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
-import build from '../builder'
 import {builders} from '../../../utils/build-types'
 import compose from 'cumpa'
+import {createNestedBindings} from '../builder'
 import generateJavascript from '../../../utils/generate-javascript'
 import panic from '../../../utils/panic'
-import tagBinding from './tag'
 
 const getEachItemName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[0] : expression.left
 const getEachIndexName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[1] : null
@@ -84,7 +80,6 @@ export function generateEachExpressionProperties(eachExpression, sourceFile, sou
   ]
 }
 
-
 /**
  * Transform a RiotParser.Node.Tag into an each binding
  * @param   { RiotParser.Node.Tag } sourceNode - tag containing the each attribute
@@ -99,7 +94,6 @@ export default function createEachBinding(sourceNode, selectorAttribute, sourceF
     findEachAttribute,
     findKeyAttribute
   ].map(f => f(sourceNode))
-  const mightBeARiotComponent = isCustomNode(sourceNode)
   const attributeOrNull = attribute => attribute ? toScopedFunction(getAttributeExpression(attribute), sourceFile, sourceCode) : nullNode()
 
   return builders.objectExpression([
@@ -112,17 +106,7 @@ export default function createEachBinding(sourceNode, selectorAttribute, sourceF
     ),
     simplePropertyNode(BINDING_GET_KEY_KEY, attributeOrNull(keyAttribute)),
     simplePropertyNode(BINDING_CONDITION_KEY, attributeOrNull(ifAttribute)),
-    createTemplateProperty(mightBeARiotComponent ?
-      [null, [
-        tagBinding(
-          cloneNodeWithoutSelectorAttribute(sourceNode),
-          null,
-          sourceFile,
-          sourceCode
-        )]
-      ] :
-      build(createRootNode(sourceNode), sourceFile, sourceCode)
-    ),
+    createTemplateProperty(createNestedBindings(sourceNode, sourceFile, sourceCode)),
     ...createSelectorProperties(selectorAttribute),
     ...compose(generateEachExpressionProperties, getAttributeExpression)(eachAttribute)
   ])

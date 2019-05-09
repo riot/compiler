@@ -1,6 +1,8 @@
 import {
+  cloneNodeWithoutSelectorAttribute,
   closeTag,
   createBindingSelector,
+  createRootNode,
   getChildrenNodes,
   getNodeAttributes,
   hasEachAttribute,
@@ -104,6 +106,26 @@ function parseNode(sourceNode, sourceFile, sourceCode, state) {
   // static nodes have no bindings
   if (isStaticNode(sourceNode)) return [nodeToString(sourceNode), []]
   return createDynamicNode(sourceNode, sourceFile, sourceCode, state)
+}
+
+/**
+ * Create the tag binding
+ * @param   { RiotParser.Node.Tag } sourceNode - tag containing the each attribute
+ * @param   { string } sourceFile - source file path
+ * @param   { string } sourceCode - original source
+ * @returns { Array } array with only the tag binding AST
+ */
+export function createNestedBindings(sourceNode, sourceFile, sourceCode) {
+  const mightBeARiotComponent = isCustomNode(sourceNode)
+
+  return mightBeARiotComponent ? [null, [
+    tagBinding(
+      cloneNodeWithoutSelectorAttribute(sourceNode),
+      null,
+      sourceFile,
+      sourceCode
+    )]
+  ] : build(createRootNode(sourceNode), sourceFile, sourceCode)
 }
 
 /**
