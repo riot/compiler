@@ -116,7 +116,7 @@ export default function createEachBinding(sourceNode, selectorAttribute, sourceF
       [null, [
         tagBinding(
           cloneNodeWithoutSelectorAttribute(sourceNode),
-          selectorAttribute,
+          null,
           sourceFile,
           sourceCode
         )]

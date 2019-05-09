@@ -1,7 +1,10 @@
 # Compiler Changes
 
-### v4.0.3
 
+### v4.0.4
+- Fix avoid removing selector attributes twice on custom tags
+
+### v4.0.3
 - Fix attributes handling on custom children nodes [riot#2680](https://github.com/riot/riot/issues/2680)
 
 ### v4.0.2
