@@ -11,7 +11,8 @@ import {
   BINDING_NAME_KEY,
   BINDING_SELECTOR_KEY,
   BINDING_TEMPLATE_KEY,
-  BINDING_TYPE_KEY
+  BINDING_TYPE_KEY,
+  NAME_ATTRIBUTE
 } from '../../src/generators/template/constants'
 import {bindingTypes, expressionTypes} from '@riotjs/dom-bindings'
 import {evaluateScript, renderExpression} from '../helpers'
@@ -26,6 +27,7 @@ import ifBinding from '../../src/generators/template/bindings/if'
 import {mergeNodeExpressions} from '../../src/generators/template/expressions/text'
 import riotParser from '@riotjs/parser'
 import simpleBinding from '../../src/generators/template/bindings/simple'
+import slotBinding from '../../src/generators/template/bindings/slot'
 import tagBinding from '../../src/generators/template/bindings/tag'
 import {toScopedFunction} from '../../src/generators/template/utils'
 
@@ -514,6 +516,13 @@ describe('Generators - Template', () => {
       expect(output[BINDING_EVALUATE_KEY]({items: [1,2,3]})).to.be.deep.equal([1,2,3])
     })
 
+    it('Wrong each formats can not be parsed', () => {
+      const source = '<li expr0 each={...items}>{item}</li>'
+      const { template } = parse(source)
+
+      expect(() => eachBinding(template, 'expr0', FAKE_SRC_FILE, source)).to.throw()
+    })
+
     it('Each expression with index', () => {
       const source = '<li expr0 each={(item, index) in items}>{item}</li>'
       const { template } = parse(source)
@@ -717,6 +726,30 @@ describe('Generators - Template', () => {
     })
   })
 
+  describe('Slot bindings', () => {
+    it('Default slot binding ', () => {
+      const source = '<slot/>'
+      const { template } = parse(source)
+      const input = slotBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.SLOT)
+      expect(output[NAME_ATTRIBUTE]).to.be.equal('default')
+    })
+
+    it('Custom slot binding ', () => {
+      const source = '<slot name="foo"/>'
+      const { template } = parse(source)
+      const input = slotBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.SLOT)
+      expect(output[NAME_ATTRIBUTE]).to.be.equal('foo')
+    })
+  })
+
   describe('Template builder', () => {
     it('Throw in case of no template to parse', () => {
       expect(() => builder(null)).to.throw
@@ -852,7 +885,7 @@ describe('Generators - Template', () => {
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
 
-      expect(html).to.be.equal('<slot></slot>')
+      expect(html).to.be.equal('<slot expr></slot>')
     })
 
     it('Tag binding via is attribute', () => {

@@ -1,6 +1,6 @@
 import asJSON from './sourcemap-as-json'
+import {composeSourceMaps} from 'recast/lib/util'
 import isNode from './is-node'
-import recastUtil from 'recast/lib/util'
 
 /**
  * Compose two sourcemaps
@@ -13,7 +13,7 @@ export default function composeSourcemaps(formerMap, latterMap) {
     isNode() &&
     formerMap && latterMap && latterMap.mappings
   ) {
-    return recastUtil.composeSourceMaps(asJSON(formerMap), asJSON(latterMap))
+    return composeSourceMaps(asJSON(formerMap), asJSON(latterMap))
   } else if (isNode() && formerMap) {
     return asJSON(formerMap)
   }

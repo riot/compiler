@@ -16,8 +16,8 @@
     "cov-html": "nyc report --reporter=html",
     "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js",
     "postest": "npm run cov-html",
-    "test": "npm run lint && nyc mocha -r reify test/*.spec.js test/**/*.spec.js",
-    "debug": "mocha --inspect --inspect-brk -r reify test/*.spec.js test/**/*.spec.js",
+    "test": "npm run lint && nyc mocha -r esm test/*.spec.js test/**/*.spec.js",
+    "debug": "mocha --inspect --inspect-brk -r esm test/*.spec.js test/**/*.spec.js",
     "prepublishOnly": "npm run build && npm run test"
   },
   "repository": {
@@ -37,9 +37,9 @@
     "coveralls": "^3.0.3",
     "eslint": "^5.16.0",
     "eslint-config-riot": "^2.0.0",
+    "esm": "^3.2.22",
     "mocha": "^6.1.4",
     "nyc": "^14.1.0",
-    "reify": "^0.18.1",
     "rollup": "^1.11.3",
     "rollup-plugin-alias": "^1.5.1",
     "rollup-plugin-commonjs": "^9.3.4",

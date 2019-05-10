@@ -10,6 +10,7 @@ import {
   hasItsOwnTemplate,
   isCustomNode,
   isRootNode,
+  isSlotNode,
   isStaticNode,
   isTagNode,
   isTextNode,
@@ -21,6 +22,7 @@ import eachBinding from './bindings/each'
 import ifBinding from './bindings/if'
 import panic from '../../utils/panic'
 import simpleBinding from './bindings/simple'
+import slotBinding from './bindings/slot'
 import tagBinding from './bindings/tag'
 
 const BuildingState = Object.freeze({
@@ -88,6 +90,9 @@ function createTagWithBindings(sourceNode, sourceFile, sourceCode) {
   // TAG bindings have prio 3
   case isCustomNode(cloneNode):
     return [tagOpeningHTML, [tagBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
+  // slot tag
+  case isSlotNode(cloneNode):
+    return [tagOpeningHTML, [slotBinding(cloneNode, bindingsSelector)]]
   // this node has expressions bound to it
   default:
     return [tagOpeningHTML, [simpleBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]

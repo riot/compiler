@@ -13,6 +13,7 @@ import {
   KEY_ATTRIBUTE,
   SCOPE,
   SLOT_ATTRIBUTE,
+  SLOT_TAG_NODE_NAME,
   TEMPLATE_FN,
   TEXT_NODE_EXPRESSION_PLACEHOLDER
 } from './constants'
@@ -409,6 +410,14 @@ export function isCustomNode(node) {
   return !!(node[IS_CUSTOM_NODE] || hasIsAttribute(node))
 }
 
+/**
+ * True the node is <slot>
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true if it's a slot node
+ */
+export function isSlotNode(node) {
+  return node.name === SLOT_TAG_NODE_NAME
+}
 
 /**
  * True if the node has the isVoid attribute set
@@ -557,7 +566,8 @@ export function isStaticNode(node) {
     hasExpressions,
     findEachAttribute,
     findIfAttribute,
-    isCustomNode
+    isCustomNode,
+    isSlotNode
   ].every(test => !test(node))
 }
 

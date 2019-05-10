@@ -1,8 +1,8 @@
 import {join,relative} from 'path'
-import babel from '@babel/core'
 import recast from 'recast'
 import {renderSync} from 'node-sass'
 import sh from 'shelljs'
+import {transform} from '@babel/core'
 
 const FIXTURES_DIR = './test/fixtures/'
 const EXPECTED_DIR = './test/expected/'
@@ -20,7 +20,7 @@ export function getExpected(name) {
 }
 
 export function babelPreprocessor(source, meta) {
-  return babel.transform(source, {
+  return transform(source, {
     sourceMaps: true,
     retainLines: true,
     sourceFileName: meta.options.file,

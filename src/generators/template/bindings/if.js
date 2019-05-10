@@ -20,7 +20,7 @@ import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
  * @param   { string } selectorAttribute - attribute needed to select the target node
  * @param   { stiring } sourceFile - source file path
  * @param   { string } sourceCode - original source
- * @returns { AST.Node } an each binding node
+ * @returns { AST.Node } an if binding node
  */
 export default function createIfBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
   const ifAttribute = findIfAttribute(sourceNode)
