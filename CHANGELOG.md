@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.1.1
+- Fix commonjs imports
+
 ### v4.1.0
 - Add support for the slot attribute binding
 
