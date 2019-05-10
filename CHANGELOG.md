@@ -1,5 +1,7 @@
 # Compiler Changes
 
+### v4.1.0
+- Add support for the slot attribute binding
 
 ### v4.0.4
 - Fix avoid removing selector attributes twice on custom tags
