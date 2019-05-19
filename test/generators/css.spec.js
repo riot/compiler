@@ -9,7 +9,21 @@ import recast from 'recast'
 const simpleCSS = `
 <style>
   :host {
-    color: 'red';
+    color: red;
+  }
+</style>
+`
+
+const mediaQueryCss = `
+<style>
+  :host {
+    color: red;
+  }
+
+  @media (min-width: 500px) {
+    :host {
+      color: blu;
+    }
   }
 </style>
 `
@@ -54,6 +68,24 @@ describe('Generators - CSS', () => {
 
     expect(ast).to.be.ok
     expect(code).to.have.string('my-tag')
+    expect(output.default.css).to.be.ok
+    expect(output.default.tag).to.be.not.ok
+    expect(output.default.template).to.be.not.ok
+  })
+
+  it('compile css containing media queries', () => {
+    const { css } = parser().parse(mediaQueryCss).output
+
+    const ast = compileCSS(css, simpleCSS, { options: {
+      file: FAKE_FILE,
+      scopedCss: true
+    }, tagName: 'my-tag' }, createInput())
+    const {code} = recast.print(ast)
+    const output = evaluateScript(code)
+
+
+    expect(ast).to.be.ok
+    expect(code).to.not.have.string('my-tag @media (min-width: 500px)')
     expect(output.default.css).to.be.ok
     expect(output.default.tag).to.be.not.ok
     expect(output.default.template).to.be.not.ok

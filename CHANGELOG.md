@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.2.1
+- Fix css generation with `@media` queries
+
 ### v4.2.0
 - Add support for `<a {href}/>` shortcut expressions
 - Fix spread expressions issue [riot/2679](https://github.com/riot/riot/issues/2679)
