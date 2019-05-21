@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.2.2
+- Fix [riot#2691](https://github.com/riot/riot/issues/2691)
+
 ### v4.2.1
 - Fix css generation with `@media` queries
 
