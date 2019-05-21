@@ -61,7 +61,12 @@ export const hasIsAttribute = compose(Boolean, findIsAttribute)
  * @returns {boolean} true if it's a global api variable
  */
 export function isGlobal({ scope, node }) {
-  return isRaw(node) || isBuiltinAPI(node) || isBrowserAPI(node) || scope.lookup(getName(node))
+  return Boolean(
+    isRaw(node) ||
+    isBuiltinAPI(node) ||
+    isBrowserAPI(node) ||
+    scope.lookup(getName(node))
+  )
 }
 
 /**
@@ -101,7 +106,11 @@ function updateNodeScope(path) {
  */
 function visitMemberExpression(path) {
   if (!isGlobal({ node: path.node.object, scope: path.scope })) {
-    replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
+    if (path.value.computed) {
+      this.traverse(path)
+    } else {
+      replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
+    }
   }
 
   return false

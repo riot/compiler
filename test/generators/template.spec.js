@@ -112,6 +112,13 @@ describe('Generators - Template', () => {
         expect(renderExpr('new Foo()')).to.be.equal('new scope.Foo()')
       })
 
+      it('computed member expressions', () => {
+        expect(renderExpr('foo[bar]')).to.be.equal('scope.foo[scope.bar]')
+        expect(renderExpr('foo[bar][baz]')).to.be.equal('scope.foo[scope.bar][scope.baz]')
+        expect(renderExpr('foo.bar[baz]')).to.be.equal('scope.foo.bar[scope.baz]')
+        expect(renderExpr('foo.bar[Symbol]')).to.be.equal('scope.foo.bar[Symbol]')
+      })
+
       it('functions declaration', () => {
         expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
         expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + scope.baz')
