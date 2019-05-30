@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.2.3
+- Update `@riotjs/dom-bindings` using v4.0.0
+- Update npm dependencies
+
 ### v4.2.2
 - Fix [riot#2691](https://github.com/riot/riot/issues/2691)
 
