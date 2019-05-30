@@ -1,5 +1,5 @@
-import recast from 'recast'
+import {types as astTypes} from 'recast'
 
-export const types = recast.types
-export const builders = types.builders
-export const namedTypes = types.namedTypes
+export const types = astTypes
+export const builders = astTypes.builders
+export const namedTypes = astTypes.namedTypes

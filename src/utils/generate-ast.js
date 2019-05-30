@@ -1,4 +1,4 @@
-import recast from 'recast'
+import {parse} from 'recast'
 
 /**
  * Parse a js source to generate the AST
@@ -7,7 +7,7 @@ import recast from 'recast'
  * @returns {AST} AST tree
  */
 export default function generateAST(source, options) {
-  return recast.parse(source, {
+  return parse(source, {
     ...options
   })
 }

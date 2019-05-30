@@ -1,4 +1,4 @@
-import recast from 'recast'
+import {print} from 'recast'
 
 /**
  * Generate the javascript from an ast source
@@ -7,7 +7,7 @@ import recast from 'recast'
  * @returns {Object} code + map
  */
 export default function generateJavascript(ast, options) {
-  return recast.print(ast, {
+  return print(ast, {
     ...options,
     tabWidth: 2,
     quote: 'single'

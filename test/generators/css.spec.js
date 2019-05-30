@@ -4,7 +4,7 @@ import compileCSS from '../../src/generators/css'
 import {createInitialInput} from '../../src/index'
 import {expect} from 'chai'
 import parser  from '@riotjs/parser'
-import recast from 'recast'
+import {print} from 'recast'
 
 const simpleCSS = `
 <style>
@@ -62,7 +62,7 @@ describe('Generators - CSS', () => {
       file: FAKE_FILE,
       scopedCss: true
     }, tagName: 'my-tag' }, createInput())
-    const {code} = recast.print(ast)
+    const {code} = print(ast)
 
     const output = evaluateScript(code)
 
@@ -80,7 +80,7 @@ describe('Generators - CSS', () => {
       file: FAKE_FILE,
       scopedCss: true
     }, tagName: 'my-tag' }, createInput())
-    const {code} = recast.print(ast)
+    const {code} = print(ast)
     const output = evaluateScript(code)
 
 
@@ -98,7 +98,7 @@ describe('Generators - CSS', () => {
       file: FAKE_FILE,
       scopedCss: false
     }, tagName: 'my-tag'}, createInput())
-    const {code} = recast.print(ast)
+    const {code} = print(ast)
     const output = evaluateScript(code)
 
     expect(ast).to.be.ok
@@ -115,7 +115,7 @@ describe('Generators - CSS', () => {
       file: FAKE_FILE,
       scopedCss: true
     }, tagName: 'my-tag'}, createInput())
-    const {code} = recast.print(ast)
+    const {code} = print(ast)
     const output = evaluateScript(code)
 
     expect(ast).to.be.ok

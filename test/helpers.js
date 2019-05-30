@@ -1,5 +1,5 @@
 import {join,relative} from 'path'
-import recast from 'recast'
+import {print} from 'recast'
 import {renderSync} from 'node-sass'
 import sh from 'shelljs'
 import {transform} from '@babel/core'
@@ -69,7 +69,7 @@ export function evaluateScript(code) {
 }
 
 export function renderExpression(ast) {
-  return recast.print(ast).code
+  return print(ast).code
     .replace('function(scope) {\n    return', '')
     .replace('return', '')
     .replace(/\}$/, '')

@@ -3,7 +3,7 @@ import {createInitialInput} from '../../src/index'
 import {evaluateScript} from '../helpers'
 import {expect} from 'chai'
 import parser  from '@riotjs/parser'
-import recast from 'recast'
+import {print} from 'recast'
 
 const simpleJS = `
 <script>
@@ -37,7 +37,7 @@ describe('Generators - javascript', () => {
     const ast = compileJavascript(javascript, simpleJS, { options: {
       file: FAKE_FILE
     }}, createInput())
-    const {code} = recast.print(ast)
+    const {code} = print(ast)
     const output = evaluateScript(code)
 
     expect(code).to.be.a('string')
