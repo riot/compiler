@@ -10,7 +10,6 @@ import eventExpression from './event'
 import textExpression from './text'
 import valueExpression from './value'
 
-
 export function createExpression(sourceNode, sourceFile, sourceCode, childNodeIndex) {
   switch (true) {
   case isTextNode(sourceNode):

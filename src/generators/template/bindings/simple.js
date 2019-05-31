@@ -1,4 +1,4 @@
-import {createAttributeExpressions, createExpression} from '../expressions'
+import {createAttributeExpressions, createExpression} from '../expressions/index'
 import {
   createSelectorProperties,
   getChildrenNodes,
