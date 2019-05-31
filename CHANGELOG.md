@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.2.4
+- Fix attributes on custom tags having `if` or `each` directives
+
 ### v4.2.3
 - Update `@riotjs/dom-bindings` using v4.0.0
 - Update npm dependencies
