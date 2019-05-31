@@ -106,7 +106,7 @@ export default function createEachBinding(sourceNode, selectorAttribute, sourceF
     ),
     simplePropertyNode(BINDING_GET_KEY_KEY, attributeOrNull(keyAttribute)),
     simplePropertyNode(BINDING_CONDITION_KEY, attributeOrNull(ifAttribute)),
-    createTemplateProperty(createNestedBindings(sourceNode, sourceFile, sourceCode)),
+    createTemplateProperty(createNestedBindings(sourceNode, sourceFile, sourceCode, selectorAttribute)),
     ...createSelectorProperties(selectorAttribute),
     ...compose(generateEachExpressionProperties, getAttributeExpression)(eachAttribute)
   ])

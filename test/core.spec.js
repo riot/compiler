@@ -95,6 +95,13 @@ describe('Core specs', () => {
 
       sourcemapConsumer.destroy()
     })
+
+    it('The each directives on custom tags will be properly generate the attributes', async function() {
+      const result = compile(getFixture('each-and-events.riot'))
+
+      expect(result.code.match(/'expr/g), 'nested templates shouldn\'t have selectors').to.have.length(1)
+      expect(result.code).to.match(/EVENT/)
+    })
   })
 
   describe('Preprocessed tags', () => {

@@ -22,10 +22,10 @@ import {
   getNodeAttributes,
   toScopedFunction
 } from '../utils'
-import attributeExpression from '../expressions/attribute'
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
 import compose from 'cumpa'
+import {createExpression} from '../expressions'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 
 /**
@@ -101,11 +101,9 @@ function createSlotsArray(sourceNode, sourceFile, sourceCode) {
  * @returns {AST.ArrayExpression} array containing the slot objects
  */
 function createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sourceCode) {
-  const createAttributeExpression = attribute => attributeExpression(attribute, sourceFile, sourceCode)
-
   return builders.arrayExpression([
     ...compose(
-      attributes => attributes.map(createAttributeExpression),
+      attributes => attributes.map(attribute => createExpression(attribute, sourceFile, sourceCode)),
       attributes => getAttributesWithoutSelector(attributes, selectorAttribute), // eslint-disable-line
       cleanAttributes
     )(sourceNode)

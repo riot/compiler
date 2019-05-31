@@ -118,14 +118,15 @@ function parseNode(sourceNode, sourceFile, sourceCode, state) {
  * @param   { RiotParser.Node.Tag } sourceNode - tag containing the each attribute
  * @param   { string } sourceFile - source file path
  * @param   { string } sourceCode - original source
+ * @param   { string } selector - binding selector
  * @returns { Array } array with only the tag binding AST
  */
-export function createNestedBindings(sourceNode, sourceFile, sourceCode) {
+export function createNestedBindings(sourceNode, sourceFile, sourceCode, selector) {
   const mightBeARiotComponent = isCustomNode(sourceNode)
 
   return mightBeARiotComponent ? [null, [
     tagBinding(
-      cloneNodeWithoutSelectorAttribute(sourceNode),
+      cloneNodeWithoutSelectorAttribute(sourceNode, selector),
       null,
       sourceFile,
       sourceCode

@@ -38,6 +38,6 @@ export default function createIfBinding(sourceNode, selectorAttribute, sourceFil
       toScopedFunction(ifAttribute.expressions[0], sourceFile, sourceCode)
     ),
     ...createSelectorProperties(selectorAttribute),
-    createTemplateProperty(createNestedBindings(sourceNode, sourceFile, sourceCode))
+    createTemplateProperty(createNestedBindings(sourceNode, sourceFile, sourceCode, selectorAttribute))
   ])
 }
