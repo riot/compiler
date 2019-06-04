@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.2.5
+- Fix https://github.com/riot/riot/issues/2700 replacing the `esprima` parser with `acorn`
+
 ### v4.2.4
 - Fix attributes on custom tags having `if` or `each` directives
 
