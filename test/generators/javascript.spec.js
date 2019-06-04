@@ -13,6 +13,9 @@ export function noop () {}
 
 const person = 'person'
 
+const spread = {}
+const data = {...spread}
+
 export default {
   person
 }

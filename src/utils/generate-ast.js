@@ -1,3 +1,4 @@
+import {Parser} from 'acorn'
 import {parse} from 'recast'
 
 /**
@@ -8,6 +9,14 @@ import {parse} from 'recast'
  */
 export default function generateAST(source, options) {
   return parse(source, {
+    parser: {
+      parse(source, opts) {
+        return Parser.parse(source, {
+          ...opts,
+          ecmaVersion: 2019
+        })
+      }
+    },
     ...options
   })
 }
