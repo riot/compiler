@@ -243,6 +243,16 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('red foo bar')
     })
 
+    it('Merge attribute expression with strings (static text at the end)', () => {
+      const source = '<li class="{foo} bar"></li>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo bar')
+    })
+
     it('Merge multiple attribute expressions', () => {
       const source = '<li class="{bar}__red {foo}"></li>'
       const { template } = parse(source)
@@ -250,11 +260,6 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
 
-      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
-
-      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
-      expect(expression[BINDING_NAME_KEY]).to.be.equal('class')
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo', bar: 'bar'})).to.be.equal('bar__red foo')
     })
 
@@ -265,11 +270,6 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
 
-      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
-
-      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
-      expect(expression[BINDING_NAME_KEY]).to.be.equal('class')
       expect(expression[BINDING_EVALUATE_KEY]({scope: {foo: 'foo', bar: 'bar'}})).to.be.equal('bar-foo')
     })
 
@@ -363,6 +363,34 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.TEXT)
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+    })
+
+    it('Simple text expression (static text at the end)', () => {
+      const source = '<div>{foo}bar</div>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foobar')
+    })
+
+    it('Simple text expression (static text at the beginning)', () => {
+      const source = '<div>bar{foo}</div>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('barfoo')
+    })
+
+    it('Simple text expression (static text at the beginning and at the end)', () => {
+      const source = '<div>bar{foo}baz</div>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('barfoobaz')
     })
 
     it('Multiple text expressions', () => {

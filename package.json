@@ -56,7 +56,7 @@
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
     "@riotjs/dom-bindings": "^4.1.1",
-    "@riotjs/parser": "^4.0.0",
+    "@riotjs/parser": "^4.0.1",
     "acorn": "^6.1.1",
     "cumpa": "^1.0.1",
     "curri": "^1.0.1",
