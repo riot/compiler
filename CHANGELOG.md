@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.2.6
+- Fix expression parts issues https://github.com/riot/riot/issues/2701
+
 ### v4.2.5
 - Fix https://github.com/riot/riot/issues/2700 replacing the `esprima` parser with `acorn`
 
