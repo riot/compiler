@@ -10,7 +10,7 @@
     "src"
   ],
   "scripts": {
-    "prepare": "npm i pug@2.0.3 node-sass@4.9.4 @babel/core@7 @babel/preset-env@7 --no-save",
+    "prepare": "npm i pug@2.0.3 node-sass@4.12.0 @babel/core@7 @babel/preset-env@7 --no-save",
     "lint": "eslint src/ test/ build/",
     "cov": "nyc report --reporter=text-lcov | coveralls",
     "cov-html": "nyc report --reporter=html",
@@ -34,18 +34,18 @@
   ],
   "devDependencies": {
     "chai": "^4.2.0",
-    "coveralls": "^3.0.3",
-    "eslint": "^5.16.0",
+    "coveralls": "^3.0.4",
+    "eslint": "^6.0.0",
     "eslint-config-riot": "^2.0.0",
     "esm": "^3.2.25",
     "mocha": "^6.1.4",
     "nyc": "^14.1.1",
-    "rollup": "^1.13.1",
+    "rollup": "^1.16.2",
     "rollup-plugin-alias": "^1.5.2",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-resolve": "^5.0.1",
+    "rollup-plugin-node-resolve": "^5.0.4",
     "shelljs": "^0.8.3"
   },
   "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (http://gianlucaguarini.com)",
@@ -55,9 +55,10 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
-    "@riotjs/dom-bindings": "^4.1.1",
+    "@riotjs/dom-bindings": "^4.2.2",
     "@riotjs/parser": "^4.0.1",
     "acorn": "^6.1.1",
+    "acorn-dynamic-import": "^4.0.0",
     "cumpa": "^1.0.1",
     "curri": "^1.0.1",
     "dom-nodes": "^1.0.0",

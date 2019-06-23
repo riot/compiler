@@ -102,6 +102,10 @@ describe('Core specs', () => {
       expect(result.code.match(/'expr/g), 'nested templates shouldn\'t have selectors').to.have.length(1)
       expect(result.code).to.match(/EVENT/)
     })
+
+    it('Dynamic import is supported', async function() {
+      expect(() => compile(getFixture('dynamic-import.riot'))).to.not.throw()
+    })
   })
 
   describe('Preprocessed tags', () => {
