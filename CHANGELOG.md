@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.3.0
+- Add support for dynamic import
+
 ### v4.2.6
 - Fix expression parts issues https://github.com/riot/riot/issues/2701
 
