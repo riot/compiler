@@ -96,15 +96,19 @@ describe('Core specs', () => {
       sourcemapConsumer.destroy()
     })
 
-    it('The each directives on custom tags will be properly generate the attributes', async function() {
+    it('The each directives on custom tags will be properly generate the attributes', function() {
       const result = compile(getFixture('each-and-events.riot'))
 
       expect(result.code.match(/'expr/g), 'nested templates shouldn\'t have selectors').to.have.length(1)
       expect(result.code).to.match(/EVENT/)
     })
 
-    it('Dynamic import is supported', async function() {
+    it('Dynamic import is supported', function() {
       expect(() => compile(getFixture('dynamic-import.riot'))).to.not.throw()
+    })
+
+    it('Nested svg tags should not throw (https://github.com/riot/riot/issues/2723)', function() {
+      expect(() => compile(getFixture('svg-loader.riot'))).to.not.throw()
     })
   })
 
