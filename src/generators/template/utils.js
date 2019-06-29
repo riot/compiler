@@ -19,6 +19,7 @@ import {
 } from './constants'
 import {builders, types} from '../../utils/build-types'
 import {
+  isBinaryExpression,
   isBrowserAPI,
   isBuiltinAPI,
   isIdentifier,
@@ -106,7 +107,9 @@ function updateNodeScope(path) {
  */
 function visitMemberExpression(path) {
   if (!isGlobal({ node: path.node.object, scope: path.scope })) {
-    if (path.value.computed) {
+    if (isBinaryExpression(path.node.object)) {
+      this.traverse(path.get('object'))
+    } else if (path.value.computed) {
       this.traverse(path)
     } else {
       replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
@@ -137,12 +140,13 @@ function visitProperty(path) {
 /**
  * The this expressions should be replaced with the scope
  * @param   { types.NodePath } path - containing the current node visited
- * @returns { boolean } return false if we want to stop the tree traversal
+ * @returns { boolean|undefined } return false if we want to stop the tree traversal
  */
 function visitThisExpression(path) {
   path.replace(scope)
   this.traverse(path)
 }
+
 
 /**
  * Update the scope of the global nodes

@@ -123,6 +123,10 @@ describe('Generators - Template', () => {
         expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
         expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + scope.baz')
       })
+
+      it('parethesis precedence expressions', () => {
+        expect(renderExpr('(props.name+"foo").toUpperCase()')).to.be.equal('(scope.props.name+"foo").toUpperCase()')
+      })
     })
   })
 
