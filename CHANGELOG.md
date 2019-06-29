@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.3.1
+- Fix https://github.com/riot/riot/issues/2719
+- Fix https://github.com/riot/riot/issues/2723
+
 ### v4.3.0
 - Add support for dynamic import
 
