@@ -911,6 +911,14 @@ describe('Generators - Template', () => {
       expect(html).to.be.equal('<my-tag expr></my-tag>')
     })
 
+    it('Autoclose void tags', () => {
+      const source = '<svg><circle></circle></svg>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<svg><circle/></svg>')
+    })
+
     it('Custom self-closed tag binding', () => {
       const source = '<my-tag/>   '
       const { template } = parse(source)

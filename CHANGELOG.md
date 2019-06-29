@@ -1,5 +1,20 @@
 # Compiler Changes
 
+### v4.3.2
+- Fix void tags will be automatically corrected for example:
+  ```html
+    <svg>
+      <circle></circle>
+    </svg>
+  ```
+  Will be transfromed to
+
+  ```html
+    <svg>
+      <circle/>
+    </svg>
+  ```
+
 ### v4.3.1
 - Fix https://github.com/riot/riot/issues/2719
 - Fix https://github.com/riot/riot/issues/2723
