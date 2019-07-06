@@ -119,9 +119,9 @@ describe('Generators - Template', () => {
         expect(renderExpr('foo.bar[Symbol]')).to.be.equal('scope.foo.bar[Symbol]')
       })
 
-      it.only('functions declaration', () => {
-        //expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
-        //expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + scope.baz')
+      it('functions declaration', () => {
+        expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
+        expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + scope.baz')
         expect(renderExpr('(foo) => (event) => foo + event.target.value + baz')).to.be.equal('(foo) => (event) => foo + event.target.value + scope.baz')
       })
 

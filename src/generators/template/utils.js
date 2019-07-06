@@ -71,6 +71,25 @@ export function isGlobal({ scope, node }) {
 }
 
 /**
+ * Checks if the identifier of a given node exists in a scope
+ * @param {types.Node} node - node to search for the identifier
+ * @param {Scope} scope - scope where to search for the identifier
+ * @returns {boolean} true if the node identifier is defined in the given scope
+ */
+function nodeIdentifierExistsInScope(node, scope) {
+  let found = false // eslint-disable-line
+  types.visit(node, {
+    visitIdentifier(path) {
+      if (scope.lookup(path.node.name)) {
+        found = true
+      }
+      this.abort()
+    }
+  })
+  return found
+}
+
+/**
  * Replace the path scope with a member Expression
  * @param   { types.NodePath } path - containing the current node visited
  * @param   { types.Node } property - node we want to prefix with the scope identifier
@@ -111,7 +130,7 @@ function visitMemberExpression(path) {
       this.traverse(path.get('object'))
     } else if (path.value.computed) {
       this.traverse(path)
-    } else {
+    } else if (!nodeIdentifierExistsInScope(path.node, path.scope)) {
       replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
     }
   }
