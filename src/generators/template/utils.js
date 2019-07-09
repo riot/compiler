@@ -66,27 +66,32 @@ export function isGlobal({ scope, node }) {
     isRaw(node) ||
     isBuiltinAPI(node) ||
     isBrowserAPI(node) ||
-    scope.lookup(getName(node))
+    isNodeInScope(scope, node)
   )
 }
 
 /**
  * Checks if the identifier of a given node exists in a scope
- * @param {types.Node} node - node to search for the identifier
  * @param {Scope} scope - scope where to search for the identifier
+ * @param {types.Node} node - node to search for the identifier
  * @returns {boolean} true if the node identifier is defined in the given scope
  */
-function nodeIdentifierExistsInScope(node, scope) {
-  let found = false // eslint-disable-line
-  types.visit(node, {
-    visitIdentifier(path) {
-      if (scope.lookup(path.node.name)) {
-        found = true
+function isNodeInScope(scope, node) {
+  const traverse = (isInScope = false) => {
+    types.visit(node, {
+      visitIdentifier(path) {
+        if (scope.lookup(getName(path.node))) {
+          isInScope = true
+        }
+
+        this.abort()
       }
-      this.abort()
-    }
-  })
-  return found
+    })
+
+    return isInScope
+  }
+
+  return traverse()
 }
 
 /**
@@ -125,12 +130,12 @@ function updateNodeScope(path) {
  * @returns { boolean } return always false because we want to check only the first node object
  */
 function visitMemberExpression(path) {
-  if (!isGlobal({ node: path.node.object, scope: path.scope })) {
+  if (!isGlobal(path) && !isGlobal({ node: path.node.object, scope: path.scope })) {
     if (isBinaryExpression(path.node.object)) {
       this.traverse(path.get('object'))
     } else if (path.value.computed) {
       this.traverse(path)
-    } else if (!nodeIdentifierExistsInScope(path.node, path.scope)) {
+    } else {
       replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
     }
   }
