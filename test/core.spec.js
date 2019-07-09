@@ -37,6 +37,12 @@ describe('Core specs', () => {
       expect(output.default.template).to.be.ok
     })
 
+    it('Tags with weird namespaces can output properly css names', async function() {
+      const result = compile(getFixture('weird-namespace.riot'))
+
+      expect(result.code).to.match(/weird\\:namespace/)
+    })
+
     it('Tags without html and javascript can be properly compiled', async function() {
       const result = compile(getFixture('only-css.riot'))
       const output = evaluateScript(result.code)

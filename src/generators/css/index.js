@@ -1,5 +1,6 @@
 import {builders, types} from '../../utils/build-types'
 import {TAG_CSS_PROPERTY} from '../../constants'
+import cssEscape from 'cssesc'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
 
@@ -95,8 +96,12 @@ export default function css(sourceNode, source, meta, ast) {
   const { options } = meta
   const cssNode = compactCss(sourceNode.text)
   const preprocessorOutput = preprocess('css', preprocessorName, meta, cssNode)
+  const escapedCssIdentifier = cssEscape(meta.tagName, {
+    isIdentifier: true
+  })
+
   const cssCode = (options.scopedCss ?
-    scopedCSS(meta.tagName, preprocessorOutput.code) :
+    scopedCSS(escapedCssIdentifier, preprocessorOutput.code) :
     preprocessorOutput.code
   ).trim()
 
