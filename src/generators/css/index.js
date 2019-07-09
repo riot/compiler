@@ -98,7 +98,7 @@ export default function css(sourceNode, source, meta, ast) {
   const preprocessorOutput = preprocess('css', preprocessorName, meta, cssNode)
   const escapedCssIdentifier = cssEscape(meta.tagName, {
     isIdentifier: true
-  })
+  }).replace(/\\/, '\\')
 
   const cssCode = (options.scopedCss ?
     scopedCSS(escapedCssIdentifier, preprocessorOutput.code) :
