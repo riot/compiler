@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.3.3
+- Fix https://github.com/riot/compiler/issues/119
+- Fix https://github.com/riot/riot/issues/2726
+
 ### v4.3.2
 - Fix void tags will be automatically corrected for example:
   ```html
