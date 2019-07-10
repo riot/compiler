@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.3.5
+- Fix backslashed unicode css properties
+
 ### v4.3.4
 - Fix escape backslashes in css strings https://github.com/riot/riot/issues/2726
 
