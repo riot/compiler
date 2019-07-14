@@ -23,6 +23,7 @@ import {
   isBrowserAPI,
   isBuiltinAPI,
   isIdentifier,
+  isNewExpression,
   isRaw,
   isThisExpression
 } from '../../utils/ast-nodes-checks'
@@ -66,6 +67,7 @@ export function isGlobal({ scope, node }) {
     isRaw(node) ||
     isBuiltinAPI(node) ||
     isBrowserAPI(node) ||
+    isNewExpression(node) ||
     isNodeInScope(scope, node)
   )
 }
