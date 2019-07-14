@@ -331,6 +331,19 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
     })
 
+    it('new keywork in value expression', () => {
+      const source = '<input value={ (new Date()).getFullYear() }/>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.VALUE)
+      expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal(new Date().getFullYear())
+    })
+
     it('Simple event expression', () => {
       const source = '<input oninput={foo}/>'
       const { template } = parse(source)
