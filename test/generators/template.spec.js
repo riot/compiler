@@ -82,10 +82,17 @@ describe('Generators - Template', () => {
         expect(renderExpr('Array.from(foo.bar)')).to.be.equal('Array.from(scope.foo.bar)')
         expect(renderExpr('window.isNaN(foo.bar)')).to.be.equal('window.isNaN(scope.foo.bar)')
         expect(renderExpr('new RegExp(foo.bar, "g")')).to.be.equal('new RegExp(scope.foo.bar, "g")')
+        expect(renderExpr('(new Date()).getFullYear()')).to.be.equal('(new Date()).getFullYear()')
+        expect(renderExpr('"this".toUpperCase().toLowerCase()')).to.be.equal('"this".toUpperCase().toLowerCase()')
       })
 
       it('simple sum', () => {
         expect(renderExpr('foo + bar')).to.be.equal('scope.foo + scope.bar')
+      })
+
+      it('scoped functions', () => {
+        expect(renderExpr('foo.toUppercase()')).to.be.equal('scope.foo.toUppercase()')
+        expect(renderExpr('foo()')).to.be.equal('scope.foo()')
       })
 
       it('context transform', () => {
@@ -331,19 +338,6 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
     })
 
-    it('new keywork in value expression', () => {
-      const source = '<input value={ (new Date()).getFullYear() }/>'
-      const { template } = parse(source)
-      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
-      const output = evaluateOutput(input)
-      const expression = output.expressions[0]
-      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
-
-      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.VALUE)
-      expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal(new Date().getFullYear())
-    })
-
     it('Simple event expression', () => {
       const source = '<input oninput={foo}/>'
       const { template } = parse(source)
@@ -381,20 +375,6 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.TEXT)
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
-    })
-
-    it('Chained object access as text expression', () => {
-      const source = '<div>{"this".toUpperCase().toLowerCase()}</div>'
-      const { template } = parse(source)
-      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
-      const output = evaluateOutput(input)
-      const expression = output.expressions[0]
-
-      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
-
-      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.TEXT)
-      expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal('this'.toUpperCase().toLowerCase())
     })
 
     it('Simple text expression (static text at the end)', () => {
