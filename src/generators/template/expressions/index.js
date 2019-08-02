@@ -7,14 +7,15 @@ import {
 
 import attributeExpression from './attribute'
 import eventExpression from './event'
+import {hasValueAttribute} from 'dom-nodes'
 import textExpression from './text'
 import valueExpression from './value'
 
-export function createExpression(sourceNode, sourceFile, sourceCode, childNodeIndex) {
+export function createExpression(sourceNode, sourceFile, sourceCode, childNodeIndex, parentNode) {
   switch (true) {
   case isTextNode(sourceNode):
     return textExpression(sourceNode, sourceFile, sourceCode, childNodeIndex)
-  case isValueAttribute(sourceNode):
+  case isValueAttribute(sourceNode) && hasValueAttribute(parentNode.name):
     return valueExpression(sourceNode, sourceFile, sourceCode)
   case isEventAttribute(sourceNode):
     return eventExpression(sourceNode, sourceFile, sourceCode)
@@ -32,5 +33,5 @@ export function createExpression(sourceNode, sourceFile, sourceCode, childNodeIn
  */
 export function createAttributeExpressions(sourceNode, sourceFile, sourceCode) {
   return findDynamicAttributes(sourceNode)
-    .map(attribute => createExpression(attribute, sourceFile, sourceCode))
+    .map(attribute => createExpression(attribute, sourceFile, sourceCode, 0, sourceNode))
 }

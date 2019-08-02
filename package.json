@@ -62,7 +62,7 @@
     "cssesc": "^3.0.0",
     "cumpa": "^1.0.1",
     "curri": "^1.0.1",
-    "dom-nodes": "^1.0.0",
+    "dom-nodes": "^1.1.1",
     "globals": "^12.0.0",
     "recast": "^0.18.1",
     "source-map": "^0.7.3"
