@@ -383,6 +383,20 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
     })
 
+    it('Chained object access as text expression', () => {
+      const source = '<div>{"this".toUpperCase().toLowerCase()}</div>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.TEXT)
+      expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal('this'.toUpperCase().toLowerCase())
+    })
+
     it('Simple text expression (static text at the end)', () => {
       const source = '<div>{foo}bar</div>'
       const { template } = parse(source)
