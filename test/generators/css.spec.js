@@ -37,6 +37,24 @@ const scssCSS = `
     & {
       background-color: red;
     }
+
+    &::before {
+      color: 'green'
+    }
+  }
+
+  h1 {
+    color: green;
+    display: flex;
+  }
+
+  .unmount-animation {
+    opacity: 1;
+    transition: opacity 1s;
+
+    &.is-unmount {
+      opacity: 0;
+    }
   }
 </style>
 `
@@ -116,10 +134,12 @@ describe('Generators - CSS', () => {
       scopedCss: true
     }, tagName: 'my-tag'}, createInput())
     const {code} = print(ast)
+
     const output = evaluateScript(code)
 
     expect(ast).to.be.ok
     expect(code).to.have.string('[is="my-tag"]')
+    expect(code).to.have.string('my-tag h1,[is="my-tag"] h1{\n  color: green;')
     expect(output.default.css).to.be.ok
     expect(output.default.tag).to.be.not.ok
     expect(output.default.template).to.be.not.ok
