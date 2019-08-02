@@ -137,7 +137,7 @@ function visitMemberExpression(path) {
       this.traverse(path.get('object'))
     } else if (path.value.computed) {
       this.traverse(path)
-    } else {
+    } else if (!path.node.object.callee) {
       replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
     }
   }
