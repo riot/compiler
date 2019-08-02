@@ -16,4 +16,4 @@ export const isExportDefaultStatement = namedTypes.ExportDefaultDeclaration.chec
 
 export const isBrowserAPI = ({name}) => browserAPIs.includes(name)
 export const isBuiltinAPI = ({name}) => builtinAPIs.includes(name)
-export const isRaw = (node) => node && node.raw
+export const isRaw = (node) => node && node.raw // eslint-disable-line
