@@ -3,7 +3,6 @@ import {
   isEventAttribute,
   isProgressNode,
   isTextNode,
-  isProgressNode,
   isValueAttribute
 } from '../utils'
 
