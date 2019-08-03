@@ -352,6 +352,20 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
     })
 
+    it('Value expression on a progress tag will be transformed into an attribute', () => {
+      const source = '<progress value={foo}/>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+    })
+
     it('Simple event expression', () => {
       const source = '<input oninput={foo}/>'
       const { template } = parse(source)

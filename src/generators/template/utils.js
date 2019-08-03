@@ -11,6 +11,7 @@ import {
   IS_SPREAD_ATTRIBUTE,
   IS_VOID_NODE,
   KEY_ATTRIBUTE,
+  PROGRESS_TAG_NODE_NAME,
   SCOPE,
   SLOT_ATTRIBUTE,
   SLOT_TAG_NODE_NAME,
@@ -510,6 +511,15 @@ export function isSpreadAttribute(node) {
  */
 export function isValueAttribute(node) {
   return node.name === 'value'
+}
+
+/**
+ * True if the DOM node is a progress tag
+ * @param   {RiotParser.Node}  node - riot parser node
+ * @returns {boolean} true for the progress tags
+ */
+export function isProgressNode(node) {
+  return node.name === PROGRESS_TAG_NODE_NAME
 }
 
 /**
