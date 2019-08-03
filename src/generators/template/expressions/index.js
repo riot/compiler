@@ -1,6 +1,7 @@
 import {
   findDynamicAttributes,
   isEventAttribute,
+  isProgressNode,
   isTextNode,
   isProgressNode,
   isValueAttribute
