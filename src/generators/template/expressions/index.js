@@ -1,8 +1,8 @@
 import {
   findDynamicAttributes,
   isEventAttribute,
-  isTextNode,
   isProgressNode,
+  isTextNode,
   isValueAttribute
 } from '../utils'
 
