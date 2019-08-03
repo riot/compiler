@@ -103,7 +103,7 @@ function createSlotsArray(sourceNode, sourceFile, sourceCode) {
 function createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sourceCode) {
   return builders.arrayExpression([
     ...compose(
-      attributes => attributes.map(attribute => createExpression(attribute, sourceFile, sourceCode)),
+      attributes => attributes.map(attribute => createExpression(attribute, sourceFile, sourceCode, 0, sourceNode)),
       attributes => getAttributesWithoutSelector(attributes, selectorAttribute), // eslint-disable-line
       cleanAttributes
     )(sourceNode)

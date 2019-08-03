@@ -26,7 +26,8 @@ function createTextNodeExpressions(sourceNode, sourceFile, sourceCode) {
       node,
       sourceFile,
       sourceCode,
-      childrenNodes.indexOf(node)
+      childrenNodes.indexOf(node),
+      sourceNode
     ))
 }
 
