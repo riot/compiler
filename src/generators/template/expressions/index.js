@@ -2,6 +2,7 @@ import {
   findDynamicAttributes,
   isEventAttribute,
   isTextNode,
+  isProgressNode,
   isValueAttribute
 } from '../utils'
 
@@ -15,7 +16,9 @@ export function createExpression(sourceNode, sourceFile, sourceCode, childNodeIn
   switch (true) {
   case isTextNode(sourceNode):
     return textExpression(sourceNode, sourceFile, sourceCode, childNodeIndex)
-  case isValueAttribute(sourceNode) && hasValueAttribute(parentNode.name):
+  // progress nodes value attributes will be rendered as attributes
+  // see https://github.com/riot/compiler/issues/122
+  case isValueAttribute(sourceNode) && hasValueAttribute(parentNode.name) && !isProgressNode(parentNode):
     return valueExpression(sourceNode, sourceFile, sourceCode)
   case isEventAttribute(sourceNode):
     return eventExpression(sourceNode, sourceFile, sourceCode)
