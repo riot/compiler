@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.3.6
+- Fix https://github.com/riot/compiler/issues/122
+- Fix https://github.com/riot/compiler/pull/118
+
 ### v4.3.5
 - Fix backslashed unicode css properties
 
