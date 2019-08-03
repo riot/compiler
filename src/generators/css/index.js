@@ -83,9 +83,10 @@ function compactCss(cssNode) {
   }
 }
 
-const escapeIdentifier = identifier => JSON.stringify(cssEscape(identifier, {
+const escapeBackslashes = s => s.replace(/\\/g, '\\\\')
+const escapeIdentifier = identifier => escapeBackslashes(cssEscape(identifier, {
   isIdentifier: true
-})).replace(/"$|^"/g, '')
+}))
 
 /**
  * Generate the component css
@@ -103,8 +104,8 @@ export default function css(sourceNode, source, meta, ast) {
   const escapedCssIdentifier = escapeIdentifier(meta.tagName)
 
   const cssCode = (options.scopedCss ?
-    scopedCSS(escapedCssIdentifier, cssEscape(preprocessorOutput.code)) :
-    cssEscape(preprocessorOutput.code)
+    scopedCSS(escapedCssIdentifier, escapeBackslashes(preprocessorOutput.code)) :
+    escapeBackslashes(preprocessorOutput.code)
   ).trim()
 
   types.visit(ast, {
