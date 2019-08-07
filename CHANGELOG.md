@@ -1,5 +1,11 @@
 # Compiler Changes
 
+### v4.3.8
+- Fix make sure that the `createExpression` internal function receives always all its arguments
+
+### v4.3.7
+- Fix https://github.com/riot/compiler/issues/121
+
 ### v4.3.6
 - Fix https://github.com/riot/compiler/issues/122
 - Fix https://github.com/riot/compiler/pull/118
