@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.3.9
+- Fix https://github.com/riot/compiler/issues/125
+- Fix https://github.com/riot/compiler/issues/124
+
 ### v4.3.8
 - Fix make sure that the `createExpression` internal function receives always all its arguments
 
