@@ -1,5 +1,5 @@
 /**
- * In some case like on custom tags we need to normalize the attribute values
+ * In some cases like on custom tags we need to normalize the attribute values
  * see also https://github.com/riot/compiler/issues/124
  * @param   {RiotParser.Attr} sourceNode - riot parser node
  * @returns {string} value of the attribute expression
