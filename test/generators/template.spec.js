@@ -994,5 +994,19 @@ describe('Generators - Template', () => {
 
       expect(html).to.be.equal('<ul><li>1</li><li expr><!----></li><li>3</li></ul>')
     })
+
+    it('Value attributes on custom tags do not break the compiler (issue #124)', () => {
+      const source = '<input type="text" name="txt" is="binding" value="1"/>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, 'expr0', FAKE_SRC_FILE, source)
+      expect(html).to.be.equal('<input expr type="text" name="txt" is="binding" value="1"/>')
+    })
+
+    it('Event attributes on custom tags do not break the compiler (issue #124)', () => {
+      const source = '<input type="text" name="txt" is="binding" onclick="void"/>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, 'expr0', FAKE_SRC_FILE, source)
+      expect(html).to.be.equal('<input expr type="text" name="txt" is="binding" onclick="void"/>')
+    })
   })
 })

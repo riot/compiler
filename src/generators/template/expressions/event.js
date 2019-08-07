@@ -6,6 +6,7 @@ import {
   EXPRESSION_TYPES
 } from '../constants'
 import {builders} from '../../../utils/build-types'
+import normalizeAttributeExpressionValue from '../../../utils/normalize-attribute-expression-value'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import {toScopedFunction} from '../utils'
 
@@ -28,7 +29,7 @@ export default function createEventExpression(sourceNode, sourceFile, sourceCode
     simplePropertyNode(BINDING_NAME_KEY, builders.literal(sourceNode.name)),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,
-      toScopedFunction(sourceNode.expressions[0], sourceFile, sourceCode)
+      toScopedFunction(normalizeAttributeExpressionValue(sourceNode), sourceFile, sourceCode)
     )
   ])
 }
