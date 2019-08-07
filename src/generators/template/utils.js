@@ -134,10 +134,10 @@ function updateNodeScope(path) {
  */
 function visitMemberExpression(path) {
   if (!isGlobal(path) && !isGlobal({ node: path.node.object, scope: path.scope })) {
-    if (isBinaryExpression(path.node.object)) {
-      this.traverse(path.get('object'))
-    } else if (path.value.computed) {
+    if (path.value.computed) {
       this.traverse(path)
+    } else if (isBinaryExpression(path.node.object) || path.node.object.computed) {
+      this.traverse(path.get('object'))
     } else if (!path.node.object.callee) {
       replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
     }

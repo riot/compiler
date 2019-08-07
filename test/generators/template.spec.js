@@ -123,6 +123,7 @@ describe('Generators - Template', () => {
         expect(renderExpr('foo[bar]')).to.be.equal('scope.foo[scope.bar]')
         expect(renderExpr('foo[bar][baz]')).to.be.equal('scope.foo[scope.bar][scope.baz]')
         expect(renderExpr('foo.bar[baz]')).to.be.equal('scope.foo.bar[scope.baz]')
+        expect(renderExpr('foo.bar[baz].buz')).to.be.equal('scope.foo.bar[scope.baz].buz')
         expect(renderExpr('foo.bar[Symbol]')).to.be.equal('scope.foo.bar[Symbol]')
       })
 
