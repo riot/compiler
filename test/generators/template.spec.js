@@ -93,6 +93,7 @@ describe('Generators - Template', () => {
       it('scoped functions', () => {
         expect(renderExpr('foo.toUppercase()')).to.be.equal('scope.foo.toUppercase()')
         expect(renderExpr('foo()')).to.be.equal('scope.foo()')
+        expect(renderExpr('props.messageTypes.get(message.type).hue')).to.be.equal('scope.props.messageTypes.get(scope.message.type).hue')
       })
 
       it('context transform', () => {
