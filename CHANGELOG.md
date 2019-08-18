@@ -1,5 +1,10 @@
 # Compiler Changes
 
+### v4.3.10
+- Fix https://github.com/riot/riot/issues/2753
+- Fix https://github.com/riot/riot/issues/2748
+- Update acorn to v7.0.0
+
 ### v4.3.9
 - Fix https://github.com/riot/compiler/issues/125
 - Fix https://github.com/riot/compiler/issues/124
