@@ -43,7 +43,7 @@ const renderTextNode = (node, source) => generateJavascript(
 ).code.replace('.join(\'\')', '')
 
 const getSlotById = (slots, id) => slots.find(slot => slot[BINDING_ID_KEY] === id)
-const removeIdFromExpessionBindings = str => str.replace(/expr(\d+)/g, 'expr')
+const removeIdFromExpessionBindings = str => str.replace(/expr(\d+)="expr(\d+)"/g, 'expr')
 const buildSimpleTemplate = compose(removeIdFromExpessionBindings, res => res[0], builder)
 
 const evaluateOutput = (ast, getComponent = () => null) => evaluateScript(`

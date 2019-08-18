@@ -44,7 +44,8 @@ function createBindingsTag(sourceNode, bindingsSelector) {
     ...sourceNode,
     // inject the selector bindings into the node attributes
     attributes: [{
-      name: bindingsSelector
+      name: bindingsSelector,
+      value: bindingsSelector
     }, ...getNodeAttributes(sourceNode)]
   }
 }
