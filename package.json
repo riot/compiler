@@ -58,7 +58,6 @@
     "@riotjs/dom-bindings": "^4.2.5",
     "@riotjs/parser": "^4.0.3",
     "acorn": "^7.0.0",
-    "acorn-dynamic-import": "^4.0.0",
     "cssesc": "^3.0.0",
     "cumpa": "^1.0.1",
     "curri": "^1.0.1",

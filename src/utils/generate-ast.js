@@ -1,6 +1,4 @@
-// TODO: to remove when https://github.com/acornjs/acorn/pull/834 will be merged
 import {Parser} from 'acorn'
-import dynamicImport from 'acorn-dynamic-import'
 import {parse} from 'recast'
 
 /**
@@ -13,9 +11,9 @@ export default function generateAST(source, options) {
   return parse(source, {
     parser: {
       parse(source, opts) {
-        return Parser.extend(dynamicImport).parse(source, {
+        return Parser.parse(source, {
           ...opts,
-          ecmaVersion: 2019
+          ecmaVersion: 2020
         })
       }
     },
