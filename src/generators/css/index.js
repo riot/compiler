@@ -73,14 +73,11 @@ function scopedCSS(tag, css) {
 
 /**
  * Remove comments, compact and trim whitespace
- * @param {RiotParser.Node} cssNode - css node
- * @returns {RiotParser.Node} css node normalized
+ * @param { string } code - compiled css code
+ * @returns { string } css code normalized
  */
-function compactCss(cssNode) {
-  return {
-    ...cssNode,
-    text: cssNode.text.replace(R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
-  }
+function compactCss(code) {
+  return code.replace(R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
 }
 
 const escapeBackslashes = s => s.replace(/\\/g, '\\\\')
@@ -99,13 +96,13 @@ const escapeIdentifier = identifier => escapeBackslashes(cssEscape(identifier, {
 export default function css(sourceNode, source, meta, ast) {
   const preprocessorName = getPreprocessorTypeByAttribute(sourceNode)
   const { options } = meta
-  const cssNode = compactCss(sourceNode.text)
-  const preprocessorOutput = preprocess('css', preprocessorName, meta, cssNode)
+  const preprocessorOutput = preprocess('css', preprocessorName, meta, sourceNode.text)
+  const normalizedCssCode = compactCss(preprocessorOutput.code)
   const escapedCssIdentifier = escapeIdentifier(meta.tagName)
 
   const cssCode = (options.scopedCss ?
-    scopedCSS(escapedCssIdentifier, escapeBackslashes(preprocessorOutput.code)) :
-    escapeBackslashes(preprocessorOutput.code)
+    scopedCSS(escapedCssIdentifier, escapeBackslashes(normalizedCssCode)) :
+    escapeBackslashes(normalizedCssCode)
   ).trim()
 
   types.visit(ast, {

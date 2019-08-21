@@ -38,10 +38,11 @@ export function babelPreprocessor(source, meta) {
   })
 }
 
-export function scssPreprocessor(source, { options }) {
+export function sassPreprocessor(source, { options }) {
   const result = renderSync({
     file: options.file,
     data: source,
+    indentedSyntax: true,
     outFile: options.file,
     sourceMap: true
   })

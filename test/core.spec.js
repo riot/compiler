@@ -1,5 +1,5 @@
 import {compile, registerPreprocessor} from '../src'
-import {evaluateScript, getFixture, scssPreprocessor} from './helpers'
+import {evaluateScript, getFixture, sassPreprocessor} from './helpers'
 import {SourceMapConsumer} from 'source-map'
 import {expect} from 'chai'
 import pug from 'pug'
@@ -123,7 +123,7 @@ describe('Core specs', () => {
 
   describe('Preprocessed tags', () => {
     before(() => {
-      registerPreprocessor('css', 'scss', scssPreprocessor)
+      registerPreprocessor('css', 'sass', sassPreprocessor)
       registerPreprocessor('template', 'pug', (code, {file}) => {
         return {
           code: pug.render(code, {
@@ -135,11 +135,11 @@ describe('Core specs', () => {
     })
 
     after(() => {
-      unregister('css', 'scss')
+      unregister('css', 'sass')
       unregister('template', 'pug')
     })
 
-    it('The Pug and scss preprocessors work as expected', async function() {
+    it('The Pug and sass preprocessors work as expected', async function() {
       const input = getFixture('pug-component.pug')
       const result = compile(input, {
         template: 'pug',

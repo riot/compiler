@@ -1,4 +1,4 @@
-import {evaluateScript, scssPreprocessor} from '../helpers'
+import {evaluateScript, sassPreprocessor} from '../helpers'
 import {register, unregister} from '../../src/preprocessors'
 import compileCSS from '../../src/generators/css'
 import {createInitialInput} from '../../src/index'
@@ -29,33 +29,27 @@ const mediaQueryCss = `
 `
 
 
-const scssCSS = `
-<style type='scss'>
-  :host {
-    color: 'red';
+const sassCSS = `
+<style type='sass'>
+\\:host
+  color: red
 
-    & {
-      background-color: red;
-    }
+  &
+    background-color: red
 
-    &::before {
-      color: 'green'
-    }
-  }
+  &::before
+    color: green
 
-  h1 {
-    color: green;
-    display: flex;
-  }
+h1
+  color: green
+  display: flex
 
-  .unmount-animation {
-    opacity: 1;
-    transition: opacity 1s;
+.unmount-animation
+  opacity: 1
+  transition: opacity 1s
 
-    &.is-unmount {
-      opacity: 0;
-    }
-  }
+  &.is-unmount
+    opacity: 0
 </style>
 `
 const FAKE_FILE = 'fake-file.js'
@@ -66,11 +60,11 @@ function createInput() {
 
 describe('Generators - CSS', () => {
   before(() => {
-    register('css', 'scss', scssPreprocessor)
+    register('css', 'sass', sassPreprocessor)
   })
 
   after(() => {
-    unregister('css', 'scss')
+    unregister('css', 'sass')
   })
 
   it('compile a simple css node', () => {
@@ -126,10 +120,10 @@ describe('Generators - CSS', () => {
     expect(output.default.template).to.be.not.ok
   })
 
-  it('compile a scss file and generate a proper sourcemap', () => {
-    const { css } = parser().parse(scssCSS).output
+  it('compile a sass file and generate a proper sourcemap', () => {
+    const { css } = parser().parse(sassCSS).output
 
-    const ast = compileCSS(css, scssCSS, { options: {
+    const ast = compileCSS(css, sassCSS, { options: {
       file: FAKE_FILE,
       scopedCss: true
     }, tagName: 'my-tag'}, createInput())
@@ -139,7 +133,7 @@ describe('Generators - CSS', () => {
 
     expect(ast).to.be.ok
     expect(code).to.have.string('[is="my-tag"]')
-    expect(code).to.have.string('my-tag h1,[is="my-tag"] h1{\n  color: green;')
+    expect(code).to.have.string('my-tag h1,[is="my-tag"] h1{ color: green;')
     expect(output.default.css).to.be.ok
     expect(output.default.tag).to.be.not.ok
     expect(output.default.template).to.be.not.ok
