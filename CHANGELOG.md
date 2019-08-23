@@ -1,5 +1,10 @@
 # Compiler Changes
 
+### v4.3.11
+- Fix https://github.com/riot/compiler/issues/127
+- Fix https://github.com/riot/compiler/issues/126
+- Improve the code maintainability refactoring big files into smaller ones
+
 ### v4.3.10
 - Fix https://github.com/riot/riot/issues/2753
 - Fix https://github.com/riot/riot/issues/2748
