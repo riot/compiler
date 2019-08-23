@@ -1,13 +1,7 @@
-import {
-  findDynamicAttributes,
-  isEventAttribute,
-  isProgressNode,
-  isTextNode,
-  isValueAttribute
-} from '../utils'
-
+import {isEventAttribute, isProgressNode, isTextNode, isValueAttribute} from '../checks'
 import attributeExpression from './attribute'
 import eventExpression from './event'
+import {findDynamicAttributes} from '../find'
 import {hasValueAttribute} from 'dom-nodes'
 import textExpression from './text'
 import valueExpression from './value'

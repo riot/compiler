@@ -6,97 +6,25 @@ import {
   EACH_DIRECTIVE,
   IF_DIRECTIVE,
   IS_BOOLEAN_ATTRIBUTE,
-  IS_CUSTOM_NODE,
   IS_DIRECTIVE,
-  IS_SPREAD_ATTRIBUTE,
-  IS_VOID_NODE,
   KEY_ATTRIBUTE,
-  PROGRESS_TAG_NODE_NAME,
   SCOPE,
   SLOT_ATTRIBUTE,
-  SLOT_TAG_NODE_NAME,
   TEMPLATE_FN,
   TEXT_NODE_EXPRESSION_PLACEHOLDER
 } from './constants'
-import {builders, types} from '../../utils/build-types'
-import {
-  isBinaryExpression,
-  isBrowserAPI,
-  isBuiltinAPI,
-  isIdentifier,
-  isLiteral,
-  isNewExpression,
-  isRaw,
-  isThisExpression
-} from '../../utils/ast-nodes-checks'
-import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
+import { builders, types } from '../../utils/build-types'
+import { findIsAttribute, findStaticAttributes } from './find'
+import { hasExpressions, isGlobal, isTagNode, isTextNode, isVoidNode } from './checks'
+import { isBinaryExpression, isIdentifier, isLiteral, isThisExpression } from '../../utils/ast-nodes-checks'
+import { nullNode, simplePropertyNode } from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
 import compose from 'cumpa'
-import curry from 'curri'
 import generateAST from '../../utils/generate-ast'
-import {nodeTypes} from '@riotjs/parser'
 import unescapeChar from '../../utils/unescape-char'
 
 const scope = builders.identifier(SCOPE)
 export const getName = node => node && node.name ? node.name : node
-
-/**
- * Find the attribute node
- * @param   { string } name -  name of the attribute we want to find
- * @param   { riotParser.nodeTypes.TAG } node - a tag node
- * @returns { riotParser.nodeTypes.ATTR } attribute node
- */
-export function findAttribute(name, node) {
-  return node.attributes && node.attributes.find(attr => getName(attr) === name)
-}
-
-export const findIfAttribute = curry(findAttribute)(IF_DIRECTIVE)
-export const findEachAttribute = curry(findAttribute)(EACH_DIRECTIVE)
-export const findKeyAttribute = curry(findAttribute)(KEY_ATTRIBUTE)
-export const findIsAttribute = curry(findAttribute)(IS_DIRECTIVE)
-export const hasIfAttribute = compose(Boolean, findIfAttribute)
-export const hasEachAttribute = compose(Boolean, findEachAttribute)
-export const hasKeyAttribute = compose(Boolean, findKeyAttribute)
-export const hasIsAttribute = compose(Boolean, findIsAttribute)
-
-/**
- * Check if a node name is part of the browser or builtin javascript api or it belongs to the current scope
- * @param   { types.NodePath } path - containing the current node visited
- * @returns {boolean} true if it's a global api variable
- */
-export function isGlobal({ scope, node }) {
-  return Boolean(
-    isRaw(node) ||
-    isBuiltinAPI(node) ||
-    isBrowserAPI(node) ||
-    isNewExpression(node) ||
-    isNodeInScope(scope, node)
-  )
-}
-
-/**
- * Checks if the identifier of a given node exists in a scope
- * @param {Scope} scope - scope where to search for the identifier
- * @param {types.Node} node - node to search for the identifier
- * @returns {boolean} true if the node identifier is defined in the given scope
- */
-function isNodeInScope(scope, node) {
-  const traverse = (isInScope = false) => {
-    types.visit(node, {
-      visitIdentifier(path) {
-        if (scope.lookup(getName(path.node))) {
-          isInScope = true
-        }
-
-        this.abort()
-      }
-    })
-
-    return isInScope
-  }
-
-  return traverse()
-}
 
 /**
  * Replace the path scope with a member Expression
@@ -335,21 +263,6 @@ export function createSelectorProperties(attributeName) {
 }
 
 /**
- * Clean binding or custom attributes
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {Array<RiotParser.Node.Attr>} only the attributes that are not bindings or directives
- */
-export function cleanAttributes(node) {
-  return getNodeAttributes(node).filter(attribute => ![
-    IF_DIRECTIVE,
-    EACH_DIRECTIVE,
-    KEY_ATTRIBUTE,
-    SLOT_ATTRIBUTE,
-    IS_DIRECTIVE
-  ].includes(attribute.name))
-}
-
-/**
  * Clone the node filtering out the selector attribute from the attributes list
  * @param   {RiotParser.Node} node - riot parser node
  * @param   {string} selectorAttribute - name of the selector attribute to filter out
@@ -374,6 +287,21 @@ export function getAttributesWithoutSelector(attributes, selectorAttribute) {
     return attributes.filter(attribute => attribute.name !== selectorAttribute)
 
   return attributes
+}
+
+/**
+ * Clean binding or custom attributes
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {Array<RiotParser.Node.Attr>} only the attributes that are not bindings or directives
+ */
+export function cleanAttributes(node) {
+  return getNodeAttributes(node).filter(attribute => ![
+    IF_DIRECTIVE,
+    EACH_DIRECTIVE,
+    KEY_ATTRIBUTE,
+    SLOT_ATTRIBUTE,
+    IS_DIRECTIVE
+  ].includes(attribute.name))
 }
 
 /**
@@ -424,130 +352,6 @@ export function getCustomNodeNameAsExpression(node) {
   }
 
   return { ...node, text: toRawString(getName(node)) }
-}
-
-/**
- * Find all the node attributes that are not expressions
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {Array} list of all the static attributes
- */
-export function findStaticAttributes(node) {
-  return getNodeAttributes(node).filter(attribute => !hasExpressions(attribute))
-}
-
-/**
- * Find all the node attributes that have expressions
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {Array} list of all the dynamic attributes
- */
-export function findDynamicAttributes(node) {
-  return getNodeAttributes(node).filter(hasExpressions)
-}
-
-/**
- * True if the node has the isCustom attribute set
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true if either it's a riot component or a custom element
- */
-export function isCustomNode(node) {
-  return !!(node[IS_CUSTOM_NODE] || hasIsAttribute(node))
-}
-
-/**
- * True the node is <slot>
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true if it's a slot node
- */
-export function isSlotNode(node) {
-  return node.name === SLOT_TAG_NODE_NAME
-}
-
-/**
- * True if the node has the isVoid attribute set
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true if the node is self closing
- */
-export function isVoidNode(node) {
-  return !!node[IS_VOID_NODE]
-}
-
-/**
- * True if the riot parser did find a tag node
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true only for the tag nodes
- */
-export function isTagNode(node) {
-  return node.type === nodeTypes.TAG
-}
-
-/**
- * True if the riot parser did find a text node
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true only for the text nodes
- */
-export function isTextNode(node) {
-  return node.type === nodeTypes.TEXT
-}
-
-/**
- * True if the node parsed is the root one
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true only for the root nodes
- */
-export function isRootNode(node) {
-  return node.isRoot
-}
-
-/**
- * True if the attribute parsed is of type spread one
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true if the attribute node is of type spread
- */
-export function isSpreadAttribute(node) {
-  return node[IS_SPREAD_ATTRIBUTE]
-}
-
-/**
- * True if the node is an attribute and its name is "value"
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true only for value attribute nodes
- */
-export function isValueAttribute(node) {
-  return node.name === 'value'
-}
-
-/**
- * True if the DOM node is a progress tag
- * @param   {RiotParser.Node}  node - riot parser node
- * @returns {boolean} true for the progress tags
- */
-export function isProgressNode(node) {
-  return node.name === PROGRESS_TAG_NODE_NAME
-}
-
-/**
- * True if the node is an attribute and a DOM handler
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true only for dom listener attribute nodes
- */
-export const isEventAttribute = (() => {
-  const EVENT_ATTR_RE = /^on/
-  return node => EVENT_ATTR_RE.test(node.name)
-})()
-
-/**
- * True if the node has expressions or expression attributes
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} ditto
- */
-export function hasExpressions(node) {
-  return !!(
-    node.expressions ||
-    // has expression attributes
-    (getNodeAttributes(node).some(attribute => hasExpressions(attribute))) ||
-    // has child text nodes with expressions
-    (node.nodes && node.nodes.some(node => isTextNode(node) && hasExpressions(node)))
-  )
 }
 
 /**
@@ -609,34 +413,6 @@ export function closeTag(node) {
 }
 
 /**
- * True if the node has not expression set nor bindings directives
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true only if it's a static node that doesn't need bindings or expressions
- */
-export function isStaticNode(node) {
-  return [
-    hasExpressions,
-    findEachAttribute,
-    findIfAttribute,
-    isCustomNode,
-    isSlotNode
-  ].every(test => !test(node))
-}
-
-/**
- * True if the node is a directive having its own template
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true only for the IF EACH and TAG bindings
- */
-export function hasItsOwnTemplate(node) {
-  return [
-    findEachAttribute,
-    findIfAttribute,
-    isCustomNode
-  ].some(test => test(node))
-}
-
-/**
  * Create a strings array with the `join` call to transform it into a string
  * @param   {Array} stringsArray - array containing all the strings to concatenate
  * @returns {AST.CallExpression} array with a `join` call
@@ -653,27 +429,6 @@ export function createArrayString(stringsArray) {
 }
 
 /**
- * Create an attribute evaluation function
- * @param   {RiotParser.Attr} sourceNode - riot parser node
- * @param   {string} sourceFile - original tag file
- * @param   {string} sourceCode - original tag source code
- * @returns { AST.Node } an AST function expression to evaluate the attribute value
- */
-export function createAttributeEvaluationFunction(sourceNode, sourceFile, sourceCode) {
-  return hasExpressions(sourceNode) ?
-    // dynamic attribute
-    wrapASTInFunctionWithScope(mergeAttributeExpressions(sourceNode, sourceFile, sourceCode)) :
-    // static attribute
-    builders.functionExpression(
-      null,
-      [],
-      builders.blockStatement([
-        builders.returnStatement(builders.literal(sourceNode.value || true))
-      ])
-    )
-}
-
-/**
  * Simple expression bindings might contain multiple expressions like for example: "class="{foo} red {bar}""
  * This helper aims to merge them in a template literal if it's necessary
  * @param   {RiotParser.Attr} node - riot parser node
@@ -682,8 +437,9 @@ export function createAttributeEvaluationFunction(sourceNode, sourceFile, source
  * @returns { Object } a template literal expression object
  */
 export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
-  if (!node.parts || node.parts.length === 1)
+  if (!node.parts || node.parts.length === 1) {
     return transformExpression(node.expressions[0], sourceFile, sourceCode)
+  }
   const stringsArray = [
     ...node.parts.reduce((acc, str) => {
       const expression = node.expressions.find(e => e.text.trim() === str)
@@ -707,3 +463,24 @@ export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
 export const createBindingSelector = (function createSelector(id = 0) {
   return () => `${BINDING_SELECTOR_PREFIX}${id++}`
 }())
+
+/**
+ * Create an attribute evaluation function
+ * @param   {RiotParser.Attr} sourceNode - riot parser node
+ * @param   {string} sourceFile - original tag file
+ * @param   {string} sourceCode - original tag source code
+ * @returns { AST.Node } an AST function expression to evaluate the attribute value
+ */
+export function createAttributeEvaluationFunction(sourceNode, sourceFile, sourceCode) {
+  return hasExpressions(sourceNode) ?
+  // dynamic attribute
+    wrapASTInFunctionWithScope(mergeAttributeExpressions(sourceNode, sourceFile, sourceCode)) :
+  // static attribute
+    builders.functionExpression(
+      null,
+      [],
+      builders.blockStatement([
+        builders.returnStatement(builders.literal(sourceNode.value || true))
+      ]),
+    )
+}

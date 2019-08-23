@@ -7,11 +7,11 @@ import {
 import {
   createSelectorProperties,
   createTemplateProperty,
-  findIfAttribute,
   toScopedFunction
 } from '../utils'
 import {builders} from '../../../utils/build-types'
 import {createNestedBindings} from '../builder'
+import {findIfAttribute} from '../find'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 
 /**

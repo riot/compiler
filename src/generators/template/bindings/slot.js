@@ -6,11 +6,9 @@ import {
   NAME_ATTRIBUTE,
   SLOT_BINDING_TYPE
 } from '../constants'
-import {
-  createSelectorProperties,
-  findAttribute
-} from '../utils'
 import {builders} from '../../../utils/build-types'
+import {createSelectorProperties} from '../utils'
+import {findAttribute} from '../find'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 
 /**

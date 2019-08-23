@@ -1,11 +1,10 @@
 import {createAttributeExpressions, createExpression} from '../expressions/index'
 import {
   createSelectorProperties,
-  getChildrenNodes,
-  hasExpressions,
-  isTextNode
+  getChildrenNodes
 } from '../utils'
-import { BINDING_EXPRESSIONS_KEY } from '../constants'
+import { hasExpressions, isTextNode } from '../checks'
+import {BINDING_EXPRESSIONS_KEY} from '../constants'
 import {builders} from '../../../utils/build-types'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 

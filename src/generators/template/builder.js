@@ -1,12 +1,13 @@
 import {
   cloneNodeWithoutSelectorAttribute,
-  closeTag,
-  createBindingSelector,
+  closeTag, createBindingSelector,
   createRootNode,
   getChildrenNodes,
   getNodeAttributes,
-  hasEachAttribute,
-  hasIfAttribute,
+  nodeToString
+} from './utils'
+import {
+  hasEachAttribute, hasIfAttribute,
   hasItsOwnTemplate,
   isCustomNode,
   isRootNode,
@@ -14,9 +15,8 @@ import {
   isStaticNode,
   isTagNode,
   isTextNode,
-  isVoidNode,
-  nodeToString
-} from './utils'
+  isVoidNode
+} from './checks'
 import cloneDeep from '../../utils/clone-deep'
 import eachBinding from './bindings/each'
 import ifBinding from './bindings/if'
@@ -24,6 +24,7 @@ import panic from '../../utils/panic'
 import simpleBinding from './bindings/simple'
 import slotBinding from './bindings/slot'
 import tagBinding from './bindings/tag'
+
 
 const BuildingState = Object.freeze({
   html: [],

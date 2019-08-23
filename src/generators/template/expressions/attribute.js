@@ -5,12 +5,10 @@ import {
   BINDING_TYPE_KEY,
   EXPRESSION_TYPES
 } from '../constants'
-import {
-  createAttributeEvaluationFunction,
-  isSpreadAttribute
-} from '../utils'
 import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import {builders} from '../../../utils/build-types'
+import {createAttributeEvaluationFunction} from '../utils'
+import {isSpreadAttribute} from '../checks'
 
 
 /**
