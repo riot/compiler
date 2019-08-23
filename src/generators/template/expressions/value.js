@@ -5,9 +5,8 @@ import {
   VALUE_EXPRESSION_TYPE
 } from '../constants'
 import {builders} from '../../../utils/build-types'
-import normalizeAttributeExpressionValue from '../../../utils/normalize-attribute-expression-value'
+import {createAttributeEvaluationFunction} from '../utils'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
-import {toScopedFunction} from '../utils'
 
 export default function createValueExpression(sourceNode, sourceFile, sourceCode) {
   return builders.objectExpression([
@@ -20,7 +19,7 @@ export default function createValueExpression(sourceNode, sourceFile, sourceCode
     ),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,
-      toScopedFunction(normalizeAttributeExpressionValue(sourceNode), sourceFile, sourceCode)
+      createAttributeEvaluationFunction(sourceNode, sourceFile, sourceCode)
     )
   ])
 }

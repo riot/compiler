@@ -25,7 +25,7 @@ import {
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
 import compose from 'cumpa'
-import {createExpression} from '../expressions/index'
+import {createExpression} from '../expressions'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 
 /**

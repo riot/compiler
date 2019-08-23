@@ -24,6 +24,7 @@ import {
   isBrowserAPI,
   isBuiltinAPI,
   isIdentifier,
+  isLiteral,
   isNewExpression,
   isRaw,
   isThisExpression
@@ -649,6 +650,53 @@ export function createArrayString(stringsArray) {
     ),
     [builders.literal('')],
   )
+}
+
+/**
+ * Create an attribute evaluation function
+ * @param   {RiotParser.Attr} sourceNode - riot parser node
+ * @param   {string} sourceFile - original tag file
+ * @param   {string} sourceCode - original tag source code
+ * @returns { AST.Node } an AST function expression to evaluate the attribute value
+ */
+export function createAttributeEvaluationFunction(sourceNode, sourceFile, sourceCode) {
+  return hasExpressions(sourceNode) ?
+    // dynamic attribute
+    wrapASTInFunctionWithScope(mergeAttributeExpressions(sourceNode, sourceFile, sourceCode)) :
+    // static attribute
+    builders.functionExpression(
+      null,
+      [],
+      builders.blockStatement([
+        builders.returnStatement(builders.literal(sourceNode.value || true))
+      ])
+    )
+}
+
+/**
+ * Simple expression bindings might contain multiple expressions like for example: "class="{foo} red {bar}""
+ * This helper aims to merge them in a template literal if it's necessary
+ * @param   {RiotParser.Attr} node - riot parser node
+ * @param   {string} sourceFile - original tag file
+ * @param   {string} sourceCode - original tag source code
+ * @returns { Object } a template literal expression object
+ */
+export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
+  if (!node.parts || node.parts.length === 1)
+    return transformExpression(node.expressions[0], sourceFile, sourceCode)
+  const stringsArray = [
+    ...node.parts.reduce((acc, str) => {
+      const expression = node.expressions.find(e => e.text.trim() === str)
+
+      return [
+        ...acc,
+        expression ? transformExpression(expression, sourceFile, sourceCode) : builders.literal(str)
+      ]
+    }, [])
+  ].filter(expr => !isLiteral(expr) || expr.value)
+
+
+  return createArrayString(stringsArray)
 }
 
 /**
