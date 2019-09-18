@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.3.12
+- Fix https://github.com/riot/riot/issues/2760
+
 ### v4.3.11
 - Fix https://github.com/riot/compiler/issues/127
 - Fix https://github.com/riot/compiler/issues/126
