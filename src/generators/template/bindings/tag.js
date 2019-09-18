@@ -104,7 +104,7 @@ function createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sour
   return builders.arrayExpression([
     ...compose(
       attributes => attributes.map(attribute => createExpression(attribute, sourceFile, sourceCode, 0, sourceNode)),
-      attributes => getAttributesWithoutSelector(attributes, selectorAttribute), // eslint-disable-line
+      attributes => getAttributesWithoutSelector(attributes, selectorAttribute),
       cleanAttributes
     )(sourceNode)
   ])
