@@ -62,7 +62,7 @@ function updateNodeScope(path) {
  * @returns { boolean } return always false because we want to check only the first node object
  */
 function visitMemberExpression(path) {
-  if (!isGlobal(path) && !isGlobal({ node: path.node.object, scope: path.scope })) {
+  if (!isGlobal(path)) {
     if (path.value.computed) {
       this.traverse(path)
     } else if (isBinaryExpression(path.node.object) || path.node.object.computed) {

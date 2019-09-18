@@ -96,6 +96,12 @@ describe('Generators - Template', () => {
         expect(renderExpr('props.messageTypes.get(message.type).hue')).to.be.equal('scope.props.messageTypes.get(scope.message.type).hue')
       })
 
+      it('global scope objects', () => {
+        expect(renderExpr('window.foo.toUppercase()')).to.be.equal('window.foo.toUppercase()')
+        expect(renderExpr('window.foo')).to.be.equal('window.foo')
+        expect(renderExpr('window["foo"].bar')).to.be.equal('window["foo"].bar')
+      })
+
       it('context transform', () => {
         expect(renderExpr('this.foo + this.bar')).to.be.equal('scope.foo + scope.bar')
         expect(renderExpr('this + this')).to.be.equal('scope + scope')

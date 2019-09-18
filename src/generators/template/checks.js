@@ -36,12 +36,17 @@ export function isStaticNode(node) {
  * @returns {boolean} true if it's a global api variable
  */
 export function isGlobal({ scope, node }) {
+  // recursively find the identifier of this AST path
+  if (node.object) {
+    return isGlobal({ node: node.object, scope })
+  }
+
   return Boolean(
     isRaw(node) ||
-        isBuiltinAPI(node) ||
-        isBrowserAPI(node) ||
-        isNewExpression(node) ||
-        isNodeInScope(scope, node),
+    isBuiltinAPI(node) ||
+    isBrowserAPI(node) ||
+    isNewExpression(node) ||
+    isNodeInScope(scope, node),
   )
 }
 
