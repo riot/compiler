@@ -23,7 +23,7 @@ import {builders} from '../../../utils/build-types'
 import compose from 'cumpa'
 import {createNestedBindings} from '../builder'
 import generateJavascript from '../../../utils/generate-javascript'
-import panic from '../../../utils/panic'
+import {panic} from '@riotjs/util/misc'
 
 const getEachItemName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[0] : expression.left
 const getEachIndexName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[1] : null

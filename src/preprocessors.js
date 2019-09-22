@@ -1,4 +1,4 @@
-import panic from './utils/panic'
+import {panic} from '@riotjs/util/misc'
 import { transform } from './transformer'
 /**
  * Parsers that can be registered by users to preparse components fragments

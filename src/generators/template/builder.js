@@ -20,7 +20,7 @@ import {
 import cloneDeep from '../../utils/clone-deep'
 import eachBinding from './bindings/each'
 import ifBinding from './bindings/if'
-import panic from '../../utils/panic'
+import {panic} from '@riotjs/util/misc'
 import simpleBinding from './bindings/simple'
 import slotBinding from './bindings/slot'
 import tagBinding from './bindings/tag'
