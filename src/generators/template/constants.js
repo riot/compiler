@@ -48,7 +48,7 @@ export const IS_DIRECTIVE = 'is'
 
 // Misc
 export const DEFAULT_SLOT_NAME = 'default'
-export const TEXT_NODE_EXPRESSION_PLACEHOLDER = '<!---->'
+export const TEXT_NODE_EXPRESSION_PLACEHOLDER = ' '
 export const BINDING_SELECTOR_PREFIX = 'expr'
 export const SLOT_TAG_NODE_NAME = 'slot'
 export const PROGRESS_TAG_NODE_NAME = 'progress'

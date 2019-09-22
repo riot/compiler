@@ -520,7 +520,7 @@ describe('Generators - Template', () => {
       expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
 
       expect(removeIdFromExpessionBindings(defaultSlot[BINDING_HTML_KEY]))
-        .to.be.equal('<p expr><!----></p>')
+        .to.be.equal('<p expr> </p>')
       expect(defaultSlot[BINDING_BINDINGS_KEY]).to.have.length(1)
       expect(defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_SELECTOR_KEY]).to.be.ok
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
@@ -538,7 +538,7 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
       expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
 
-      expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal('<!---->')
+      expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal(' ')
       expect(defaultSlot[BINDING_BINDINGS_KEY]).to.have.length(1)
       expect(defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_SELECTOR_KEY]).to.be.not.ok
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
@@ -578,19 +578,19 @@ describe('Generators - Template', () => {
       const defaultSlot = getSlot('default')
 
       expect(removeIdFromExpessionBindings(headerSlot[BINDING_HTML_KEY]))
-        .to.be.equal('<p expr><!----></p>')
+        .to.be.equal('<p expr> </p>')
       expect(
         headerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({greeting: 'hi'}))
         .to.have.be.equal('hi')
 
       expect(removeIdFromExpessionBindings(footerSlot[BINDING_HTML_KEY]))
-        .to.be.equal('<div expr><!----></div>')
+        .to.be.equal('<div expr> </div>')
       expect(
         footerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({footer: 'hi'}))
         .to.have.be.equal('hi')
 
       expect(removeIdFromExpessionBindings(defaultSlot[BINDING_HTML_KEY]))
-        .to.be.equal('<b>hey</b><i expr><!----></i>')
+        .to.be.equal('<b>hey</b><i expr> </i>')
       expect(
         defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({there: 'hi'}))
         .to.have.be.equal('hi')
@@ -871,7 +871,7 @@ describe('Generators - Template', () => {
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
 
-      expect(html).to.be.equal('<p expr><!----></p>')
+      expect(html).to.be.equal('<p expr> </p>')
     })
 
     it('Multiple text expressions', () => {
@@ -879,7 +879,7 @@ describe('Generators - Template', () => {
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
 
-      expect(html).to.be.equal('<p expr><!----></p>')
+      expect(html).to.be.equal('<p expr> </p>')
     })
 
     it('Boolean attribute', () => {
@@ -1015,7 +1015,7 @@ describe('Generators - Template', () => {
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
 
-      expect(html).to.be.equal('<ul><li>1</li><li expr><!----></li><li>3</li></ul>')
+      expect(html).to.be.equal('<ul><li>1</li><li expr> </li><li>3</li></ul>')
     })
 
     it('Value attributes on custom tags do not break the compiler (issue #124)', () => {
