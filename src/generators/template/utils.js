@@ -20,6 +20,7 @@ import { isBinaryExpression, isIdentifier, isLiteral, isThisExpression } from '.
 import { nullNode, simplePropertyNode } from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
 import compose from 'cumpa'
+import {createExpression} from './expressions'
 import generateAST from '../../utils/generate-ast'
 import unescapeChar from '../../utils/unescape-char'
 
@@ -463,6 +464,24 @@ export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
 export const createBindingSelector = (function createSelector(id = 0) {
   return () => `${BINDING_SELECTOR_PREFIX}${id++}`
 }())
+
+/**
+ * Create the AST array containing the attributes to bind to this node
+ * @param   { RiotParser.Node.Tag } sourceNode - the custom tag
+ * @param   { string } selectorAttribute - attribute needed to select the target node
+ * @param   { string } sourceFile - source file path
+ * @param   { string } sourceCode - original source
+ * @returns {AST.ArrayExpression} array containing the slot objects
+ */
+export function createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sourceCode) {
+  return builders.arrayExpression([
+    ...compose(
+      attributes => attributes.map(attribute => createExpression(attribute, sourceFile, sourceCode, 0, sourceNode)),
+      attributes => getAttributesWithoutSelector(attributes, selectorAttribute),
+      cleanAttributes
+    )(sourceNode)
+  ])
+}
 
 /**
  * Create an attribute evaluation function

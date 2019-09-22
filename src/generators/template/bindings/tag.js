@@ -13,10 +13,9 @@ import {
   TAG_BINDING_TYPE
 } from '../constants'
 import {
-  cleanAttributes,
+  createBindingAttributes,
   createRootNode,
   createSelectorProperties,
-  getAttributesWithoutSelector,
   getChildrenNodes,
   getCustomNodeNameAsExpression,
   getNodeAttributes,
@@ -25,7 +24,6 @@ import {
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
 import compose from 'cumpa'
-import {createExpression} from '../expressions/index'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 
 /**
@@ -88,24 +86,6 @@ function createSlotsArray(sourceNode, sourceFile, sourceCode) {
       slots => slots.filter(([,value]) => value),
       Object.entries,
       groupSlots
-    )(sourceNode)
-  ])
-}
-
-/**
- * Create the AST array containing the attributes to bind to this node
- * @param   { RiotParser.Node.Tag } sourceNode - the custom tag
- * @param   { string } selectorAttribute - attribute needed to select the target node
- * @param   { string } sourceFile - source file path
- * @param   { string } sourceCode - original source
- * @returns {AST.ArrayExpression} array containing the slot objects
- */
-function createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sourceCode) {
-  return builders.arrayExpression([
-    ...compose(
-      attributes => attributes.map(attribute => createExpression(attribute, sourceFile, sourceCode, 0, sourceNode)),
-      attributes => getAttributesWithoutSelector(attributes, selectorAttribute),
-      cleanAttributes
     )(sourceNode)
   ])
 }

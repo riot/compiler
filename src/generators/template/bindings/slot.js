@@ -1,4 +1,5 @@
 import {
+  BINDING_ATTRIBUTES_KEY,
   BINDING_NAME_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
@@ -6,8 +7,8 @@ import {
   NAME_ATTRIBUTE,
   SLOT_BINDING_TYPE
 } from '../constants'
+import {createBindingAttributes, createSelectorProperties} from '../utils'
 import {builders} from '../../../utils/build-types'
-import {createSelectorProperties} from '../utils'
 import {findAttribute} from '../find'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
 
@@ -15,9 +16,11 @@ import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
  * Transform a RiotParser.Node.Tag of type slot into a slot binding
  * @param   { RiotParser.Node.Tag } sourceNode - slot node
  * @param   { string } selectorAttribute - attribute needed to select the target node
+ * @param   { string } sourceFile - source file path
+ * @param   { string } sourceCode - original source
  * @returns { AST.Node } a slot binding node
  */
-export default function createSlotBinding(sourceNode, selectorAttribute) {
+export default function createSlotBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
   const slotNameAttribute = findAttribute(NAME_ATTRIBUTE, sourceNode)
   const slotName = slotNameAttribute ? slotNameAttribute.value : DEFAULT_SLOT_NAME
 
@@ -28,6 +31,10 @@ export default function createSlotBinding(sourceNode, selectorAttribute) {
         builders.identifier(SLOT_BINDING_TYPE),
         false
       ),
+    ),
+    simplePropertyNode(
+      BINDING_ATTRIBUTES_KEY,
+      createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sourceCode)
     ),
     simplePropertyNode(
       BINDING_NAME_KEY,

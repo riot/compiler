@@ -846,6 +846,18 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.SLOT)
       expect(output[NAME_ATTRIBUTE]).to.be.equal('foo')
     })
+
+    it('Slot with attributes ', () => {
+      const source = '<slot message={ message} />'
+      const { template } = parse(source)
+      const input = slotBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.SLOT)
+      expect(output[NAME_ATTRIBUTE]).to.be.equal('default')
+    })
   })
 
   describe('Template builder', () => {
