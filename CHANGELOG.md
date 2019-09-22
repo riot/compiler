@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.4.0
+- Add allow the use of attributes on slot tags
+
 ### v4.3.12
 - Fix https://github.com/riot/riot/issues/2760
 
