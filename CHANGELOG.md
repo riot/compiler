@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.4.2
+- Fix make sure the `name` slot attributes will not be used to extend the parent scope
+
 ### v4.4.1
 - Fix bundle the esmodules directly into the cjs bundle
 
