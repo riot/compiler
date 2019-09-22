@@ -1,4 +1,4 @@
-// import {IS_BOOLEAN,IS_CUSTOM,IS_RAW,IS_SPREAD,IS_VOID} from '@riotjs/parser/src/constants'
+import {constants} from '@riotjs/parser'
 
 export const BINDING_TYPES = 'bindingTypes'
 export const EACH_BINDING_TYPE = 'EACH'
@@ -54,11 +54,10 @@ export const SLOT_TAG_NODE_NAME = 'slot'
 export const PROGRESS_TAG_NODE_NAME = 'progress'
 
 // Riot Parser constants
-// TODO: import these values dynamically
-export const IS_RAW_NODE = 'isRaw'
-export const IS_VOID_NODE = 'isVoid'
-export const IS_CUSTOM_NODE = 'isCustom'
-export const IS_BOOLEAN_ATTRIBUTE = 'isBoolean'
-export const IS_SPREAD_ATTRIBUTE = 'isSpread'
+export const IS_RAW_NODE = constants.IS_RAW
+export const IS_VOID_NODE = constants.IS_VOID
+export const IS_CUSTOM_NODE = constants.IS_CUSTOM
+export const IS_BOOLEAN_ATTRIBUTE = constants.IS_BOOLEAN
+export const IS_SPREAD_ATTRIBUTE = constants.IS_SPREAD
 
 

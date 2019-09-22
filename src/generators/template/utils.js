@@ -20,7 +20,7 @@ import { isBinaryExpression, isIdentifier, isLiteral, isThisExpression } from '.
 import { nullNode, simplePropertyNode } from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
 import compose from 'cumpa'
-import {createExpression} from './expressions'
+import {createExpression} from './expressions/index'
 import generateAST from '../../utils/generate-ast'
 import unescapeChar from '../../utils/unescape-char'
 
