@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.4.1
+- Fix bundle the esmodules directly into the cjs bundle
+
 ### v4.4.0
 - Add allow the use of attributes on slot tags
 
