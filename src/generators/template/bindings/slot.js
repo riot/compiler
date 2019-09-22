@@ -7,7 +7,12 @@ import {
   NAME_ATTRIBUTE,
   SLOT_BINDING_TYPE
 } from '../constants'
-import {createBindingAttributes, createSelectorProperties} from '../utils'
+import {
+  createBindingAttributes,
+  createSelectorProperties,
+  getName,
+  getNodeAttributes
+} from '../utils'
 import {builders} from '../../../utils/build-types'
 import {findAttribute} from '../find'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
@@ -34,7 +39,15 @@ export default function createSlotBinding(sourceNode, selectorAttribute, sourceF
     ),
     simplePropertyNode(
       BINDING_ATTRIBUTES_KEY,
-      createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sourceCode)
+      createBindingAttributes({
+        ...sourceNode,
+        // filter the name attribute
+        attributes: getNodeAttributes(sourceNode)
+          .filter(attribute => getName(attribute) !== NAME_ATTRIBUTE)
+      },
+      selectorAttribute,
+      sourceFile,
+      sourceCode)
     ),
     simplePropertyNode(
       BINDING_NAME_KEY,

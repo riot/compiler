@@ -843,6 +843,7 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
 
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(0)
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.SLOT)
       expect(output[NAME_ATTRIBUTE]).to.be.equal('foo')
     })
