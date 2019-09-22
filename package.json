@@ -57,7 +57,7 @@
   "dependencies": {
     "@riotjs/dom-bindings": "^4.3.0",
     "@riotjs/parser": "^4.0.3",
-    "@riotjs/util": "0.0.0",
+    "@riotjs/util": "1.0.0",
     "acorn": "^7.0.0",
     "cssesc": "^3.0.0",
     "cumpa": "^1.0.1",
