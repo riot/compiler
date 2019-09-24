@@ -92,7 +92,7 @@ function createMeta(source, options) {
 /**
  * Generate the output code source together with the sourcemap
  * @param { string } source - source code of the tag we will need to compile
- * @param { string } opts - compiling options
+ * @param { Object } opts - compiling options
  * @returns { Output } object containing output code and source map
  */
 export function compile(source, opts = {}) {
