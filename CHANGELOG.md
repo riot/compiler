@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.4.3
+- Fix merge https://github.com/riot/compiler/pull/128
+
 ### v4.4.2
 - Fix make sure the `name` slot attributes will not be used to extend the parent scope
 
