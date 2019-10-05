@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.5.0
+- Fix https://github.com/riot/riot/issues/2761
+- Update the text expressions handling removing trailing white spaces
+
 ### v4.4.3
 - Fix merge https://github.com/riot/compiler/pull/128
 
