@@ -183,7 +183,7 @@ describe('Generators - Template', () => {
       bar</p>`
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  \'\\n      \',\n  scope.foo,\n  \' + \',\n  scope.bar,\n  \'\\n      foo bar   \',\n  scope.baz,\n  \'\\n      bar\'\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  scope.foo,\n  \' + \',\n  scope.bar,\n  \'\\n      foo bar   \',\n  scope.baz,\n  \'\\n      bar\'\n]')
     })
 
     it('Simple expressions will be left untouchted', () => {

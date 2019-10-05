@@ -1,3 +1,4 @@
+import {bindingTypes, expressionTypes, template} from '@riotjs/dom-bindings'
 import {compile, registerPreprocessor} from '../src'
 import {evaluateScript, getFixture, sassPreprocessor} from './helpers'
 import {SourceMapConsumer} from 'source-map'
@@ -20,6 +21,17 @@ describe('Core specs', () => {
       expect(output.default).to.have.all.keys('exports', 'css', 'template', 'name')
 
       sourcemapConsumer.destroy()
+    })
+
+    it('String attributes should not be removed from the root node (https://github.com/riot/riot/issues/2761)', () => {
+      const result = compile(getFixture('static-attributes.riot'))
+      const output = evaluateScript(result.code)
+      const { bindingsData } = output.default.template(template, expressionTypes, bindingTypes)
+      const staticAttribute = bindingsData[0].expressions[0]
+
+      expect(staticAttribute).to.be.ok
+      expect(staticAttribute.name).to.be.equal('class')
+      expect(staticAttribute.evaluate()).to.be.equal('foo bar')
     })
 
     it('Tags without css and javascript can be properly compiled', async function() {

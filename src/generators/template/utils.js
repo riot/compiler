@@ -314,9 +314,33 @@ export function createRootNode(node) {
   return {
     nodes: getChildrenNodes(node),
     isRoot: true,
-    // root nodes shuold't have directives
-    attributes: cleanAttributes(node)
+    attributes: compose(
+      // root nodes should always have attribute expressions
+      transformStatiAttributesIntoExpressions,
+      // root nodes shuold't have directives
+      cleanAttributes
+    )(node)
   }
+}
+
+/**
+ * Transform the static node attributes into expressions, useful for the root nodes
+ * @param   {Array<RiotParser.Node.Attr>} attributes - riot parser node
+ * @returns {Array<RiotParser.Node.Attr>} all the attributes received as attribute expressions
+ */
+export function transformStatiAttributesIntoExpressions(attributes) {
+  return attributes.map(attribute => {
+    if (attribute.expressions) return attribute
+
+    return {
+      ...attribute,
+      expressions: [{
+        start: attribute.valueStart,
+        end: attribute.end,
+        text: `'${attribute.value}'`
+      }]
+    }
+  })
 }
 
 /**
