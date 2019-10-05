@@ -8,7 +8,6 @@ import {
 import {createArrayString, transformExpression, wrapASTInFunctionWithScope} from '../utils'
 import {nullNode,simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import {builders} from '../../../utils/build-types'
-import isEmptyString from '../../../utils/is-empty-string'
 import {isLiteral} from '../../../utils/ast-nodes-checks'
 import unescapeChar from '../../../utils/unescape-char'
 
@@ -33,7 +32,6 @@ function generateLiteralStringChunksFromNode(node, sourceCode) {
     return chunks
   }, [])
     .map(str => node.unescape ? unescapeChar(str, node.unescape) : str)
-    .filter(isEmptyString)
 }
 
 /**
