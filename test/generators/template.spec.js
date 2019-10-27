@@ -822,6 +822,15 @@ describe('Generators - Template', () => {
         isVisible: false
       }})).to.be.equal(false)
     })
+
+    it('If expressions should not have redundant expression attributes', () => {
+      const source = '<p expr0 if={1 > 2}>Hello</p>'
+      const { template } = parse(source)
+      const input = ifBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output.template.bindingsData[0]).to.be.not.ok
+    })
   })
 
   describe('Slot bindings', () => {

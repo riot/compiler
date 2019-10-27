@@ -125,15 +125,16 @@ function parseNode(sourceNode, sourceFile, sourceCode, state) {
  */
 export function createNestedBindings(sourceNode, sourceFile, sourceCode, selector) {
   const mightBeARiotComponent = isCustomNode(sourceNode)
+  const node = cloneNodeWithoutSelectorAttribute(sourceNode, selector)
 
   return mightBeARiotComponent ? [null, [
     tagBinding(
-      cloneNodeWithoutSelectorAttribute(sourceNode, selector),
+      node,
       null,
       sourceFile,
       sourceCode
     )]
-  ] : build(createRootNode(sourceNode), sourceFile, sourceCode)
+  ] : build(createRootNode(node), sourceFile, sourceCode)
 }
 
 /**
