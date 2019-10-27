@@ -35,7 +35,7 @@ export default function createSlotBinding(sourceNode, selectorAttribute, sourceF
         builders.identifier(BINDING_TYPES),
         builders.identifier(SLOT_BINDING_TYPE),
         false
-      ),
+      )
     ),
     simplePropertyNode(
       BINDING_ATTRIBUTES_KEY,

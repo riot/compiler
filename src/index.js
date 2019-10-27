@@ -120,7 +120,7 @@ export function compile(source, opts = {}) {
     }),
     hookGenerator(templateGenerator, template, code, meta),
     hookGenerator(javascriptGenerator, javascript, code, meta),
-    hookGenerator(cssGenerator, css, code, meta),
+    hookGenerator(cssGenerator, css, code, meta)
   )(createInitialInput(meta))
 }
 

@@ -23,7 +23,7 @@ export default function createEventExpression(sourceNode, sourceFile, sourceCode
         builders.identifier(EXPRESSION_TYPES),
         builders.identifier(EVENT_EXPRESSION_TYPE),
         false
-      ),
+      )
     ),
     simplePropertyNode(BINDING_NAME_KEY, builders.literal(sourceNode.name)),
     simplePropertyNode(

@@ -77,7 +77,7 @@ export default function createTextExpression(sourceNode, sourceFile, sourceCode,
         builders.identifier(EXPRESSION_TYPES),
         builders.identifier(TEXT_EXPRESSION_TYPE),
         false
-      ),
+      )
     ),
     simplePropertyNode(
       BINDING_CHILD_NODE_INDEX_KEY,

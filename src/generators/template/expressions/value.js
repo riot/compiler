@@ -15,7 +15,7 @@ export default function createValueExpression(sourceNode, sourceFile, sourceCode
         builders.identifier(EXPRESSION_TYPES),
         builders.identifier(VALUE_EXPRESSION_TYPE),
         false
-      ),
+      )
     ),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,

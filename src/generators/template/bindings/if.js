@@ -31,7 +31,7 @@ export default function createIfBinding(sourceNode, selectorAttribute, sourceFil
         builders.identifier(BINDING_TYPES),
         builders.identifier(IF_BINDING_TYPE),
         false
-      ),
+      )
     ),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,

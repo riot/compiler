@@ -46,7 +46,7 @@ export function isGlobal({ scope, node }) {
     isBuiltinAPI(node) ||
     isBrowserAPI(node) ||
     isNewExpression(node) ||
-    isNodeInScope(scope, node),
+    isNodeInScope(scope, node)
   )
 }
 

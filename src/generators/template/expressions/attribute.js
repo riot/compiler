@@ -25,7 +25,7 @@ export default function createAttributeExpression(sourceNode, sourceFile, source
         builders.identifier(EXPRESSION_TYPES),
         builders.identifier(ATTRIBUTE_EXPRESSION_TYPE),
         false
-      ),
+      )
     ),
     simplePropertyNode(BINDING_NAME_KEY, isSpreadAttribute(sourceNode) ? nullNode() : builders.literal(sourceNode.name)),
     simplePropertyNode(

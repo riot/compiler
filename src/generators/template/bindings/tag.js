@@ -114,7 +114,7 @@ export default function createTagBinding(sourceNode, selectorAttribute, sourceFi
         builders.identifier(BINDING_TYPES),
         builders.identifier(TAG_BINDING_TYPE),
         false
-      ),
+      )
     ),
     simplePropertyNode(BINDING_GET_COMPONENT_KEY, builders.identifier(GET_COMPONENT_FN)),
     simplePropertyNode(

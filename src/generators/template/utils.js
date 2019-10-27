@@ -199,7 +199,7 @@ export function wrapASTInFunctionWithScope(ast) {
 export function toScopedFunction(expression, sourceFile, sourceCode) {
   return compose(
     wrapASTInFunctionWithScope,
-    transformExpression,
+    transformExpression
   )(expression, sourceFile, sourceCode)
 }
 
@@ -449,7 +449,7 @@ export function createArrayString(stringsArray) {
       builders.identifier('join'),
       false
     ),
-    [builders.literal('')],
+    [builders.literal('')]
   )
 }
 
@@ -524,6 +524,6 @@ export function createAttributeEvaluationFunction(sourceNode, sourceFile, source
       [],
       builders.blockStatement([
         builders.returnStatement(builders.literal(sourceNode.value || true))
-      ]),
+      ])
     )
 }

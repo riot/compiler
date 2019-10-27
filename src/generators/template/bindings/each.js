@@ -99,7 +99,7 @@ export default function createEachBinding(sourceNode, selectorAttribute, sourceF
         builders.identifier(BINDING_TYPES),
         builders.identifier(EACH_BINDING_TYPE),
         false
-      ),
+      )
     ),
     simplePropertyNode(BINDING_GET_KEY_KEY, attributeOrNull(keyAttribute)),
     simplePropertyNode(BINDING_CONDITION_KEY, attributeOrNull(ifAttribute)),
