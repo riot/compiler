@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.5.2
+- Fix avoid to set the `expr` attribute as redundant expressions
+
 ### v4.5.1
 - Remove unecessary code
 
