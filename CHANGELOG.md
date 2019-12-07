@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.5.3
+- Fix wrong arguments compilation in expression attributes https://github.com/riot/riot/issues/2788
+
 ### v4.5.2
 - Fix avoid to set the `expr` attribute as redundant expressions
 
