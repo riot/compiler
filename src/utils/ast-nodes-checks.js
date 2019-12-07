@@ -13,6 +13,7 @@ export const isNewExpression = n => namedTypes.NewExpression.check(n)
 export const isSequenceExpression = n => namedTypes.SequenceExpression.check(n)
 export const isBinaryExpression = n => namedTypes.BinaryExpression.check(n)
 export const isExportDefaultStatement = n => namedTypes.ExportDefaultDeclaration.check(n)
+export const isMemberExpression = n => namedTypes.MemberExpression.check(n)
 
 export const isBrowserAPI = ({name}) => browserAPIs.includes(name)
 export const isBuiltinAPI = ({name}) => builtinAPIs.includes(name)

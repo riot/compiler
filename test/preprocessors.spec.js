@@ -98,10 +98,13 @@ describe('Preprocessors', () => {
   })
 
   describe('javascript preprocessors', () => {
-    it('babel can generate valid javascript output', () => {
+    it('babel can generate valid javascript output', function() {
+      // babel seems to be really slow
+      this.timeout(100000)
       register('javascript', 'babel', babelPreprocessor)
 
       const result = execute('javascript', 'babel', { options: { file: 'fake-file.riot' }}, '() => \'hello\'')
+
       expect(result.code).to.be.match(/return 'hello'/)
 
       unregister('javascript', 'babel')

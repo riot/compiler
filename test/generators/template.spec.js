@@ -140,6 +140,10 @@ describe('Generators - Template', () => {
         expect(renderExpr('(foo) => (event) => foo + event.target.value + baz')).to.be.equal('(foo) => (event) => foo + event.target.value + scope.baz')
       })
 
+      it('functions object arguments', () => {
+        expect(renderExpr('classNames({active: item.isActive})')).to.be.equal('scope.classNames({active: scope.item.isActive})')
+      })
+
       it('parethesis precedence expressions', () => {
         expect(renderExpr('(props.name+"foo").toUpperCase()')).to.be.equal('(scope.props.name+"foo").toUpperCase()')
       })

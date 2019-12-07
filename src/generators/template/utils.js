@@ -16,7 +16,7 @@ import {
 import { builders, types } from '../../utils/build-types'
 import { findIsAttribute, findStaticAttributes } from './find'
 import { hasExpressions, isGlobal, isTagNode, isTextNode, isVoidNode } from './checks'
-import { isBinaryExpression, isIdentifier, isLiteral, isThisExpression } from '../../utils/ast-nodes-checks'
+import { isBinaryExpression, isIdentifier, isLiteral, isMemberExpression, isThisExpression } from '../../utils/ast-nodes-checks'
 import { nullNode, simplePropertyNode } from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
 import compose from 'cumpa'
@@ -86,8 +86,7 @@ function visitMemberExpression(path) {
  */
 function visitProperty(path) {
   const value = path.node.value
-
-  if (isIdentifier(value)) {
+  if (isIdentifier(value) || isMemberExpression(value)) {
     updateNodeScope(path.get('value'))
   } else {
     this.traverse(path.get('value'))
