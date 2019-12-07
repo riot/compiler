@@ -10,7 +10,6 @@ branches:
 
 install:
   - npm i
-  - npm run prepare
 
 after_success: npm run cov
 
