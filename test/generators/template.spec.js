@@ -267,6 +267,16 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('red foo bar')
     })
 
+    it('Attribute expression containing html entities will be encoded', () => {
+      const source = '<li class="&#x222; &euro; {foo} {\'&#222;\'} &#222;"></li>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('Ȣ € foo &#222; Þ')
+    })
+
     it('Merge attribute expression with strings (static text at the end)', () => {
       const source = '<li class="{foo} bar"></li>'
       const { template } = parse(source)
@@ -443,6 +453,15 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('barfoobaz')
+    })
+
+    it('HTML entities in text expressions will be encoded', () => {
+      const source = '<div>&#x222; &euro; {foo} {\'&#222;\'} &#222;</div>'
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+      expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('Ȣ € foo &#222; Þ')
     })
 
     it('Multiple text expressions', () => {
@@ -862,7 +881,7 @@ describe('Generators - Template', () => {
     })
 
     it('Slot with attributes ', () => {
-      const source = '<slot message={ message} />'
+      const source = '<slot message={ message } />'
       const { template } = parse(source)
       const input = slotBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)

@@ -8,6 +8,7 @@ import {
 import {createArrayString, transformExpression, wrapASTInFunctionWithScope} from '../utils'
 import {nullNode,simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import {builders} from '../../../utils/build-types'
+import encodeHTMLEntities from '../../../utils/html-entities/encode'
 import {isLiteral} from '../../../utils/ast-nodes-checks'
 import unescapeChar from '../../../utils/unescape-char'
 
@@ -20,14 +21,20 @@ import unescapeChar from '../../../utils/unescape-char'
 function generateLiteralStringChunksFromNode(node, sourceCode) {
   return node.expressions.reduce((chunks, expression, index) => {
     const start = index ? node.expressions[index - 1].end : node.start
-    const string = sourceCode.substring(start, expression.start)
+    const string = encodeHTMLEntities(
+      sourceCode.substring(start, expression.start)
+    )
 
     // trimStart the first string
     chunks.push(index === 0 ? string.trimStart() : string)
 
     // add the tail to the string
     if (index === node.expressions.length - 1)
-      chunks.push(sourceCode.substring(expression.end, node.end).trimEnd())
+      chunks.push(
+        encodeHTMLEntities(
+          sourceCode.substring(expression.end, node.end).trimEnd()
+        )
+      )
 
     return chunks
   }, [])

@@ -21,6 +21,7 @@ import { nullNode, simplePropertyNode } from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
 import compose from 'cumpa'
 import {createExpression} from './expressions/index'
+import encodeHTMLEntities from '../../utils/html-entities/encode'
 import generateAST from '../../utils/generate-ast'
 import unescapeChar from '../../utils/unescape-char'
 
@@ -470,7 +471,9 @@ export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
 
       return [
         ...acc,
-        expression ? transformExpression(expression, sourceFile, sourceCode) : builders.literal(str)
+        expression ?
+          transformExpression(expression, sourceFile, sourceCode) :
+          builders.literal(encodeHTMLEntities(str))
       ]
     }, [])
   ].filter(expr => !isLiteral(expr) || expr.value)
