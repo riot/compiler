@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.5.4
+- Fix HTML entities encoding https://github.com/riot/riot/issues/2791
+
 ### v4.5.3
 - Fix wrong arguments compilation in expression attributes https://github.com/riot/riot/issues/2788
 
