@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.5.5
+- Add support for shorthand object properties
+
 ### v4.5.4
 - Fix HTML entities encoding https://github.com/riot/riot/issues/2791
 
