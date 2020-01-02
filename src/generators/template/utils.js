@@ -79,7 +79,6 @@ function visitMemberExpression(path) {
   return false
 }
 
-
 /**
  * Objects properties should be handled a bit differently from the Identifier
  * @param   { types.NodePath } path - containing the current node visited
@@ -87,7 +86,11 @@ function visitMemberExpression(path) {
  */
 function visitProperty(path) {
   const value = path.node.value
-  if (isIdentifier(value) || isMemberExpression(value)) {
+  const isShorthand = path.node.shorthand
+  if (isIdentifier(value) || isMemberExpression(value) || isShorthand) {
+    // disable shorthand object properties
+    if (isShorthand) path.node.shorthand = false
+
     updateNodeScope(path.get('value'))
   } else {
     this.traverse(path.get('value'))
