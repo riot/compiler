@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.5.6
+- Fix https://github.com/riot/compiler/issues/130
+
 ### v4.5.5
 - Add support for shorthand object properties
 
