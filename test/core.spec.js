@@ -128,6 +128,12 @@ describe('Core specs', () => {
       expect(() => compile(getFixture('dynamic-import.riot'))).to.not.throw()
     })
 
+    it('Multiple root nodes are not supported', function() {
+      expect(() => compile(getFixture('multiple-root-nodes-script.riot'))).to.throw(/Multiple/)
+      expect(() => compile(getFixture('multiple-root-nodes-css.riot'))).to.throw(/Multiple/)
+      expect(() => compile(getFixture('multiple-root-nodes-html.riot'))).to.throw(/Multiple/)
+    })
+
     it('Nested svg tags should not throw (https://github.com/riot/riot/issues/2723)', function() {
       expect(() => compile(getFixture('svg-loader.riot'))).to.not.throw()
     })

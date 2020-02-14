@@ -4,14 +4,15 @@ import { register as registerPostproc, execute as runPostprocessors  } from './p
 import { register as registerPreproc, execute as runPreprocessor } from './preprocessors'
 import {builders} from './utils/build-types'
 import compose from 'cumpa'
-import cssGenerator from './generators/css/index'
+import cssGenerator from './generators/css'
 import curry from 'curri'
 import generateJavascript from './utils/generate-javascript'
+import hasHTMLOutsideRootNode from './utils/has-html-outside-root-node'
 import isEmptySourcemap from './utils/is-empty-sourcemap'
-import javascriptGenerator from './generators/javascript/index'
+import javascriptGenerator from './generators/javascript'
 import riotParser from '@riotjs/parser'
 import sourcemapAsJSON from './utils/sourcemap-as-json'
-import templateGenerator from './generators/template/index'
+import templateGenerator from './generators/template'
 
 const DEFAULT_OPTIONS = {
   template: 'default',
@@ -99,7 +100,13 @@ export function compile(source, opts = {}) {
   const meta = createMeta(source, opts)
   const {options} = meta
   const { code, map } = runPreprocessor('template', options.template, meta, source)
-  const { template, css, javascript } = riotParser(options).parse(code).output
+  const {parse} = riotParser(options)
+  const { template, css, javascript } = parse(code).output
+
+  // see also https://github.com/riot/compiler/issues/130
+  if (hasHTMLOutsideRootNode(template || css || javascript, code, parse)) {
+    throw new Error('Multiple HTML root nodes are not supported')
+  }
 
   // extend the meta object with the result of the parsing
   Object.assign(meta, {
