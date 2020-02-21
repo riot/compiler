@@ -59,7 +59,7 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
-    "@riotjs/parser": "^4.1.1",
+    "@riotjs/parser": "^4.1.2",
     "@riotjs/util": "1.2.0",
     "acorn": "^7.1.0",
     "cssesc": "^3.0.0",
