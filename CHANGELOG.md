@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.6.1
+- Fix parsing issues due to false positive matches - related to https://github.com/riot/compiler/issues/130
+
 ### v4.6.0
 - Add support for ES2020 `import()` expressions
 
