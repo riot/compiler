@@ -309,20 +309,43 @@ export function cleanAttributes(node) {
 }
 
 /**
+ * Root node factory function needed for the top root nodes and the nested ones
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {RiotParser.Node} root node
+ */
+export function rootNodeFactory(node) {
+  return {
+    nodes: getChildrenNodes(node),
+    isRoot: true
+  }
+}
+
+/**
  * Create a root node proxing only its nodes and attributes
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {RiotParser.Node} root node
  */
 export function createRootNode(node) {
   return {
-    nodes: getChildrenNodes(node),
-    isRoot: true,
+    ...rootNodeFactory(node),
     attributes: compose(
       // root nodes should always have attribute expressions
       transformStatiAttributesIntoExpressions,
       // root nodes shuold't have directives
       cleanAttributes
     )(node)
+  }
+}
+
+/**
+ * Create nested root node. Each and If directives create nested root nodes for example
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {RiotParser.Node} root node
+ */
+export function createNestedRootNode(node) {
+  return {
+    ...rootNodeFactory(node),
+    attributes: cleanAttributes(node)
   }
 }
 
@@ -506,6 +529,7 @@ export function createBindingAttributes(sourceNode, selectorAttribute, sourceFil
   return builders.arrayExpression([
     ...compose(
       attributes => attributes.map(attribute => createExpression(attribute, sourceFile, sourceCode, 0, sourceNode)),
+      attributes => attributes.filter(hasExpressions),
       attributes => getAttributesWithoutSelector(attributes, selectorAttribute),
       cleanAttributes
     )(sourceNode)

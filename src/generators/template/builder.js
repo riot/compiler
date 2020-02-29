@@ -1,7 +1,7 @@
 import {
   cloneNodeWithoutSelectorAttribute,
   closeTag, createBindingSelector,
-  createRootNode,
+  createNestedRootNode,
   getChildrenNodes,
   getNodeAttributes,
   nodeToString
@@ -134,7 +134,7 @@ export function createNestedBindings(sourceNode, sourceFile, sourceCode, selecto
       sourceFile,
       sourceCode
     )]
-  ] : build(createRootNode(node), sourceFile, sourceCode)
+  ] : build(createNestedRootNode(node), sourceFile, sourceCode)
 }
 
 /**

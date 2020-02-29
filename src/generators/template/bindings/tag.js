@@ -14,7 +14,7 @@ import {
 } from '../constants'
 import {
   createBindingAttributes,
-  createRootNode,
+  createNestedRootNode,
   createSelectorProperties,
   getChildrenNodes,
   getCustomNodeNameAsExpression,
@@ -38,7 +38,7 @@ function groupSlots(sourceNode) {
     if (slotAttribute) {
       acc[slotAttribute.value] = node
     } else {
-      acc.default = createRootNode({
+      acc.default = createNestedRootNode({
         nodes: [...getChildrenNodes(acc.default), node]
       })
     }

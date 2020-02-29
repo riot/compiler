@@ -491,9 +491,8 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
       expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
       expect(output.slots).to.have.length(0)
-      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
+      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
       expect(output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
-      expect(output[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY]()).to.be.equal('my-id')
     })
 
     it('Children tags do not inherit "expr" and "is" attributes', () => {
@@ -508,9 +507,8 @@ describe('Generators - Template', () => {
       expect(tagBinding[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
       expect(tagBinding[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
       expect(tagBinding.slots).to.have.length(0)
-      expect(tagBinding[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
+      expect(tagBinding[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
       expect(tagBinding[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
-      expect(tagBinding[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY]()).to.be.equal('my-id')
     })
 
     it('Simple tag binding with default slot', () => {
@@ -527,9 +525,8 @@ describe('Generators - Template', () => {
       expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal('<p>hello</p>')
       expect(defaultSlot[BINDING_BINDINGS_KEY]).to.be.deep.equal([])
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
-      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
+      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
       expect(output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
-      expect(output[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY]()).to.be.equal('my-id')
     })
 
     it('Tag binding with default slot with expressions', () => {
@@ -575,13 +572,8 @@ describe('Generators - Template', () => {
       const input = tagBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
 
-      const expression = output.attributes[0]
-
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
-
-      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.VALUE)
-      expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal('1')
+      expect(output.attributes).to.have.length(0)
     })
 
     it('Tag binding with multiple slots with expressions', () => {
@@ -772,13 +764,14 @@ describe('Generators - Template', () => {
     })
 
     it('Expression attributes + each attribute on custom node', () => {
-      const source = '<my-tag each={item in items} foo={foo}></my-tag>'
+      const source = '<my-tag each={item in items} foo={foo} bar="bar"></my-tag>'
       const { template } = parse(source)
       const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
 
       const expression = output.template.bindingsData[0].attributes[0]
 
+      expect(output.template.bindingsData[0].attributes, 'static attributes should\'t be parsed as expressions').to.have.length(1)
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
