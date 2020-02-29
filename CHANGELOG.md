@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.7.0
+- Add performance improvement avoiding the use of redundant static attributes expressions binding
+- Fix false positive "out of root html" checks in case of html comments
+
 ### v4.6.2
 - Update `@riotjs/parser` version
 
