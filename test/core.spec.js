@@ -132,6 +132,7 @@ describe('Core specs', () => {
       expect(() => compile(getFixture('multiple-root-nodes-script.riot'))).to.throw(/Multiple/)
       expect(() => compile(getFixture('multiple-root-nodes-css.riot'))).to.throw(/Multiple/)
       expect(() => compile(getFixture('multiple-root-nodes-html.riot'))).to.throw(/Multiple/)
+      expect(() => compile(getFixture('multiple-root-nodes-comment.riot'))).to.not.throw()
     })
 
     it('Nested svg tags should not throw (https://github.com/riot/riot/issues/2723)', function() {

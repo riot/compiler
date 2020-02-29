@@ -15,9 +15,15 @@ export default function hasHTMLOutsideRootNode(root, code, parse) {
   ].join('').trim() : ''
 
   if (additionalCode) {
-    const { template, javascript, css } = parse(additionalCode).output
+    // if there are parsing errors we assume that there are no html
+    // tags outside of the root node
+    try {
+      const { template, javascript, css } = parse(additionalCode).output
 
-    return [template, javascript, css].some(isObject)
+      return [template, javascript, css].some(isObject)
+    } catch (error) {
+      return false
+    }
   }
 
   return false
