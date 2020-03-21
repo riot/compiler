@@ -450,7 +450,7 @@ export function nodeToString(node) {
   case isTextNode(node):
     return hasExpressions(node) ? TEXT_NODE_EXPRESSION_PLACEHOLDER : unescapeNode(node, 'text').text
   default:
-    return ''
+    return node.text || ''
   }
 }
 

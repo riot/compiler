@@ -138,6 +138,25 @@ describe('Core specs', () => {
     it('Nested svg tags should not throw (https://github.com/riot/riot/issues/2723)', function() {
       expect(() => compile(getFixture('svg-loader.riot'))).to.not.throw()
     })
+
+    it('Text expressions on the same nodes should be merged', function() {
+      const result = compile(getFixture('comments-component.riot'))
+      const output = evaluateScript(result.code)
+      const { bindingsData } = output.default.template(template, expressionTypes, bindingTypes)
+
+      expect(bindingsData[0].expressions).to.have.length(1)
+    })
+
+    it('Text expressions on the same nodes should be merged if the comments=true option is set', function() {
+      const result = compile(getFixture('comments-component.riot'), {
+        comments: true
+      })
+      const output = evaluateScript(result.code)
+      const { bindingsData } = output.default.template(template, expressionTypes, bindingTypes)
+
+      expect(result.code).to.match(/<!--/)
+      expect(bindingsData[0].expressions).to.have.length(2)
+    })
   })
 
   describe('Preprocessed tags', () => {
