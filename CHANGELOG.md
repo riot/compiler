@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.8.1
+- Fix improve the solution for https://github.com/riot/riot/issues/2836
+
 ### v4.8.0
 - Add support for HTML comments generation via `comments: true` option
 - Fix https://github.com/riot/riot/issues/2836
