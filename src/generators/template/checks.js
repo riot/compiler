@@ -165,6 +165,16 @@ export const isEventAttribute = (() => {
   return node => EVENT_ATTR_RE.test(node.name)
 })()
 
+
+/**
+ * Check if a string is an html comment
+ * @param   {string}  string - test string
+ * @returns {boolean} true if html comment
+ */
+export function isCommentString(string) {
+  return string.trim().indexOf('<!') === 0
+}
+
 /**
  * True if the node has expressions or expression attributes
  * @param   {RiotParser.Node} node - riot parser node

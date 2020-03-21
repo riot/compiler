@@ -9,6 +9,7 @@ import {createArrayString, transformExpression, wrapASTInFunctionWithScope} from
 import {nullNode,simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import {builders} from '../../../utils/build-types'
 import encodeHTMLEntities from '../../../utils/html-entities/encode'
+import {isCommentString} from '../checks'
 import {isLiteral} from '../../../utils/ast-nodes-checks'
 import unescapeChar from '../../../utils/unescape-char'
 
@@ -24,6 +25,9 @@ function generateLiteralStringChunksFromNode(node, sourceCode) {
     const string = encodeHTMLEntities(
       sourceCode.substring(start, expression.start)
     )
+
+    // comments are not supported here
+    if (isCommentString(string)) return chunks
 
     // trimStart the first string
     chunks.push(index === 0 ? string.trimStart() : string)

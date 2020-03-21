@@ -144,6 +144,7 @@ describe('Core specs', () => {
       const output = evaluateScript(result.code)
       const { bindingsData } = output.default.template(template, expressionTypes, bindingTypes)
 
+      expect(result.code).to.not.match(/<!--/)
       expect(bindingsData[0].expressions).to.have.length(1)
     })
 
