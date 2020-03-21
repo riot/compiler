@@ -143,9 +143,12 @@ describe('Core specs', () => {
       const result = compile(getFixture('comments-component.riot'))
       const output = evaluateScript(result.code)
       const { bindingsData } = output.default.template(template, expressionTypes, bindingTypes)
+      const expressions = bindingsData[0].expressions
 
       expect(result.code).to.not.match(/<!--/)
-      expect(bindingsData[0].expressions).to.have.length(1)
+
+      expect(expressions).to.have.length(1)
+      expect(expressions[0].evaluate()).to.be.equal('above the commentbelow the comment')
     })
 
     it('Text expressions on the same nodes should be merged if the comments=true option is set', function() {

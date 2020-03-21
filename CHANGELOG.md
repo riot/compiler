@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.8.2
+- Fix make sure that all the text expressions mixed with comments are properly rendered
+
 ### v4.8.1
 - Fix improve the solution for https://github.com/riot/riot/issues/2836
 

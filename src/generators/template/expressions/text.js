@@ -26,9 +26,6 @@ function generateLiteralStringChunksFromNode(node, sourceCode) {
       sourceCode.substring(start, expression.start)
     )
 
-    // comments are not supported here
-    if (isCommentString(string)) return chunks
-
     // trimStart the first string
     chunks.push(index === 0 ? string.trimStart() : string)
 
@@ -42,6 +39,8 @@ function generateLiteralStringChunksFromNode(node, sourceCode) {
 
     return chunks
   }, [])
+    // comments are not supported here
+    .filter(str => !isCommentString(str))
     .map(str => node.unescape ? unescapeChar(str, node.unescape) : str)
 }
 
