@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v4.8.0
+- Add support for HTML comments generation via `comments: true` option
+- Fix https://github.com/riot/riot/issues/2836
+
 ### v4.7.0
 - Add performance improvement avoiding the use of redundant static attributes expressions binding
 - Fix false positive "out of root html" checks in case of html comments
