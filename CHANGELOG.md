@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.8.3
+- Fix support for [Edge](https://github.com/riot/riot/issues/2855) and [Node 8](https://github.com/riot/riot/issues/2850)
+
 ### v4.8.2
 - Fix make sure that all the text expressions mixed with comments are properly rendered
 
