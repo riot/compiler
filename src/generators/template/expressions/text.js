@@ -11,6 +11,8 @@ import {builders} from '../../../utils/build-types'
 import encodeHTMLEntities from '../../../utils/html-entities/encode'
 import {isCommentString} from '../checks'
 import {isLiteral} from '../../../utils/ast-nodes-checks'
+import trimEnd from '../../../utils/trim-end'
+import trimStart from '../../../utils/trim-start'
 import unescapeChar from '../../../utils/unescape-char'
 
 /**
@@ -27,13 +29,13 @@ function generateLiteralStringChunksFromNode(node, sourceCode) {
     )
 
     // trimStart the first string
-    chunks.push(index === 0 ? string.trimStart() : string)
+    chunks.push(index === 0 ? trimStart(string) : string)
 
     // add the tail to the string
     if (index === node.expressions.length - 1)
       chunks.push(
         encodeHTMLEntities(
-          sourceCode.substring(expression.end, node.end).trimEnd()
+          trimEnd(sourceCode.substring(expression.end, node.end))
         )
       )
 
