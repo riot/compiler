@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4,8.4
+- Fix https://github.com/riot/riot/issues/2858
+
 ### v4.8.3
 - Fix support for [Edge](https://github.com/riot/riot/issues/2855) and [Node 8](https://github.com/riot/riot/issues/2850)
 
