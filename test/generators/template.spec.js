@@ -116,6 +116,7 @@ describe('Generators - Template', () => {
 
       it('arrays', () => {
         expect(renderExpr('[foo, \'bar\', baz]')).to.be.equal('[scope.foo, \'bar\', scope.baz]')
+        expect(renderExpr('[foo, \'bar\', baz].join(\' \')')).to.be.equal('[scope.foo, \'bar\', scope.baz].join(\' \')')
       })
 
       it('classes declaration', () => {
