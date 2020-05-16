@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4,8.5
+- Fix https://github.com/riot/riot/issues/2859
+
 ### v4,8.4
 - Fix https://github.com/riot/riot/issues/2858
 
