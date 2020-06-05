@@ -60,8 +60,7 @@ function groupSlots(sourceNode) {
 function buildSlot(id, sourceNode, sourceFile, sourceCode) {
   const cloneNode = {
     ...sourceNode,
-    // avoid to render the slot attribute
-    attributes: getNodeAttributes(sourceNode).filter(attribute => attribute.name !== SLOT_ATTRIBUTE)
+    attributes: getNodeAttributes(sourceNode)
   }
   const [html, bindings] = build(cloneNode, sourceFile, sourceCode)
 

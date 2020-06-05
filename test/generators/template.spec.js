@@ -595,13 +595,13 @@ describe('Generators - Template', () => {
       const defaultSlot = getSlot('default')
 
       expect(removeIdFromExpessionBindings(headerSlot[BINDING_HTML_KEY]))
-        .to.be.equal('<p expr> </p>')
+        .to.be.equal('<p expr slot="header"> </p>')
       expect(
         headerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({greeting: 'hi'}))
         .to.have.be.equal('hi')
 
       expect(removeIdFromExpessionBindings(footerSlot[BINDING_HTML_KEY]))
-        .to.be.equal('<div expr> </div>')
+        .to.be.equal('<div expr slot="footer"> </div>')
       expect(
         footerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({footer: 'hi'}))
         .to.have.be.equal('hi')
