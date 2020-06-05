@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4,9.0
+- Add better interoperability with native custom elements https://github.com/riot/riot/issues/2864 `slot` attributes will be no longer removed
+
 ### v4,8.5
 - Fix https://github.com/riot/riot/issues/2859
 
