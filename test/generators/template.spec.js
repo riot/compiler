@@ -83,6 +83,7 @@ describe('Generators - Template', () => {
         expect(renderExpr('window.isNaN(foo.bar)')).to.be.equal('window.isNaN(scope.foo.bar)')
         expect(renderExpr('new RegExp(foo.bar, "g")')).to.be.equal('new RegExp(scope.foo.bar, "g")')
         expect(renderExpr('(new Date()).getFullYear()')).to.be.equal('(new Date()).getFullYear()')
+        expect(renderExpr('(new Date(state.test)).getFullYear()')).to.be.equal('(new Date(scope.state.test)).getFullYear()')
         expect(renderExpr('"this".toUpperCase().toLowerCase()')).to.be.equal('"this".toUpperCase().toLowerCase()')
       })
 

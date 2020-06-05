@@ -64,20 +64,30 @@ function updateNodeScope(path) {
  * @returns { boolean } return always false because we want to check only the first node object
  */
 function visitMemberExpression(path) {
-  if (!isGlobal(path)) {
-    if (path.value.computed) {
-      this.traverse(path)
-    } else if (
-      isArrayExpression(path.node.object) ||
-      isBinaryExpression(path.node.object) ||
-      path.node.object.computed
-    ) {
-      this.traverse(path.get('object'))
-    } else if (!path.node.object.callee) {
-      replacePathScope(path, isThisExpression(path.node.object) ? path.node.property : path.node)
-    } else {
-      this.traverse(path.get('object'))
+  const traversePathObject = () => this.traverse(path.get('object'))
+
+  switch (true) {
+  case isGlobal(path):
+    if (path.node.object.arguments && path.node.object.arguments.length) {
+      traversePathObject()
     }
+    break
+  case path.value.computed:
+    this.traverse(path)
+    break
+  case isArrayExpression(path.node.object):
+  case isBinaryExpression(path.node.object):
+  case path.node.object.computed:
+    traversePathObject()
+    break
+  case !path.node.object.callee:
+    replacePathScope(
+      path,
+      isThisExpression(path.node.object) ? path.node.property : path.node
+    )
+    break
+  default:
+    traversePathObject()
   }
 
   return false
