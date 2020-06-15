@@ -16,7 +16,7 @@ import {
 import { builders, types } from '../../utils/build-types'
 import { findIsAttribute, findStaticAttributes } from './find'
 import { hasExpressions, isGlobal, isTagNode, isTextNode, isVoidNode } from './checks'
-import { isArrayExpression, isBinaryExpression, isIdentifier, isLiteral, isMemberExpression, isThisExpression } from '../../utils/ast-nodes-checks'
+import { isArrayExpression, isBinaryExpression, isIdentifier, isLiteral, isMemberExpression, isThisExpression, isUnaryExpression } from '../../utils/ast-nodes-checks'
 import { nullNode, simplePropertyNode } from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
 import compose from 'cumpa'
@@ -76,6 +76,7 @@ function visitMemberExpression(path) {
     this.traverse(path)
     break
   case isArrayExpression(path.node.object):
+  case isUnaryExpression(path.node.object):
   case isBinaryExpression(path.node.object):
   case path.node.object.computed:
     traversePathObject()

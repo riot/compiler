@@ -148,6 +148,7 @@ describe('Generators - Template', () => {
       })
 
       it('parethesis precedence expressions', () => {
+        expect(renderExpr('(!state.property).toString()')).to.be.equal('(!scope.state.property).toString()')
         expect(renderExpr('(props.name+"foo").toUpperCase()')).to.be.equal('(scope.props.name+"foo").toUpperCase()')
       })
     })
