@@ -378,7 +378,7 @@ export function transformStatiAttributesIntoExpressions(attributes) {
       expressions: [{
         start: attribute.valueStart,
         end: attribute.end,
-        text: `'${attribute.value}'`
+        text: `'${attribute.value || attribute.name}'`
       }]
     }
   })

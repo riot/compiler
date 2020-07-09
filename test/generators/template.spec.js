@@ -15,6 +15,7 @@ import {
   NAME_ATTRIBUTE
 } from '../../src/generators/template/constants'
 import {bindingTypes, expressionTypes} from '@riotjs/dom-bindings'
+import {createRootNode, toScopedFunction} from '../../src/generators/template/utils'
 import {evaluateScript, renderExpression} from '../helpers'
 import builder from '../../src/generators/template/builder'
 import {builders} from '../../src/utils/build-types'
@@ -29,7 +30,6 @@ import riotParser from '@riotjs/parser'
 import simpleBinding from '../../src/generators/template/bindings/simple'
 import slotBinding from '../../src/generators/template/bindings/slot'
 import tagBinding from '../../src/generators/template/bindings/tag'
-import {toScopedFunction} from '../../src/generators/template/utils'
 
 const FAKE_SRC_FILE = 'fake-file.js'
 const renderExpr = compose(
@@ -223,6 +223,19 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
       expect(expression[BINDING_NAME_KEY]).to.be.equal('class')
       expect(expression[BINDING_EVALUATE_KEY]({foo: 'foo'})).to.be.equal('foo')
+    })
+
+    it('Custom boolean attribute on root tag', () => {
+      const source = '<my-tag data-foo></my-tag>'
+      const { template } = parse(source)
+      const [,bindings] = builder(createRootNode(template), FAKE_SRC_FILE, source)
+      const output = evaluateOutput(bindings[0])
+      const expression = output.expressions[0]
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_NAME_KEY]).to.be.equal('data-foo')
+      expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal('data-foo')
     })
 
     it('Spread attribute expression', () => {
