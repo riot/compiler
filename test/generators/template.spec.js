@@ -57,7 +57,7 @@ const parse = (input, options) => riotParser(options).parse(input).output
 
 describe('Generators - Template', () => {
   describe('Utils', () => {
-    describe('Expressions rendering', () => {
+    describe.only('Expressions rendering', () => {
       it('simple', () => {
         expect(renderExpr('foo')).to.be.equal('scope.foo')
       })
@@ -103,8 +103,10 @@ describe('Generators - Template', () => {
         expect(renderExpr('window["foo"].bar')).to.be.equal('window["foo"].bar')
       })
 
-      it('context transform', () => {
+      it.only('context transform', () => {
         expect(renderExpr('this.foo + this.bar')).to.be.equal('scope.foo + scope.bar')
+        expect(renderExpr('this.state.foo')).to.be.equal('scope.state.foo')
+        expect(renderExpr('this["bar"].foo')).to.be.equal('scope["bar"].foo')
         expect(renderExpr('this + this')).to.be.equal('scope + scope')
       })
 
