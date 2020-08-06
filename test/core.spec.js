@@ -58,6 +58,12 @@ describe('Core specs', () => {
       expect(output.default.css).to.include('content: \'\\263c\';')
     })
 
+    it('It can compile an entire HTML Page', async function() {
+      const result = compile(getFixture('root-app.riot'))
+
+      expect(result.code).to.match(/<script/)
+    })
+
     it('Tags without html and javascript can be properly compiled', async function() {
       const result = compile(getFixture('only-css.riot'))
       const output = evaluateScript(result.code)
@@ -166,7 +172,7 @@ describe('Core specs', () => {
   describe('Preprocessed tags', () => {
     before(() => {
       registerPreprocessor('css', 'sass', sassPreprocessor)
-      registerPreprocessor('template', 'pug', (code, {file}) => {
+      registerPreprocessor('template', 'pug', (code, { file }) => {
         return {
           code: pug.render(code, {
             filename: file

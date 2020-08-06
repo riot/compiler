@@ -70,5 +70,5 @@ function extendTemplateProperty(ast, sourceFile, sourceCode, sourceNode) {
  */
 export default function template(sourceNode, source, meta, ast) {
   const { options } = meta
-  return  extendTemplateProperty(ast, options.file, source, sourceNode)
+  return extendTemplateProperty(ast, options.file, source, sourceNode)
 }

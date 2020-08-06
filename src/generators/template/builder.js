@@ -82,21 +82,21 @@ function createTagWithBindings(sourceNode, sourceFile, sourceCode) {
   const cloneNode = createBindingsTag(sourceNode, bindingsSelector)
   const tagOpeningHTML = nodeToString(cloneNode)
 
-  switch(true) {
-  // EACH bindings have prio 1
+  switch (true) {
   case hasEachAttribute(cloneNode):
+    // EACH bindings have prio 1
     return [tagOpeningHTML, [eachBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
-  // IF bindings have prio 2
   case hasIfAttribute(cloneNode):
+    // IF bindings have prio 2
     return [tagOpeningHTML, [ifBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
-  // TAG bindings have prio 3
   case isCustomNode(cloneNode):
+    // TAG bindings have prio 3
     return [tagOpeningHTML, [tagBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
-  // slot tag
   case isSlotNode(cloneNode):
+    // slot tag
     return [tagOpeningHTML, [slotBinding(cloneNode, bindingsSelector)]]
-  // this node has expressions bound to it
   default:
+    // this node has expressions bound to it
     return [tagOpeningHTML, [simpleBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)]]
   }
 }

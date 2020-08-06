@@ -82,7 +82,7 @@ function createSlotsArray(sourceNode, sourceFile, sourceCode) {
   return builders.arrayExpression([
     ...compose(
       slots => slots.map(([key, value]) => buildSlot(key, value, sourceFile, sourceCode)),
-      slots => slots.filter(([,value]) => value),
+      slots => slots.filter(([, value]) => value),
       Object.entries,
       groupSlots
     )(sourceNode)

@@ -1,6 +1,6 @@
-import { EACH_DIRECTIVE, IF_DIRECTIVE, IS_DIRECTIVE, KEY_ATTRIBUTE } from './constants'
-import { getName, getNodeAttributes } from './utils'
-import { hasExpressions } from './checks'
+import {EACH_DIRECTIVE, IF_DIRECTIVE, IS_DIRECTIVE, KEY_ATTRIBUTE} from './constants'
+import {getName, getNodeAttributes} from './utils'
+import {hasExpressions} from './checks'
 
 /**
  * Find the attribute node

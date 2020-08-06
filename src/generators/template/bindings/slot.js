@@ -39,15 +39,17 @@ export default function createSlotBinding(sourceNode, selectorAttribute, sourceF
     ),
     simplePropertyNode(
       BINDING_ATTRIBUTES_KEY,
-      createBindingAttributes({
-        ...sourceNode,
-        // filter the name attribute
-        attributes: getNodeAttributes(sourceNode)
-          .filter(attribute => getName(attribute) !== NAME_ATTRIBUTE)
-      },
-      selectorAttribute,
-      sourceFile,
-      sourceCode)
+      createBindingAttributes(
+        {
+          ...sourceNode,
+          // filter the name attribute
+          attributes: getNodeAttributes(sourceNode)
+            .filter(attribute => getName(attribute) !== NAME_ATTRIBUTE)
+        },
+        selectorAttribute,
+        sourceFile,
+        sourceCode
+      )
     ),
     simplePropertyNode(
       BINDING_NAME_KEY,

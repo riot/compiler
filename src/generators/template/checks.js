@@ -5,15 +5,15 @@ import {
   PROGRESS_TAG_NODE_NAME,
   SLOT_TAG_NODE_NAME
 } from './constants'
-import { findEachAttribute, findIfAttribute, findIsAttribute, findKeyAttribute } from './find'
+import {findEachAttribute, findIfAttribute, findIsAttribute, findKeyAttribute} from './find'
 import {
   getName,
   getNodeAttributes
 } from './utils'
-import { isBrowserAPI, isBuiltinAPI, isNewExpression, isRaw } from '../../utils/ast-nodes-checks'
+import {isBrowserAPI, isBuiltinAPI, isNewExpression, isRaw} from '../../utils/ast-nodes-checks'
 import compose from 'cumpa'
-import { nodeTypes } from '@riotjs/parser'
-import { types } from '../../utils/build-types'
+import {nodeTypes} from '@riotjs/parser'
+import {types} from '../../utils/build-types'
 
 /**
  * True if the node has not expression set nor bindings directives
@@ -183,10 +183,10 @@ export function isCommentString(string) {
 export function hasExpressions(node) {
   return !!(
     node.expressions ||
-        // has expression attributes
-        (getNodeAttributes(node).some(attribute => hasExpressions(attribute))) ||
-        // has child text nodes with expressions
-        (node.nodes && node.nodes.some(node => isTextNode(node) && hasExpressions(node)))
+    // has expression attributes
+    (getNodeAttributes(node).some(attribute => hasExpressions(attribute))) ||
+    // has child text nodes with expressions
+    (node.nodes && node.nodes.some(node => isTextNode(node) && hasExpressions(node)))
   )
 }
 

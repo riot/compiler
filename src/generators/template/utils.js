@@ -13,11 +13,19 @@ import {
   TEMPLATE_FN,
   TEXT_NODE_EXPRESSION_PLACEHOLDER
 } from './constants'
-import { builders, types } from '../../utils/build-types'
-import { findIsAttribute, findStaticAttributes } from './find'
-import { hasExpressions, isGlobal, isTagNode, isTextNode, isVoidNode } from './checks'
-import { isArrayExpression, isBinaryExpression, isIdentifier, isLiteral, isMemberExpression, isThisExpression, isUnaryExpression } from '../../utils/ast-nodes-checks'
-import { nullNode, simplePropertyNode } from '../../utils/custom-ast-nodes'
+import {builders, types} from '../../utils/build-types'
+import {findIsAttribute, findStaticAttributes} from './find'
+import {hasExpressions, isGlobal, isTagNode, isTextNode, isVoidNode} from './checks'
+import {
+  isArrayExpression,
+  isBinaryExpression,
+  isIdentifier,
+  isLiteral,
+  isMemberExpression,
+  isThisExpression,
+  isUnaryExpression
+} from '../../utils/ast-nodes-checks'
+import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
 import compose from 'cumpa'
 import {createExpression} from './expressions/index'
@@ -401,6 +409,7 @@ export function getChildrenNodes(node) {
 export function getNodeAttributes(node) {
   return node.attributes ? node.attributes : []
 }
+
 /**
  * Get the name of a custom node transforming it into an expression node
  * @param   {RiotParser.Node} node - riot parser node
@@ -459,7 +468,7 @@ export function unescapeNode(node, key) {
 export function nodeToString(node) {
   const attributes = staticAttributesToString(node)
 
-  switch(true) {
+  switch (true) {
   case isTagNode(node):
     return `<${node.name}${attributes ? ` ${attributes}` : ''}${isVoidNode(node) ? '/' : ''}>`
   case isTextNode(node):
@@ -560,9 +569,9 @@ export function createBindingAttributes(sourceNode, selectorAttribute, sourceFil
  */
 export function createAttributeEvaluationFunction(sourceNode, sourceFile, sourceCode) {
   return hasExpressions(sourceNode) ?
-  // dynamic attribute
+    // dynamic attribute
     wrapASTInFunctionWithScope(mergeAttributeExpressions(sourceNode, sourceFile, sourceCode)) :
-  // static attribute
+    // static attribute
     builders.functionExpression(
       null,
       [],

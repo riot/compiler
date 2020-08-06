@@ -16,7 +16,7 @@ import {
   getName,
   toScopedFunction
 } from '../utils'
-import { findEachAttribute, findIfAttribute, findKeyAttribute } from '../find'
+import {findEachAttribute, findIfAttribute, findKeyAttribute} from '../find'
 import {isExpressionStatement, isSequenceExpression} from '../../../utils/ast-nodes-checks'
 import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
 import {builders} from '../../../utils/build-types'

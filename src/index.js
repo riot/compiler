@@ -1,7 +1,7 @@
-import { TAG_CSS_PROPERTY, TAG_LOGIC_PROPERTY, TAG_NAME_PROPERTY, TAG_TEMPLATE_PROPERTY } from './constants'
-import { nullNode, simplePropertyNode } from './utils/custom-ast-nodes'
-import { register as registerPostproc, execute as runPostprocessors  } from './postprocessors'
-import { register as registerPreproc, execute as runPreprocessor } from './preprocessors'
+import {TAG_CSS_PROPERTY, TAG_LOGIC_PROPERTY, TAG_NAME_PROPERTY, TAG_TEMPLATE_PROPERTY} from './constants'
+import {nullNode, simplePropertyNode} from './utils/custom-ast-nodes'
+import {register as registerPostproc, execute as runPostprocessors} from './postprocessors'
+import {register as registerPreproc, execute as runPreprocessor} from './preprocessors'
 import {builders} from './utils/build-types'
 import compose from 'cumpa'
 import cssGenerator from './generators/css'
@@ -28,7 +28,7 @@ const DEFAULT_OPTIONS = {
  * @example
  * // the output represents the following string in AST
  */
-export function createInitialInput({tagName}) {
+export function createInitialInput({ tagName }) {
   /*
   generates
   export default {
@@ -63,7 +63,7 @@ function normaliseInputSourceMap(map) {
  * Override the sourcemap content making sure it will always contain the tag source code
  * @param   {Object} map - sourcemap as json
  * @param   {string} source - component source code
- * @returns {Object} original source map with the "sourcesContent" property overriden
+ * @returns {Object} original source map with the "sourcesContent" property overridden
  */
 function overrideSourcemapContent(map, source) {
   return {
@@ -98,9 +98,9 @@ function createMeta(source, options) {
  */
 export function compile(source, opts = {}) {
   const meta = createMeta(source, opts)
-  const {options} = meta
+  const { options } = meta
   const { code, map } = runPreprocessor('template', options.template, meta, source)
-  const {parse} = riotParser(options)
+  const { parse } = riotParser(options)
   const { template, css, javascript } = parse(code).output
 
   // see also https://github.com/riot/compiler/issues/130
