@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.10.1
+- Fix https://github.com/riot/riot/issues/2876
+
 ### v4.10.0
 - Add support for inline `<script src='path/to/somewhere'>` tags
 
