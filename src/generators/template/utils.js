@@ -17,13 +17,9 @@ import {builders, types} from '../../utils/build-types'
 import {findIsAttribute, findStaticAttributes} from './find'
 import {hasExpressions, isGlobal, isTagNode, isTextNode, isVoidNode} from './checks'
 import {
-  isArrayExpression,
-  isBinaryExpression,
   isIdentifier,
   isLiteral,
-  isMemberExpression,
-  isThisExpression,
-  isUnaryExpression
+  isMemberExpression
 } from '../../utils/ast-nodes-checks'
 import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
@@ -73,30 +69,22 @@ function updateNodeScope(path) {
  */
 function visitMemberExpression(path) {
   const traversePathObject = () => this.traverse(path.get('object'))
+  const currentObject = path.node.object
 
   switch (true) {
   case isGlobal(path):
-    if (path.node.object.arguments && path.node.object.arguments.length) {
+    if (currentObject.arguments && currentObject.arguments.length) {
       traversePathObject()
     }
     break
-  case path.value.computed:
-    this.traverse(path)
-    break
-  case isArrayExpression(path.node.object):
-  case isUnaryExpression(path.node.object):
-  case isBinaryExpression(path.node.object):
-  case path.node.object.computed:
-    traversePathObject()
-    break
-  case !path.node.object.callee:
+  case !path.value.computed && isIdentifier(currentObject):
     replacePathScope(
       path,
-      isThisExpression(path.node.object) ? path.node.property : path.node
+      path.node
     )
     break
   default:
-    traversePathObject()
+    this.traverse(path)
   }
 
   return false
@@ -114,7 +102,7 @@ function visitProperty(path) {
     // disable shorthand object properties
     if (isShorthand) path.node.shorthand = false
 
-    updateNodeScope(path.get('value'))
+    updateNodeScope.call(this, path.get('value'))
   } else {
     this.traverse(path.get('value'))
   }
@@ -132,6 +120,20 @@ function visitThisExpression(path) {
   this.traverse(path)
 }
 
+/**
+ * Replace the identifiers with the node scope
+ * @param   { types.NodePath } path - containing the current node visited
+ * @returns { boolean|undefined } return false if we want to stop the tree traversal
+ */
+function visitIdentifier(path) {
+  const parentValue = path.parent.value
+
+  if (!isMemberExpression(parentValue) || parentValue.computed) {
+    updateNodeScope.call(this, path)
+  }
+
+  return false
+}
 
 /**
  * Update the scope of the global nodes
@@ -142,7 +144,7 @@ export function updateNodesScope(ast) {
   const ignorePath = () => false
 
   types.visit(ast, {
-    visitIdentifier: updateNodeScope,
+    visitIdentifier,
     visitMemberExpression,
     visitProperty,
     visitThisExpression,
