@@ -1,5 +1,8 @@
 # Compiler Changes
 
+### v4.11.0
+- Add: support for optional chaining and null coalescing expressions https://github.com/riot/riot/issues/2880
+
 ### v4.10.1
 - Fix https://github.com/riot/riot/issues/2876
 
