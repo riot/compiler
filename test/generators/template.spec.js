@@ -149,9 +149,15 @@ describe('Generators - Template', () => {
         expect(renderExpr('classNames({active: item.isActive})')).to.be.equal('scope.classNames({active: scope.item.isActive})')
       })
 
-      it('parethesis precedence expressions', () => {
+      it('parenthesis precedence expressions', () => {
         expect(renderExpr('(!state.property).toString()')).to.be.equal('(!scope.state.property).toString()')
         expect(renderExpr('(props.name+"foo").toUpperCase()')).to.be.equal('(scope.props.name+"foo").toUpperCase()')
+      })
+
+      it('support for optional chaining and null coalescing',() => {
+        expect(renderExpr('state?.message')).to.be.equal('scope.state?.message')
+        expect(renderExpr('state.fn?.()')).to.be.equal('scope.state.fn?.()')
+        expect(renderExpr('state.name ?? state.surname')).to.be.equal('scope.state.name ?? scope.state.surname')
       })
     })
   })
