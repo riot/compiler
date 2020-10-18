@@ -1,5 +1,9 @@
 # Compiler Changes
 
+### v5 Changelog
+
+For the future changelog please visit https://github.com/riot/compiler/releases 
+
 ### v4.11.0
 - Add: support for optional chaining and null coalescing expressions https://github.com/riot/riot/issues/2880
 
