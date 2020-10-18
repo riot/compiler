@@ -1,4 +1,3 @@
-import './utils/extend-ast-types-def' // TODO: remove when https://github.com/benjamn/ast-types/pull/383 will be merged
 import {TAG_CSS_PROPERTY, TAG_LOGIC_PROPERTY, TAG_NAME_PROPERTY, TAG_TEMPLATE_PROPERTY} from './constants'
 import {nullNode, simplePropertyNode} from './utils/custom-ast-nodes'
 import {register as registerPostproc, execute as runPostprocessors} from './postprocessors'
