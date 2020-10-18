@@ -1,8 +1,8 @@
-import { builtin } from 'globals'
+import globalScope from 'globals'
 import {namedTypes} from './build-types'
 
 const browserAPIs = ['window', 'document']
-const builtinAPIs = Object.keys(builtin)
+const builtinAPIs = Object.keys(globalScope.builtin)
 
 export const isIdentifier = n => namedTypes.Identifier.check(n)
 export const isLiteral = n => namedTypes.Literal.check(n)
