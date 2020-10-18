@@ -99,6 +99,8 @@ describe('Generators - Template', () => {
 
       it('global scope objects', () => {
         expect(renderExpr('window.foo.toUppercase()')).to.be.equal('window.foo.toUppercase()')
+        expect(renderExpr('CSS')).to.be.equal('scope.CSS')
+        expect(renderExpr('window.CSS')).to.be.equal('window.CSS')
         expect(renderExpr('window.foo')).to.be.equal('window.foo')
         expect(renderExpr('window["foo"].bar')).to.be.equal('window["foo"].bar')
       })
