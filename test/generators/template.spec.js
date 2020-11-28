@@ -103,6 +103,8 @@ describe('Generators - Template', () => {
         expect(renderExpr('window.CSS')).to.be.equal('window.CSS')
         expect(renderExpr('window.foo')).to.be.equal('window.foo')
         expect(renderExpr('window["foo"].bar')).to.be.equal('window["foo"].bar')
+        expect(renderExpr('console.log("hello")')).to.be.equal('console.log("hello")')
+        expect(renderExpr('console.log(item)')).to.be.equal('console.log(scope.item)')
       })
 
       it('context transform', () => {
