@@ -3,7 +3,7 @@ import {
   createSelectorProperties,
   getChildrenNodes
 } from '../utils'
-import {hasExpressions, isTextNode} from '../checks'
+import {hasExpressions, isRemovableNode, isRootNode, isTextNode} from '../checks'
 import {BINDING_EXPRESSIONS_KEY} from '../constants'
 import {builders} from '../../../utils/build-types'
 import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
@@ -40,7 +40,8 @@ function createTextNodeExpressions(sourceNode, sourceFile, sourceCode) {
  */
 export default function createSimpleBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
   return builders.objectExpression([
-    ...createSelectorProperties(selectorAttribute),
+    // root or removable nodes do not need selectors
+    ...(isRemovableNode(sourceNode) || isRootNode(sourceNode) ? [] : createSelectorProperties(selectorAttribute)),
     simplePropertyNode(
       BINDING_EXPRESSIONS_KEY,
       builders.arrayExpression([
