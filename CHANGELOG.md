@@ -16,19 +16,19 @@ For the future changelog please visit https://github.com/riot/compiler/releases
 ### v4.9.3
 - Fix https://github.com/riot/riot/issues/2874
 
-### v4,9.2
+### v4.9.2
 - Fix https://github.com/riot/compiler/issues/134
 
-### v4,9.1
+### v4.9.1
 - Fix https://github.com/riot/riot/issues/2866
 
-### v4,9.0
+### v4.9.0
 - Add better interoperability with native custom elements https://github.com/riot/riot/issues/2864 `slot` attributes will be no longer removed
 
-### v4,8.5
+### v4.8.5
 - Fix https://github.com/riot/riot/issues/2859
 
-### v4,8.4
+### v4.8.4
 - Fix https://github.com/riot/riot/issues/2858
 
 ### v4.8.3
