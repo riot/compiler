@@ -2,10 +2,11 @@ import {
   IS_CUSTOM_NODE,
   IS_SPREAD_ATTRIBUTE,
   IS_VOID_NODE,
-  PROGRESS_TAG_NODE_NAME,
-  SLOT_TAG_NODE_NAME
+  PROGRESS_TAG_NODE_NAME, SLOT_ATTRIBUTE,
+  SLOT_TAG_NODE_NAME,
+  TEMPLATE_TAG_NODE_NAME
 } from './constants'
-import {findEachAttribute, findIfAttribute, findIsAttribute, findKeyAttribute} from './find'
+import {findAttribute, findEachAttribute, findIfAttribute, findIsAttribute, findKeyAttribute} from './find'
 import {
   getName,
   getNodeAttributes
@@ -28,6 +29,17 @@ export function isStaticNode(node) {
     isCustomNode,
     isSlotNode
   ].every(test => !test(node))
+}
+
+/**
+ * Check if a node should be rendered in the final component HTML
+ * For example slot <template slot="content"> tags not using `each` or `if` directives can be removed
+ * see also https://github.com/riot/riot/issues/2888
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true if we can remove this tag from the component rendered HTML
+ */
+export function isRemovableNode(node) {
+  return isTemplateNode(node) && findAttribute(SLOT_ATTRIBUTE, node) && !hasEachAttribute(node) && !hasIfAttribute(node)
 }
 
 /**
@@ -153,6 +165,15 @@ export function isValueAttribute(node) {
  */
 export function isProgressNode(node) {
   return node.name === PROGRESS_TAG_NODE_NAME
+}
+
+/**
+ * True if the DOM node is a <template> tag
+ * @param   {RiotParser.Node}  node - riot parser node
+ * @returns {boolean} true for the progress tags
+ */
+export function isTemplateNode(node) {
+  return node.name === TEMPLATE_TAG_NODE_NAME
 }
 
 /**

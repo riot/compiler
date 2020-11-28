@@ -15,7 +15,13 @@ import {
 } from './constants'
 import {builders, types} from '../../utils/build-types'
 import {findIsAttribute, findStaticAttributes} from './find'
-import {hasExpressions, isGlobal, isTagNode, isTextNode, isVoidNode} from './checks'
+import {
+  hasExpressions,
+  isGlobal,
+  isTagNode,
+  isTextNode,
+  isVoidNode
+} from './checks'
 import {
   isIdentifier,
   isLiteral,
@@ -460,7 +466,6 @@ export function unescapeNode(node, key) {
 
   return node
 }
-
 
 /**
  * Convert a riot parser opening node into a string
