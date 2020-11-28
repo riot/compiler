@@ -639,6 +639,25 @@ describe('Generators - Template', () => {
         defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({ there: 'hi' }))
         .to.have.be.equal('hi')
     })
+
+    it('Slot <template> tags do not need selectors', () => {
+      const source = `
+        <my-tag>
+          <template slot="header">{greeting}</template>
+        </my-tag>
+        `
+      const { template } = parse(source)
+      const input = tagBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const getSlot = curry(getSlotById)(output.slots)
+      const headerSlot = getSlot('header')
+
+      expect(removeIdFromExpessionBindings(headerSlot[BINDING_HTML_KEY]))
+        .to.be.equal(' ')
+      expect(
+        headerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_SELECTOR_KEY])
+        .to.be.not.ok
+    })
   })
 
   describe('Each bindings', () => {
