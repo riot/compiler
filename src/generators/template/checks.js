@@ -13,6 +13,7 @@ import {
 } from './utils'
 import {isBrowserAPI, isBuiltinAPI, isNewExpression, isRaw} from '../../utils/ast-nodes-checks'
 import compose from 'cumpa'
+import {isNil} from '@riotjs/util/checks'
 import {nodeTypes} from '@riotjs/parser'
 import {types} from '../../utils/build-types'
 
@@ -39,7 +40,7 @@ export function isStaticNode(node) {
  * @returns {boolean} true if we can remove this tag from the component rendered HTML
  */
 export function isRemovableNode(node) {
-  return isTemplateNode(node) && findAttribute(SLOT_ATTRIBUTE, node) && !hasEachAttribute(node) && !hasIfAttribute(node)
+  return isTemplateNode(node) && !isNil(findAttribute(SLOT_ATTRIBUTE, node)) && !hasEachAttribute(node) && !hasIfAttribute(node)
 }
 
 /**
