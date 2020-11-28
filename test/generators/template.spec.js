@@ -1079,6 +1079,22 @@ describe('Generators - Template', () => {
       expect(html).to.be.equal('<template expr slot="hello"></template>')
     })
 
+    it('Template Tags with if bindings will be rendered', () => {
+      const source = '<template if={true}></template>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<template expr></template>')
+    })
+
+    it('Template Tags with each bindings will be rendered', () => {
+      const source = '<template if={item in [1, 2, 3]}></template>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<template expr></template>')
+    })
+
     it('Slot shouldn\'t be considered custom tags', () => {
       const source = '<slot/>'
       const { template } = parse(source)
