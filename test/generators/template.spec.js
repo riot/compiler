@@ -1053,6 +1053,30 @@ describe('Generators - Template', () => {
       expect(html).to.be.equal('<my-tag expr></my-tag>')
     })
 
+    it('Slot Template Tags without if and each bindings will be removed', () => {
+      const source = '<template slot="hello"></template>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('')
+    })
+
+    it('Slot Template Tags with if bindings will be rendered', () => {
+      const source = '<template slot="hello" if={true}></template>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<template expr slot="hello"></template>')
+    })
+
+    it('Slot Template Tags with each bindings will be rendered', () => {
+      const source = '<template slot="hello" if={item in [1, 2, 3]}></template>'
+      const { template } = parse(source)
+      const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
+
+      expect(html).to.be.equal('<template expr slot="hello"></template>')
+    })
+
     it('Slot shouldn\'t be considered custom tags', () => {
       const source = '<slot/>'
       const { template } = parse(source)

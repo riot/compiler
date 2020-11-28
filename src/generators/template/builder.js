@@ -9,7 +9,7 @@ import {
 import {
   hasEachAttribute, hasIfAttribute,
   hasItsOwnTemplate,
-  isCustomNode,
+  isCustomNode, isRemovableNode,
   isRootNode,
   isSlotNode,
   isStaticNode,
@@ -155,10 +155,11 @@ export default function build(
 
   const [nodeHTML, nodeBindings] = parseNode(sourceNode, sourceFile, sourceCode, state)
   const childrenNodes = getChildrenNodes(sourceNode)
+  const canRenderNodeHTML = isRemovableNode(sourceNode) === false
   const currentState = { ...cloneDeep(BuildingState), ...state }
 
   // mutate the original arrays
-  currentState.html.push(...nodeHTML)
+  canRenderNodeHTML && currentState.html.push(...nodeHTML)
   currentState.bindings.push(...nodeBindings)
 
   // do recursion if
@@ -168,7 +169,7 @@ export default function build(
   }
 
   // close the tag if it's not a void one
-  if (isTagNode(sourceNode) && !isVoidNode(sourceNode)) {
+  if (canRenderNodeHTML && isTagNode(sourceNode) && !isVoidNode(sourceNode)) {
     currentState.html.push(closeTag(sourceNode))
   }
 
