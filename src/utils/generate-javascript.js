@@ -10,6 +10,7 @@ export default function generateJavascript(ast, options) {
   return print(ast, {
     ...options,
     tabWidth: 2,
+    wrapColumn: 0,
     quote: 'single'
   })
 }
