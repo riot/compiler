@@ -40,7 +40,7 @@ const renderExpr = compose(
 
 const renderTextNode = (node, source) => generateJavascript(
   mergeNodeExpressions(node, FAKE_SRC_FILE, source)
-).code.replace('.join(\'\')', '')
+).code.replace(/\.join\(([\r\n]|.)+/, '')
 
 const getSlotById = (slots, id) => slots.find(slot => slot[BINDING_ID_KEY] === id)
 const removeIdFromExpessionBindings = str => str.replace(/expr(\d+)="expr(\d+)"/g, 'expr')
@@ -147,6 +147,11 @@ describe('Generators - Template', () => {
         expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
         expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + scope.baz')
         expect(renderExpr('(foo) => (event) => foo + event.target.value + baz')).to.be.equal('(foo) => (event) => foo + event.target.value + scope.baz')
+        expect(renderExpr('() => update({ message: \'hello\' })')).to.be.equal('() => scope.update({ message: \'hello\' })')
+        expect(renderExpr(`() => {
+        update({ message: "ok" })
+        }`)).to.be.equal(`() => {            scope.update({ message: "ok" })
+            }`)
       })
 
       it('functions object arguments', () => {
@@ -158,7 +163,7 @@ describe('Generators - Template', () => {
         expect(renderExpr('(props.name+"foo").toUpperCase()')).to.be.equal('(scope.props.name+"foo").toUpperCase()')
       })
 
-      it('support for optional chaining and null coalescing',() => {
+      it('support for optional chaining and null coalescing', () => {
         expect(renderExpr('state?.message')).to.be.equal('scope.state?.message')
         expect(renderExpr('state.fn?.()')).to.be.equal('scope.state.fn?.()')
         expect(renderExpr('state.name ?? state.surname')).to.be.equal('scope.state.name ?? scope.state.surname')
@@ -171,7 +176,7 @@ describe('Generators - Template', () => {
       const source = '<p>{foo} + {bar}</p>'
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[scope.foo, \' + \', scope.bar]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  scope.foo,\n  \' + \',\n  scope.bar\n]')
     })
 
     it('Complex single expression will be merged with the plain text', () => {
@@ -181,7 +186,7 @@ describe('Generators - Template', () => {
       bar</p>`
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[scope.foo, \'\\n      foo bar\\n      bar\']')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  scope.foo,\n  \'\\n      foo bar\\n      bar\'\n]')
     })
 
     it('Escaped expression will be unescaped', () => {
@@ -192,7 +197,7 @@ describe('Generators - Template', () => {
       bar</p>`
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\'{foo}\\n      \', scope.bar, \'\\n      foo bar\\n      bar\']')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  \'{foo}\\n      \',\n  scope.bar,\n  \'\\n      foo bar\\n      bar\'\n]')
     })
 
     it('Complex multiple expressions will be merged with the plain text', () => {
@@ -219,7 +224,7 @@ describe('Generators - Template', () => {
         brackets: ['[[[[', ']]]]']
       })
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[scope.foo, \' + \', scope.bar]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  scope.foo,\n  \' + \',\n  scope.bar\n]')
     })
 
     it('Simple attribute expression', () => {

@@ -134,6 +134,10 @@ describe('Core specs', () => {
       expect(() => compile(getFixture('dynamic-import.riot'))).to.not.throw()
     })
 
+    it('Multiline expressions are supported - https://github.com/riot/riot/issues/2889', function() {
+      expect(() => compile(getFixture('multiline-expressions.riot'))).to.not.throw()
+    })
+
     it('Multiple root nodes are not supported', function() {
       expect(() => compile(getFixture('multiple-root-nodes-script.riot'))).to.throw(/Multiple/)
       expect(() => compile(getFixture('multiple-root-nodes-css.riot'))).to.throw(/Multiple/)
