@@ -3,6 +3,11 @@
     update({ message: 'hello' })
   } }>{ state.message }</h1>
 
+  <h1 if={ state.isVisible } is='animore' mount={{
+    complete: onComplete,
+    translateX: 100
+  }} unmount={{translateX: 0}}>{ state.message }</h2>
+
   <script>
     export default {
       state: {
