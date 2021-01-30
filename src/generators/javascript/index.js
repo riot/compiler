@@ -1,12 +1,12 @@
+import {builders, types} from '../../utils/build-types'
+import {isExportDefaultStatement, isThisExpressionStatement} from '../../utils/ast-nodes-checks'
 import {TAG_LOGIC_PROPERTY} from '../../constants'
 import addLinesOffset from '../../utils/add-lines-offset'
 import generateAST from '../../utils/generate-ast'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import isEmptySourcemap from '../../utils/is-empty-sourcemap'
-import {isExportDefaultStatement} from '../../utils/ast-nodes-checks'
 import preprocess from '../../utils/preprocess-node'
 import sourcemapToJSON from '../../utils/sourcemap-as-json'
-import {types} from '../../utils/build-types'
 
 /**
  * Find the export default statement
@@ -18,12 +18,39 @@ function findExportDefaultStatement(body) {
 }
 
 /**
+ * Find all the this root expression statements
+ * @param   { Array } body - tree structure containing the program code
+ * @returns { Array } array containing all the this expression statements
+ */
+function findAllRootThisExpressionStatements(body) {
+  return body.filter(isThisExpressionStatement)
+}
+
+/**
+ * Create the default export declaration from the root this member expressions
+ * @param  { Array } thisExpressionStatements - this expression statements
+ * @returns { Object } ExportDefaultDeclaration
+ */
+function createDefaultExportFromThisExpressionStatements(thisExpressionStatements) {
+  return builders.exportDefaultDeclaration(
+    builders.functionDeclaration(
+      builders.identifier(TAG_LOGIC_PROPERTY),
+      [],
+      builders.blockStatement([
+        ...thisExpressionStatements,
+        builders.returnStatement(builders.thisExpression())
+      ])
+    )
+  )
+}
+
+/**
  * Find all the code in an ast program except for the export default statements
  * @param   { Array } body - tree structure containing the program code
  * @returns { Array } array containing all the program code except the export default expressions
  */
 function filterNonExportDefaultStatements(body) {
-  return body.filter(node => !isExportDefaultStatement(node))
+  return body.filter(node => !isExportDefaultStatement(node) && !isThisExpressionStatement(node))
 }
 
 /**
@@ -80,12 +107,23 @@ export default function javascript(sourceNode, source, meta, ast) {
   const generatedAstBody = getProgramBody(generatedAst)
   const bodyWithoutExportDefault = filterNonExportDefaultStatements(generatedAstBody)
   const exportDefaultNode = findExportDefaultStatement(generatedAstBody)
+  const rootThisExpressionStatements = findAllRootThisExpressionStatements(generatedAstBody)
   const outputBody = getProgramBody(ast)
+
+  // throw in case of mixed component exports
+  if (exportDefaultNode && rootThisExpressionStatements.length)
+    throw new Error('You can\t use "export default {}" and root this statements in the same component')
 
   // add to the ast the "private" javascript content of our tag script node
   outputBody.unshift(...bodyWithoutExportDefault)
 
-  // convert the export default adding its content to the "tag" property exported
+  // create the public component export properties from the root this statements
+  if (rootThisExpressionStatements.length) extendTagProperty(
+    ast,
+    createDefaultExportFromThisExpressionStatements(rootThisExpressionStatements)
+  )
+
+  // convert the export default adding its content to the component property exported
   if (exportDefaultNode) extendTagProperty(ast, exportDefaultNode)
 
   return ast
