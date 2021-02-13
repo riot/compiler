@@ -28,7 +28,11 @@ function foo() {
 
 const rootThisExpressions = `
 <script>
+import 'assert';
+
 let internalVar = 'internalVar'
+
+const nameToUppercase = () => this.name.toUpperCase()
 
 this.name = 'hello'
 
@@ -37,6 +41,8 @@ this.method = () => {
 }
 
 this.assignement = this.name
+
+this.returnNameToUppercase = () => nameToUppercase()
 
 internalVar = 'internalVar'
 </script>
@@ -99,6 +105,7 @@ describe('Generators - javascript', () => {
     expect(code).to.be.a('string')
     expect(output.default.exports).to.be.ok
     expect(output.default.exports().name).to.be.equal('hello')
+    expect(output.default.exports().returnNameToUppercase()).to.be.equal('HELLO')
     expect(output.default.exports().method).to.be.a('function')
     expect(output.default.css).to.be.not.ok
     expect(output.default.template).to.be.not.ok
