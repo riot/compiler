@@ -20,6 +20,7 @@ export const isUnaryExpression = n => namedTypes.UnaryExpression.check(n)
 export const isExportDefaultStatement = n => namedTypes.ExportDefaultDeclaration.check(n)
 export const isMemberExpression = n => namedTypes.MemberExpression.check(n)
 export const isArrayExpression = n => namedTypes.ArrayExpression.check(n)
+export const isImportDeclaration = n => namedTypes.ImportDeclaration.check(n)
 
 export const isBrowserAPI = ({name}) => browserAPIs.includes(name)
 export const isBuiltinAPI = ({name}) => builtinAPIs.includes(name)

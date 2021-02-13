@@ -1,5 +1,5 @@
 import {builders, types} from '../../utils/build-types'
-import {isExportDefaultStatement, isThisExpressionStatement} from '../../utils/ast-nodes-checks'
+import {isExportDefaultStatement, isImportDeclaration, isThisExpressionStatement} from '../../utils/ast-nodes-checks'
 import {TAG_LOGIC_PROPERTY} from '../../constants'
 import addLinesOffset from '../../utils/add-lines-offset'
 import generateAST from '../../utils/generate-ast'
@@ -18,26 +18,35 @@ function findExportDefaultStatement(body) {
 }
 
 /**
- * Find all the this root expression statements
+ * Find all import declarations
  * @param   { Array } body - tree structure containing the program code
- * @returns { Array } array containing all the this expression statements
+ * @returns { Array } array containing all the import declarations detected
  */
-function findAllRootThisExpressionStatements(body) {
-  return body.filter(isThisExpressionStatement)
+function findAllImportDeclarations(body) {
+  return body.filter(isImportDeclaration)
 }
 
 /**
- * Create the default export declaration from the root this member expressions
- * @param  { Array } thisExpressionStatements - this expression statements
+ * Filter all the import declarations
+ * @param   { Array } body - tree structure containing the program code
+ * @returns { Array } array containing all the ast expressions without the import declarations
+ */
+function filterOutAllImportDeclarations(body) {
+  return body.filter(n => !isImportDeclaration(n))
+}
+
+/**
+ * Create the default export declaration interpreting the old riot syntax relying on "this" statements
+ * @param   { Array } body - tree structure containing the program code
  * @returns { Object } ExportDefaultDeclaration
  */
-function createDefaultExportFromThisExpressionStatements(thisExpressionStatements) {
+function createDefaultExportFromLegacySyntax(body) {
   return builders.exportDefaultDeclaration(
     builders.functionDeclaration(
       builders.identifier(TAG_LOGIC_PROPERTY),
       [],
       builders.blockStatement([
-        ...thisExpressionStatements,
+        ...filterOutAllImportDeclarations(body),
         builders.returnStatement(builders.thisExpression())
       ])
     )
@@ -105,22 +114,28 @@ export default function javascript(sourceNode, source, meta, ast) {
     inputSourceMap: isEmptySourcemap(inputSourceMap) ? null : inputSourceMap
   })
   const generatedAstBody = getProgramBody(generatedAst)
-  const bodyWithoutExportDefault = filterNonExportDefaultStatements(generatedAstBody)
   const exportDefaultNode = findExportDefaultStatement(generatedAstBody)
-  const rootThisExpressionStatements = findAllRootThisExpressionStatements(generatedAstBody)
+  const isLegacyRiotSyntax = generatedAstBody.some(isThisExpressionStatement)
   const outputBody = getProgramBody(ast)
 
   // throw in case of mixed component exports
-  if (exportDefaultNode && rootThisExpressionStatements.length)
+  if (exportDefaultNode && isLegacyRiotSyntax)
     throw new Error('You can\t use "export default {}" and root this statements in the same component')
 
   // add to the ast the "private" javascript content of our tag script node
-  outputBody.unshift(...bodyWithoutExportDefault)
+  outputBody.unshift(
+    ...(
+      // for the legacy riot syntax we need to move all the import statements outside of the function body
+      isLegacyRiotSyntax ?
+        findAllImportDeclarations(generatedAstBody) :
+        // modern riot syntax will hoist all the private stuff outside of the export default statement
+        filterNonExportDefaultStatements(generatedAstBody)
+    ))
 
   // create the public component export properties from the root this statements
-  if (rootThisExpressionStatements.length) extendTagProperty(
+  if (isLegacyRiotSyntax) extendTagProperty(
     ast,
-    createDefaultExportFromThisExpressionStatements(rootThisExpressionStatements)
+    createDefaultExportFromLegacySyntax(generatedAstBody)
   )
 
   // convert the export default adding its content to the component property exported
