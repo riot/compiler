@@ -65,6 +65,15 @@ export default {
 </script>
 `
 
+const simpleContextMapping = `
+<script>
+const ctx = this
+
+ctx.name = 'hello'
+
+</script>
+`
+
 
 const FAKE_FILE = 'fake-file.js'
 
@@ -118,5 +127,22 @@ describe('Generators - javascript', () => {
         file: FAKE_FILE
       }
     }, createInput())).to.throw('You can\t use "export default {}" and root this statements in the same component')
+  })
+
+  it('The this context can be remapped', () => {
+    const { javascript } = parser().parse(simpleContextMapping).output
+    const ast = compileJavascript(javascript, simpleContextMapping, {
+      options: {
+        file: FAKE_FILE
+      }
+    }, createInput())
+    const { code } = print(ast)
+    const output = evaluateScript(code)
+
+    expect(code).to.be.a('string')
+    expect(output.default.exports).to.be.ok
+    expect(output.default.exports().name).to.be.equal('hello')
+    expect(output.default.css).to.be.not.ok
+    expect(output.default.template).to.be.not.ok
   })
 })

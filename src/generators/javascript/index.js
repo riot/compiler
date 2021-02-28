@@ -5,6 +5,7 @@ import addLinesOffset from '../../utils/add-lines-offset'
 import generateAST from '../../utils/generate-ast'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import isEmptySourcemap from '../../utils/is-empty-sourcemap'
+import {isNil} from '@riotjs/util/checks'
 import preprocess from '../../utils/preprocess-node'
 import sourcemapToJSON from '../../utils/sourcemap-as-json'
 
@@ -115,11 +116,11 @@ export default function javascript(sourceNode, source, meta, ast) {
   })
   const generatedAstBody = getProgramBody(generatedAst)
   const exportDefaultNode = findExportDefaultStatement(generatedAstBody)
-  const isLegacyRiotSyntax = generatedAstBody.some(isThisExpressionStatement)
+  const isLegacyRiotSyntax = isNil(exportDefaultNode)
   const outputBody = getProgramBody(ast)
 
   // throw in case of mixed component exports
-  if (exportDefaultNode && isLegacyRiotSyntax)
+  if (exportDefaultNode && generatedAstBody.some(isThisExpressionStatement))
     throw new Error('You can\t use "export default {}" and root this statements in the same component')
 
   // add to the ast the "private" javascript content of our tag script node
