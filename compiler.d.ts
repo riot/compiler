@@ -31,7 +31,7 @@ export type PreProcessorMeta = {
 
 export type ProcessorFunction = (code: string, meta: PreProcessorMeta) => PreProcessorOutput
 
-export type PreprocessorsMap = {
+export type PreProcessorsMap = {
     template: Map<string, ProcessorFunction>
     javascript: Map<string, ProcessorFunction>
     css: Map<string, ProcessorFunction>
@@ -46,5 +46,5 @@ export function registerPreprocessor(
     type: PreProcessorType,
     name: string,
     fn: ProcessorFunction
-): PreprocessorsMap
+): PreProcessorsMap
 export function registerPostprocessor( fn: ProcessorFunction): PostProcessorsMap
