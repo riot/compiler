@@ -5,9 +5,11 @@
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "jsnext:main": "dist/index.esm.js",
+  "types": "./compiler.d.ts",
   "files": [
     "dist",
-    "src"
+    "src",
+    "compiler.d.ts"
   ],
   "scripts": {
     "lint": "eslint src/ test/ build/",
@@ -15,7 +17,8 @@
     "cov-html": "nyc report --reporter=html",
     "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js",
     "postest": "npm run cov-html",
-    "test": "npm run lint && nyc mocha -r esm test/*.spec.js test/**/*.spec.js",
+    "test-types": "tsc -p test",
+    "test": "npm run lint && nyc mocha -r esm test/*.spec.js test/**/*.spec.js && npm run test-types",
     "debug": "mocha --inspect --inspect-brk -r esm test/*.spec.js test/**/*.spec.js",
     "prepublishOnly": "npm run build && npm run test"
   },
@@ -50,7 +53,8 @@
     "rollup-plugin-alias": "^2.2.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "shelljs": "^0.8.4"
+    "shelljs": "^0.8.4",
+    "typescript": "^4.1.5"
   },
   "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (http://gianlucaguarini.com)",
   "license": "MIT",

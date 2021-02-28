@@ -15,7 +15,7 @@ function getSourceByOutputPositions(source, positions) {
   }, '')
 }
 
-function getGeneatedPositions(sourcemapConsumer, source, positions) {
+function getGeneratedPositions(sourcemapConsumer, source, positions) {
   return positions.map(position => sourcemapConsumer.generatedPositionFor({...position, source}))
 }
 
@@ -68,7 +68,7 @@ describe('Sourcemap specs', () => {
     // const
     expect(getSourceByPosition(source, 19, 4, 8)).to.be.equal(
       getSourceByOutputPositions(output,
-        getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
+        getGeneratedPositions(sourcemapConsumer, 'my-component.riot', [
           {line: 19, column: 4},
           {line: 19, column: 5},
           {line: 19, column: 6},
@@ -82,7 +82,7 @@ describe('Sourcemap specs', () => {
     // value
     expect(getSourceByPosition(source, 5, 58, 62)).to.be.equal(
       getSourceByOutputPositions(output,
-        getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
+        getGeneratedPositions(sourcemapConsumer, 'my-component.riot', [
           {line: 5, column: 58},
           {line: 5, column: 59},
           {line: 5, column: 60},
@@ -95,7 +95,7 @@ describe('Sourcemap specs', () => {
     // bar
     expect(getSourceByPosition(source, 13, 34, 36)).to.be.equal(
       getSourceByOutputPositions(output,
-        getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
+        getGeneratedPositions(sourcemapConsumer, 'my-component.riot', [
           {line: 13, column: 34},
           {line: 13, column: 35},
           {line: 13, column: 36}
@@ -107,7 +107,7 @@ describe('Sourcemap specs', () => {
 
     expect(getSourceByPosition(source, 9, 9, 11)).to.be.equal(
       getSourceByOutputPositions(output,
-        getGeneatedPositions(sourcemapConsumer, 'my-component.riot', [
+        getGeneratedPositions(sourcemapConsumer, 'my-component.riot', [
           {line: 10, column: 9},
           {line: 10, column: 10},
           {line: 10, column: 11}
@@ -134,7 +134,7 @@ describe('Sourcemap specs', () => {
     // const
     expect(getSourceByPosition(source, 19, 4, 8)).to.be.equal(
       getSourceByOutputPositions(output,
-        getGeneatedPositions(sourcemapConsumer, 'my-babel-component.riot', [
+        getGeneratedPositions(sourcemapConsumer, 'my-babel-component.riot', [
           {line: 19, column: 4},
           {line: 19, column: 5},
           {line: 19, column: 6},
@@ -148,7 +148,7 @@ describe('Sourcemap specs', () => {
     // value
     expect(getSourceByPosition(source, 5, 58, 62)).to.be.equal(
       getSourceByOutputPositions(output,
-        getGeneatedPositions(sourcemapConsumer, 'my-babel-component.riot', [
+        getGeneratedPositions(sourcemapConsumer, 'my-babel-component.riot', [
           {line: 5, column: 58},
           {line: 5, column: 59},
           {line: 5, column: 60},
@@ -161,7 +161,7 @@ describe('Sourcemap specs', () => {
     // bar
     expect(getSourceByPosition(source, 13, 34, 36)).to.be.equal(
       getSourceByOutputPositions(output,
-        getGeneatedPositions(sourcemapConsumer, 'my-babel-component.riot', [
+        getGeneratedPositions(sourcemapConsumer, 'my-babel-component.riot', [
           {line: 13, column: 34},
           {line: 13, column: 35},
           {line: 13, column: 36}
@@ -173,7 +173,7 @@ describe('Sourcemap specs', () => {
 
     expect(getSourceByPosition(source, 9, 9, 11)).to.be.equal(
       getSourceByOutputPositions(output,
-        getGeneatedPositions(sourcemapConsumer, 'my-babel-component.riot', [
+        getGeneratedPositions(sourcemapConsumer, 'my-babel-component.riot', [
           {line: 10, column: 9},
           {line: 10, column: 10},
           {line: 10, column: 11}
