@@ -65,6 +65,21 @@ export default {
 </script>
 `
 
+const typescriptCode = `
+<script>
+let internalVar:string = 'internalVar'
+
+const name: string = 'hello';
+
+const method = ():number => 3
+
+export default {
+  
+}
+
+</script>
+`
+
 const simpleContextMapping = `
 <script>
 const ctx = this
@@ -144,5 +159,20 @@ describe('Generators - javascript', () => {
     expect(output.default.exports().name).to.be.equal('hello')
     expect(output.default.css).to.be.not.ok
     expect(output.default.template).to.be.not.ok
+  })
+
+  it('Typescript code can be properly parsed', () => {
+    const { javascript } = parser().parse(typescriptCode).output
+    const ast = compileJavascript(javascript, typescriptCode, {
+      options: {
+        file: FAKE_FILE
+      }
+    }, createInput())
+    const { code } = print(ast)
+
+    expect(code).to.be.a('string')
+
+    expect(code).to.match(/:number/)
+    expect(code).to.match(/:string/)
   })
 })

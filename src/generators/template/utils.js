@@ -101,9 +101,10 @@ function visitMemberExpression(path) {
  * @param   { types.NodePath } path - containing the current node visited
  * @returns { boolean } return false if we want to stop the tree traversal
  */
-function visitProperty(path) {
+function visitObjectProperty(path) {
   const value = path.node.value
   const isShorthand = path.node.shorthand
+
   if (isIdentifier(value) || isMemberExpression(value) || isShorthand) {
     // disable shorthand object properties
     if (isShorthand) path.node.shorthand = false
@@ -152,7 +153,7 @@ export function updateNodesScope(ast) {
   types.visit(ast, {
     visitIdentifier,
     visitMemberExpression,
-    visitProperty,
+    visitObjectProperty,
     visitThisExpression,
     visitClassExpression: ignorePath
   })
