@@ -7,7 +7,7 @@ import nodeResolve from '@rollup/plugin-node-resolve'
 import { resolve } from 'path'
 
 const sourcemapPath = resolve('./node_modules/source-map/dist/source-map')
-const ignoredModules = ['fs', 'path']
+const ignoredModules = ['fs', 'path', 'babylon']
 
 export default {
   ...defaultConfig,
