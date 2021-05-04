@@ -1,13 +1,13 @@
-import alias from 'rollup-plugin-alias'
+import alias from '@rollup/plugin-alias'
 import builtins from 'rollup-plugin-node-builtins'
-import commonjs from 'rollup-plugin-commonjs'
+import commonjs from '@rollup/plugin-commonjs'
 import defaultConfig from './rollup.config'
 import json from '@rollup/plugin-json'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import { resolve } from 'path'
 
 const sourcemapPath = resolve('./node_modules/source-map/dist/source-map')
-const ignredModules = ['fs', 'path']
+const ignoredModules = ['fs', 'path']
 
 export default {
   ...defaultConfig,
@@ -15,13 +15,15 @@ export default {
     name: 'compiler',
     file: './dist/compiler.js',
     format: 'umd',
-    globals: ignredModules.reduce((acc, dep) => ({
+    // small hack to provide the global variable to the bundle
+    intro: 'var global = window;',
+    globals: ignoredModules.reduce((acc, dep) => ({
       [dep]: dep,
       ...acc
     }), {}),
     ...defaultConfig.output
   },
-  external: ignredModules,
+  external: ignoredModules,
   plugins: [
     builtins(),
     json(),
@@ -33,9 +35,6 @@ export default {
     }),
     commonjs({
       include: 'node_modules/**',
-      namedExports: {
-        [sourcemapPath]: ['SourceMapGenerator', 'SourceMapConsumer']
-      },
       ignoreGlobal: true
     })
   ]
