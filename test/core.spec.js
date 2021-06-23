@@ -23,6 +23,10 @@ describe('Core specs', () => {
       sourcemapConsumer.destroy()
     })
 
+    it('TypeScript script syntax are supported', function() {
+      expect(() => compile(getFixture('typescript-script-type.riot'))).to.not.throw()
+    })
+
     it('String attributes should not be removed from the root node (https://github.com/riot/riot/issues/2761)', () => {
       const result = compile(getFixture('static-attributes.riot'))
       const output = evaluateScript(result.code)
