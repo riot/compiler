@@ -1,4 +1,4 @@
-import {parse as customParser} from 'recast/parsers/babel'
+import {parse as customParser} from 'recast/parsers/typescript'
 import {parse} from 'recast'
 /**
  * Parse a js source to generate the AST
