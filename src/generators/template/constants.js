@@ -14,7 +14,7 @@ export const TEXT_EXPRESSION_TYPE = 'TEXT'
 export const EVENT_EXPRESSION_TYPE = 'EVENT'
 
 export const TEMPLATE_FN = 'template'
-export const SCOPE = 'scope'
+export const SCOPE = '_scope'
 export const GET_COMPONENT_FN = 'getComponent'
 
 // keys needed to create the DOM bindings
