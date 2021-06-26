@@ -65,27 +65,134 @@ export default {
 </script>
 `
 
-const typescriptCode = `
-<script>
-let internalVar:string = 'internalVar'
-
-const name: string = 'hello';
-
-const method = ():number => 3
-
-export default {
-  
-}
-
-</script>
-`
-
 const simpleContextMapping = `
 <script>
 const ctx = this
 
 ctx.name = 'hello'
 
+</script>
+`
+
+const interfacesExport = `
+<script lang='ts'>
+import {withTypes, RiotComponent} from 'riot'
+
+export interface ARandomInterface {
+    foo: string
+    bar: number
+}
+  
+export interface MyComponentProps {
+  username: string
+}
+  
+export type MyComponentState = {
+  message: string
+}
+  
+export interface ComponentInterface extends RiotComponent<MyComponentProps, MyComponentState> {
+    onClick(event: MouseEvent): void
+}
+  
+export default withTypes<ComponentInterface>({
+    state: {
+        message: 'hello'
+    },
+    onClick(event: MouseEvent) {
+        this.update({
+            message: 'goodbye'
+        })
+    }
+})
+</script>
+`
+
+const interfacesExportWithoutRiotImport = `
+<script lang='ts'>
+export interface ARandomInterface {
+    foo: string
+    bar: number
+}
+  
+export interface MyComponentProps {
+  username: string
+}
+  
+export type MyComponentState = {
+  message: string
+}
+  
+export interface ComponentInterface extends RiotComponent<MyComponentProps, MyComponentState> {
+    onClick(event: MouseEvent): void
+}
+  
+export default withTypes<ComponentInterface>({
+    state: {
+        message: 'hello'
+    },
+    onClick(event: MouseEvent) {
+        this.update({
+            message: 'goodbye'
+        })
+    }
+})
+</script>
+`
+
+const typesExport = `
+<script lang="ts">
+  import {withTypes, RiotComponent} from 'riot'
+
+  export type MyComponentProps = {
+    username: string
+  }
+
+  export interface MyComponentState {
+    message: string
+  }
+
+  export type ComponentInterface = RiotComponent<MyComponentProps, MyComponentState> & {
+    onClick(event: MouseEvent): void
+  }
+        
+  export default withTypes<ComponentInterface>({
+    state: {
+      message: 'hello'
+    },
+    onClick(event: MouseEvent) {
+      this.update({
+        message: 'goodbye'
+      })
+    }
+  })
+</script>
+`
+
+const typesExportWithoutRiotImport = `
+<script lang="ts">
+  export type MyComponentProps = {
+    username: string
+  }
+
+  export interface MyComponentState {
+    message: string
+  }
+
+  export type ComponentInterface = RiotComponent<MyComponentProps, MyComponentState> & {
+    onClick(event: MouseEvent): void
+  }
+        
+  export default withTypes<ComponentInterface>({
+    state: {
+      message: 'hello'
+    },
+    onClick(event: MouseEvent) {
+      this.update({
+        message: 'goodbye'
+      })
+    }
+  })
 </script>
 `
 
@@ -161,9 +268,9 @@ describe('Generators - javascript', () => {
     expect(output.default.template).to.be.not.ok
   })
 
-  it('Typescript code can be properly parsed', () => {
-    const { javascript } = parser().parse(typescriptCode).output
-    const ast = compileJavascript(javascript, typescriptCode, {
+  it('Component interface export can be detected and transformed', () => {
+    const { javascript } = parser().parse(interfacesExport).output
+    const ast = compileJavascript(javascript, interfacesExport, {
       options: {
         file: FAKE_FILE
       }
@@ -172,7 +279,52 @@ describe('Generators - javascript', () => {
 
     expect(code).to.be.a('string')
 
-    expect(code).to.match(/:number/)
-    expect(code).to.match(/:string/)
+    expect(code).to.contain('import { withTypes, RiotComponent, RiotComponentWrapper } from \'riot\'')
+    expect(code).to.contain('} as RiotComponentWrapper<ComponentInterface>;')
+  })
+
+  it('Component type export can be detected and transformed', () => {
+    const { javascript } = parser().parse(typesExport).output
+    const ast = compileJavascript(javascript, typesExport, {
+      options: {
+        file: FAKE_FILE
+      }
+    }, createInput())
+    const { code } = print(ast)
+
+    expect(code).to.be.a('string')
+
+    expect(code).to.contain('import { withTypes, RiotComponent, RiotComponentWrapper } from \'riot\'')
+    expect(code).to.contain('} as RiotComponentWrapper<ComponentInterface>;')
+  })
+
+  it('Component interface export can be detected and transformed', () => {
+    const { javascript } = parser().parse(interfacesExportWithoutRiotImport).output
+    const ast = compileJavascript(javascript, interfacesExportWithoutRiotImport, {
+      options: {
+        file: FAKE_FILE
+      }
+    }, createInput())
+    const { code } = print(ast)
+
+    expect(code).to.be.a('string')
+
+    expect(code).to.contain('import { RiotComponentWrapper } from "riot"')
+    expect(code).to.contain('} as RiotComponentWrapper<ComponentInterface>;')
+  })
+
+  it('Component type export can be detected and transformed', () => {
+    const { javascript } = parser().parse(typesExportWithoutRiotImport).output
+    const ast = compileJavascript(javascript, typesExportWithoutRiotImport, {
+      options: {
+        file: FAKE_FILE
+      }
+    }, createInput())
+    const { code } = print(ast)
+
+    expect(code).to.be.a('string')
+
+    expect(code).to.contain('import { RiotComponentWrapper } from "riot"')
+    expect(code).to.contain('} as RiotComponentWrapper<ComponentInterface>;')
   })
 })
