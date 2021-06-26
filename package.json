@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "lint": "eslint src/ test/ build/",
-    "cov": "nyc report --reporter=text-lcov | coveralls",
+    "cov": "nyc report --reporter=text-lcov",
     "cov-html": "nyc report --reporter=html",
     "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js",
     "postest": "npm run cov-html",
@@ -43,7 +43,6 @@
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.0.0",
     "chai": "^4.3.4",
-    "coveralls": "^3.1.0",
     "eslint": "^7.29.0",
     "eslint-config-riot": "^3.0.0",
     "esm": "^3.2.25",
