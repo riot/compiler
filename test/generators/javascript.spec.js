@@ -196,6 +196,31 @@ const typesExportWithoutRiotImport = `
 </script>
 `
 
+const typesAliasExportWithoutRiotImport = `
+<script lang="ts">
+  export type MyComponentProps = {
+    username: string
+  }
+
+  export interface MyComponentState {
+    message: string
+  }
+
+  export type ComponentInterface = RiotComponent<MyComponentProps, MyComponentState>
+        
+  export default withTypes<ComponentInterface>({
+    state: {
+      message: 'hello'
+    },
+    onClick(event: MouseEvent) {
+      this.update({
+        message: 'goodbye'
+      })
+    }
+  })
+</script>
+`
+
 
 const FAKE_FILE = 'fake-file.js'
 
@@ -316,6 +341,21 @@ describe('Generators - javascript', () => {
   it('Component type export can be detected and transformed', () => {
     const { javascript } = parser().parse(typesExportWithoutRiotImport).output
     const ast = compileJavascript(javascript, typesExportWithoutRiotImport, {
+      options: {
+        file: FAKE_FILE
+      }
+    }, createInput())
+    const { code } = print(ast)
+
+    expect(code).to.be.a('string')
+
+    expect(code).to.contain('import { RiotComponentWrapper } from "riot"')
+    expect(code).to.contain('} as RiotComponentWrapper<ComponentInterface>;')
+  })
+
+  it('Component alias type export can be detected and transformed', () => {
+    const { javascript } = parser().parse(typesAliasExportWithoutRiotImport).output
+    const ast = compileJavascript(javascript, typesAliasExportWithoutRiotImport, {
       options: {
         file: FAKE_FILE
       }

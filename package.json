@@ -37,7 +37,7 @@
   "devDependencies": {
     "@babel/core": "^7.14.6",
     "@babel/preset-env": "^7.14.7",
-    "@riotjs/dom-bindings": "^5.1.3",
+    "@riotjs/dom-bindings": "^6.0.0",
     "@rollup/plugin-alias": "^3.1.2",
     "@rollup/plugin-commonjs": "^19.0.0",
     "@rollup/plugin-json": "^4.1.0",
@@ -46,12 +46,12 @@
     "eslint": "^7.30.0",
     "eslint-config-riot": "^3.0.0",
     "esm": "^3.2.25",
-    "mocha": "^8.4.0",
+    "mocha": "^9.0.2",
     "node-sass": "^6.0.1",
     "nyc": "^15.1.0",
     "pug": "^3.0.2",
     "rollup": "^2.53.1",
-    "rollup-plugin-node-builtins": "^2.0.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
     "shelljs": "^0.8.4",
     "typescript": "^4.3.5"
   },
