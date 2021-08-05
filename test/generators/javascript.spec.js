@@ -65,6 +65,12 @@ export default {
 </script>
 `
 
+const onlyNamedExport = `
+<script>
+export const hello = 'hello'
+</script>
+`
+
 const simpleContextMapping = `
 <script>
 const ctx = this
@@ -274,6 +280,20 @@ describe('Generators - javascript', () => {
         file: FAKE_FILE
       }
     }, createInput())).to.throw('You can\t use "export default {}" and root this statements in the same component')
+  })
+
+  it('Named export without export default {} should be supported', () => {
+    const { javascript } = parser().parse(onlyNamedExport).output
+    const ast = compileJavascript(javascript, onlyNamedExport, {
+      options: {
+        file: FAKE_FILE
+      }
+    }, createInput())
+    const { code } = print(ast)
+    const output = evaluateScript(code)
+
+    expect(code).to.be.a('string')
+    expect(output.hello).to.be.equal('hello')
   })
 
   it('The this context can be remapped', () => {

@@ -7,6 +7,7 @@ import {
   isThisExpressionStatement,
   isTypeAliasDeclaration
 } from '../../utils/ast-nodes-checks'
+import compose from 'cumpa'
 
 /**
  * Find the export default statement
@@ -27,6 +28,15 @@ export function findAllImportDeclarations(body) {
 }
 
 /**
+ * Find all the named export declarations
+ * @param   { Array } body - tree structure containing the program code
+ * @returns { Array } array containing all the named export declarations detected
+ */
+export function findAllExportNamedDeclarations(body) {
+  return body.filter(isExportNamedDeclaration)
+}
+
+/**
  * Filter all the import declarations
  * @param   { Array } body - tree structure containing the program code
  * @returns { Array } array containing all the ast expressions without the import declarations
@@ -35,6 +45,14 @@ export function filterOutAllImportDeclarations(body) {
   return body.filter(n => !isImportDeclaration(n))
 }
 
+/**
+ * Filter all the export declarations
+ * @param   { Array } body - tree structure containing the program code
+ * @returns { Array } array containing all the ast expressions without the export declarations
+ */
+export function filterOutAllExportDeclarations(body) {
+  return body.filter(n => !isExportNamedDeclaration(n) || isExportDefaultStatement(n))
+}
 
 /**
  * Find the component interface exported
@@ -107,7 +125,7 @@ export function createDefaultExportFromLegacySyntax(body) {
       builders.identifier(TAG_LOGIC_PROPERTY),
       [],
       builders.blockStatement([
-        ...filterOutAllImportDeclarations(body),
+        ...compose(filterOutAllImportDeclarations, filterOutAllExportDeclarations)(body),
         builders.returnStatement(builders.thisExpression())
       ])
     )

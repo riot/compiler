@@ -2,7 +2,7 @@ import {
   addComponentInterfaceToExportedObject,
   createDefaultExportFromLegacySyntax,
   extendTagProperty,
-  filterNonExportDefaultStatements,
+  filterNonExportDefaultStatements, findAllExportNamedDeclarations,
   findAllImportDeclarations, findComponentInterface,
   findExportDefaultStatement,
   getProgramBody
@@ -50,9 +50,9 @@ export default function javascript(sourceNode, source, meta, ast) {
   // add to the ast the "private" javascript content of our tag script node
   outputBody.unshift(
     ...(
-      // for the legacy riot syntax we need to move all the import statements outside of the function body
+      // for the legacy riot syntax we need to move all the import and (named) export statements outside of the function body
       isLegacyRiotSyntax ?
-        findAllImportDeclarations(generatedAstBody) :
+        [...findAllImportDeclarations(generatedAstBody), ...findAllExportNamedDeclarations(generatedAstBody)] :
         // modern riot syntax will hoist all the private stuff outside of the export default statement
         filterNonExportDefaultStatements(generatedAstBody)
     ))
