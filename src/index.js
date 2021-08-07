@@ -5,7 +5,6 @@ import {register as registerPreproc, execute as runPreprocessor} from './preproc
 import {builders} from './utils/build-types'
 import compose from 'cumpa'
 import cssGenerator from './generators/css'
-import curry from 'curri'
 import generateJavascript from './utils/generate-javascript'
 import hasHTMLOutsideRootNode from './utils/has-html-outside-root-node'
 import isEmptySourcemap from './utils/is-empty-sourcemap'
@@ -140,17 +139,25 @@ export function compile(source, opts = {}) {
  * @returns { Promise<Output> } object containing output code and source map
  */
 function hookGenerator(transformer, sourceNode, source, meta) {
-  if (
-    // filter missing nodes
-    !sourceNode ||
-    // filter nodes without children
-    (sourceNode.nodes && !sourceNode.nodes.length) ||
-    // filter empty javascript and css nodes
-    (!sourceNode.nodes && !sourceNode.text)) {
+  // const hasAttributes = sourceNode && sourceNode.attributes && sourceNode.attributes.length;
+  // const hasNodes = sourceNode && sourceNode.nodes && sourceNode.nodes.length;
+  // const hasText = sourceNode && sourceNode.text;
+
+  // filter missing nodes
+  const isEmpty = !sourceNode
+    || (
+      // filter empty javascript and css nodes
+      !sourceNode.text
+      // filter nodes without children and attributes
+      && (!sourceNode.nodes || !sourceNode.nodes.length)
+      && (!sourceNode.attributes || !sourceNode.attributes.length)
+    )
+
+  if (isEmpty) {
     return result => result
   }
 
-  return curry(transformer)(sourceNode, source, meta)
+  return transformer.bind(this, sourceNode, source, meta)
 }
 
 // This function can be used to register new preprocessors
