@@ -136,15 +136,12 @@ export function compile(source, opts = {}) {
  * @param   { Object } sourceNode - riot parser node
  * @param   { string } source - component source code
  * @param   { Object } meta - compilation meta information
- * @returns { Promise<Output> } object containing output code and source map
+ * @returns { function(): Promise<Output> } Function what resolves to object containing output code and source map
  */
 function hookGenerator(transformer, sourceNode, source, meta) {
-  // const hasAttributes = sourceNode && sourceNode.attributes && sourceNode.attributes.length;
-  // const hasNodes = sourceNode && sourceNode.nodes && sourceNode.nodes.length;
-  // const hasText = sourceNode && sourceNode.text;
-
-  // filter missing nodes
-  const isEmpty = !sourceNode
+  if (
+    // filter missing nodes
+    !sourceNode
     || (
       // filter empty javascript and css nodes
       !sourceNode.text
@@ -152,8 +149,7 @@ function hookGenerator(transformer, sourceNode, source, meta) {
       && (!sourceNode.nodes || !sourceNode.nodes.length)
       && (!sourceNode.attributes || !sourceNode.attributes.length)
     )
-
-  if (isEmpty) {
+  ) {
     return result => result
   }
 
