@@ -59,14 +59,14 @@ describe('Generators - Template', () => {
   describe('Utils', () => {
     describe('Expressions rendering', () => {
       it('simple', () => {
-        expect(renderExpr('foo')).to.be.equal('scope.foo')
+        expect(renderExpr('foo')).to.be.equal('_scope.foo')
       })
 
       it('throw in case of missing expression', () => {
         expect(() => renderExpr('')).to.throw
       })
 
-      it('primitves', () => {
+      it('primitives', () => {
         expect(renderExpr('true')).to.be.equal('true')
         expect(renderExpr('1 > 2')).to.be.equal('1 > 2')
         expect(renderExpr('null')).to.be.equal('null')
@@ -78,52 +78,52 @@ describe('Generators - Template', () => {
         expect(renderExpr('Array')).to.be.equal('Array')
       })
 
-      it('primitve calls', () => {
-        expect(renderExpr('Array.from(foo.bar)')).to.be.equal('Array.from(scope.foo.bar)')
-        expect(renderExpr('window.isNaN(foo.bar)')).to.be.equal('window.isNaN(scope.foo.bar)')
-        expect(renderExpr('new RegExp(foo.bar, "g")')).to.be.equal('new RegExp(scope.foo.bar, "g")')
+      it('primitive calls', () => {
+        expect(renderExpr('Array.from(foo.bar)')).to.be.equal('Array.from(_scope.foo.bar)')
+        expect(renderExpr('window.isNaN(foo.bar)')).to.be.equal('window.isNaN(_scope.foo.bar)')
+        expect(renderExpr('new RegExp(foo.bar, "g")')).to.be.equal('new RegExp(_scope.foo.bar, "g")')
         expect(renderExpr('(new Date()).getFullYear()')).to.be.equal('(new Date()).getFullYear()')
-        expect(renderExpr('(new Date(state.test)).getFullYear()')).to.be.equal('(new Date(scope.state.test)).getFullYear()')
+        expect(renderExpr('(new Date(state.test)).getFullYear()')).to.be.equal('(new Date(_scope.state.test)).getFullYear()')
         expect(renderExpr('"this".toUpperCase().toLowerCase()')).to.be.equal('"this".toUpperCase().toLowerCase()')
       })
 
       it('simple sum', () => {
-        expect(renderExpr('foo + bar')).to.be.equal('scope.foo + scope.bar')
+        expect(renderExpr('foo + bar')).to.be.equal('_scope.foo + _scope.bar')
       })
 
       it('scoped functions', () => {
-        expect(renderExpr('foo.toUppercase()')).to.be.equal('scope.foo.toUppercase()')
-        expect(renderExpr('foo()')).to.be.equal('scope.foo()')
-        expect(renderExpr('props.messageTypes.get(message.type).hue')).to.be.equal('scope.props.messageTypes.get(scope.message.type).hue')
+        expect(renderExpr('foo.toUppercase()')).to.be.equal('_scope.foo.toUppercase()')
+        expect(renderExpr('foo()')).to.be.equal('_scope.foo()')
+        expect(renderExpr('props.messageTypes.get(message.type).hue')).to.be.equal('_scope.props.messageTypes.get(_scope.message.type).hue')
       })
 
       it('global scope objects', () => {
         expect(renderExpr('window.foo.toUppercase()')).to.be.equal('window.foo.toUppercase()')
-        expect(renderExpr('CSS')).to.be.equal('scope.CSS')
+        expect(renderExpr('CSS')).to.be.equal('_scope.CSS')
         expect(renderExpr('window.CSS')).to.be.equal('window.CSS')
         expect(renderExpr('window.foo')).to.be.equal('window.foo')
         expect(renderExpr('window["foo"].bar')).to.be.equal('window["foo"].bar')
         expect(renderExpr('console.log("hello")')).to.be.equal('console.log("hello")')
-        expect(renderExpr('console.log(item)')).to.be.equal('console.log(scope.item)')
+        expect(renderExpr('console.log(item)')).to.be.equal('console.log(_scope.item)')
       })
 
       it('context transform', () => {
-        expect(renderExpr('this.foo + this.bar')).to.be.equal('scope.foo + scope.bar')
-        expect(renderExpr('this.state.foo')).to.be.equal('scope.state.foo')
-        expect(renderExpr('this["bar"].foo')).to.be.equal('scope["bar"].foo')
-        expect(renderExpr('this + this')).to.be.equal('scope + scope')
+        expect(renderExpr('this.foo + this.bar')).to.be.equal('_scope.foo + _scope.bar')
+        expect(renderExpr('this.state.foo')).to.be.equal('_scope.state.foo')
+        expect(renderExpr('this["bar"].foo')).to.be.equal('_scope["bar"].foo')
+        expect(renderExpr('this + this')).to.be.equal('_scope + _scope')
       })
 
       it('objects', () => {
-        expect(renderExpr('{ foo: bar, buz: baz }')).to.be.equal('{ foo: scope.bar, buz: scope.baz }')
-        expect(renderExpr('{ foo, buz }')).to.be.equal('{ foo: scope.foo, buz: scope.buz }')
-        expect(renderExpr('{ foo: i%2 }')).to.be.equal('{ foo: scope.i%2 }')
-        expect(renderExpr('{ foo: { foo: bar, buz: baz }, buz: baz }')).to.be.equal('{ foo: { foo: scope.bar, buz: scope.baz }, buz: scope.baz }')
+        expect(renderExpr('{ foo: bar, buz: baz }')).to.be.equal('{ foo: _scope.bar, buz: _scope.baz }')
+        expect(renderExpr('{ foo, buz }')).to.be.equal('{ foo: _scope.foo, buz: _scope.buz }')
+        expect(renderExpr('{ foo: i%2 }')).to.be.equal('{ foo: _scope.i%2 }')
+        expect(renderExpr('{ foo: { foo: bar, buz: baz }, buz: baz }')).to.be.equal('{ foo: { foo: _scope.bar, buz: _scope.baz }, buz: _scope.baz }')
       })
 
       it('arrays', () => {
-        expect(renderExpr('[foo, \'bar\', baz]')).to.be.equal('[scope.foo, \'bar\', scope.baz]')
-        expect(renderExpr('[foo, \'bar\', baz].join(\' \')')).to.be.equal('[scope.foo, \'bar\', scope.baz].join(\' \')')
+        expect(renderExpr('[foo, \'bar\', baz]')).to.be.equal('[_scope.foo, \'bar\', _scope.baz]')
+        expect(renderExpr('[foo, \'bar\', baz].join(\' \')')).to.be.equal('[_scope.foo, \'bar\', _scope.baz].join(\' \')')
       })
 
       it('classes declaration', () => {
@@ -132,41 +132,41 @@ describe('Generators - Template', () => {
       })
 
       it('classes instances', () => {
-        expect(renderExpr('new Foo()')).to.be.equal('new scope.Foo()')
+        expect(renderExpr('new Foo()')).to.be.equal('new _scope.Foo()')
       })
 
       it('computed member expressions', () => {
-        expect(renderExpr('foo[bar]')).to.be.equal('scope.foo[scope.bar]')
-        expect(renderExpr('foo[bar][baz]')).to.be.equal('scope.foo[scope.bar][scope.baz]')
-        expect(renderExpr('foo.bar[baz]')).to.be.equal('scope.foo.bar[scope.baz]')
-        expect(renderExpr('foo.bar[baz].buz')).to.be.equal('scope.foo.bar[scope.baz].buz')
-        expect(renderExpr('foo.bar[Symbol]')).to.be.equal('scope.foo.bar[Symbol]')
+        expect(renderExpr('foo[bar]')).to.be.equal('_scope.foo[_scope.bar]')
+        expect(renderExpr('foo[bar][baz]')).to.be.equal('_scope.foo[_scope.bar][_scope.baz]')
+        expect(renderExpr('foo.bar[baz]')).to.be.equal('_scope.foo.bar[_scope.baz]')
+        expect(renderExpr('foo.bar[baz].buz')).to.be.equal('_scope.foo.bar[_scope.baz].buz')
+        expect(renderExpr('foo.bar[Symbol]')).to.be.equal('_scope.foo.bar[Symbol]')
       })
 
       it('functions declaration', () => {
-        expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => scope.bar + foo')
-        expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + scope.baz')
-        expect(renderExpr('(foo) => (event) => foo + event.target.value + baz')).to.be.equal('(foo) => (event) => foo + event.target.value + scope.baz')
-        expect(renderExpr('() => update({ message: \'hello\' })')).to.be.equal('() => scope.update({ message: \'hello\' })')
+        expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => _scope.bar + foo')
+        expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + _scope.baz')
+        expect(renderExpr('(foo) => (event) => foo + event.target.value + baz')).to.be.equal('(foo) => (event) => foo + event.target.value + _scope.baz')
+        expect(renderExpr('() => update({ message: \'hello\' })')).to.be.equal('() => _scope.update({ message: \'hello\' })')
         expect(renderExpr(`() => {
         update({ message: "ok" })
-        }`)).to.be.equal(`() => {            scope.update({ message: "ok" })
+        }`)).to.be.equal(`() => {            _scope.update({ message: "ok" })
             }`)
       })
 
       it('functions object arguments', () => {
-        expect(renderExpr('classNames({active: item.isActive})')).to.be.equal('scope.classNames({active: scope.item.isActive})')
+        expect(renderExpr('classNames({active: item.isActive})')).to.be.equal('_scope.classNames({active: _scope.item.isActive})')
       })
 
       it('parenthesis precedence expressions', () => {
-        expect(renderExpr('(!state.property).toString()')).to.be.equal('(!scope.state.property).toString()')
-        expect(renderExpr('(props.name+"foo").toUpperCase()')).to.be.equal('(scope.props.name+"foo").toUpperCase()')
+        expect(renderExpr('(!state.property).toString()')).to.be.equal('(!_scope.state.property).toString()')
+        expect(renderExpr('(props.name+"foo").toUpperCase()')).to.be.equal('(_scope.props.name+"foo").toUpperCase()')
       })
 
       it('support for optional chaining and null coalescing', () => {
-        expect(renderExpr('state?.message')).to.be.equal('scope.state?.message')
-        expect(renderExpr('state.fn?.()')).to.be.equal('scope.state.fn?.()')
-        expect(renderExpr('state.name ?? state.surname')).to.be.equal('scope.state.name ?? scope.state.surname')
+        expect(renderExpr('state?.message')).to.be.equal('_scope.state?.message')
+        expect(renderExpr('state.fn?.()')).to.be.equal('_scope.state.fn?.()')
+        expect(renderExpr('state.name ?? state.surname')).to.be.equal('_scope.state.name ?? _scope.state.surname')
       })
     })
   })
@@ -176,7 +176,7 @@ describe('Generators - Template', () => {
       const source = '<p>{foo} + {bar}</p>'
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  scope.foo,\n  \' + \',\n  scope.bar\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  _scope.foo,\n  \' + \',\n  _scope.bar\n]')
     })
 
     it('Complex single expression will be merged with the plain text', () => {
@@ -186,7 +186,7 @@ describe('Generators - Template', () => {
       bar</p>`
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  scope.foo,\n  \'\\n      foo bar\\n      bar\'\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  _scope.foo,\n  \'\\n      foo bar\\n      bar\'\n]')
     })
 
     it('Escaped expression will be unescaped', () => {
@@ -197,7 +197,7 @@ describe('Generators - Template', () => {
       bar</p>`
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  \'{foo}\\n      \',\n  scope.bar,\n  \'\\n      foo bar\\n      bar\'\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  \'{foo}\\n      \',\n  _scope.bar,\n  \'\\n      foo bar\\n      bar\'\n]')
     })
 
     it('Complex multiple expressions will be merged with the plain text', () => {
@@ -208,14 +208,14 @@ describe('Generators - Template', () => {
       bar</p>`
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  scope.foo,\n  \' + \',\n  scope.bar,\n  \'\\n      foo bar   \',\n  scope.baz,\n  \'\\n      bar\'\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  _scope.foo,\n  \' + \',\n  _scope.bar,\n  \'\\n      foo bar   \',\n  _scope.baz,\n  \'\\n      bar\'\n]')
     })
 
     it('Simple expressions will be left untouchted', () => {
       const source = '<p>{foo}</p>'
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('scope.foo')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('_scope.foo')
     })
 
     it('Different template brakets will be merged with the plain text', () => {
@@ -224,7 +224,7 @@ describe('Generators - Template', () => {
         brackets: ['[[[[', ']]]]']
       })
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  scope.foo,\n  \' + \',\n  scope.bar\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  _scope.foo,\n  \' + \',\n  _scope.bar\n]')
     })
 
     it('Simple attribute expression', () => {

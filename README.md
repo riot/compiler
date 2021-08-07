@@ -1,4 +1,4 @@
-[![Build Status][travis-image]][travis-url]
+[![Build Status][ci-image]][ci-url]
 [![Issue Count][codeclimate-image]][codeclimate-url]
 [![Coverage Status][coverage-image]][coverage-url]
 [![NPM version][npm-version-image]][npm-url]
@@ -94,8 +94,8 @@ in the tag source code for example
 - *postprocessorFn*: function receiving the compiler output as first argument and the current options as second
 
 
-[travis-image]:  https://img.shields.io/travis/riot/compiler.svg?style=flat-square
-[travis-url]:    https://travis-ci.org/riot/compiler
+[ci-image]:https://img.shields.io/github/workflow/status/riot/compiler/test?style=flat-square
+[ci-url]:https://github.com/riot/compiler/actions
 [license-image]: https://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
 [license-url]:   LICENSE
 [npm-version-image]:   https://img.shields.io/npm/v/@riotjs/compiler.svg?style=flat-square
