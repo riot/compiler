@@ -5,6 +5,7 @@ import {register as registerPreproc, execute as runPreprocessor} from './preproc
 import {builders} from './utils/build-types'
 import compose from 'cumpa'
 import cssGenerator from './generators/css'
+import curry from 'curri'
 import generateJavascript from './utils/generate-javascript'
 import hasHTMLOutsideRootNode from './utils/has-html-outside-root-node'
 import isEmptySourcemap from './utils/is-empty-sourcemap'
@@ -153,7 +154,7 @@ function hookGenerator(transformer, sourceNode, source, meta) {
     return result => result
   }
 
-  return transformer.bind(this, sourceNode, source, meta)
+  return curry(transformer)(sourceNode, source, meta);
 }
 
 // This function can be used to register new preprocessors
