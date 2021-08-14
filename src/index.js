@@ -8,6 +8,7 @@ import cssGenerator from './generators/css'
 import curry from 'curri'
 import generateJavascript from './utils/generate-javascript'
 import hasHTMLOutsideRootNode from './utils/has-html-outside-root-node'
+import isEmptyArray from './utils/is-empty-array'
 import isEmptySourcemap from './utils/is-empty-sourcemap'
 import javascriptGenerator from './generators/javascript'
 import riotParser from '@riotjs/parser'
@@ -137,20 +138,12 @@ export function compile(source, opts = {}) {
  * @param   { Object } sourceNode - riot parser node
  * @param   { string } source - component source code
  * @param   { Object } meta - compilation meta information
- * @returns { Promise<Output> } object containing output code and source map
+ * @returns { function(): Promise<Output> } Function what resolves to object containing output code and source map
  */
 function hookGenerator(transformer, sourceNode, source, meta) {
-  if (
-    // filter missing nodes
-    !sourceNode ||
-    // filter nodes without children
-    (sourceNode.nodes && !sourceNode.nodes.length) ||
-    // filter empty javascript and css nodes
-    (!sourceNode.nodes && !sourceNode.text)) {
-    return result => result
-  }
+  const hasContent = sourceNode && (sourceNode.text || !isEmptyArray(sourceNode.nodes) || !isEmptyArray(sourceNode.attributes))
 
-  return curry(transformer)(sourceNode, source, meta)
+  return hasContent ? curry(transformer)(sourceNode, source, meta) : result => result
 }
 
 // This function can be used to register new preprocessors

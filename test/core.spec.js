@@ -97,6 +97,22 @@ describe('Core specs', () => {
       expect(output.default.template).to.be.not.ok
     })
 
+    it('Tags with empty template with attributes can be properly compiled (https://github.com/riot/riot/issues/2931)', async function() {
+      const result = compile(getFixture('empty-template-with-attributes.riot'))
+      const output = evaluateScript(result.code)
+      const sourcemapConsumer = await new SourceMapConsumer(result.map)
+
+      expect(sourcemapConsumer.hasContentsOfAllSources()).to.be.ok
+      expect(result.code).to.be.a('string')
+      expect(result.map).to.be.not.an('undefined')
+      expect(result.meta).to.be.an('object')
+      expect(result.meta.tagName).to.be.equal('empty-template-with-attributes')
+
+      expect(output.default.css).to.be.not.ok
+      expect(output.default.exports).to.be.ok
+      expect(output.default.template).to.be.ok
+    })
+
     it('Tags with empty <script> generate a sourcemap and an output', async function() {
       const result = compile(getFixture('empty-script.riot'))
       const output = evaluateScript(result.code)
