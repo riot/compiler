@@ -544,6 +544,30 @@ describe('Generators - Template', () => {
       expect(tagBinding[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
     })
 
+    it('Tag bindings can be computed', () => {
+      const source = '<div><p is={tagName}/></div>'
+      const { template } = parse(source)
+      const bindings = evaluateOutput(
+        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1])
+      )
+      const tagBinding = bindings[0]
+
+      expect(tagBinding[BINDING_EVALUATE_KEY]({ tagName: 'my-tag' })).to.be.equal('my-tag')
+    })
+
+    it('Tag bindings can be computed (bug https://github.com/riot/riot/issues/2935)', () => {
+      const source = '<div><p is="my-{tagName}"/></div>'
+      const { template } = parse(source)
+
+      const bindings = evaluateOutput(
+        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1])
+      )
+
+      const tagBinding = bindings[0]
+
+      expect(tagBinding[BINDING_EVALUATE_KEY]({ tagName: 'tag' })).to.be.equal('my-tag')
+    })
+
     it('Simple tag binding with default slot', () => {
       const source = '<my-tag class={foo} id="my-id"><p>hello</p></my-tag>'
       const { template } = parse(source)

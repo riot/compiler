@@ -14,12 +14,11 @@ import {
 } from '../constants'
 import {
   createBindingAttributes,
+  createCustomNodeNameEvaluationFunction,
   createNestedRootNode,
   createSelectorProperties,
   getChildrenNodes,
-  getCustomNodeNameAsExpression,
-  getNodeAttributes,
-  toScopedFunction
+  getNodeAttributes
 } from '../utils'
 import build from '../builder'
 import {builders} from '../../../utils/build-types'
@@ -118,7 +117,7 @@ export default function createTagBinding(sourceNode, selectorAttribute, sourceFi
     simplePropertyNode(BINDING_GET_COMPONENT_KEY, builders.identifier(GET_COMPONENT_FN)),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,
-      toScopedFunction(getCustomNodeNameAsExpression(sourceNode), sourceFile, sourceCode)
+      createCustomNodeNameEvaluationFunction(sourceNode, sourceFile, sourceCode)
     ),
     simplePropertyNode(BINDING_SLOTS_KEY, createSlotsArray(sourceNode, sourceFile, sourceCode)),
     simplePropertyNode(
