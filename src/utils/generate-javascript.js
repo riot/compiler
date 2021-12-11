@@ -1,3 +1,4 @@
+import {parse as customParser} from 'recast/parsers/typescript'
 import {print} from 'recast'
 /**
  * Generate the javascript from an ast source
@@ -8,6 +9,7 @@ import {print} from 'recast'
 export default function generateJavascript(ast, options) {
   return print(ast, {
     ...options,
+    parser: { parse: customParser },
     tabWidth: 2,
     wrapColumn: 0,
     quote: 'single'

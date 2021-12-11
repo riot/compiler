@@ -35,6 +35,8 @@ export default {
     }),
     commonjs({
       include: 'node_modules/**',
+      ignoreTryCatch: false,
+      ignore: ignoredModules,
       ignoreGlobal: true
     })
   ]
