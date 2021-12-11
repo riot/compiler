@@ -107,7 +107,7 @@ export default function css(sourceNode, source, meta, ast) {
 
   types.visit(ast, {
     visitProperty(path) {
-      if (path.value.key.value === TAG_CSS_PROPERTY) {
+      if (path.value.key.name === TAG_CSS_PROPERTY) {
         path.value.value = builders.templateLiteral(
           [builders.templateElement({ raw: cssCode, cooked: '' }, false)],
           []

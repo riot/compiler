@@ -150,8 +150,8 @@ describe('Generators - Template', () => {
         expect(renderExpr('() => update({ message: \'hello\' })')).to.be.equal('() => _scope.update({ message: \'hello\' })')
         expect(renderExpr(`() => {
         update({ message: "ok" })
-        }`)).to.be.equal(`() => {            _scope.update({ message: "ok" })
-            }`)
+        }`)).to.be.equal(`() => {        _scope.update({ message: "ok" })
+        }`)
       })
 
       it('functions object arguments', () => {

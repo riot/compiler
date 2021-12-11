@@ -43,7 +43,7 @@
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "chai": "^4.3.4",
-    "eslint": "^8.4.1",
+    "eslint": "^7.32.0",
     "eslint-config-riot": "^3.0.0",
     "esm": "^3.2.25",
     "mocha": "^8.4.0",

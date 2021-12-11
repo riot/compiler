@@ -29,6 +29,7 @@ describe('Core specs', () => {
 
     it('String attributes should not be removed from the root node (https://github.com/riot/riot/issues/2761)', () => {
       const result = compile(getFixture('static-attributes.riot'))
+
       const output = evaluateScript(result.code)
       const { bindingsData } = output.default.template(template, expressionTypes, bindingTypes)
       const staticAttribute = bindingsData[0].expressions[0]

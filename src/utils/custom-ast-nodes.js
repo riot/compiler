@@ -5,5 +5,8 @@ export function nullNode() {
 }
 
 export function simplePropertyNode(key, value) {
-  return builders.property('init', builders.literal(key), value, false)
+  const property = builders.property('init', builders.identifier(key), value, false)
+
+  property.sho
+  return property
 }

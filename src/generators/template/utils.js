@@ -209,13 +209,7 @@ export function getAttributeExpression(attribute) {
  * @returns {FunctionExpresion} function having the scope argument injected
  */
 export function wrapASTInFunctionWithScope(ast) {
-  return builders.functionExpression(
-    null,
-    [scope],
-    builders.blockStatement([builders.returnStatement(
-      ast
-    )])
-  )
+  return builders.arrowFunctionExpression([scope], ast)
 }
 
 /**
@@ -585,11 +579,8 @@ export function createAttributeEvaluationFunction(sourceNode, sourceFile, source
     // dynamic attribute
     wrapASTInFunctionWithScope(mergeAttributeExpressions(sourceNode, sourceFile, sourceCode)) :
     // static attribute
-    builders.functionExpression(
-      null,
+    builders.arrowFunctionExpression(
       [],
-      builders.blockStatement([
-        builders.returnStatement(builders.literal(sourceNode.value || true))
-      ])
+      builders.literal(sourceNode.value || true)
     )
 }

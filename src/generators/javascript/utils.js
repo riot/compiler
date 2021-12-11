@@ -159,7 +159,7 @@ export function getProgramBody(ast) {
 export function extendTagProperty(ast, exportDefaultNode) {
   types.visit(ast, {
     visitProperty(path) {
-      if (path.value.key.value === TAG_LOGIC_PROPERTY) {
+      if (path.value.key.name === TAG_LOGIC_PROPERTY) {
         path.value.value = exportDefaultNode.declaration
         return false
       }

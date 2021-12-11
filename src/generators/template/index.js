@@ -19,17 +19,13 @@ const templateFunctionArguments = [
  * @returns {AST.BlockStatement} the content of the template function
  */
 function createTemplateFunctionContent(sourceNode, sourceFile, sourceCode) {
-  return builders.blockStatement([
-    builders.returnStatement(
-      callTemplateFunction(
-        ...build(
-          createRootNode(sourceNode),
-          sourceFile,
-          sourceCode
-        )
-      )
+  return callTemplateFunction(
+    ...build(
+      createRootNode(sourceNode),
+      sourceFile,
+      sourceCode
     )
-  ])
+  )
 }
 
 /**
@@ -43,9 +39,8 @@ function createTemplateFunctionContent(sourceNode, sourceFile, sourceCode) {
 function extendTemplateProperty(ast, sourceFile, sourceCode, sourceNode) {
   types.visit(ast, {
     visitProperty(path) {
-      if (path.value.key.value === TAG_TEMPLATE_PROPERTY) {
-        path.value.value = builders.functionExpression(
-          null,
+      if (path.value.key.name === TAG_TEMPLATE_PROPERTY) {
+        path.value.value = builders.arrowFunctionExpression(
           templateFunctionArguments,
           createTemplateFunctionContent(sourceNode, sourceFile, sourceCode)
         )
