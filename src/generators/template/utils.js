@@ -25,7 +25,8 @@ import {
 import {
   isIdentifier,
   isLiteral,
-  isMemberExpression
+  isMemberExpression,
+  isObjectExpression
 } from '../../utils/ast-nodes-checks'
 import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
 import addLinesOffset from '../../utils/add-lines-offset'
@@ -209,7 +210,20 @@ export function getAttributeExpression(attribute) {
  * @returns {FunctionExpresion} function having the scope argument injected
  */
 export function wrapASTInFunctionWithScope(ast) {
-  return builders.arrowFunctionExpression([scope], ast)
+  const fn = builders.arrowFunctionExpression([scope], ast)
+
+  // object expressions need to be wrapped in parenthesis
+  // recast doesn't allow it
+  // see also https://github.com/benjamn/recast/issues/985
+  if (isObjectExpression(ast)) {
+    // doing a small hack here f
+    // trying to figure out how the recast printer works internally
+    ast.extra = {
+      parenthesized: true
+    }
+  }
+
+  return fn
 }
 
 /**

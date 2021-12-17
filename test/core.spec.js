@@ -159,6 +159,15 @@ describe('Core specs', () => {
       expect(() => compile(getFixture('multiline-expressions.riot'))).to.not.throw()
     })
 
+    it('Object expressions get properly computed - https://github.com/riot/compiler/issues/155', function() {
+      const result = compile(getFixture('object-expression.riot'))
+
+      const output = evaluateScript(result.code)
+      const { bindingsData } = output.default.template(template, expressionTypes, bindingTypes)
+
+      expect(bindingsData).to.be.ok
+    })
+
     it('Multiple root nodes are not supported', function() {
       expect(() => compile(getFixture('multiple-root-nodes-script.riot'))).to.throw(/Multiple/)
       expect(() => compile(getFixture('multiple-root-nodes-css.riot'))).to.throw(/Multiple/)

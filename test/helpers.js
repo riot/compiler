@@ -72,7 +72,7 @@ export function evaluateScript(code) {
 export function renderExpression(ast) {
   return print(ast).code
     .replace('_scope => ', '')
-    .replace(/\n/, '')
+    .replace(/\n/g, '')
     .replace(';', '')
     .trim()
 }

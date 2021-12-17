@@ -115,10 +115,10 @@ describe('Generators - Template', () => {
       })
 
       it('objects', () => {
-        expect(renderExpr('{ foo: bar, buz: baz }')).to.be.equal('{ foo: _scope.bar, buz: _scope.baz }')
-        expect(renderExpr('{ foo, buz }')).to.be.equal('{ foo: _scope.foo, buz: _scope.buz }')
-        expect(renderExpr('{ foo: i%2 }')).to.be.equal('{ foo: _scope.i%2 }')
-        expect(renderExpr('{ foo: { foo: bar, buz: baz }, buz: baz }')).to.be.equal('{ foo: { foo: _scope.bar, buz: _scope.baz }, buz: _scope.baz }')
+        expect(renderExpr('{ foo: bar, buz: baz }')).to.be.equal('({  foo: _scope.bar,  buz: _scope.baz})')
+        expect(renderExpr('{ foo, buz }')).to.be.equal('({  foo: _scope.foo,  buz: _scope.buz})')
+        expect(renderExpr('{ foo: i%2 }')).to.be.equal('({  foo: _scope.i%2})')
+        expect(renderExpr('{ foo: { foo: bar, buz: baz }, buz: baz }')).to.be.equal('({  foo: { foo: _scope.bar, buz: _scope.baz },  buz: _scope.baz})')
       })
 
       it('arrays', () => {
@@ -150,8 +150,7 @@ describe('Generators - Template', () => {
         expect(renderExpr('() => update({ message: \'hello\' })')).to.be.equal('() => _scope.update({ message: \'hello\' })')
         expect(renderExpr(`() => {
         update({ message: "ok" })
-        }`)).to.be.equal(`() => {        _scope.update({ message: "ok" })
-        }`)
+        }`)).to.be.equal('() => {        _scope.update({ message: "ok" })        }')
       })
 
       it('functions object arguments', () => {

@@ -8,6 +8,7 @@ export const isIdentifier = n => namedTypes.Identifier.check(n)
 export const isLiteral = n => namedTypes.Literal.check(n)
 export const isExpressionStatement = n => namedTypes.ExpressionStatement.check(n)
 export const isThisExpression = n => namedTypes.ThisExpression.check(n)
+export const isObjectExpression = n => namedTypes.ObjectExpression.check(n)
 export const isThisExpressionStatement = n =>
   isExpressionStatement(n) &&
   isMemberExpression(n.expression.left) &&
