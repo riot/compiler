@@ -216,7 +216,7 @@ export function wrapASTInFunctionWithScope(ast) {
   // recast doesn't allow it
   // see also https://github.com/benjamn/recast/issues/985
   if (isObjectExpression(ast)) {
-    // doing a small hack here f
+    // doing a small hack here
     // trying to figure out how the recast printer works internally
     ast.extra = {
       parenthesized: true
