@@ -64,7 +64,7 @@ const { code, map } = compile('<p>{hello}</p>', {
 ## API
 
 ### compile(string, options)
-#### @returns `<Promise>{ code, map }` output that can be used by Riot.js
+#### @returns `{ code, map }` output that can be used by Riot.js
 
 - *string*: is your tag source code
 - *options*: the options should contain the `file` key identifying the source of the string to compile and
@@ -93,6 +93,8 @@ in the tag source code for example
 
 - *postprocessorFn*: function receiving the compiler output as first argument and the current options as second
 
+### generateTemplateFunctionFromString(string)
+#### @returns `string` with the code to execute the @riotjs/bindings `template` function
 
 [ci-image]:https://img.shields.io/github/workflow/status/riot/compiler/test?style=flat-square
 [ci-url]:https://github.com/riot/compiler/actions
