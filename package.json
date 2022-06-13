@@ -35,25 +35,25 @@
     "compiler"
   ],
   "devDependencies": {
-    "@babel/core": "^7.16.0",
-    "@babel/preset-env": "^7.16.4",
-    "@riotjs/dom-bindings": "^6.0.2",
-    "@rollup/plugin-alias": "^3.1.8",
-    "@rollup/plugin-commonjs": "^21.0.1",
+    "@babel/core": "^7.18.5",
+    "@babel/preset-env": "^7.18.2",
+    "@riotjs/dom-bindings": "^6.0.3",
+    "@rollup/plugin-alias": "^3.1.9",
+    "@rollup/plugin-commonjs": "^22.0.0",
     "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.0.6",
-    "chai": "^4.3.4",
-    "eslint": "^7.32.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "chai": "^4.3.6",
+    "eslint": "^8.17.0",
     "eslint-config-riot": "^3.0.0",
     "esm": "^3.2.25",
     "mocha": "^8.4.0",
-    "node-sass": "^7.0.0",
+    "node-sass": "^7.0.1",
     "nyc": "^15.1.0",
     "pug": "^3.0.2",
-    "rollup": "^2.61.1",
+    "rollup": "^2.75.6",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "shelljs": "^0.8.4",
-    "typescript": "^4.5.3"
+    "shelljs": "^0.8.5",
+    "typescript": "^4.7.3"
   },
   "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (http://gianlucaguarini.com)",
   "license": "MIT",
@@ -62,15 +62,15 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
-    "@babel/parser": "^7.16.4",
+    "@babel/parser": "^7.18.5",
     "@riotjs/parser": "^4.3.1",
     "@riotjs/util": "2.0.4",
     "cssesc": "^3.0.0",
     "cumpa": "^1.0.1",
     "curri": "^1.0.1",
     "dom-nodes": "^1.1.3",
-    "globals": "^13.12.0",
+    "globals": "^13.15.0",
     "recast": "^0.20.5",
-    "source-map": "^0.7.3"
+    "source-map": "^0.7.4"
   }
 }

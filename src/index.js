@@ -2,7 +2,9 @@ import {TAG_CSS_PROPERTY, TAG_LOGIC_PROPERTY, TAG_NAME_PROPERTY, TAG_TEMPLATE_PR
 import {nullNode, simplePropertyNode} from './utils/custom-ast-nodes'
 import {register as registerPostproc, execute as runPostprocessors} from './postprocessors'
 import {register as registerPreproc, execute as runPreprocessor} from './preprocessors'
+import build from './generators/template/builder'
 import {builders} from './utils/build-types'
+import {callTemplateFunction} from './generators/template/utils'
 import compose from 'cumpa'
 import cssGenerator from './generators/css'
 import curry from 'curri'
@@ -89,6 +91,22 @@ function createMeta(source, options) {
     },
     source
   }
+}
+
+/**
+ * Generate the Riot.js binding template function from a template string
+ * @param { string } source - template string
+ * @returns { string } Riot.js bindings template function generated
+ */
+export function generateTemplateFunctionFromString(source) {
+  const { parse } = riotParser()
+  const { template } = parse(source).output
+
+  return compose(
+    ({ code }) => code,
+    generateJavascript,
+    callTemplateFunction
+  )(...build(template, DEFAULT_OPTIONS.file, source))
 }
 
 /**

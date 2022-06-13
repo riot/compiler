@@ -371,7 +371,7 @@ export function createRootNode(node) {
     attributes: compose(
       // root nodes should always have attribute expressions
       transformStatiAttributesIntoExpressions,
-      // root nodes shuold't have directives
+      // root nodes shouldn't have directives
       cleanAttributes
     )(node)
   }

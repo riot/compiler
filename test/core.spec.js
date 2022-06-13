@@ -1,5 +1,5 @@
 import {bindingTypes, expressionTypes, template} from '@riotjs/dom-bindings'
-import {compile, registerPreprocessor} from '../src'
+import {compile, generateTemplateFunctionFromString, registerPreprocessor} from '../src'
 import {evaluateScript, getFixture, sassPreprocessor} from './helpers'
 import {SourceMapConsumer} from 'source-map'
 import {expect} from 'chai'
@@ -239,6 +239,21 @@ describe('Core specs', () => {
       expect(result.meta.tagName).to.be.equal('pug-component')
       expect(output.default).to.have.all.keys('exports', 'css', 'template', 'name')
       expect(output.default.exports.foo).to.be.ok
+    })
+  })
+
+  describe('Template bindings generation', () => {
+    it('No bindings', () => {
+      const code = generateTemplateFunctionFromString('<p>hello</p>')
+
+      expect(code).to.be.match(/<p>hello<\/p>/)
+    })
+
+    it('With bindings', () => {
+      const code = generateTemplateFunctionFromString('<p if="{visible}">hello</p>')
+
+      expect(code).to.be.match(/<\/p>/)
+      expect(code).to.match(/bindingTypes\.IF/)
     })
   })
 })

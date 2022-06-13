@@ -41,6 +41,7 @@ export type PostProcessorsMap =  Map<string, ProcessorFunction>
 export type PreProcessorType = 'template' | 'javascript' | 'css'
 
 // public API
+export function generateTemplateFunctionFromString(source: string): string
 export function compile(source: string, options?: CompilerOptions): CompilerOutput
 export function registerPreprocessor(
     type: PreProcessorType,
