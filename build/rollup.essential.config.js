@@ -14,8 +14,6 @@ export default {
     name: 'compiler',
     file: './dist/compiler.essential.js',
     format: 'umd',
-    // small hack to provide the global variable to the bundle
-    intro: 'var global = window;',
     globals: ignoredModules.reduce((acc, dep) => ({
       [dep]: dep,
       ...acc
