@@ -2,12 +2,10 @@ import commonjs from '@rollup/plugin-commonjs'
 import defaultConfig from './rollup.config'
 import json from '@rollup/plugin-json'
 import nodeResolve from '@rollup/plugin-node-resolve'
-import {terser} from 'rollup-plugin-terser'
 
 export default {
   ...defaultConfig,
   plugins: [
-    terser(),
     json(),
     nodeResolve({
       modulesOnly: true
