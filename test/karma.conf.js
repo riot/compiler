@@ -6,8 +6,8 @@ module.exports = function(config) {
     singleRun: true,
     files: [
       '../node_modules/chai/chai.js',
-      '../dist/compiler.js',
-      'browser.spec.js'
+      '../dist/compiler.essential.js',
+      'browser.runtime.js'
     ]
   })
 }
