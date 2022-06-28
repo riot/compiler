@@ -25,6 +25,7 @@ jobs:
       - run: |
          npm run lint
          npm test
+         npm run build
          npm run test-runtime
       - name: Generate Coverage
         if: ${{ success() && github.event_name != 'pull_request' && matrix.node-version == '15.x' }}
