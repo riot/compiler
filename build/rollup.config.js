@@ -5,6 +5,6 @@ export default {
     console.error(error.message) // eslint-disable-line
   },
   output: {
-    banner: '/* Riot Compiler WIP, @license MIT */'
+    banner: '/* Riot Compiler, @license MIT */'
   }
 }
