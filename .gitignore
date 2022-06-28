@@ -72,3 +72,4 @@ pids
 /dist
 .nyc_output/
 .reify-cache/
+stats.html
