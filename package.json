@@ -18,9 +18,10 @@
     "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js",
     "postest": "npm run cov-html",
     "test-types": "tsc -p test",
+    "test-runtime": "karma start test/karma.conf.js",
     "test": "npm run lint && nyc mocha -r esm test/*.spec.js test/**/*.spec.js && npm run test-types",
     "debug": "mocha --inspect --inspect-brk -r esm test/*.spec.js test/**/*.spec.js",
-    "prepublishOnly": "npm run build && npm run test"
+    "prepublishOnly": "npm run build &&  npm run test && npm run test-runtime"
   },
   "repository": {
     "type": "git",
@@ -46,12 +47,16 @@
     "eslint": "^8.17.0",
     "eslint-config-riot": "^3.0.0",
     "esm": "^3.2.25",
+    "karma": "^6.4.0",
+    "karma-chrome-launcher": "^3.1.1",
+    "karma-mocha": "^2.0.1",
     "mocha": "^8.4.0",
     "node-sass": "^7.0.1",
     "nyc": "^15.1.0",
     "pug": "^3.0.2",
     "rollup": "^2.75.6",
-    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-visualizer": "^5.6.0",
     "shelljs": "^0.8.5",
     "typescript": "^4.7.3"
   },
