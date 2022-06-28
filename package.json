@@ -15,13 +15,13 @@
     "lint": "eslint src/ test/ build/",
     "cov": "nyc report --reporter=lcov",
     "cov-html": "nyc report --reporter=html",
-    "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js",
+    "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js && rollup -c build/rollup.essential.config.js",
     "postest": "npm run cov-html",
     "test-types": "tsc -p test",
     "test-runtime": "karma start test/karma.conf.js",
-    "test": "npm run lint && nyc mocha -r esm test/*.spec.js test/**/*.spec.js && npm run test-types",
+    "test": "nyc mocha -r esm test/*.spec.js test/**/*.spec.js && npm run test-types",
     "debug": "mocha --inspect --inspect-brk -r esm test/*.spec.js test/**/*.spec.js",
-    "prepublishOnly": "npm run build &&  npm run test && npm run test-runtime"
+    "prepublishOnly": "npm run build && npm run lint && npm run test && npm run test-runtime"
   },
   "repository": {
     "type": "git",
@@ -55,6 +55,7 @@
     "nyc": "^15.1.0",
     "pug": "^3.0.2",
     "rollup": "^2.75.6",
+    "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-visualizer": "^5.6.0",
     "shelljs": "^0.8.5",
@@ -70,6 +71,7 @@
     "@babel/parser": "^7.18.5",
     "@riotjs/parser": "^4.3.1",
     "@riotjs/util": "2.0.4",
+    "core-js": "^3.23.3",
     "cssesc": "^3.0.0",
     "cumpa": "^1.0.1",
     "curri": "^1.0.1",

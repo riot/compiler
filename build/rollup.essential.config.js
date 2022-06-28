@@ -1,19 +1,18 @@
 import alias from '@rollup/plugin-alias'
-import builtins from 'rollup-plugin-node-builtins'
 import commonjs from '@rollup/plugin-commonjs'
 import defaultConfig from './rollup.config'
 import json from '@rollup/plugin-json'
 import nodeResolve from '@rollup/plugin-node-resolve'
-import { resolve } from 'path'
+import {terser} from 'rollup-plugin-terser'
+import {visualizer} from 'rollup-plugin-visualizer'
 
-const sourcemapPath = resolve('./node_modules/source-map/dist/source-map')
-const ignoredModules = ['fs', 'path', 'babylon', 'esprima']
+const ignoredModules = ['fs', 'path', 'esprima']
 
 export default {
   ...defaultConfig,
   output: {
     name: 'compiler',
-    file: './dist/compiler.js',
+    file: './dist/compiler.essential.js',
     format: 'umd',
     // small hack to provide the global variable to the bundle
     intro: 'var global = window;',
@@ -25,10 +24,20 @@ export default {
   },
   external: ignoredModules,
   plugins: [
-    builtins(),
-    json(),
+    json({
+      namedExports: true,
+      preferConst: true
+    }),
     alias({
-      'source-map': sourcemapPath
+      entries: [{
+        find: 'source-map', replacement: './src/utils/mock/sourcemap-mock-api.js'
+      }, {
+        find: 'assert', replacement: './src/utils/mock/assert-mock-api.js'
+      }, {
+        find: 'os', replacement: './src/utils/mock/os-mock-api.js'
+      }, {
+        find: 'recast/parsers/typescript', replacement: 'recast/parsers/acorn'
+      }]
     }),
     nodeResolve({
       browser: true
@@ -36,8 +45,9 @@ export default {
     commonjs({
       include: 'node_modules/**',
       ignoreTryCatch: false,
-      ignore: ignoredModules,
       ignoreGlobal: true
-    })
+    }),
+    visualizer(),
+    terser()
   ]
 }
