@@ -77,7 +77,7 @@ function buildSlot(id, sourceNode, sourceFile, sourceCode) {
  * @param   { string } sourceCode - original source
  * @returns {AST.ArrayExpression} array containing the attributes to bind
  */
-function createSlotsArray(sourceNode, sourceFile, sourceCode) {
+export function createSlotsArray(sourceNode, sourceFile, sourceCode) {
   return builders.arrayExpression([
     ...compose(
       slots => slots.map(([key, value]) => buildSlot(key, value, sourceFile, sourceCode)),

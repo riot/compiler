@@ -1,11 +1,12 @@
 import {TAG_CSS_PROPERTY, TAG_LOGIC_PROPERTY, TAG_NAME_PROPERTY, TAG_TEMPLATE_PROPERTY} from './constants'
+import {callTemplateFunction, createTemplateDependenciesInjectionWrapper} from './generators/template/utils'
 import {nullNode, simplePropertyNode} from './utils/custom-ast-nodes'
 import {register as registerPostproc, execute as runPostprocessors} from './postprocessors'
 import {register as registerPreproc, execute as runPreprocessor} from './preprocessors'
 import build from './generators/template/builder'
 import {builders} from './utils/build-types'
-import {callTemplateFunction} from './generators/template/utils'
 import compose from 'cumpa'
+import {createSlotsArray} from './generators/template/bindings/tag'
 import cssGenerator from './generators/css'
 import curry from 'curri'
 import generateJavascript from './utils/generate-javascript'
@@ -94,19 +95,49 @@ function createMeta(source, options) {
 }
 
 /**
+ * Parse a string to simply get its template AST
+ * @param { string } source - string to parse
+ * @param { Object } options - parser options
+ * @returns {Object} riot parser template output
+ */
+const parseSimpleString = (source, options) => {
+  const { parse } = riotParser(options)
+  return parse(source).output.template
+}
+
+/**
+ * Generate the component slots creation function from the root node
+ * @param { string } source - component outer html
+ * @param { Object } parserOptions - riot parser options
+ * @returns { string } content of the function that can be used to crate the slots in runtime
+ */
+export function generateSlotsFromString(source, parserOptions) {
+  return compose(
+    ({ code }) => code,
+    generateJavascript,
+    createTemplateDependenciesInjectionWrapper,
+    createSlotsArray
+  )(parseSimpleString(source, parserOptions))
+}
+
+/**
  * Generate the Riot.js binding template function from a template string
  * @param { string } source - template string
+ * @param { Object } parserOptions - riot parser options
  * @returns { string } Riot.js bindings template function generated
  */
-export function generateTemplateFunctionFromString(source) {
-  const { parse } = riotParser()
-  const { template } = parse(source).output
-
+export function generateTemplateFunctionFromString(source, parserOptions) {
   return compose(
     ({ code }) => code,
     generateJavascript,
     callTemplateFunction
-  )(...build(template, DEFAULT_OPTIONS.file, source))
+  )(
+    ...build(
+      parseSimpleString(source, parserOptions),
+      DEFAULT_OPTIONS.file,
+      source
+    )
+  )
 }
 
 /**
