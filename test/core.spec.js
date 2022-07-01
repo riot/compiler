@@ -1,5 +1,5 @@
 import {bindingTypes, expressionTypes, template} from '@riotjs/dom-bindings'
-import {compile, generateTemplateFunctionFromString, registerPreprocessor} from '../src'
+import {compile, generateSlotsFromString, generateTemplateFunctionFromString, registerPreprocessor} from '../src'
 import {evaluateScript, getFixture, sassPreprocessor} from './helpers'
 import {SourceMapConsumer} from 'source-map'
 import {expect} from 'chai'
@@ -254,6 +254,22 @@ describe('Core specs', () => {
 
       expect(code).to.be.match(/<\/p>/)
       expect(code).to.match(/bindingTypes\.IF/)
+    })
+  })
+
+  describe('Runtime Slots generation', () => {
+    it('Single Slot', () => {
+      const code = generateSlotsFromString('<my-component><p>hello</p></my-component>')
+
+      expect(code).to.be.match(/id: 'default'/)
+      expect(code).to.be.match(/html: '<p>hello<\/p>'/)
+    })
+
+    it('Multiple Slot', () => {
+      const code = generateSlotsFromString('<my-component><h1 slot="title">title</h1><p>hello</p></my-component>')
+
+      expect(code).to.be.match(/id: 'title'/)
+      expect(code).to.be.match(/id: 'default'/)
     })
   })
 })

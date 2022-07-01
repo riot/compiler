@@ -2,8 +2,8 @@ import {
   BINDING_REDUNDANT_ATTRIBUTE_KEY,
   BINDING_SELECTOR_KEY,
   BINDING_SELECTOR_PREFIX,
-  BINDING_TEMPLATE_KEY,
-  EACH_DIRECTIVE,
+  BINDING_TEMPLATE_KEY, BINDING_TYPES,
+  EACH_DIRECTIVE, EXPRESSION_TYPES, GET_COMPONENT_FN,
   IF_DIRECTIVE,
   IS_BOOLEAN_ATTRIBUTE,
   IS_DIRECTIVE,
@@ -284,6 +284,21 @@ export function callTemplateFunction(template, bindings) {
     bindings ? builders.arrayExpression(bindings) : nullNode()
   ])
 }
+
+/**
+ * Create the template wrapper function injecting the dependencies needed to render the component html
+ * @param {Array<AST.Nodes>|AST.BlockStatement} body - function body
+ * @returns {AST.Node} arrow function expression
+ */
+export const createTemplateDependenciesInjectionWrapper = (body) => builders.arrowFunctionExpression(
+  [
+    TEMPLATE_FN,
+    EXPRESSION_TYPES,
+    BINDING_TYPES,
+    GET_COMPONENT_FN
+  ].map(builders.identifier),
+  body
+)
 
 /**
  * Convert any DOM attribute into a valid DOM selector useful for the querySelector API

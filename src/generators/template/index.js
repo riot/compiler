@@ -1,15 +1,8 @@
-import {BINDING_TYPES, EXPRESSION_TYPES, GET_COMPONENT_FN, TEMPLATE_FN} from './constants'
-import {builders, types} from '../../utils/build-types'
-import {callTemplateFunction, createRootNode} from './utils'
+import {callTemplateFunction, createRootNode, createTemplateDependenciesInjectionWrapper} from './utils'
 import {TAG_TEMPLATE_PROPERTY} from '../../constants'
 import build from './builder'
+import {types} from '../../utils/build-types'
 
-const templateFunctionArguments = [
-  TEMPLATE_FN,
-  EXPRESSION_TYPES,
-  BINDING_TYPES,
-  GET_COMPONENT_FN
-].map(builders.identifier)
 
 /**
  * Create the content of the template function
@@ -40,8 +33,7 @@ function extendTemplateProperty(ast, sourceFile, sourceCode, sourceNode) {
   types.visit(ast, {
     visitProperty(path) {
       if (path.value.key.name === TAG_TEMPLATE_PROPERTY) {
-        path.value.value = builders.arrowFunctionExpression(
-          templateFunctionArguments,
+        path.value.value = createTemplateDependenciesInjectionWrapper(
           createTemplateFunctionContent(sourceNode, sourceFile, sourceCode)
         )
 
