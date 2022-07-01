@@ -5,7 +5,11 @@ import json from '@rollup/plugin-json'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import {visualizer} from 'rollup-plugin-visualizer'
 
-const ignoredModules = ['fs', 'path', 'esprima']
+const ignoredModules = [
+  'fs',
+  'path',
+  'esprima'
+]
 
 export default {
   ...defaultConfig,
@@ -50,6 +54,7 @@ export default {
     commonjs({
       include: 'node_modules/**',
       ignoreTryCatch: false,
+      ignore: ignoredModules,
       ignoreGlobal: true
     }),
     visualizer()

@@ -1,4 +1,4 @@
-import {builtin} from 'globals'
+import {builtin} from 'globals/globals.json'
 import {namedTypes} from './build-types'
 
 const browserAPIs = ['window', 'document', 'console']
