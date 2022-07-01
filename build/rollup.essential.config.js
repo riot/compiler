@@ -11,27 +11,19 @@ const ignoredModules = [
   'esprima'
 ]
 
-export default {
+export default ['umd', 'esm'].map(format => ({
   ...defaultConfig,
-  output: [{
+  output: {
     name: 'compiler',
-    file: './dist/compiler.essential.js',
-    format: 'umd',
+    file: `./dist/compiler.essential${format === 'umd' ? '' : `.${format}`}.js`,
+    format: format,
     globals: ignoredModules.reduce((acc, dep) => ({
       [dep]: dep,
       ...acc
     }), {}),
     ...defaultConfig.output
-  }, {
-    file: './dist/compiler.essential.esm.js',
-    format: 'esm',
-    globals: ignoredModules.reduce((acc, dep) => ({
-      [dep]: dep,
-      ...acc
-    }), {}),
-    ...defaultConfig.output
-  }],
-  external: ignoredModules,
+  },
+  external: ignoredModules.concat(format === 'esm' ? [/@riotjs\/(util)/] : []),
   plugins: [
     json({
       namedExports: true,
@@ -54,9 +46,11 @@ export default {
     commonjs({
       include: 'node_modules/**',
       ignoreTryCatch: false,
-      ignore: ignoredModules,
+      ignoreDynamicRequires: true,
+      ignore: format === 'esm' ? ignoredModules : null,
+      exclude: ignoredModules,
       ignoreGlobal: true
     }),
-    visualizer()
+    format === 'esm' ? visualizer() : null
   ]
-}
+}))
