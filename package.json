@@ -70,7 +70,6 @@
     "@babel/parser": "^7.18.5",
     "@riotjs/parser": "^4.3.1",
     "@riotjs/util": "2.0.4",
-    "core-js": "^3.23.3",
     "cssesc": "^3.0.0",
     "cumpa": "^1.0.1",
     "curri": "^1.0.1",
