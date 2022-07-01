@@ -93,8 +93,11 @@ in the tag source code for example
 
 - *postprocessorFn*: function receiving the compiler output as first argument and the current options as second
 
-### generateTemplateFunctionFromString(string)
+### generateTemplateFunctionFromString(string, parserOptions)
 #### @returns `string` with the code to execute the @riotjs/bindings `template` function
+
+### generateSlotsFromString(string, parserOptions)
+#### @returns `string` with the code to generate components slots in runtime
 
 [ci-image]:https://img.shields.io/github/workflow/status/riot/compiler/test?style=flat-square
 [ci-url]:https://github.com/riot/compiler/actions
