@@ -271,5 +271,12 @@ describe('Core specs', () => {
       expect(code).to.be.match(/id: 'title'/)
       expect(code).to.be.match(/id: 'default'/)
     })
+
+    it('Slot with expressions', () => {
+      const code = generateSlotsFromString('<my-component><h1 slot="title">title</h1><p>hello {user}!</p></my-component>')
+
+      expect(code).to.be.match(/id: 'title'/)
+      expect(code).to.be.match(/id: 'default'/)
+    })
   })
 })

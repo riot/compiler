@@ -15,4 +15,9 @@ describe('Browser runtime compilation', () => {
     const { code } = compiler.compile('<native>{new Date()}</native>')
     expect(code).to.match(/new Date\(\)/)
   })
+
+  it('native apis are not scoped', () => {
+    const { code } = compiler.compile('<native>{new Date()}</native>')
+    expect(code).to.match(/new Date\(\)/)
+  })
 })

@@ -117,7 +117,7 @@ export function generateSlotsFromString(source, parserOptions) {
     generateJavascript,
     createTemplateDependenciesInjectionWrapper,
     createSlotsArray
-  )(parseSimpleString(source, parserOptions))
+  )(parseSimpleString(source, parserOptions), DEFAULT_OPTIONS.file, source)
 }
 
 /**
