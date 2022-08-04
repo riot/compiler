@@ -11,7 +11,7 @@ export default function generateAST(source, options) {
     parser: {
       parse: (source, opts) => customParser(source, {
         ...opts,
-        ecmaVersion: '2022'
+        ecmaVersion: 'latest'
       })
     },
     ...options

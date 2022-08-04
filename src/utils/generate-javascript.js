@@ -12,7 +12,7 @@ export default function generateJavascript(ast, options) {
     parser: {
       parse: (source, opts) => customParser(source, {
         ...opts,
-        ecmaVersion: '2022'
+        ecmaVersion: 'latest'
       })
     },
     tabWidth: 2,
