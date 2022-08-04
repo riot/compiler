@@ -8,7 +8,12 @@ import {parse} from 'recast'
  */
 export default function generateAST(source, options) {
   return parse(source, {
-    parser: { parse: customParser },
+    parser: {
+      parse: (source, opts) => customParser(source, {
+        ...opts,
+        ecmaVersion: 'latest'
+      })
+    },
     ...options
   })
 }

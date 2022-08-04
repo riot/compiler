@@ -9,7 +9,12 @@ import {print} from 'recast'
 export default function generateJavascript(ast, options) {
   return print(ast, {
     ...options,
-    parser: { parse: customParser },
+    parser: {
+      parse: (source, opts) => customParser(source, {
+        ...opts,
+        ecmaVersion: 'latest'
+      })
+    },
     tabWidth: 2,
     wrapColumn: 0,
     quote: 'single'

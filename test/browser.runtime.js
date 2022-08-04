@@ -7,7 +7,7 @@ describe('Browser runtime compilation', () => {
     expect(
       () => compiler.compile(`<each-and-events>
             <item each={item in items} onclick={doSomething}></item></each-and-events>`
-      ).to.not.throw
+      ).to.not.throw()
     )
   })
 
@@ -16,8 +16,17 @@ describe('Browser runtime compilation', () => {
     expect(code).to.match(/new Date\(\)/)
   })
 
-  it('native apis are not scoped', () => {
-    const { code } = compiler.compile('<native>{new Date()}</native>')
-    expect(code).to.match(/new Date\(\)/)
+  it('object spread operator is supported', () => {
+    expect(
+      () => compiler.compile(`
+<my-tag>
+  <script>
+      export default {
+        onBeforeMount(props, state) {
+          state.profile = {...props}
+        },
+      }    
+  </script>
+</my-tag>`)).to.not.throw()
   })
 })
