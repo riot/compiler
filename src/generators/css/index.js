@@ -4,6 +4,9 @@ import cssEscape from 'cssesc'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
 
+const HOST = ':host'
+const DISABLED_SELECTORS = ['from', 'to']
+
 /**
  * Matches valid, multiline JavaScript comments in almost all its forms.
  * @const {RegExp}
@@ -26,6 +29,44 @@ const S_LINESTR = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\
 const CSS_SELECTOR = RegExp(`([{}]|^)[; ]*((?:[^@ ;{}][^{}]*)?[^@ ;{}:] ?)(?={)|${S_LINESTR}`, 'g')
 
 /**
+ * Matches the list of css selectors excluding the pseudo selectors
+ * @const {RegExp}
+ */
+
+const CSS_SELECTOR_LIST = /([^,]+):\w+(?:[\s|\S]*?\))?|([^,]+)/g
+
+/**
+ * Scope the css selectors prefixing them with the tag name
+ * @param {string} tag - Tag name of the root element
+ * @param {string} selectorList - list of selectors we need to scope
+ * @returns {string} scoped selectors
+ */
+export function addScopeToSelectorList(tag, selectorList) {
+  return selectorList.replace(CSS_SELECTOR_LIST, (match, selector) => {
+    const trimmedMatch = match.trim()
+    const trimmedSelector = selector ? selector.trim() : trimmedMatch
+
+    // skip selectors already using the tag name
+    if (trimmedSelector.indexOf(tag) === 0) {
+      return match
+    }
+
+    // skips the keywords and percents of css animations
+    if (!trimmedSelector || DISABLED_SELECTORS.indexOf(trimmedSelector) > -1 || trimmedSelector.slice(-1) === '%') {
+      return match
+    }
+
+    // replace the `:host` pseudo-selector, where it is, with the root tag name;
+    // if `:host` was not included, add the tag name as prefix, and mirror all `[is]`
+    if (trimmedSelector.indexOf(HOST) < 0) {
+      return `${tag} ${trimmedMatch},[is="${tag}"] ${trimmedMatch}`
+    } else {
+      return `${trimmedMatch.replace(HOST, tag)},${trimmedMatch.replace(HOST, `[is="${tag}"]`)}`
+    }
+  })
+}
+
+/**
  * Parses styles enclosed in a "scoped" tag
  * The "css" string is received without comments or surrounding spaces.
  *
@@ -33,41 +74,16 @@ const CSS_SELECTOR = RegExp(`([{}]|^)[; ]*((?:[^@ ;{}][^{}]*)?[^@ ;{}:] ?)(?={)|
  * @param   {string} css - The CSS code
  * @returns {string} CSS with the styles scoped to the root element
  */
-function scopedCSS(tag, css) {
-  const host = ':host'
-  const selectorsBlacklist = ['from', 'to']
-
-  return css.replace(CSS_SELECTOR, function(m, p1, p2) {
+export function generateScopedCss(tag, css) {
+  return css.replace(CSS_SELECTOR, function(m, cssChunk, selectorList) {
     // skip quoted strings
-    if (!p2) return m
+    if (!selectorList) return m
 
     // we have a selector list, parse each individually
-    p2 = p2.replace(/[^,]+/g, function(sel) {
-      const s = sel.trim()
-
-      // skip selectors already using the tag name
-      if (s.indexOf(tag) === 0) {
-        return sel
-      }
-
-      // skips the keywords and percents of css animations
-      if (!s || selectorsBlacklist.indexOf(s) > -1 || s.slice(-1) === '%') {
-        return sel
-      }
-
-      // replace the `:host` pseudo-selector, where it is, with the root tag name;
-      // if `:host` was not included, add the tag name as prefix, and mirror all
-      // `[data-is]`
-      if (s.indexOf(host) < 0) {
-        return `${tag} ${s},[is="${tag}"] ${s}`
-      } else {
-        return `${s.replace(host, tag)},${
-          s.replace(host, `[is="${tag}"]`)}`
-      }
-    })
+    const scopedSelectorList = addScopeToSelectorList(tag, selectorList)
 
     // add the danling bracket char and return the processed selector list
-    return p1 ? `${p1} ${p2}` : p2
+    return cssChunk ? `${cssChunk} ${scopedSelectorList}` : scopedSelectorList
   })
 }
 
@@ -101,7 +117,7 @@ export default function css(sourceNode, source, meta, ast) {
   const escapedCssIdentifier = escapeIdentifier(meta.tagName)
 
   const cssCode = (options.scopedCss ?
-    scopedCSS(escapedCssIdentifier, escapeBackslashes(normalizedCssCode)) :
+    generateScopedCss(escapedCssIdentifier, escapeBackslashes(normalizedCssCode)) :
     escapeBackslashes(normalizedCssCode)
   ).trim()
 
