@@ -153,6 +153,7 @@ describe('Generators - CSS', () => {
     expect(addScopeToSelectorList('my-tag', '.foo:not(.bar,.baz)')).to.be.equal('my-tag .foo:not(.bar,.baz),[is="my-tag"] .foo:not(.bar,.baz)')
     expect(addScopeToSelectorList('my-tag', '.foo:where(.bar,.baz)')).to.be.equal('my-tag .foo:where(.bar,.baz),[is="my-tag"] .foo:where(.bar,.baz)')
     expect(addScopeToSelectorList('my-tag', '.foo:is(.bar,.baz)')).to.be.equal('my-tag .foo:is(.bar,.baz),[is="my-tag"] .foo:is(.bar,.baz)')
+    expect(addScopeToSelectorList('my-tag', '.foo :is(.bar,.baz) :is(.d, .e)')).to.be.equal('my-tag .foo :is(.bar,.baz),[is="my-tag"] .foo :is(.bar,.baz) :is(.d, .e)')
     expect(addScopeToSelectorList('my-tag', '.foo:is(.bar,.baz), .bar')).to.be.equal('my-tag .foo:is(.bar,.baz),[is="my-tag"] .foo:is(.bar,.baz),my-tag .bar,[is="my-tag"] .bar')
     expect(addScopeToSelectorList('my-tag', '.foo, .bar')).to.be.equal('my-tag .foo,[is="my-tag"] .foo,my-tag .bar,[is="my-tag"] .bar')
   })
