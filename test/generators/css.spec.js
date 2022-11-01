@@ -139,7 +139,7 @@ describe('Generators - CSS', () => {
     expect(output.default.template).to.be.not.ok
   })
 
-  it('scoped css are properly generated', () => {
+  it('simple scoped css are properly generated', () => {
     expect(addScopeToSelectorList('my-tag', '')).to.be.equal('')
     expect(addScopeToSelectorList('my-tag', 'from')).to.be.equal('from')
     expect(addScopeToSelectorList('my-tag', 'to')).to.be.equal('to')
@@ -148,13 +148,16 @@ describe('Generators - CSS', () => {
     expect(addScopeToSelectorList('my-tag', ':host')).to.be.equal('my-tag,[is="my-tag"]')
     expect(addScopeToSelectorList('my-tag', ':host:hover')).to.be.equal('my-tag:hover,[is="my-tag"]:hover')
     expect(addScopeToSelectorList('my-tag', 'input')).to.be.equal('my-tag input,[is="my-tag"] input')
+    expect(addScopeToSelectorList('my-tag', '.foo, .bar')).to.be.equal('my-tag .foo,[is="my-tag"] .foo,my-tag .bar,[is="my-tag"] .bar')
     expect(addScopeToSelectorList('my-tag', '.foo:hover, .foo:focus')).to.be.equal('my-tag .foo:hover,[is="my-tag"] .foo:hover,my-tag .foo:focus,[is="my-tag"] .foo:focus')
+  })
+
+  it('complex scoped css are properly generated', () => {
     expect(addScopeToSelectorList('my-tag', '.foo:has(.bar,.baz)')).to.be.equal('my-tag .foo:has(.bar,.baz),[is="my-tag"] .foo:has(.bar,.baz)')
     expect(addScopeToSelectorList('my-tag', '.foo:not(.bar,.baz)')).to.be.equal('my-tag .foo:not(.bar,.baz),[is="my-tag"] .foo:not(.bar,.baz)')
     expect(addScopeToSelectorList('my-tag', '.foo:where(.bar,.baz)')).to.be.equal('my-tag .foo:where(.bar,.baz),[is="my-tag"] .foo:where(.bar,.baz)')
     expect(addScopeToSelectorList('my-tag', '.foo:is(.bar,.baz)')).to.be.equal('my-tag .foo:is(.bar,.baz),[is="my-tag"] .foo:is(.bar,.baz)')
-    expect(addScopeToSelectorList('my-tag', '.foo :is(.bar,.baz) :is(.d, .e)')).to.be.equal('my-tag .foo :is(.bar,.baz),[is="my-tag"] .foo :is(.bar,.baz) :is(.d, .e)')
+    expect(addScopeToSelectorList('my-tag', '.foo :is(.bar,.baz) :is(.d, .e)')).to.be.equal('my-tag .foo :is(.bar,.baz) :is(.d, .e),[is="my-tag"] .foo :is(.bar,.baz) :is(.d, .e)')
     expect(addScopeToSelectorList('my-tag', '.foo:is(.bar,.baz), .bar')).to.be.equal('my-tag .foo:is(.bar,.baz),[is="my-tag"] .foo:is(.bar,.baz),my-tag .bar,[is="my-tag"] .bar')
-    expect(addScopeToSelectorList('my-tag', '.foo, .bar')).to.be.equal('my-tag .foo,[is="my-tag"] .foo,my-tag .bar,[is="my-tag"] .bar')
   })
 })
