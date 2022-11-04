@@ -22,7 +22,7 @@ const mediaQueryCss = `
 
   @media (min-width: 500px) {
     :host {
-      color: blu;
+      color: blue;
     }
   }
 </style>
@@ -127,8 +127,8 @@ describe('Generators - CSS', () => {
       file: FAKE_FILE,
       scopedCss: true
     }, tagName: 'my-tag'}, createInput())
-    const {code} = print(ast)
 
+    const {code} = print(ast)
     const output = evaluateScript(code)
 
     expect(ast).to.be.ok
