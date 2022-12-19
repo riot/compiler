@@ -385,7 +385,7 @@ export function createRootNode(node) {
     ...rootNodeFactory(node),
     attributes: compose(
       // root nodes should always have attribute expressions
-      transformStatiAttributesIntoExpressions,
+      transformStaticAttributesIntoExpressions,
       // root nodes shouldn't have directives
       cleanAttributes
     )(node)
@@ -409,7 +409,7 @@ export function createNestedRootNode(node) {
  * @param   {Array<RiotParser.Node.Attr>} attributes - riot parser node
  * @returns {Array<RiotParser.Node.Attr>} all the attributes received as attribute expressions
  */
-export function transformStatiAttributesIntoExpressions(attributes) {
+export function transformStaticAttributesIntoExpressions(attributes) {
   return attributes.map(attribute => {
     if (attribute.expressions) return attribute
 
@@ -418,7 +418,11 @@ export function transformStatiAttributesIntoExpressions(attributes) {
       expressions: [{
         start: attribute.valueStart,
         end: attribute.end,
-        text: `'${attribute.value || attribute.name}'`
+        text: `'${attribute.value ? 
+          attribute.value : 
+          // boolean attributes should be treated differently
+          attribute[IS_BOOLEAN_ATTRIBUTE] ? attribute.name : ''
+        }'`
       }]
     }
   })
@@ -604,12 +608,5 @@ export function createBindingAttributes(sourceNode, selectorAttribute, sourceFil
  * @returns { AST.Node } an AST function expression to evaluate the attribute value
  */
 export function createAttributeEvaluationFunction(sourceNode, sourceFile, sourceCode) {
-  return hasExpressions(sourceNode) ?
-    // dynamic attribute
-    wrapASTInFunctionWithScope(mergeAttributeExpressions(sourceNode, sourceFile, sourceCode)) :
-    // static attribute
-    builders.arrowFunctionExpression(
-      [],
-      builders.literal(sourceNode.value || true)
-    )
+  return wrapASTInFunctionWithScope(mergeAttributeExpressions(sourceNode, sourceFile, sourceCode))
 }

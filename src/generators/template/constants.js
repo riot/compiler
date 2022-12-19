@@ -31,6 +31,7 @@ export const BINDING_EVALUATE_KEY = 'evaluate'
 export const BINDING_NAME_KEY = 'name'
 export const BINDING_SLOTS_KEY = 'slots'
 export const BINDING_EXPRESSIONS_KEY = 'expressions'
+export const BINDING_IS_BOOLEAN_ATTRIBUTE = 'isBoolean'
 export const BINDING_CHILD_NODE_INDEX_KEY = 'childNodeIndex'
 // slots keys
 export const BINDING_BINDINGS_KEY = 'bindings'
