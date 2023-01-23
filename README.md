@@ -99,7 +99,7 @@ in the tag source code for example
 ### generateSlotsFromString(string, parserOptions)
 #### @returns `string` with the code to generate components slots in runtime
 
-[ci-image]:https://img.shields.io/github/workflow/status/riot/compiler/test?style=flat-square
+[ci-image]:https://img.shields.io/github/actions/workflow/status/riot/compiler/test.yml?style=flat-square
 [ci-url]:https://github.com/riot/compiler/actions
 [license-image]: https://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
 [license-url]:   LICENSE
