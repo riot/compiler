@@ -48,7 +48,7 @@
     "chai": "^4.3.6",
     "eslint": "^8.34.0",
     "eslint-config-prettier": "^8.6.0",
-    "eslint-config-riot": "^3.0.0",
+    "eslint-config-riot": "^4.0.0",
     "eslint-plugin-fp": "^2.3.0",
     "esm": "^3.2.25",
     "karma": "^6.4.0",
