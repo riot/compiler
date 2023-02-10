@@ -10,7 +10,7 @@ import {
   BINDING_TYPE_KEY,
   GET_COMPONENT_FN,
   SLOT_ATTRIBUTE,
-  TAG_BINDING_TYPE
+  TAG_BINDING_TYPE,
 } from '../constants'
 import {
   createBindingAttributes,
@@ -18,12 +18,12 @@ import {
   createNestedRootNode,
   createSelectorProperties,
   getChildrenNodes,
-  getNodeAttributes
+  getNodeAttributes,
 } from '../utils'
 import build from '../builder'
-import {builders} from '../../../utils/build-types'
+import { builders } from '../../../utils/build-types'
 import compose from 'cumpa'
-import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
+import { simplePropertyNode } from '../../../utils/custom-ast-nodes'
 
 /**
  * Find the slots in the current component and group them under the same id
@@ -31,21 +31,24 @@ import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
  * @returns {Object} object containing all the slots grouped by name
  */
 function groupSlots(sourceNode) {
-  return getChildrenNodes(sourceNode).reduce((acc, node) => {
-    const slotAttribute = findSlotAttribute(node)
+  return getChildrenNodes(sourceNode).reduce(
+    (acc, node) => {
+      const slotAttribute = findSlotAttribute(node)
 
-    if (slotAttribute) {
-      acc[slotAttribute.value] = node
-    } else {
-      acc.default = createNestedRootNode({
-        nodes: [...getChildrenNodes(acc.default), node]
-      })
-    }
+      if (slotAttribute) {
+        acc[slotAttribute.value] = node
+      } else {
+        acc.default = createNestedRootNode({
+          nodes: [...getChildrenNodes(acc.default), node],
+        })
+      }
 
-    return acc
-  }, {
-    default: null
-  })
+      return acc
+    },
+    {
+      default: null,
+    },
+  )
 }
 
 /**
@@ -59,14 +62,17 @@ function groupSlots(sourceNode) {
 function buildSlot(id, sourceNode, sourceFile, sourceCode) {
   const cloneNode = {
     ...sourceNode,
-    attributes: getNodeAttributes(sourceNode)
+    attributes: getNodeAttributes(sourceNode),
   }
   const [html, bindings] = build(cloneNode, sourceFile, sourceCode)
 
   return builders.objectExpression([
     simplePropertyNode(BINDING_ID_KEY, builders.literal(id)),
     simplePropertyNode(BINDING_HTML_KEY, builders.literal(html)),
-    simplePropertyNode(BINDING_BINDINGS_KEY, builders.arrayExpression(bindings))
+    simplePropertyNode(
+      BINDING_BINDINGS_KEY,
+      builders.arrayExpression(bindings),
+    ),
   ])
 }
 
@@ -80,11 +86,14 @@ function buildSlot(id, sourceNode, sourceFile, sourceCode) {
 export function createSlotsArray(sourceNode, sourceFile, sourceCode) {
   return builders.arrayExpression([
     ...compose(
-      slots => slots.map(([key, value]) => buildSlot(key, value, sourceFile, sourceCode)),
-      slots => slots.filter(([, value]) => value),
+      (slots) =>
+        slots.map(([key, value]) =>
+          buildSlot(key, value, sourceFile, sourceCode),
+        ),
+      (slots) => slots.filter(([, value]) => value),
       Object.entries,
-      groupSlots
-    )(sourceNode)
+      groupSlots,
+    )(sourceNode),
   ])
 }
 
@@ -94,7 +103,9 @@ export function createSlotsArray(sourceNode, sourceFile, sourceCode) {
  * @returns {RiotParser.Node.Attr|undefined} the slot attribute found
  */
 function findSlotAttribute(sourceNode) {
-  return getNodeAttributes(sourceNode).find(attribute => attribute.name === SLOT_ATTRIBUTE)
+  return getNodeAttributes(sourceNode).find(
+    (attribute) => attribute.name === SLOT_ATTRIBUTE,
+  )
 }
 
 /**
@@ -105,25 +116,46 @@ function findSlotAttribute(sourceNode) {
  * @param   { string } sourceCode - original source
  * @returns { AST.Node } tag binding node
  */
-export default function createTagBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
+export default function createTagBinding(
+  sourceNode,
+  selectorAttribute,
+  sourceFile,
+  sourceCode,
+) {
   return builders.objectExpression([
-    simplePropertyNode(BINDING_TYPE_KEY,
+    simplePropertyNode(
+      BINDING_TYPE_KEY,
       builders.memberExpression(
         builders.identifier(BINDING_TYPES),
         builders.identifier(TAG_BINDING_TYPE),
-        false
-      )
+        false,
+      ),
     ),
-    simplePropertyNode(BINDING_GET_COMPONENT_KEY, builders.identifier(GET_COMPONENT_FN)),
+    simplePropertyNode(
+      BINDING_GET_COMPONENT_KEY,
+      builders.identifier(GET_COMPONENT_FN),
+    ),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,
-      createCustomNodeNameEvaluationFunction(sourceNode, sourceFile, sourceCode)
+      createCustomNodeNameEvaluationFunction(
+        sourceNode,
+        sourceFile,
+        sourceCode,
+      ),
     ),
-    simplePropertyNode(BINDING_SLOTS_KEY, createSlotsArray(sourceNode, sourceFile, sourceCode)),
+    simplePropertyNode(
+      BINDING_SLOTS_KEY,
+      createSlotsArray(sourceNode, sourceFile, sourceCode),
+    ),
     simplePropertyNode(
       BINDING_ATTRIBUTES_KEY,
-      createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sourceCode)
+      createBindingAttributes(
+        sourceNode,
+        selectorAttribute,
+        sourceFile,
+        sourceCode,
+      ),
     ),
-    ...createSelectorProperties(selectorAttribute)
+    ...createSelectorProperties(selectorAttribute),
   ])
 }

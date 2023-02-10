@@ -1,6 +1,6 @@
 exclude_patterns:
-  - "test"
+  - 'test'
 
 ratings:
   paths:
-    - "src/*.js"
+    - 'src/*.js'

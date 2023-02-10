@@ -1,5 +1,5 @@
-import {registerPostprocessor, registerPreprocessor} from '../src'
-import {expect} from 'chai'
+import { registerPostprocessor, registerPreprocessor } from '../src'
+import { expect } from 'chai'
 
 describe('API specs', () => {
   describe('compiler.registerPreprocessor', () => {

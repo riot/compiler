@@ -1,4 +1,4 @@
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
     frameworks: ['mocha'],
     browsers: ['ChromeHeadless'],
@@ -7,7 +7,7 @@ module.exports = function(config) {
     files: [
       '../node_modules/chai/chai.js',
       '../dist/compiler.essential.js',
-      'browser.runtime.js'
-    ]
+      'browser.runtime.js',
+    ],
   })
 }

@@ -6,13 +6,14 @@ const ATTRIBUTE_TYPE_NAME = 'type'
  * @returns { string|null } a valid type to identify the preprocessor to use or nothing
  */
 export default function getPreprocessorTypeByAttribute(sourceNode) {
-  const typeAttribute = sourceNode.attributes ?
-    sourceNode.attributes.find(attribute => attribute.name === ATTRIBUTE_TYPE_NAME) :
-    null
+  const typeAttribute = sourceNode.attributes
+    ? sourceNode.attributes.find(
+        (attribute) => attribute.name === ATTRIBUTE_TYPE_NAME,
+      )
+    : null
 
   return typeAttribute ? normalize(typeAttribute.value) : null
 }
-
 
 /**
  * Remove the noise in case a user has defined the preprocessor type='text/scss'

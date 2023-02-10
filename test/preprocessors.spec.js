@@ -1,11 +1,16 @@
-import {execute, preprocessors, register, unregister} from '../src/preprocessors'
-import {babelPreprocessor} from './helpers'
-import {expect} from 'chai'
+import {
+  execute,
+  preprocessors,
+  register,
+  unregister,
+} from '../src/preprocessors'
+import { babelPreprocessor } from './helpers'
+import { expect } from 'chai'
 
 describe('Preprocessors', () => {
   function preprocessor(source) {
     return {
-      code: source.replace('foo', 'bar')
+      code: source.replace('foo', 'bar'),
     }
   }
 
@@ -62,7 +67,6 @@ describe('Preprocessors', () => {
       expect(() => unregister('foo', 'bar')).to.throw()
     })
 
-
     it('it can unregister a preprocessor', () => {
       register('javascript', 'foo', preprocessor)
 
@@ -98,12 +102,17 @@ describe('Preprocessors', () => {
   })
 
   describe('javascript preprocessors', () => {
-    it('babel can generate valid javascript output', function() {
+    it('babel can generate valid javascript output', function () {
       // babel seems to be really slow
       this.timeout(100000)
       register('javascript', 'babel', babelPreprocessor)
 
-      const result = execute('javascript', 'babel', { options: { file: 'fake-file.riot' }}, '() => \'hello\'')
+      const result = execute(
+        'javascript',
+        'babel',
+        { options: { file: 'fake-file.riot' } },
+        "() => 'hello'",
+      )
 
       expect(result.code).to.be.match(/return 'hello'/)
 

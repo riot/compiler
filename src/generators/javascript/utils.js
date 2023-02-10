@@ -1,11 +1,17 @@
-import {RIOT_INTERFACE_WRAPPER_NAME, RIOT_MODULE_ID, RIOT_TAG_INTERFACE_NAME, TAG_LOGIC_PROPERTY} from '../../constants'
-import {builders, types} from '../../utils/build-types'
+import {
+  RIOT_INTERFACE_WRAPPER_NAME,
+  RIOT_MODULE_ID,
+  RIOT_TAG_INTERFACE_NAME,
+  TAG_LOGIC_PROPERTY,
+} from '../../constants'
+import { builders, types } from '../../utils/build-types'
 import {
   isExportDefaultStatement,
   isExportNamedDeclaration,
-  isImportDeclaration, isInterfaceDeclaration,
+  isImportDeclaration,
+  isInterfaceDeclaration,
   isThisExpressionStatement,
-  isTypeAliasDeclaration
+  isTypeAliasDeclaration,
 } from '../../utils/ast-nodes-checks'
 import compose from 'cumpa'
 
@@ -42,7 +48,7 @@ export function findAllExportNamedDeclarations(body) {
  * @returns { Array } array containing all the ast expressions without the import declarations
  */
 export function filterOutAllImportDeclarations(body) {
-  return body.filter(n => !isImportDeclaration(n))
+  return body.filter((n) => !isImportDeclaration(n))
 }
 
 /**
@@ -51,7 +57,9 @@ export function filterOutAllImportDeclarations(body) {
  * @returns { Array } array containing all the ast expressions without the export declarations
  */
 export function filterOutAllExportDeclarations(body) {
-  return body.filter(n => !isExportNamedDeclaration(n) || isExportDefaultStatement(n))
+  return body.filter(
+    (n) => !isExportNamedDeclaration(n) || isExportDefaultStatement(n),
+  )
 }
 
 /**
@@ -60,16 +68,28 @@ export function filterOutAllExportDeclarations(body) {
  * @returns { Object|null } the object referencing the component interface if found
  */
 export function findComponentInterface(body) {
-  const exportNamedDeclarations = body.filter(isExportNamedDeclaration).map(n => n.declaration)
+  const exportNamedDeclarations = body
+    .filter(isExportNamedDeclaration)
+    .map((n) => n.declaration)
   const types = exportNamedDeclarations.filter(isTypeAliasDeclaration)
   const interfaces = exportNamedDeclarations.filter(isInterfaceDeclaration)
-  const isRiotComponentTypeName = ({ typeName }) => typeName && typeName.name ? typeName.name === RIOT_TAG_INTERFACE_NAME : false
-  const extendsRiotComponent = ({ expression }) => expression.name === RIOT_TAG_INTERFACE_NAME
+  const isRiotComponentTypeName = ({ typeName }) =>
+    typeName && typeName.name
+      ? typeName.name === RIOT_TAG_INTERFACE_NAME
+      : false
+  const extendsRiotComponent = ({ expression }) =>
+    expression.name === RIOT_TAG_INTERFACE_NAME
 
-  return types.find(
-    node => (node.typeAnnotation.types && node.typeAnnotation.types.some(isRiotComponentTypeName)) || isRiotComponentTypeName(node.typeAnnotation)
-  ) || interfaces.find(
-    node =>  node.extends && node.extends.some(extendsRiotComponent)
+  return (
+    types.find(
+      (node) =>
+        (node.typeAnnotation.types &&
+          node.typeAnnotation.types.some(isRiotComponentTypeName)) ||
+        isRiotComponentTypeName(node.typeAnnotation),
+    ) ||
+    interfaces.find(
+      (node) => node.extends && node.extends.some(extendsRiotComponent),
+    )
   )
 }
 
@@ -82,10 +102,12 @@ export function findComponentInterface(body) {
 export function addComponentInterfaceToExportedObject(ast, componentInterface) {
   const body = getProgramBody(ast)
   const RiotComponentWrapperImportSpecifier = builders.importSpecifier(
-    builders.identifier(RIOT_INTERFACE_WRAPPER_NAME)
+    builders.identifier(RIOT_INTERFACE_WRAPPER_NAME),
   )
   const componentInterfaceName = componentInterface.id.name
-  const riotImportDeclaration = findAllImportDeclarations(body).find(node => node.source.value === RIOT_MODULE_ID)
+  const riotImportDeclaration = findAllImportDeclarations(body).find(
+    (node) => node.source.value === RIOT_MODULE_ID,
+  )
   const exportDefaultStatement = body.find(isExportDefaultStatement)
   const objectExport = exportDefaultStatement.declaration
 
@@ -94,10 +116,13 @@ export function addComponentInterfaceToExportedObject(ast, componentInterface) {
     riotImportDeclaration.specifiers.push(RiotComponentWrapperImportSpecifier)
   } else {
     // otherwise create the whole import statement from riot
-    body.unshift(0, builders.importDeclaration(
-      [RiotComponentWrapperImportSpecifier],
-      builders.stringLiteral(RIOT_MODULE_ID)
-    ))
+    body.unshift(
+      0,
+      builders.importDeclaration(
+        [RiotComponentWrapperImportSpecifier],
+        builders.stringLiteral(RIOT_MODULE_ID),
+      ),
+    )
   }
 
   // override the object export adding the types detected
@@ -105,10 +130,10 @@ export function addComponentInterfaceToExportedObject(ast, componentInterface) {
     objectExport,
     builders.tsTypeReference(
       builders.identifier(RIOT_INTERFACE_WRAPPER_NAME),
-      builders.tsTypeParameterInstantiation(
-        [builders.tsTypeReference(builders.identifier(componentInterfaceName))]
-      )
-    )
+      builders.tsTypeParameterInstantiation([
+        builders.tsTypeReference(builders.identifier(componentInterfaceName)),
+      ]),
+    ),
   )
 
   return ast
@@ -125,10 +150,13 @@ export function createDefaultExportFromLegacySyntax(body) {
       builders.identifier(TAG_LOGIC_PROPERTY),
       [],
       builders.blockStatement([
-        ...compose(filterOutAllImportDeclarations, filterOutAllExportDeclarations)(body),
-        builders.returnStatement(builders.thisExpression())
-      ])
-    )
+        ...compose(
+          filterOutAllImportDeclarations,
+          filterOutAllExportDeclarations,
+        )(body),
+        builders.returnStatement(builders.thisExpression()),
+      ]),
+    ),
   )
 }
 
@@ -138,7 +166,10 @@ export function createDefaultExportFromLegacySyntax(body) {
  * @returns { Array } array containing all the program code except the export default expressions
  */
 export function filterNonExportDefaultStatements(body) {
-  return body.filter(node => !isExportDefaultStatement(node) && !isThisExpressionStatement(node))
+  return body.filter(
+    (node) =>
+      !isExportDefaultStatement(node) && !isThisExpressionStatement(node),
+  )
 }
 
 /**
@@ -165,7 +196,7 @@ export function extendTagProperty(ast, exportDefaultNode) {
       }
 
       this.traverse(path)
-    }
+    },
   })
 
   return ast

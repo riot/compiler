@@ -1,12 +1,17 @@
-import {createAttributeExpressions, createExpression} from '../expressions/index'
 import {
-  createSelectorProperties,
-  getChildrenNodes
-} from '../utils'
-import {hasExpressions, isRemovableNode, isRootNode, isTextNode} from '../checks'
-import {BINDING_EXPRESSIONS_KEY} from '../constants'
-import {builders} from '../../../utils/build-types'
-import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
+  createAttributeExpressions,
+  createExpression,
+} from '../expressions/index'
+import { createSelectorProperties, getChildrenNodes } from '../utils'
+import {
+  hasExpressions,
+  isRemovableNode,
+  isRootNode,
+  isTextNode,
+} from '../checks'
+import { BINDING_EXPRESSIONS_KEY } from '../constants'
+import { builders } from '../../../utils/build-types'
+import { simplePropertyNode } from '../../../utils/custom-ast-nodes'
 
 /**
  * Create the text node expressions
@@ -21,13 +26,15 @@ function createTextNodeExpressions(sourceNode, sourceFile, sourceCode) {
   return childrenNodes
     .filter(isTextNode)
     .filter(hasExpressions)
-    .map(node => createExpression(
-      node,
-      sourceFile,
-      sourceCode,
-      childrenNodes.indexOf(node),
-      sourceNode
-    ))
+    .map((node) =>
+      createExpression(
+        node,
+        sourceFile,
+        sourceCode,
+        childrenNodes.indexOf(node),
+        sourceNode,
+      ),
+    )
 }
 
 /**
@@ -38,16 +45,23 @@ function createTextNodeExpressions(sourceNode, sourceFile, sourceCode) {
  * @param   { string } sourceCode - original source
  * @returns { AST.Node } an each binding node
  */
-export default function createSimpleBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
+export default function createSimpleBinding(
+  sourceNode,
+  selectorAttribute,
+  sourceFile,
+  sourceCode,
+) {
   return builders.objectExpression([
     // root or removable nodes do not need selectors
-    ...(isRemovableNode(sourceNode) || isRootNode(sourceNode) ? [] : createSelectorProperties(selectorAttribute)),
+    ...(isRemovableNode(sourceNode) || isRootNode(sourceNode)
+      ? []
+      : createSelectorProperties(selectorAttribute)),
     simplePropertyNode(
       BINDING_EXPRESSIONS_KEY,
       builders.arrayExpression([
         ...createTextNodeExpressions(sourceNode, sourceFile, sourceCode),
-        ...createAttributeExpressions(sourceNode, sourceFile, sourceCode)
-      ])
-    )
+        ...createAttributeExpressions(sourceNode, sourceFile, sourceCode),
+      ]),
+    ),
   ])
 }

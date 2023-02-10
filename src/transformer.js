@@ -4,7 +4,7 @@ export const Output = Object.freeze({
   code: '',
   ast: [],
   meta: {},
-  map: null
+  map: null,
 })
 
 /**
@@ -20,13 +20,13 @@ export function createOutput(data, meta) {
   const output = {
     ...Output,
     ...data,
-    meta
+    meta,
   }
 
   if (!output.map && meta && meta.options && meta.options.file)
     return {
       ...output,
-      map: createSourcemap({ file: meta.options.file })
+      map: createSourcemap({ file: meta.options.file }),
     }
 
   return output
@@ -40,6 +40,6 @@ export function createOutput(data, meta) {
  * @returns { Output } output - the result of the compiler
  */
 export function transform(compiler, meta, source) {
-  const result = (compiler ? compiler(source, meta) : { code: source })
+  const result = compiler ? compiler(source, meta) : { code: source }
   return createOutput(result, meta)
 }

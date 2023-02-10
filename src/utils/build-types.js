@@ -1,4 +1,4 @@
-import {types as astTypes} from 'recast'
+import { types as astTypes } from 'recast'
 
 export const types = astTypes
 export const builders = astTypes.builders

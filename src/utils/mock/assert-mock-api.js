@@ -1,7 +1,7 @@
 const assert = {
-  ok: () =>  true,
+  ok: () => true,
   strictEqual: () => true,
-  deepEqual: () => true
+  deepEqual: () => true,
 }
 
 export default assert

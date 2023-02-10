@@ -1,8 +1,11 @@
-import {callTemplateFunction, createRootNode, createTemplateDependenciesInjectionWrapper} from './utils'
-import {TAG_TEMPLATE_PROPERTY} from '../../constants'
+import {
+  callTemplateFunction,
+  createRootNode,
+  createTemplateDependenciesInjectionWrapper,
+} from './utils'
+import { TAG_TEMPLATE_PROPERTY } from '../../constants'
 import build from './builder'
-import {types} from '../../utils/build-types'
-
+import { types } from '../../utils/build-types'
 
 /**
  * Create the content of the template function
@@ -13,11 +16,7 @@ import {types} from '../../utils/build-types'
  */
 function createTemplateFunctionContent(sourceNode, sourceFile, sourceCode) {
   return callTemplateFunction(
-    ...build(
-      createRootNode(sourceNode),
-      sourceFile,
-      sourceCode
-    )
+    ...build(createRootNode(sourceNode), sourceFile, sourceCode),
   )
 }
 
@@ -34,14 +33,14 @@ function extendTemplateProperty(ast, sourceFile, sourceCode, sourceNode) {
     visitProperty(path) {
       if (path.value.key.name === TAG_TEMPLATE_PROPERTY) {
         path.value.value = createTemplateDependenciesInjectionWrapper(
-          createTemplateFunctionContent(sourceNode, sourceFile, sourceCode)
+          createTemplateFunctionContent(sourceNode, sourceFile, sourceCode),
         )
 
         return false
       }
 
       this.traverse(path)
-    }
+    },
   })
 
   return ast

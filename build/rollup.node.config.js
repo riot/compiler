@@ -8,18 +8,21 @@ export default {
   plugins: [
     json(),
     nodeResolve({
-      modulesOnly: true
+      modulesOnly: true,
     }),
-    commonjs()
+    commonjs(),
   ],
-  output: [{
-    file: './dist/index.js',
-    name: 'compiler',
-    format: 'cjs',
-    ...defaultConfig.output
-  }, {
-    file: './dist/index.esm.js',
-    format: 'esm',
-    ...defaultConfig.output
-  }]
+  output: [
+    {
+      file: './dist/index.js',
+      name: 'compiler',
+      format: 'cjs',
+      ...defaultConfig.output,
+    },
+    {
+      file: './dist/index.esm.js',
+      format: 'esm',
+      ...defaultConfig.output,
+    },
+  ],
 }

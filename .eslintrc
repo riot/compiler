@@ -1,9 +1,5 @@
 extends: eslint-config-riot
 
-parserOptions:
-  ecmaVersion: 2018
-  sourceType: 'module'
-
 globals:
   sinon: true
   expect: true

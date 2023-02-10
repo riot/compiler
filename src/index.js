@@ -1,12 +1,26 @@
-import {TAG_CSS_PROPERTY, TAG_LOGIC_PROPERTY, TAG_NAME_PROPERTY, TAG_TEMPLATE_PROPERTY} from './constants'
-import {callTemplateFunction, createTemplateDependenciesInjectionWrapper} from './generators/template/utils'
-import {nullNode, simplePropertyNode} from './utils/custom-ast-nodes'
-import {register as registerPostproc, execute as runPostprocessors} from './postprocessors'
-import {register as registerPreproc, execute as runPreprocessor} from './preprocessors'
+import {
+  TAG_CSS_PROPERTY,
+  TAG_LOGIC_PROPERTY,
+  TAG_NAME_PROPERTY,
+  TAG_TEMPLATE_PROPERTY,
+} from './constants'
+import {
+  callTemplateFunction,
+  createTemplateDependenciesInjectionWrapper,
+} from './generators/template/utils'
+import { nullNode, simplePropertyNode } from './utils/custom-ast-nodes'
+import {
+  register as registerPostproc,
+  execute as runPostprocessors,
+} from './postprocessors'
+import {
+  register as registerPreproc,
+  execute as runPreprocessor,
+} from './preprocessors'
 import build from './generators/template/builder'
-import {builders} from './utils/build-types'
+import { builders } from './utils/build-types'
 import compose from 'cumpa'
-import {createSlotsArray} from './generators/template/bindings/tag'
+import { createSlotsArray } from './generators/template/bindings/tag'
 import cssGenerator from './generators/css'
 import curry from 'curri'
 import generateJavascript from './utils/generate-javascript'
@@ -21,7 +35,7 @@ import templateGenerator from './generators/template'
 const DEFAULT_OPTIONS = {
   template: 'default',
   file: '[unknown-source-file]',
-  scopedCss: true
+  scopedCss: true,
 }
 
 /**
@@ -47,10 +61,10 @@ export function createInitialInput({ tagName }) {
         simplePropertyNode(TAG_CSS_PROPERTY, nullNode()),
         simplePropertyNode(TAG_LOGIC_PROPERTY, nullNode()),
         simplePropertyNode(TAG_TEMPLATE_PROPERTY, nullNode()),
-        simplePropertyNode(TAG_NAME_PROPERTY, builders.literal(tagName))
-      ])
-    )]
-  )
+        simplePropertyNode(TAG_NAME_PROPERTY, builders.literal(tagName)),
+      ]),
+    ),
+  ])
 }
 
 /**
@@ -72,7 +86,7 @@ function normaliseInputSourceMap(map) {
 function overrideSourcemapContent(map, source) {
   return {
     ...map,
-    sourcesContent: [source]
+    sourcesContent: [source],
   }
 }
 
@@ -88,9 +102,9 @@ function createMeta(source, options) {
     fragments: null,
     options: {
       ...DEFAULT_OPTIONS,
-      ...options
+      ...options,
     },
-    source
+    source,
   }
 }
 
@@ -116,7 +130,7 @@ export function generateSlotsFromString(source, parserOptions) {
     ({ code }) => code,
     generateJavascript,
     createTemplateDependenciesInjectionWrapper,
-    createSlotsArray
+    createSlotsArray,
   )(parseSimpleString(source, parserOptions), DEFAULT_OPTIONS.file, source)
 }
 
@@ -130,13 +144,13 @@ export function generateTemplateFunctionFromString(source, parserOptions) {
   return compose(
     ({ code }) => code,
     generateJavascript,
-    callTemplateFunction
+    callTemplateFunction,
   )(
     ...build(
       parseSimpleString(source, parserOptions),
       DEFAULT_OPTIONS.file,
-      source
-    )
+      source,
+    ),
   )
 }
 
@@ -149,7 +163,12 @@ export function generateTemplateFunctionFromString(source, parserOptions) {
 export function compile(source, opts = {}) {
   const meta = createMeta(source, opts)
   const { options } = meta
-  const { code, map } = runPreprocessor('template', options.template, meta, source)
+  const { code, map } = runPreprocessor(
+    'template',
+    options.template,
+    meta,
+    source,
+  )
   const { parse } = riotParser(options)
   const { template, css, javascript } = parse(code).output
 
@@ -161,23 +180,26 @@ export function compile(source, opts = {}) {
   // extend the meta object with the result of the parsing
   Object.assign(meta, {
     tagName: template.name,
-    fragments: { template, css, javascript }
+    fragments: { template, css, javascript },
   })
 
   return compose(
-    result => ({ ...result, meta }),
-    result => runPostprocessors(result, meta),
-    result => ({
+    (result) => ({ ...result, meta }),
+    (result) => runPostprocessors(result, meta),
+    (result) => ({
       ...result,
-      map: overrideSourcemapContent(result.map, source)
+      map: overrideSourcemapContent(result.map, source),
     }),
-    ast => meta.ast = ast && generateJavascript(ast, {
-      sourceMapName: `${options.file}.map`,
-      inputSourceMap: normaliseInputSourceMap(map)
-    }),
+    (ast) =>
+      (meta.ast =
+        ast &&
+        generateJavascript(ast, {
+          sourceMapName: `${options.file}.map`,
+          inputSourceMap: normaliseInputSourceMap(map),
+        })),
     hookGenerator(templateGenerator, template, code, meta),
     hookGenerator(javascriptGenerator, javascript, code, meta),
-    hookGenerator(cssGenerator, css, code, meta)
+    hookGenerator(cssGenerator, css, code, meta),
   )(createInitialInput(meta))
 }
 
@@ -190,9 +212,15 @@ export function compile(source, opts = {}) {
  * @returns { function(): Promise<Output> } Function what resolves to object containing output code and source map
  */
 function hookGenerator(transformer, sourceNode, source, meta) {
-  const hasContent = sourceNode && (sourceNode.text || !isEmptyArray(sourceNode.nodes) || !isEmptyArray(sourceNode.attributes))
+  const hasContent =
+    sourceNode &&
+    (sourceNode.text ||
+      !isEmptyArray(sourceNode.nodes) ||
+      !isEmptyArray(sourceNode.attributes))
 
-  return hasContent ? curry(transformer)(sourceNode, source, meta) : result => result
+  return hasContent
+    ? curry(transformer)(sourceNode, source, meta)
+    : (result) => result
 }
 
 // This function can be used to register new preprocessors

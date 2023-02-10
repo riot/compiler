@@ -11,6 +11,6 @@ export default function getLineAndColumnByPosition(string, position) {
 
   return {
     line: lines.length,
-    column: lines[lines.length - 1].length
+    column: lines[lines.length - 1].length,
   }
 }

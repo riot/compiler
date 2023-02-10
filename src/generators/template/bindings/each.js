@@ -6,7 +6,7 @@ import {
   BINDING_ITEM_NAME_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
-  EACH_BINDING_TYPE
+  EACH_BINDING_TYPE,
 } from '../constants'
 import {
   createASTFromExpression,
@@ -14,43 +14,58 @@ import {
   createTemplateProperty,
   getAttributeExpression,
   getName,
-  toScopedFunction
+  toScopedFunction,
 } from '../utils'
-import {findEachAttribute, findIfAttribute, findKeyAttribute} from '../find'
-import {isExpressionStatement, isSequenceExpression} from '../../../utils/ast-nodes-checks'
-import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
-import {builders} from '../../../utils/build-types'
+import { findEachAttribute, findIfAttribute, findKeyAttribute } from '../find'
+import {
+  isExpressionStatement,
+  isSequenceExpression,
+} from '../../../utils/ast-nodes-checks'
+import { nullNode, simplePropertyNode } from '../../../utils/custom-ast-nodes'
+import { builders } from '../../../utils/build-types'
 import compose from 'cumpa'
-import {createNestedBindings} from '../builder'
+import { createNestedBindings } from '../builder'
 import generateJavascript from '../../../utils/generate-javascript'
-import {panic} from '@riotjs/util/misc'
+import { panic } from '@riotjs/util/misc'
 
-const getEachItemName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[0] : expression.left
-const getEachIndexName = expression => isSequenceExpression(expression.left) ? expression.left.expressions[1] : null
-const getEachValue = expression => expression.right
+const getEachItemName = (expression) =>
+  isSequenceExpression(expression.left)
+    ? expression.left.expressions[0]
+    : expression.left
+const getEachIndexName = (expression) =>
+  isSequenceExpression(expression.left) ? expression.left.expressions[1] : null
+const getEachValue = (expression) => expression.right
 const nameToliteral = compose(builders.literal, getName)
 
-const generateEachItemNameKey = expression => simplePropertyNode(
-  BINDING_ITEM_NAME_KEY,
-  compose(nameToliteral, getEachItemName)(expression)
-)
+const generateEachItemNameKey = (expression) =>
+  simplePropertyNode(
+    BINDING_ITEM_NAME_KEY,
+    compose(nameToliteral, getEachItemName)(expression),
+  )
 
-const generateEachIndexNameKey = expression => simplePropertyNode(
-  BINDING_INDEX_NAME_KEY,
-  compose(nameToliteral, getEachIndexName)(expression)
-)
+const generateEachIndexNameKey = (expression) =>
+  simplePropertyNode(
+    BINDING_INDEX_NAME_KEY,
+    compose(nameToliteral, getEachIndexName)(expression),
+  )
 
-const generateEachEvaluateKey = (expression, eachExpression, sourceFile, sourceCode) => simplePropertyNode(
-  BINDING_EVALUATE_KEY,
-  compose(
-    e => toScopedFunction(e, sourceFile, sourceCode),
-    e => ({
-      ...eachExpression,
-      text: generateJavascript(e).code
-    }),
-    getEachValue
-  )(expression)
-)
+const generateEachEvaluateKey = (
+  expression,
+  eachExpression,
+  sourceFile,
+  sourceCode,
+) =>
+  simplePropertyNode(
+    BINDING_EVALUATE_KEY,
+    compose(
+      (e) => toScopedFunction(e, sourceFile, sourceCode),
+      (e) => ({
+        ...eachExpression,
+        text: generateJavascript(e).code,
+      }),
+      getEachValue,
+    )(expression),
+  )
 
 /**
  * Get the each expression properties to create properly the template binding
@@ -59,13 +74,19 @@ const generateEachEvaluateKey = (expression, eachExpression, sourceFile, sourceC
  * @param   { string } sourceCode - original tag source code
  * @returns { Array } AST nodes that are needed to build an each binding
  */
-export function generateEachExpressionProperties(eachExpression, sourceFile, sourceCode) {
+export function generateEachExpressionProperties(
+  eachExpression,
+  sourceFile,
+  sourceCode,
+) {
   const ast = createASTFromExpression(eachExpression, sourceFile, sourceCode)
   const body = ast.program.body
   const firstNode = body[0]
 
   if (!isExpressionStatement(firstNode)) {
-    panic(`The each directives supported should be of type "ExpressionStatement",you have provided a "${firstNode.type}"`)
+    panic(
+      `The each directives supported should be of type "ExpressionStatement",you have provided a "${firstNode.type}"`,
+    )
   }
 
   const { expression } = firstNode
@@ -73,7 +94,7 @@ export function generateEachExpressionProperties(eachExpression, sourceFile, sou
   return [
     generateEachItemNameKey(expression),
     generateEachIndexNameKey(expression),
-    generateEachEvaluateKey(expression, eachExpression, sourceFile, sourceCode)
+    generateEachEvaluateKey(expression, eachExpression, sourceFile, sourceCode),
   ]
 }
 
@@ -85,26 +106,49 @@ export function generateEachExpressionProperties(eachExpression, sourceFile, sou
  * @param   { string } sourceCode - original source
  * @returns { AST.Node } an each binding node
  */
-export default function createEachBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
+export default function createEachBinding(
+  sourceNode,
+  selectorAttribute,
+  sourceFile,
+  sourceCode,
+) {
   const [ifAttribute, eachAttribute, keyAttribute] = [
     findIfAttribute,
     findEachAttribute,
-    findKeyAttribute
-  ].map(f => f(sourceNode))
-  const attributeOrNull = attribute => attribute ? toScopedFunction(getAttributeExpression(attribute), sourceFile, sourceCode) : nullNode()
+    findKeyAttribute,
+  ].map((f) => f(sourceNode))
+  const attributeOrNull = (attribute) =>
+    attribute
+      ? toScopedFunction(
+          getAttributeExpression(attribute),
+          sourceFile,
+          sourceCode,
+        )
+      : nullNode()
 
   return builders.objectExpression([
-    simplePropertyNode(BINDING_TYPE_KEY,
+    simplePropertyNode(
+      BINDING_TYPE_KEY,
       builders.memberExpression(
         builders.identifier(BINDING_TYPES),
         builders.identifier(EACH_BINDING_TYPE),
-        false
-      )
+        false,
+      ),
     ),
     simplePropertyNode(BINDING_GET_KEY_KEY, attributeOrNull(keyAttribute)),
     simplePropertyNode(BINDING_CONDITION_KEY, attributeOrNull(ifAttribute)),
-    createTemplateProperty(createNestedBindings(sourceNode, sourceFile, sourceCode, selectorAttribute)),
+    createTemplateProperty(
+      createNestedBindings(
+        sourceNode,
+        sourceFile,
+        sourceCode,
+        selectorAttribute,
+      ),
+    ),
     ...createSelectorProperties(selectorAttribute),
-    ...compose(generateEachExpressionProperties, getAttributeExpression)(eachAttribute)
+    ...compose(
+      generateEachExpressionProperties,
+      getAttributeExpression,
+    )(eachAttribute),
   ])
 }

@@ -1,5 +1,5 @@
-import {parse as customParser} from 'recast/parsers/typescript'
-import {print} from 'recast'
+import { parse as customParser } from 'recast/parsers/typescript'
+import { print } from 'recast'
 /**
  * Generate the javascript from an ast source
  * @param   {AST} ast - ast object
@@ -10,13 +10,14 @@ export default function generateJavascript(ast, options) {
   return print(ast, {
     ...options,
     parser: {
-      parse: (source, opts) => customParser(source, {
-        ...opts,
-        ecmaVersion: 'latest'
-      })
+      parse: (source, opts) =>
+        customParser(source, {
+          ...opts,
+          ecmaVersion: 'latest',
+        }),
     },
     tabWidth: 2,
     wrapColumn: 0,
-    quote: 'single'
+    quote: 'single',
   })
 }

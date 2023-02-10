@@ -1,8 +1,8 @@
-import {join,relative} from 'path'
-import {print} from 'recast'
-import {renderSync} from 'node-sass'
+import { join, relative } from 'path'
+import { print } from 'recast'
+import { renderSync } from 'node-sass'
 import sh from 'shelljs'
-import {transformSync} from '@babel/core'
+import { transformSync } from '@babel/core'
 
 const FIXTURES_DIR = './test/fixtures/'
 const EXPECTED_DIR = './test/expected/'
@@ -24,17 +24,19 @@ export function babelPreprocessor(source, meta) {
     sourceMaps: true,
     retainLines: true,
     sourceFileName: meta.options.file,
-    presets:   [[
-      '@babel/env',
-      {
-        targets: {
-          ie: '11'
+    presets: [
+      [
+        '@babel/env',
+        {
+          targets: {
+            ie: '11',
+          },
+          loose: true,
+          modules: false,
+          useBuiltIns: 'usage',
         },
-        loose: true,
-        modules: false,
-        useBuiltIns: 'usage'
-      }
-    ]]
+      ],
+    ],
   })
 }
 
@@ -44,12 +46,12 @@ export function sassPreprocessor(source, { options }) {
     data: source,
     indentedSyntax: true,
     outFile: options.file,
-    sourceMap: true
+    sourceMap: true,
   })
 
   return {
     code: String(result.css),
-    map: result.map
+    map: result.map,
   }
 }
 
@@ -70,8 +72,8 @@ export function evaluateScript(code) {
 }
 
 export function renderExpression(ast) {
-  return print(ast).code
-    .replace('_scope => ', '')
+  return print(ast)
+    .code.replace('_scope => ', '')
     .replace(/\n/g, '')
     .replace(';', '')
     .trim()

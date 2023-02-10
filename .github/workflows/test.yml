@@ -2,13 +2,12 @@ name: test
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [main, dev]
   pull_request:
-    branches: [ dev, main ]
+    branches: [dev, main]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -23,10 +22,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm i
       - run: |
-         npm run lint
-         npm test
-         npm run build
-         npm run test-runtime
+          npm run lint
+          npm test
+          npm run build
+          npm run test-runtime
       - name: Generate Coverage
         if: ${{ success() && github.event_name != 'pull_request' && matrix.node-version == '15.x' }}
         run: npm run cov

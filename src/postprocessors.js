@@ -1,6 +1,6 @@
 import composeSourcemaps from './utils/compose-sourcemaps'
 import { createOutput } from './transformer'
-import {panic} from '@riotjs/util/misc'
+import { panic } from '@riotjs/util/misc'
 
 export const postprocessors = new Set()
 
@@ -11,7 +11,11 @@ export const postprocessors = new Set()
  */
 export function register(postprocessor) {
   if (postprocessors.has(postprocessor)) {
-    panic(`This postprocessor "${postprocessor.name || postprocessor.toString()}" was already registered`)
+    panic(
+      `This postprocessor "${
+        postprocessor.name || postprocessor.toString()
+      }" was already registered`,
+    )
   }
 
   postprocessors.add(postprocessor)
@@ -26,7 +30,11 @@ export function register(postprocessor) {
  */
 export function unregister(postprocessor) {
   if (!postprocessors.has(postprocessor)) {
-    panic(`This postprocessor "${postprocessor.name || postprocessor.toString()}" was never registered`)
+    panic(
+      `This postprocessor "${
+        postprocessor.name || postprocessor.toString()
+      }" was never registered`,
+    )
   }
 
   postprocessors.delete(postprocessor)
@@ -41,13 +49,13 @@ export function unregister(postprocessor) {
  * @returns { Output } object containing output code and source map
  */
 export function execute(compilerOutput, meta) {
-  return Array.from(postprocessors).reduce(function(acc, postprocessor) {
+  return Array.from(postprocessors).reduce(function (acc, postprocessor) {
     const { code, map } = acc
     const output = postprocessor(code, meta)
 
     return {
       code: output.code,
-      map: composeSourcemaps(map, output.map)
+      map: composeSourcemaps(map, output.map),
     }
   }, createOutput(compilerOutput, meta))
 }

@@ -12,9 +12,7 @@ const DECIMAL_NUMBER = /^\d+$/
 export function encodeHex(string) {
   const hex = string.substr(2)
 
-  return HEX_NUMBER.test(hex) ?
-    String.fromCodePoint(parseInt(hex, 16)) :
-    string
+  return HEX_NUMBER.test(hex) ? String.fromCodePoint(parseInt(hex, 16)) : string
 }
 
 /**
@@ -25,8 +23,8 @@ export function encodeHex(string) {
 export function encodeDecimal(string) {
   const nr = string.substr(1)
 
-  return DECIMAL_NUMBER.test(nr) ?
-    String.fromCodePoint(parseInt(nr, 10))
+  return DECIMAL_NUMBER.test(nr)
+    ? String.fromCodePoint(parseInt(nr, 10))
     : string
 }
 
@@ -40,9 +38,7 @@ export default function encodeHTMLEntities(string) {
     const [firstChar, secondChar] = entity
 
     if (firstChar === '#') {
-      return secondChar === 'x' ?
-        encodeHex(entity) :
-        encodeDecimal(entity)
+      return secondChar === 'x' ? encodeHex(entity) : encodeDecimal(entity)
     } else {
       return entities[entity] || entity
     }

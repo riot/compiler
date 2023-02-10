@@ -2,17 +2,17 @@ import {
   BINDING_EVALUATE_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
-  IF_BINDING_TYPE
+  IF_BINDING_TYPE,
 } from '../constants'
 import {
   createSelectorProperties,
   createTemplateProperty,
-  toScopedFunction
+  toScopedFunction,
 } from '../utils'
-import {builders} from '../../../utils/build-types'
-import {createNestedBindings} from '../builder'
-import {findIfAttribute} from '../find'
-import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
+import { builders } from '../../../utils/build-types'
+import { createNestedBindings } from '../builder'
+import { findIfAttribute } from '../find'
+import { simplePropertyNode } from '../../../utils/custom-ast-nodes'
 
 /**
  * Transform a RiotParser.Node.Tag into an if binding
@@ -22,22 +22,35 @@ import {simplePropertyNode} from '../../../utils/custom-ast-nodes'
  * @param   { string } sourceCode - original source
  * @returns { AST.Node } an if binding node
  */
-export default function createIfBinding(sourceNode, selectorAttribute, sourceFile, sourceCode) {
+export default function createIfBinding(
+  sourceNode,
+  selectorAttribute,
+  sourceFile,
+  sourceCode,
+) {
   const ifAttribute = findIfAttribute(sourceNode)
 
   return builders.objectExpression([
-    simplePropertyNode(BINDING_TYPE_KEY,
+    simplePropertyNode(
+      BINDING_TYPE_KEY,
       builders.memberExpression(
         builders.identifier(BINDING_TYPES),
         builders.identifier(IF_BINDING_TYPE),
-        false
-      )
+        false,
+      ),
     ),
     simplePropertyNode(
       BINDING_EVALUATE_KEY,
-      toScopedFunction(ifAttribute.expressions[0], sourceFile, sourceCode)
+      toScopedFunction(ifAttribute.expressions[0], sourceFile, sourceCode),
     ),
     ...createSelectorProperties(selectorAttribute),
-    createTemplateProperty(createNestedBindings(sourceNode, sourceFile, sourceCode, selectorAttribute))
+    createTemplateProperty(
+      createNestedBindings(
+        sourceNode,
+        sourceFile,
+        sourceCode,
+        selectorAttribute,
+      ),
+    ),
   ])
 }

@@ -1,16 +1,21 @@
-import {execute, postprocessors, register, unregister} from '../src/postprocessors'
-import {expect} from 'chai'
+import {
+  execute,
+  postprocessors,
+  register,
+  unregister,
+} from '../src/postprocessors'
+import { expect } from 'chai'
 
 describe('Postprocessors', () => {
   function postprocessor(source) {
     return {
-      code: source.replace('foo', 'bar')
+      code: source.replace('foo', 'bar'),
     }
   }
 
   function postprocessor2(source) {
     return {
-      code: source.replace('bar', 'baz')
+      code: source.replace('bar', 'baz'),
     }
   }
 

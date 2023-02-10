@@ -1,9 +1,9 @@
 import compileJavascript from '../../src/generators/javascript'
-import {createInitialInput} from '../../src/index'
-import {evaluateScript} from '../helpers'
-import {expect} from 'chai'
+import { createInitialInput } from '../../src/index'
+import { evaluateScript } from '../helpers'
+import { expect } from 'chai'
 import parser from '@riotjs/parser'
-import {print} from 'recast'
+import { print } from 'recast'
 
 const simpleJS = `
 <script>
@@ -227,7 +227,6 @@ const typesAliasExportWithoutRiotImport = `
 </script>
 `
 
-
 const FAKE_FILE = 'fake-file.js'
 
 function createInput() {
@@ -238,11 +237,16 @@ describe('Generators - javascript', () => {
   it('compile a simple javascript code', () => {
     const { javascript } = parser().parse(simpleJS).output
 
-    const ast = compileJavascript(javascript, simpleJS, {
-      options: {
-        file: FAKE_FILE
-      }
-    }, createInput())
+    const ast = compileJavascript(
+      javascript,
+      simpleJS,
+      {
+        options: {
+          file: FAKE_FILE,
+        },
+      },
+      createInput(),
+    )
     const { code } = print(ast)
     const output = evaluateScript(code)
 
@@ -256,18 +260,25 @@ describe('Generators - javascript', () => {
 
   it('Convert this root statements into export default declaration', () => {
     const { javascript } = parser().parse(rootThisExpressions).output
-    const ast = compileJavascript(javascript, rootThisExpressions, {
-      options: {
-        file: FAKE_FILE
-      }
-    }, createInput())
+    const ast = compileJavascript(
+      javascript,
+      rootThisExpressions,
+      {
+        options: {
+          file: FAKE_FILE,
+        },
+      },
+      createInput(),
+    )
     const { code } = print(ast)
     const output = evaluateScript(code)
 
     expect(code).to.be.a('string')
     expect(output.default.exports).to.be.ok
     expect(output.default.exports().name).to.be.equal('hello')
-    expect(output.default.exports().returnNameToUppercase()).to.be.equal('HELLO')
+    expect(output.default.exports().returnNameToUppercase()).to.be.equal(
+      'HELLO',
+    )
     expect(output.default.exports().method).to.be.a('function')
     expect(output.default.css).to.be.not.ok
     expect(output.default.template).to.be.not.ok
@@ -275,20 +286,34 @@ describe('Generators - javascript', () => {
 
   it('Mixed Exports are not allowed', () => {
     const { javascript } = parser().parse(mixedExport).output
-    expect(() => compileJavascript(javascript, mixedExport, {
-      options: {
-        file: FAKE_FILE
-      }
-    }, createInput())).to.throw('You can\t use "export default {}" and root this statements in the same component')
+    expect(() =>
+      compileJavascript(
+        javascript,
+        mixedExport,
+        {
+          options: {
+            file: FAKE_FILE,
+          },
+        },
+        createInput(),
+      ),
+    ).to.throw(
+      'You can\t use "export default {}" and root this statements in the same component',
+    )
   })
 
   it('Named export without export default {} should be supported', () => {
     const { javascript } = parser().parse(onlyNamedExport).output
-    const ast = compileJavascript(javascript, onlyNamedExport, {
-      options: {
-        file: FAKE_FILE
-      }
-    }, createInput())
+    const ast = compileJavascript(
+      javascript,
+      onlyNamedExport,
+      {
+        options: {
+          file: FAKE_FILE,
+        },
+      },
+      createInput(),
+    )
     const { code } = print(ast)
     const output = evaluateScript(code)
 
@@ -298,11 +323,16 @@ describe('Generators - javascript', () => {
 
   it('The this context can be remapped', () => {
     const { javascript } = parser().parse(simpleContextMapping).output
-    const ast = compileJavascript(javascript, simpleContextMapping, {
-      options: {
-        file: FAKE_FILE
-      }
-    }, createInput())
+    const ast = compileJavascript(
+      javascript,
+      simpleContextMapping,
+      {
+        options: {
+          file: FAKE_FILE,
+        },
+      },
+      createInput(),
+    )
     const { code } = print(ast)
     const output = evaluateScript(code)
 
@@ -315,41 +345,62 @@ describe('Generators - javascript', () => {
 
   it('Component interface export can be detected and transformed', () => {
     const { javascript } = parser().parse(interfacesExport).output
-    const ast = compileJavascript(javascript, interfacesExport, {
-      options: {
-        file: FAKE_FILE
-      }
-    }, createInput())
+    const ast = compileJavascript(
+      javascript,
+      interfacesExport,
+      {
+        options: {
+          file: FAKE_FILE,
+        },
+      },
+      createInput(),
+    )
     const { code } = print(ast)
 
     expect(code).to.be.a('string')
 
-    expect(code).to.contain('import { withTypes, RiotComponent, RiotComponentWrapper } from \'riot\'')
+    expect(code).to.contain(
+      "import { withTypes, RiotComponent, RiotComponentWrapper } from 'riot'",
+    )
     expect(code).to.contain('} as RiotComponentWrapper<ComponentInterface>;')
   })
 
   it('Component type export can be detected and transformed', () => {
     const { javascript } = parser().parse(typesExport).output
-    const ast = compileJavascript(javascript, typesExport, {
-      options: {
-        file: FAKE_FILE
-      }
-    }, createInput())
+    const ast = compileJavascript(
+      javascript,
+      typesExport,
+      {
+        options: {
+          file: FAKE_FILE,
+        },
+      },
+      createInput(),
+    )
     const { code } = print(ast)
 
     expect(code).to.be.a('string')
 
-    expect(code).to.contain('import { withTypes, RiotComponent, RiotComponentWrapper } from \'riot\'')
+    expect(code).to.contain(
+      "import { withTypes, RiotComponent, RiotComponentWrapper } from 'riot'",
+    )
     expect(code).to.contain('} as RiotComponentWrapper<ComponentInterface>;')
   })
 
   it('Component interface export can be detected and transformed', () => {
-    const { javascript } = parser().parse(interfacesExportWithoutRiotImport).output
-    const ast = compileJavascript(javascript, interfacesExportWithoutRiotImport, {
-      options: {
-        file: FAKE_FILE
-      }
-    }, createInput())
+    const { javascript } = parser().parse(
+      interfacesExportWithoutRiotImport,
+    ).output
+    const ast = compileJavascript(
+      javascript,
+      interfacesExportWithoutRiotImport,
+      {
+        options: {
+          file: FAKE_FILE,
+        },
+      },
+      createInput(),
+    )
     const { code } = print(ast)
 
     expect(code).to.be.a('string')
@@ -360,11 +411,16 @@ describe('Generators - javascript', () => {
 
   it('Component type export can be detected and transformed', () => {
     const { javascript } = parser().parse(typesExportWithoutRiotImport).output
-    const ast = compileJavascript(javascript, typesExportWithoutRiotImport, {
-      options: {
-        file: FAKE_FILE
-      }
-    }, createInput())
+    const ast = compileJavascript(
+      javascript,
+      typesExportWithoutRiotImport,
+      {
+        options: {
+          file: FAKE_FILE,
+        },
+      },
+      createInput(),
+    )
     const { code } = print(ast)
 
     expect(code).to.be.a('string')
@@ -374,12 +430,19 @@ describe('Generators - javascript', () => {
   })
 
   it('Component alias type export can be detected and transformed', () => {
-    const { javascript } = parser().parse(typesAliasExportWithoutRiotImport).output
-    const ast = compileJavascript(javascript, typesAliasExportWithoutRiotImport, {
-      options: {
-        file: FAKE_FILE
-      }
-    }, createInput())
+    const { javascript } = parser().parse(
+      typesAliasExportWithoutRiotImport,
+    ).output
+    const ast = compileJavascript(
+      javascript,
+      typesAliasExportWithoutRiotImport,
+      {
+        options: {
+          file: FAKE_FILE,
+        },
+      },
+      createInput(),
+    )
     const { code } = print(ast)
 
     expect(code).to.be.a('string')

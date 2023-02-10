@@ -2,20 +2,29 @@ import {
   IS_CUSTOM_NODE,
   IS_SPREAD_ATTRIBUTE,
   IS_VOID_NODE,
-  PROGRESS_TAG_NODE_NAME, SLOT_ATTRIBUTE,
+  PROGRESS_TAG_NODE_NAME,
+  SLOT_ATTRIBUTE,
   SLOT_TAG_NODE_NAME,
-  TEMPLATE_TAG_NODE_NAME
+  TEMPLATE_TAG_NODE_NAME,
 } from './constants'
-import {findAttribute, findEachAttribute, findIfAttribute, findIsAttribute, findKeyAttribute} from './find'
 import {
-  getName,
-  getNodeAttributes
-} from './utils'
-import {isBrowserAPI, isBuiltinAPI, isNewExpression, isRaw} from '../../utils/ast-nodes-checks'
+  findAttribute,
+  findEachAttribute,
+  findIfAttribute,
+  findIsAttribute,
+  findKeyAttribute,
+} from './find'
+import { getName, getNodeAttributes } from './utils'
+import {
+  isBrowserAPI,
+  isBuiltinAPI,
+  isNewExpression,
+  isRaw,
+} from '../../utils/ast-nodes-checks'
 import compose from 'cumpa'
-import {isNil} from '@riotjs/util/checks'
-import {nodeTypes} from '@riotjs/parser'
-import {types} from '../../utils/build-types'
+import { isNil } from '@riotjs/util/checks'
+import { nodeTypes } from '@riotjs/parser'
+import { types } from '../../utils/build-types'
 
 /**
  * True if the node has not expression set nor bindings directives
@@ -28,8 +37,8 @@ export function isStaticNode(node) {
     findEachAttribute,
     findIfAttribute,
     isCustomNode,
-    isSlotNode
-  ].every(test => !test(node))
+    isSlotNode,
+  ].every((test) => !test(node))
 }
 
 /**
@@ -40,7 +49,12 @@ export function isStaticNode(node) {
  * @returns {boolean} true if we can remove this tag from the component rendered HTML
  */
 export function isRemovableNode(node) {
-  return isTemplateNode(node) && !isNil(findAttribute(SLOT_ATTRIBUTE, node)) && !hasEachAttribute(node) && !hasIfAttribute(node)
+  return (
+    isTemplateNode(node) &&
+    !isNil(findAttribute(SLOT_ATTRIBUTE, node)) &&
+    !hasEachAttribute(node) &&
+    !hasIfAttribute(node)
+  )
 }
 
 /**
@@ -56,10 +70,10 @@ export function isGlobal({ scope, node }) {
 
   return Boolean(
     isRaw(node) ||
-    isBuiltinAPI(node) ||
-    isBrowserAPI(node) ||
-    isNewExpression(node) ||
-    isNodeInScope(scope, node)
+      isBuiltinAPI(node) ||
+      isBrowserAPI(node) ||
+      isNewExpression(node) ||
+      isNodeInScope(scope, node),
   )
 }
 
@@ -78,7 +92,7 @@ function isNodeInScope(scope, node) {
         }
 
         this.abort()
-      }
+      },
     })
 
     return isInScope
@@ -184,9 +198,8 @@ export function isTemplateNode(node) {
  */
 export const isEventAttribute = (() => {
   const EVENT_ATTR_RE = /^on/
-  return node => EVENT_ATTR_RE.test(node.name)
+  return (node) => EVENT_ATTR_RE.test(node.name)
 })()
-
 
 /**
  * Check if a string is an html comment
@@ -206,9 +219,10 @@ export function hasExpressions(node) {
   return !!(
     node.expressions ||
     // has expression attributes
-    (getNodeAttributes(node).some(attribute => hasExpressions(attribute))) ||
+    getNodeAttributes(node).some((attribute) => hasExpressions(attribute)) ||
     // has child text nodes with expressions
-    (node.nodes && node.nodes.some(node => isTextNode(node) && hasExpressions(node)))
+    (node.nodes &&
+      node.nodes.some((node) => isTextNode(node) && hasExpressions(node)))
   )
 }
 
@@ -218,11 +232,9 @@ export function hasExpressions(node) {
  * @returns {boolean} true only for the IF EACH and TAG bindings
  */
 export function hasItsOwnTemplate(node) {
-  return [
-    findEachAttribute,
-    findIfAttribute,
-    isCustomNode
-  ].some(test => test(node))
+  return [findEachAttribute, findIfAttribute, isCustomNode].some((test) =>
+    test(node),
+  )
 }
 
 export const hasIfAttribute = compose(Boolean, findIfAttribute)

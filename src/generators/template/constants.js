@@ -1,11 +1,10 @@
-import {constants} from '@riotjs/parser'
+import { constants } from '@riotjs/parser'
 
 export const BINDING_TYPES = 'bindingTypes'
 export const EACH_BINDING_TYPE = 'EACH'
 export const IF_BINDING_TYPE = 'IF'
 export const TAG_BINDING_TYPE = 'TAG'
 export const SLOT_BINDING_TYPE = 'SLOT'
-
 
 export const EXPRESSION_TYPES = 'expressionTypes'
 export const ATTRIBUTE_EXPRESSION_TYPE = 'ATTRIBUTE'
@@ -60,5 +59,3 @@ export const IS_VOID_NODE = constants.IS_VOID
 export const IS_CUSTOM_NODE = constants.IS_CUSTOM
 export const IS_BOOLEAN_ATTRIBUTE = constants.IS_BOOLEAN
 export const IS_SPREAD_ATTRIBUTE = constants.IS_SPREAD
-
-

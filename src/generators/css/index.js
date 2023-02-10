@@ -1,5 +1,5 @@
-import {builders, types} from '../../utils/build-types'
-import {TAG_CSS_PROPERTY} from '../../constants'
+import { builders, types } from '../../utils/build-types'
+import { TAG_CSS_PROPERTY } from '../../constants'
 import cssEscape from 'cssesc'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
 import preprocess from '../../utils/preprocess-node'
@@ -19,14 +19,18 @@ const R_MLCOMMS = /\/\*[^*]*\*+(?:[^*/][^*]*\*+)*\//g
  * It recognizes escape characters, including nested quotes and line continuation.
  * @const {string}
  */
-const S_LINESTR = /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
+const S_LINESTR =
+  /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
 
 /**
  * Matches CSS selectors, excluding those beginning with '@' and quoted strings.
  * @const {RegExp}
  */
 
-const CSS_SELECTOR = RegExp(`([{}]|^)[; ]*((?:[^@ ;{}][^{}]*)?[^@ ;{}:] ?)(?={)|${S_LINESTR}`, 'g')
+const CSS_SELECTOR = RegExp(
+  `([{}]|^)[; ]*((?:[^@ ;{}][^{}]*)?[^@ ;{}:] ?)(?={)|${S_LINESTR}`,
+  'g',
+)
 
 /**
  * Matches the list of css selectors excluding the pseudo selectors
@@ -52,7 +56,11 @@ export function addScopeToSelectorList(tag, selectorList) {
     }
 
     // skips the keywords and percents of css animations
-    if (!trimmedSelector || DISABLED_SELECTORS.indexOf(trimmedSelector) > -1 || trimmedSelector.slice(-1) === '%') {
+    if (
+      !trimmedSelector ||
+      DISABLED_SELECTORS.indexOf(trimmedSelector) > -1 ||
+      trimmedSelector.slice(-1) === '%'
+    ) {
       return match
     }
 
@@ -61,7 +69,10 @@ export function addScopeToSelectorList(tag, selectorList) {
     if (trimmedSelector.indexOf(HOST) < 0) {
       return `${tag} ${trimmedMatch},[is="${tag}"] ${trimmedMatch}`
     } else {
-      return `${trimmedMatch.replace(HOST, tag)},${trimmedMatch.replace(HOST, `[is="${tag}"]`)}`
+      return `${trimmedMatch.replace(HOST, tag)},${trimmedMatch.replace(
+        HOST,
+        `[is="${tag}"]`,
+      )}`
     }
   })
 }
@@ -75,7 +86,7 @@ export function addScopeToSelectorList(tag, selectorList) {
  * @returns {string} CSS with the styles scoped to the root element
  */
 export function generateScopedCss(tag, css) {
-  return css.replace(CSS_SELECTOR, function(m, cssChunk, selectorList) {
+  return css.replace(CSS_SELECTOR, function (m, cssChunk, selectorList) {
     // skip quoted strings
     if (!selectorList) return m
 
@@ -96,10 +107,13 @@ function compactCss(code) {
   return code.replace(R_MLCOMMS, '').replace(/\s+/g, ' ').trim()
 }
 
-const escapeBackslashes = s => s.replace(/\\/g, '\\\\')
-const escapeIdentifier = identifier => escapeBackslashes(cssEscape(identifier, {
-  isIdentifier: true
-}))
+const escapeBackslashes = (s) => s.replace(/\\/g, '\\\\')
+const escapeIdentifier = (identifier) =>
+  escapeBackslashes(
+    cssEscape(identifier, {
+      isIdentifier: true,
+    }),
+  )
 
 /**
  * Generate the component css
@@ -112,13 +126,22 @@ const escapeIdentifier = identifier => escapeBackslashes(cssEscape(identifier, {
 export default function css(sourceNode, source, meta, ast) {
   const preprocessorName = getPreprocessorTypeByAttribute(sourceNode)
   const { options } = meta
-  const preprocessorOutput = preprocess('css', preprocessorName, meta, sourceNode.text)
+  const preprocessorOutput = preprocess(
+    'css',
+    preprocessorName,
+    meta,
+    sourceNode.text,
+  )
   const normalizedCssCode = compactCss(preprocessorOutput.code)
   const escapedCssIdentifier = escapeIdentifier(meta.tagName)
 
-  const cssCode = (options.scopedCss ?
-    generateScopedCss(escapedCssIdentifier, escapeBackslashes(normalizedCssCode)) :
-    escapeBackslashes(normalizedCssCode)
+  const cssCode = (
+    options.scopedCss
+      ? generateScopedCss(
+          escapedCssIdentifier,
+          escapeBackslashes(normalizedCssCode),
+        )
+      : escapeBackslashes(normalizedCssCode)
   ).trim()
 
   types.visit(ast, {
@@ -126,14 +149,14 @@ export default function css(sourceNode, source, meta, ast) {
       if (path.value.key.name === TAG_CSS_PROPERTY) {
         path.value.value = builders.templateLiteral(
           [builders.templateElement({ raw: cssCode, cooked: '' }, false)],
-          []
+          [],
         )
 
         return false
       }
 
       this.traverse(path)
-    }
+    },
   })
 
   return ast

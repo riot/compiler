@@ -1,6 +1,11 @@
-import {EACH_DIRECTIVE, IF_DIRECTIVE, IS_DIRECTIVE, KEY_ATTRIBUTE} from './constants'
-import {getName, getNodeAttributes} from './utils'
-import {hasExpressions} from './checks'
+import {
+  EACH_DIRECTIVE,
+  IF_DIRECTIVE,
+  IS_DIRECTIVE,
+  KEY_ATTRIBUTE,
+} from './constants'
+import { getName, getNodeAttributes } from './utils'
+import { hasExpressions } from './checks'
 
 /**
  * Find the attribute node
@@ -9,7 +14,9 @@ import {hasExpressions} from './checks'
  * @returns { riotParser.nodeTypes.ATTR } attribute node
  */
 export function findAttribute(name, node) {
-  return node.attributes && node.attributes.find(attr => getName(attr) === name)
+  return (
+    node.attributes && node.attributes.find((attr) => getName(attr) === name)
+  )
 }
 
 export function findIfAttribute(node) {
@@ -34,7 +41,9 @@ export function findIsAttribute(node) {
  * @returns {Array} list of all the static attributes
  */
 export function findStaticAttributes(node) {
-  return getNodeAttributes(node).filter(attribute => !hasExpressions(attribute))
+  return getNodeAttributes(node).filter(
+    (attribute) => !hasExpressions(attribute),
+  )
 }
 
 /**

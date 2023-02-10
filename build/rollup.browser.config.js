@@ -17,27 +17,30 @@ export default {
     format: 'umd',
     // small hack to provide the global variable to the bundle
     intro: 'var global = window;',
-    globals: ignoredModules.reduce((acc, dep) => ({
-      [dep]: dep,
-      ...acc
-    }), {}),
-    ...defaultConfig.output
+    globals: ignoredModules.reduce(
+      (acc, dep) => ({
+        [dep]: dep,
+        ...acc,
+      }),
+      {},
+    ),
+    ...defaultConfig.output,
   },
   external: ignoredModules,
   plugins: [
     builtins(),
     json(),
     alias({
-      'source-map': sourcemapPath
+      'source-map': sourcemapPath,
     }),
     nodeResolve({
-      browser: true
+      browser: true,
     }),
     commonjs({
       include: 'node_modules/**',
       ignoreTryCatch: false,
       ignore: ignoredModules,
-      ignoreGlobal: true
-    })
-  ]
+      ignoreGlobal: true,
+    }),
+  ],
 }
