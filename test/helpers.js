@@ -1,6 +1,6 @@
 import { join, relative } from 'path'
 import { print } from 'recast'
-import { renderSync } from 'node-sass'
+import { compileString } from 'sass'
 import sh from 'shelljs'
 import { transformSync } from '@babel/core'
 
@@ -40,18 +40,15 @@ export function babelPreprocessor(source, meta) {
   })
 }
 
-export function sassPreprocessor(source, { options }) {
-  const result = renderSync({
-    file: options.file,
-    data: source,
-    indentedSyntax: true,
-    outFile: options.file,
+export function sassPreprocessor(source) {
+  const result = compileString(source, {
+    syntax: 'indented',
     sourceMap: true,
   })
 
   return {
-    code: String(result.css),
-    map: result.map,
+    code: result.css,
+    map: result.sourceMap,
   }
 }
 
