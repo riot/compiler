@@ -6,6 +6,13 @@
   "module": "dist/index.esm.js",
   "jsnext:main": "dist/index.esm.js",
   "types": "./compiler.d.ts",
+  "exports": {
+    ".": {
+      "browser": "dist/index.js",
+      "require": "dist/index.js",
+      "import": "dist/index.esm.js"
+    }
+  },
   "files": [
     "dist",
     "src",
