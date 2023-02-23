@@ -2,16 +2,13 @@
   "name": "@riotjs/compiler",
   "version": "6.4.2",
   "description": "Compiler for Riot.js .riot files",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "jsnext:main": "dist/index.esm.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.esm.js",
   "types": "./compiler.d.ts",
   "exports": {
-    ".": {
-      "browser": "dist/index.js",
-      "require": "dist/index.js",
-      "import": "dist/index.esm.js"
-    }
+    "types": "./compiler.d.ts",
+    "default": "./dist/index.js",
+    "import": "./dist/index.esm.js"
   },
   "files": [
     "dist",
@@ -22,7 +19,7 @@
     "lint": "eslint src/ test/ build/",
     "cov": "nyc report --reporter=lcov",
     "cov-html": "nyc report --reporter=html",
-    "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js && rollup -c build/rollup.essential.config.js",
+    "build": "rollup -c build/rollup.node.config.mjs && rollup -c build/rollup.browser.config.mjs && rollup -c build/rollup.essential.config.mjs",
     "postest": "npm run cov-html",
     "test-types": "tsc -p test",
     "test-runtime": "karma start test/karma.conf.js",
@@ -47,10 +44,10 @@
     "@babel/preset-env": "^7.18.10",
     "@riotjs/dom-bindings": "^6.0.3",
     "@riotjs/prettier-config": "^1.0.1",
-    "@rollup/plugin-alias": "^3.1.9",
-    "@rollup/plugin-commonjs": "^22.0.1",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-alias": "^4.0.3",
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.1",
     "acorn": "^8.8.0",
     "chai": "^4.3.6",
     "eslint": "^8.34.0",
@@ -65,9 +62,9 @@
     "nyc": "^15.1.0",
     "prettier": "^2.8.4",
     "pug": "^3.0.2",
-    "rollup": "^2.77.2",
+    "rollup": "^3.17.2",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-visualizer": "^5.7.1",
+    "rollup-plugin-visualizer": "^5.9.0",
     "sass": "^1.58.1",
     "shelljs": "^0.8.5",
     "typescript": "^4.7.4"
