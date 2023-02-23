@@ -16,7 +16,7 @@
     "compiler.d.ts"
   ],
   "scripts": {
-    "lint": "eslint src/ test/ build/",
+    "lint": "eslint --ext mjs,js src/ test/ build/",
     "cov": "nyc report --reporter=lcov",
     "cov-html": "nyc report --reporter=html",
     "build": "rollup -c build/rollup.node.config.mjs && rollup -c build/rollup.browser.config.mjs && rollup -c build/rollup.essential.config.mjs",
