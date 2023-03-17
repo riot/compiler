@@ -41,11 +41,12 @@ const CSS_SELECTOR_LIST = /([^,]+)(?::\w+(?:[\s|\S]*?\))?(?:[^,:]*)?)+|([^,]+)/g
 
 /**
  * Scope the css selectors prefixing them with the tag name
- * @param {string} tag - Tag name of the root element
- * @param {string} selectorList - list of selectors we need to scope
- * @returns {string} scoped selectors
+ * @param { string } tag - Tag name of the root element
+ * @param { string } selectorList - list of selectors we need to scope
+ * @param { Object } options - Meta options including scopedCss value
+ * @returns { string } scoped selectors
  */
-export function addScopeToSelectorList(tag, selectorList) {
+export function addScopeToSelectorList(tag, selectorList, options) {
   return selectorList.replace(CSS_SELECTOR_LIST, (match, selector) => {
     const trimmedMatch = match.trim()
     const trimmedSelector = selector ? selector.trim() : trimmedMatch
@@ -67,12 +68,21 @@ export function addScopeToSelectorList(tag, selectorList) {
     // replace the `:host` pseudo-selector, where it is, with the root tag name;
     // if `:host` was not included, add the tag name as prefix, and mirror all `[is]`
     if (trimmedSelector.indexOf(HOST) < 0) {
+      if (options.scopedCss === 'tag') {
+        return `${tag} ${trimmedMatch}`
+      }
+      if (options.scopedCss === 'is') {
+        return `[is="${tag}"] ${trimmedMatch}`
+      }
       return `${tag} ${trimmedMatch},[is="${tag}"] ${trimmedMatch}`
     } else {
-      return `${trimmedMatch.replace(HOST, tag)},${trimmedMatch.replace(
-        HOST,
-        `[is="${tag}"]`,
-      )}`
+      if (options.scopedCss === 'tag') {
+        return `${trimmedMatch.replace(HOST, tag)}`
+      }
+      if (options.scopedCss === 'is') {
+        return `${trimmedMatch.replace(HOST, `[is="${tag}"]`)}`
+      }
+      return `${trimmedMatch.replace(HOST, tag)},${trimmedMatch.replace(HOST, `[is="${tag}"]`)}`
     }
   })
 }
@@ -81,17 +91,18 @@ export function addScopeToSelectorList(tag, selectorList) {
  * Parses styles enclosed in a "scoped" tag
  * The "css" string is received without comments or surrounding spaces.
  *
- * @param   {string} tag - Tag name of the root element
- * @param   {string} css - The CSS code
+ * @param   { string } tag - Tag name of the root element
+ * @param   { string } css - The CSS code
+ * @param   { Object } options - Meta options including scopedCss value
  * @returns {string} CSS with the styles scoped to the root element
  */
-export function generateScopedCss(tag, css) {
+export function generateScopedCss(tag, css, options) {
   return css.replace(CSS_SELECTOR, function (m, cssChunk, selectorList) {
     // skip quoted strings
     if (!selectorList) return m
 
     // we have a selector list, parse each individually
-    const scopedSelectorList = addScopeToSelectorList(tag, selectorList)
+    const scopedSelectorList = addScopeToSelectorList(tag, selectorList, options)
 
     // add the danling bracket char and return the processed selector list
     return cssChunk ? `${cssChunk} ${scopedSelectorList}` : scopedSelectorList
@@ -140,6 +151,7 @@ export default function css(sourceNode, source, meta, ast) {
       ? generateScopedCss(
           escapedCssIdentifier,
           escapeBackslashes(normalizedCssCode),
+          options,
         )
       : escapeBackslashes(normalizedCssCode)
   ).trim()
