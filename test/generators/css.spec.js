@@ -180,6 +180,9 @@ describe('Generators - CSS', () => {
     expect(addScopeToSelectorList('my-tag', ':host')).to.be.equal(
       'my-tag,[is="my-tag"]',
     )
+    expect(addScopeToSelectorList('my-tag', 'body :host')).to.be.equal(
+      'body my-tag,body [is="my-tag"]',
+    )
     expect(addScopeToSelectorList('my-tag', ':host:hover')).to.be.equal(
       'my-tag:hover,[is="my-tag"]:hover',
     )

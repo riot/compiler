@@ -66,7 +66,7 @@ export function addScopeToSelectorList(tag, selectorList) {
 
     // replace the `:host` pseudo-selector, where it is, with the root tag name;
     // if `:host` was not included, add the tag name as prefix, and mirror all `[is]`
-    if (trimmedSelector.indexOf(HOST) < 0) {
+    if (trimmedMatch.indexOf(HOST) < 0) {
       return `${tag} ${trimmedMatch},[is="${tag}"] ${trimmedMatch}`
     } else {
       return `${trimmedMatch.replace(HOST, tag)},${trimmedMatch.replace(
