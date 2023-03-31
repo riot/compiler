@@ -12,29 +12,29 @@ import {
   SLOT_ATTRIBUTE,
   TEMPLATE_FN,
   TEXT_NODE_EXPRESSION_PLACEHOLDER
-} from './constants'
-import {builders, types} from '../../utils/build-types'
-import {findIsAttribute, findStaticAttributes} from './find'
+} from './constants.mjs'
+import {builders, types} from '../../utils/build-types.mjs'
+import {findIsAttribute, findStaticAttributes} from './find.mjs'
 import {
   hasExpressions,
   isGlobal,
   isTagNode,
   isTextNode,
   isVoidNode
-} from './checks'
+} from './checks.mjs'
 import {
   isIdentifier,
   isLiteral,
   isMemberExpression,
   isObjectExpression
-} from '../../utils/ast-nodes-checks'
-import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes'
-import addLinesOffset from '../../utils/add-lines-offset'
+} from '../../utils/ast-nodes-checks.mjs'
+import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes.mjs'
+import addLinesOffset from '../../utils/add-lines-offset.mjs'
 import compose from 'cumpa'
-import {createExpression} from './expressions/index'
-import encodeHTMLEntities from '../../utils/html-entities/encode'
-import generateAST from '../../utils/generate-ast'
-import unescapeChar from '../../utils/unescape-char'
+import {createExpression} from './expressions/index.mjs'
+import encodeHTMLEntities from '../../utils/html-entities/encode.mjs'
+import generateAST from '../../utils/generate-ast.mjs'
+import unescapeChar from '../../utils/unescape-char.mjs'
 
 const scope = builders.identifier(SCOPE)
 export const getName = node => node && node.name ? node.name : node

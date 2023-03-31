@@ -2,10 +2,10 @@ import {
   callTemplateFunction,
   createRootNode,
   createTemplateDependenciesInjectionWrapper,
-} from './utils'
-import { TAG_TEMPLATE_PROPERTY } from '../../constants'
-import build from './builder'
-import { types } from '../../utils/build-types'
+} from './utils.mjs'
+import { TAG_TEMPLATE_PROPERTY } from '../../constants.mjs'
+import build from './builder.mjs'
+import { types } from '../../utils/build-types.mjs'
 
 /**
  * Create the content of the template function

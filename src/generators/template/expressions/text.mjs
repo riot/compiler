@@ -4,20 +4,20 @@ import {
   BINDING_TYPE_KEY,
   EXPRESSION_TYPES,
   TEXT_EXPRESSION_TYPE,
-} from '../constants'
+} from '../constants.mjs'
 import {
   createArrayString,
   transformExpression,
   wrapASTInFunctionWithScope,
-} from '../utils'
-import { nullNode, simplePropertyNode } from '../../../utils/custom-ast-nodes'
-import { builders } from '../../../utils/build-types'
-import encodeHTMLEntities from '../../../utils/html-entities/encode'
-import { isCommentString } from '../checks'
-import { isLiteral } from '../../../utils/ast-nodes-checks'
-import trimEnd from '../../../utils/trim-end'
-import trimStart from '../../../utils/trim-start'
-import unescapeChar from '../../../utils/unescape-char'
+} from '../utils.mjs'
+import { nullNode, simplePropertyNode } from '../../../utils/custom-ast-nodes.mjs'
+import { builders } from '../../../utils/build-types.mjs'
+import encodeHTMLEntities from '../../../utils/html-entities/encode.mjs'
+import { isCommentString } from '../checks.mjs'
+import { isLiteral } from '../../../utils/ast-nodes-checks.mjs'
+import trimEnd from '../../../utils/trim-end.mjs'
+import trimStart from '../../../utils/trim-start.mjs'
+import unescapeChar from '../../../utils/unescape-char.mjs'
 
 /**
  * Generate the pure immutable string chunks from a RiotParser.Node.Text

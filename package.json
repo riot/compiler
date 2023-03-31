@@ -2,13 +2,13 @@
   "name": "@riotjs/compiler",
   "version": "6.4.2",
   "description": "Compiler for Riot.js .riot files",
-  "main": "./dist/index.js",
-  "module": "./dist/index.esm.js",
+  "main": "./dist/index.mjs",
   "types": "./compiler.d.ts",
+  "type": "module",
   "exports": {
     "types": "./compiler.d.ts",
-    "default": "./dist/index.js",
-    "import": "./dist/index.esm.js"
+    "require": "./dist/index.js",
+    "import": "./dist/index.mjs"
   },
   "files": [
     "dist",
@@ -23,8 +23,8 @@
     "postest": "npm run cov-html",
     "test-types": "tsc -p test",
     "test-runtime": "karma start test/karma.conf.js",
-    "test": "nyc mocha -r esm test/*.spec.js test/**/*.spec.js && npm run test-types",
-    "debug": "mocha --inspect --inspect-brk -r esm test/*.spec.js test/**/*.spec.js",
+    "test": "nyc mocha test/*.spec.js test/**/*.spec.js && npm run test-types",
+    "debug": "mocha --inspect --inspect-brk test/*.spec.js test/**/*.spec.js",
     "prepublishOnly": "npm run build && npm run lint && npm run test && npm run test-runtime"
   },
   "repository": {

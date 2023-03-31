@@ -34,6 +34,7 @@ export default {
       'source-map': sourcemapPath,
     }),
     nodeResolve({
+      extensions: ['.js', '.mjs', '.json'],
       browser: true,
     }),
     commonjs({

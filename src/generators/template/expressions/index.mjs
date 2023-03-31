@@ -3,13 +3,13 @@ import {
   isProgressNode,
   isTextNode,
   isValueAttribute,
-} from '../checks'
-import attributeExpression from './attribute'
-import eventExpression from './event'
-import { findDynamicAttributes } from '../find'
+} from '../checks.mjs'
+import attributeExpression from './attribute.mjs'
+import eventExpression from './event.mjs'
+import { findDynamicAttributes } from '../find.mjs'
 import { hasValueAttribute } from 'dom-nodes'
-import textExpression from './text'
-import valueExpression from './value'
+import textExpression from './text.mjs'
+import valueExpression from './value.mjs'
 
 export function createExpression(
   sourceNode,

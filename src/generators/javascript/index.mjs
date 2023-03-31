@@ -8,15 +8,15 @@ import {
   findComponentInterface,
   findExportDefaultStatement,
   getProgramBody,
-} from './utils'
-import addLinesOffset from '../../utils/add-lines-offset'
-import generateAST from '../../utils/generate-ast'
-import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
-import isEmptySourcemap from '../../utils/is-empty-sourcemap'
+} from './utils.mjs'
+import addLinesOffset from '../../utils/add-lines-offset.mjs'
+import generateAST from '../../utils/generate-ast.mjs'
+import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute.mjs'
+import isEmptySourcemap from '../../utils/is-empty-sourcemap.mjs'
 import { isNil } from '@riotjs/util/checks'
-import { isThisExpressionStatement } from '../../utils/ast-nodes-checks'
-import preprocess from '../../utils/preprocess-node'
-import sourcemapToJSON from '../../utils/sourcemap-as-json'
+import { isThisExpressionStatement } from '../../utils/ast-nodes-checks.mjs'
+import preprocess from '../../utils/preprocess-node.mjs'
+import sourcemapToJSON from '../../utils/sourcemap-as-json.mjs'
 
 /**
  * Generate the component javascript logic

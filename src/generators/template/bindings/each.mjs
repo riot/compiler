@@ -7,7 +7,7 @@ import {
   BINDING_TYPES,
   BINDING_TYPE_KEY,
   EACH_BINDING_TYPE,
-} from '../constants'
+} from '../constants.mjs'
 import {
   createASTFromExpression,
   createSelectorProperties,
@@ -15,17 +15,17 @@ import {
   getAttributeExpression,
   getName,
   toScopedFunction,
-} from '../utils'
-import { findEachAttribute, findIfAttribute, findKeyAttribute } from '../find'
+} from '../utils.mjs'
+import { findEachAttribute, findIfAttribute, findKeyAttribute } from '../find.mjs'
 import {
   isExpressionStatement,
   isSequenceExpression,
-} from '../../../utils/ast-nodes-checks'
-import { nullNode, simplePropertyNode } from '../../../utils/custom-ast-nodes'
-import { builders } from '../../../utils/build-types'
+} from '../../../utils/ast-nodes-checks.mjs'
+import { nullNode, simplePropertyNode } from '../../../utils/custom-ast-nodes.mjs'
+import { builders } from '../../../utils/build-types.mjs'
 import compose from 'cumpa'
-import { createNestedBindings } from '../builder'
-import generateJavascript from '../../../utils/generate-javascript'
+import { createNestedBindings } from '../builder.mjs'
+import generateJavascript from '../../../utils/generate-javascript.mjs'
 import { panic } from '@riotjs/util/misc'
 
 const getEachItemName = (expression) =>

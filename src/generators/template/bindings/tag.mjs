@@ -11,7 +11,7 @@ import {
   GET_COMPONENT_FN,
   SLOT_ATTRIBUTE,
   TAG_BINDING_TYPE,
-} from '../constants'
+} from '../constants.mjs'
 import {
   createBindingAttributes,
   createCustomNodeNameEvaluationFunction,
@@ -19,11 +19,11 @@ import {
   createSelectorProperties,
   getChildrenNodes,
   getNodeAttributes,
-} from '../utils'
-import build from '../builder'
-import { builders } from '../../../utils/build-types'
+} from '../utils.mjs'
+import build from '../builder.mjs'
+import { builders } from '../../../utils/build-types.mjs'
 import compose from 'cumpa'
-import { simplePropertyNode } from '../../../utils/custom-ast-nodes'
+import { simplePropertyNode } from '../../../utils/custom-ast-nodes.mjs'
 
 /**
  * Find the slots in the current component and group them under the same id

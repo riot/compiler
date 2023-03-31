@@ -1,5 +1,5 @@
 import { builtin } from 'globals/globals.json'
-import { namedTypes } from './build-types'
+import { namedTypes } from './build-types.mjs'
 
 const browserAPIs = ['window', 'document', 'console']
 const builtinAPIs = Object.keys(builtin)

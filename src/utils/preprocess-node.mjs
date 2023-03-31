@@ -1,4 +1,4 @@
-import { execute as runPreprocessor } from '../preprocessors'
+import { execute as runPreprocessor } from '../preprocessors.mjs'
 
 /**
  * Preprocess a riot parser node

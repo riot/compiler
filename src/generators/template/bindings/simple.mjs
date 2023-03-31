@@ -1,17 +1,17 @@
 import {
   createAttributeExpressions,
   createExpression,
-} from '../expressions/index'
-import { createSelectorProperties, getChildrenNodes } from '../utils'
+} from '../expressions/index.mjs'
+import { createSelectorProperties, getChildrenNodes } from '../utils.mjs'
 import {
   hasExpressions,
   isRemovableNode,
   isRootNode,
   isTextNode,
-} from '../checks'
-import { BINDING_EXPRESSIONS_KEY } from '../constants'
-import { builders } from '../../../utils/build-types'
-import { simplePropertyNode } from '../../../utils/custom-ast-nodes'
+} from '../checks.mjs'
+import { BINDING_EXPRESSIONS_KEY } from '../constants.mjs'
+import { builders } from '../../../utils/build-types.mjs'
+import { simplePropertyNode } from '../../../utils/custom-ast-nodes.mjs'
 
 /**
  * Create the text node expressions

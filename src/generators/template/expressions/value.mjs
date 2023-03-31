@@ -3,10 +3,10 @@ import {
   BINDING_TYPE_KEY,
   EXPRESSION_TYPES,
   VALUE_EXPRESSION_TYPE,
-} from '../constants'
-import { builders } from '../../../utils/build-types'
-import { createAttributeEvaluationFunction } from '../utils'
-import { simplePropertyNode } from '../../../utils/custom-ast-nodes'
+} from '../constants.mjs'
+import { builders } from '../../../utils/build-types.mjs'
+import { createAttributeEvaluationFunction } from '../utils.mjs'
+import { simplePropertyNode } from '../../../utils/custom-ast-nodes.mjs'
 
 export default function createValueExpression(
   sourceNode,

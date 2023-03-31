@@ -4,10 +4,10 @@ import {
   BINDING_TYPE_KEY,
   EVENT_EXPRESSION_TYPE,
   EXPRESSION_TYPES,
-} from '../constants'
-import { builders } from '../../../utils/build-types'
-import { createAttributeEvaluationFunction } from '../utils'
-import { simplePropertyNode } from '../../../utils/custom-ast-nodes'
+} from '../constants.mjs'
+import { builders } from '../../../utils/build-types.mjs'
+import { createAttributeEvaluationFunction } from '../utils.mjs'
+import { simplePropertyNode } from '../../../utils/custom-ast-nodes.mjs'
 
 /**
  * Create a simple event expression

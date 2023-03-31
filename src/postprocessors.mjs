@@ -1,5 +1,5 @@
-import composeSourcemaps from './utils/compose-sourcemaps'
-import { createOutput } from './transformer'
+import composeSourcemaps from './utils/compose-sourcemaps.mjs'
+import { createOutput } from './transformer.mjs'
 import { panic } from '@riotjs/util/misc'
 
 export const postprocessors = new Set()
