@@ -8,6 +8,7 @@ export default {
   plugins: [
     json(),
     nodeResolve({
+      extensions: ['.js', '.mjs', '.json'],
       modulesOnly: true,
     }),
     commonjs(),
@@ -20,7 +21,7 @@ export default {
       ...defaultConfig.output,
     },
     {
-      file: './dist/index.esm.js',
+      file: './dist/index.mjs',
       format: 'esm',
       ...defaultConfig.output,
     },

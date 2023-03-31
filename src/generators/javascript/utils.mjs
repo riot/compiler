@@ -3,8 +3,8 @@ import {
   RIOT_MODULE_ID,
   RIOT_TAG_INTERFACE_NAME,
   TAG_LOGIC_PROPERTY,
-} from '../../constants'
-import { builders, types } from '../../utils/build-types'
+} from '../../constants.mjs'
+import { builders, types } from '../../utils/build-types.mjs'
 import {
   isExportDefaultStatement,
   isExportNamedDeclaration,
@@ -12,7 +12,7 @@ import {
   isInterfaceDeclaration,
   isThisExpressionStatement,
   isTypeAliasDeclaration,
-} from '../../utils/ast-nodes-checks'
+} from '../../utils/ast-nodes-checks.mjs'
 import compose from 'cumpa'
 
 /**

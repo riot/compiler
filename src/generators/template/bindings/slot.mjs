@@ -6,16 +6,16 @@ import {
   DEFAULT_SLOT_NAME,
   NAME_ATTRIBUTE,
   SLOT_BINDING_TYPE,
-} from '../constants'
+} from '../constants.mjs'
 import {
   createBindingAttributes,
   createSelectorProperties,
   getName,
   getNodeAttributes,
-} from '../utils'
-import { builders } from '../../../utils/build-types'
-import { findAttribute } from '../find'
-import { simplePropertyNode } from '../../../utils/custom-ast-nodes'
+} from '../utils.mjs'
+import { builders } from '../../../utils/build-types.mjs'
+import { findAttribute } from '../find.mjs'
+import { simplePropertyNode } from '../../../utils/custom-ast-nodes.mjs'
 
 /**
  * Transform a RiotParser.Node.Tag of type slot into a slot binding

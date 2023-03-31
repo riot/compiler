@@ -1,8 +1,8 @@
-import { builders, types } from '../../utils/build-types'
-import { TAG_CSS_PROPERTY } from '../../constants'
+import { builders, types } from '../../utils/build-types.mjs'
+import { TAG_CSS_PROPERTY } from '../../constants.mjs'
 import cssEscape from 'cssesc'
-import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute'
-import preprocess from '../../utils/preprocess-node'
+import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute.mjs'
+import preprocess from '../../utils/preprocess-node.mjs'
 
 const HOST = ':host'
 const DISABLED_SELECTORS = ['from', 'to']

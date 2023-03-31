@@ -3,16 +3,16 @@ import {
   BINDING_TYPES,
   BINDING_TYPE_KEY,
   IF_BINDING_TYPE,
-} from '../constants'
+} from '../constants.mjs'
 import {
   createSelectorProperties,
   createTemplateProperty,
   toScopedFunction,
-} from '../utils'
-import { builders } from '../../../utils/build-types'
-import { createNestedBindings } from '../builder'
-import { findIfAttribute } from '../find'
-import { simplePropertyNode } from '../../../utils/custom-ast-nodes'
+} from '../utils.mjs'
+import { builders } from '../../../utils/build-types.mjs'
+import { createNestedBindings } from '../builder.mjs'
+import { findIfAttribute } from '../find.mjs'
+import { simplePropertyNode } from '../../../utils/custom-ast-nodes.mjs'
 
 /**
  * Transform a RiotParser.Node.Tag into an if binding

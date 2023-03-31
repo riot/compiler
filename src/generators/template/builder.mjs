@@ -6,7 +6,7 @@ import {
   getChildrenNodes,
   getNodeAttributes,
   nodeToString,
-} from './utils'
+} from './utils.mjs'
 import {
   hasEachAttribute,
   hasIfAttribute,
@@ -19,14 +19,14 @@ import {
   isTagNode,
   isTextNode,
   isVoidNode,
-} from './checks'
-import cloneDeep from '../../utils/clone-deep'
-import eachBinding from './bindings/each'
-import ifBinding from './bindings/if'
+} from './checks.mjs'
+import cloneDeep from '../../utils/clone-deep.mjs'
+import eachBinding from './bindings/each.mjs'
+import ifBinding from './bindings/if.mjs'
 import { panic } from '@riotjs/util/misc'
-import simpleBinding from './bindings/simple'
-import slotBinding from './bindings/slot'
-import tagBinding from './bindings/tag'
+import simpleBinding from './bindings/simple.mjs'
+import slotBinding from './bindings/slot.mjs'
+import tagBinding from './bindings/tag.mjs'
 
 const BuildingState = Object.freeze({
   html: [],

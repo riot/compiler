@@ -5,11 +5,11 @@ import {
   BINDING_NAME_KEY,
   BINDING_TYPE_KEY,
   EXPRESSION_TYPES, IS_BOOLEAN_ATTRIBUTE
-} from '../constants'
-import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes'
-import {builders} from '../../../utils/build-types'
-import {createAttributeEvaluationFunction} from '../utils'
-import {isSpreadAttribute} from '../checks'
+} from '../constants.mjs'
+import {nullNode, simplePropertyNode} from '../../../utils/custom-ast-nodes.mjs'
+import {builders} from '../../../utils/build-types.mjs'
+import {createAttributeEvaluationFunction} from '../utils.mjs'
+import {isSpreadAttribute} from '../checks.mjs'
 
 /**
  * Create a simple attribute expression

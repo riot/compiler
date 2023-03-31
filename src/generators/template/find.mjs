@@ -3,9 +3,9 @@ import {
   IF_DIRECTIVE,
   IS_DIRECTIVE,
   KEY_ATTRIBUTE,
-} from './constants'
-import { getName, getNodeAttributes } from './utils'
-import { hasExpressions } from './checks'
+} from './constants.mjs'
+import { getName, getNodeAttributes } from './utils.mjs'
+import { hasExpressions } from './checks.mjs'
 
 /**
  * Find the attribute node

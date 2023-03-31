@@ -1,4 +1,4 @@
-import splitStringByEOL from './split-string-by-EOL'
+import splitStringByEOL from './split-string-by-EOL.mjs'
 
 /**
  * Get the line and the column of a source text based on its position in the string

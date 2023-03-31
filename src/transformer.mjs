@@ -1,4 +1,4 @@
-import createSourcemap from './utils/create-sourcemap'
+import createSourcemap from './utils/create-sourcemap.mjs'
 
 export const Output = Object.freeze({
   code: '',

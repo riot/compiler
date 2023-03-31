@@ -1,4 +1,4 @@
-import asJSON from './sourcemap-as-json'
+import asJSON from './sourcemap-as-json.mjs'
 import { composeSourceMaps } from 'recast/lib/util'
 import { isNode } from '@riotjs/util/checks'
 

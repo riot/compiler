@@ -1,4 +1,4 @@
-import getLineAndColumnByPosition from './get-line-and-column-by-position'
+import getLineAndColumnByPosition from './get-line-and-column-by-position.mjs'
 
 /**
  * Add the offset to the code that must be parsed in order to generate properly the sourcemaps

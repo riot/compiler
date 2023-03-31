@@ -3,34 +3,34 @@ import {
   TAG_LOGIC_PROPERTY,
   TAG_NAME_PROPERTY,
   TAG_TEMPLATE_PROPERTY,
-} from './constants'
+} from './constants.mjs'
 import {
   callTemplateFunction,
   createTemplateDependenciesInjectionWrapper,
-} from './generators/template/utils'
-import { nullNode, simplePropertyNode } from './utils/custom-ast-nodes'
+} from './generators/template/utils.mjs'
+import { nullNode, simplePropertyNode } from './utils/custom-ast-nodes.mjs'
 import {
   register as registerPostproc,
   execute as runPostprocessors,
-} from './postprocessors'
+} from './postprocessors.mjs'
 import {
   register as registerPreproc,
   execute as runPreprocessor,
-} from './preprocessors'
-import build from './generators/template/builder'
-import { builders } from './utils/build-types'
+} from './preprocessors.mjs'
+import build from './generators/template/builder.mjs'
+import { builders } from './utils/build-types.mjs'
 import compose from 'cumpa'
-import { createSlotsArray } from './generators/template/bindings/tag'
-import cssGenerator from './generators/css'
+import { createSlotsArray } from './generators/template/bindings/tag.mjs'
+import cssGenerator from './generators/css/index.mjs'
 import curry from 'curri'
-import generateJavascript from './utils/generate-javascript'
-import hasHTMLOutsideRootNode from './utils/has-html-outside-root-node'
-import isEmptyArray from './utils/is-empty-array'
-import isEmptySourcemap from './utils/is-empty-sourcemap'
-import javascriptGenerator from './generators/javascript'
+import generateJavascript from './utils/generate-javascript.mjs'
+import hasHTMLOutsideRootNode from './utils/has-html-outside-root-node.mjs'
+import isEmptyArray from './utils/is-empty-array.mjs'
+import isEmptySourcemap from './utils/is-empty-sourcemap.mjs'
+import javascriptGenerator from './generators/javascript/index.mjs'
 import riotParser from '@riotjs/parser'
-import sourcemapAsJSON from './utils/sourcemap-as-json'
-import templateGenerator from './generators/template'
+import sourcemapAsJSON from './utils/sourcemap-as-json.mjs'
+import templateGenerator from './generators/template/index.mjs'
 
 const DEFAULT_OPTIONS = {
   template: 'default',

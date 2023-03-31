@@ -1,4 +1,4 @@
-import { builders } from './build-types'
+import { builders } from './build-types.mjs'
 
 export function nullNode() {
   return builders.literal(null)

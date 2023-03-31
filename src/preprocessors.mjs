@@ -1,5 +1,5 @@
 import { panic } from '@riotjs/util/misc'
-import { transform } from './transformer'
+import { transform } from './transformer.mjs'
 /**
  * Parsers that can be registered by users to preparse components fragments
  * @type { Object }

@@ -11,7 +11,7 @@ export default ['umd', 'esm'].map((format) => ({
   ...defaultConfig,
   output: {
     name: 'compiler',
-    file: `./dist/compiler.essential${format === 'umd' ? '' : `.${format}`}.js`,
+    file: `./dist/compiler.essential${format === 'umd' ? '.js' : '.mjs'}`,
     format: format,
     globals: ignoredModules.reduce(
       (acc, dep) => ({
@@ -32,15 +32,15 @@ export default ['umd', 'esm'].map((format) => ({
       entries: [
         {
           find: 'source-map',
-          replacement: './src/utils/mock/sourcemap-mock-api.js',
+          replacement: './src/utils/mock/sourcemap-mock-api.mjs',
         },
         {
           find: 'assert',
-          replacement: './src/utils/mock/assert-mock-api.js',
+          replacement: './src/utils/mock/assert-mock-api.mjs',
         },
         {
           find: 'os',
-          replacement: './src/utils/mock/os-mock-api.js',
+          replacement: './src/utils/mock/os-mock-api.mjs',
         },
         {
           find: 'recast/parsers/typescript',
@@ -49,6 +49,7 @@ export default ['umd', 'esm'].map((format) => ({
       ],
     }),
     nodeResolve({
+      extensions: ['.js', '.mjs', '.json'],
       browser: true,
     }),
     commonjs({

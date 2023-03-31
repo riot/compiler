@@ -1,4 +1,4 @@
-import isEmptyArray from './is-empty-array'
+import isEmptyArray from './is-empty-array.mjs'
 
 /**
  * True if the sourcemap has no mappings, it is empty

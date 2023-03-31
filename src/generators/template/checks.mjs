@@ -6,25 +6,25 @@ import {
   SLOT_ATTRIBUTE,
   SLOT_TAG_NODE_NAME,
   TEMPLATE_TAG_NODE_NAME,
-} from './constants'
+} from './constants.mjs'
 import {
   findAttribute,
   findEachAttribute,
   findIfAttribute,
   findIsAttribute,
   findKeyAttribute,
-} from './find'
-import { getName, getNodeAttributes } from './utils'
+} from './find.mjs'
+import { getName, getNodeAttributes } from './utils.mjs'
 import {
   isBrowserAPI,
   isBuiltinAPI,
   isNewExpression,
   isRaw,
-} from '../../utils/ast-nodes-checks'
+} from '../../utils/ast-nodes-checks.mjs'
 import compose from 'cumpa'
 import { isNil } from '@riotjs/util/checks'
 import { nodeTypes } from '@riotjs/parser'
-import { types } from '../../utils/build-types'
+import { types } from '../../utils/build-types.mjs'
 
 /**
  * True if the node has not expression set nor bindings directives
