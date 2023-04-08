@@ -1,7 +1,7 @@
-import { babelPreprocessor, getFixture } from './helpers'
+import { babelPreprocessor, getFixture } from './helpers.js'
 import { register, unregister } from '../src/preprocessors'
 import { SourceMapConsumer } from 'source-map'
-import { compile } from '../src'
+import { compile } from '../src/index.js'
 import { expect } from 'chai'
 import getLineAndColumnByPosition from '../src/utils/get-line-and-column-by-position'
 

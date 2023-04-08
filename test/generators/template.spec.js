@@ -13,41 +13,50 @@ import {
   BINDING_SELECTOR_KEY,
   BINDING_TEMPLATE_KEY,
   BINDING_TYPE_KEY,
-  NAME_ATTRIBUTE
+  NAME_ATTRIBUTE,
 } from '../../src/generators/template/constants'
-import {bindingTypes, expressionTypes} from '@riotjs/dom-bindings'
-import {createRootNode, toScopedFunction} from '../../src/generators/template/utils'
-import {evaluateScript, renderExpression} from '../helpers'
+import { bindingTypes, expressionTypes } from '@riotjs/dom-bindings'
+import {
+  createRootNode,
+  toScopedFunction,
+} from '../../src/generators/template/utils'
+import { evaluateScript, renderExpression } from '../helpers.js'
 import builder from '../../src/generators/template/builder'
-import {builders} from '../../src/utils/build-types'
+import { builders } from '../../src/utils/build-types'
 import compose from 'cumpa'
 import curry from 'curri'
 import eachBinding from '../../src/generators/template/bindings/each'
-import {expect} from 'chai'
+import { expect } from 'chai'
 import generateJavascript from '../../src/utils/generate-javascript'
 import ifBinding from '../../src/generators/template/bindings/if'
-import {mergeNodeExpressions} from '../../src/generators/template/expressions/text'
+import { mergeNodeExpressions } from '../../src/generators/template/expressions/text'
 import riotParser from '@riotjs/parser'
 import simpleBinding from '../../src/generators/template/bindings/simple'
 import slotBinding from '../../src/generators/template/bindings/slot'
 import tagBinding from '../../src/generators/template/bindings/tag'
 
 const FAKE_SRC_FILE = 'fake-file.js'
-const renderExpr = compose(
-  renderExpression,
-  toScopedFunction,
-  expr => ({ text: expr })
+const renderExpr = compose(renderExpression, toScopedFunction, (expr) => ({
+  text: expr,
+}))
+
+const renderTextNode = (node, source) =>
+  generateJavascript(
+    mergeNodeExpressions(node, FAKE_SRC_FILE, source),
+  ).code.replace(/\.join\(([\r\n]|.)+/, '')
+
+const getSlotById = (slots, id) =>
+  slots.find((slot) => slot[BINDING_ID_KEY] === id)
+const removeIdFromExpessionBindings = (str) =>
+  str.replace(/expr(\d+)="expr(\d+)"/g, 'expr')
+const buildSimpleTemplate = compose(
+  removeIdFromExpessionBindings,
+  (res) => res[0],
+  builder,
 )
 
-const renderTextNode = (node, source) => generateJavascript(
-  mergeNodeExpressions(node, FAKE_SRC_FILE, source)
-).code.replace(/\.join\(([\r\n]|.)+/, '')
-
-const getSlotById = (slots, id) => slots.find(slot => slot[BINDING_ID_KEY] === id)
-const removeIdFromExpessionBindings = str => str.replace(/expr(\d+)="expr(\d+)"/g, 'expr')
-const buildSimpleTemplate = compose(removeIdFromExpessionBindings, res => res[0], builder)
-
-const evaluateOutput = (ast, getComponent = () => null) => evaluateScript(`
+const evaluateOutput = (ast, getComponent = () => null) =>
+  evaluateScript(`
   import { bindingTypes, expressionTypes, template } from '@riotjs/dom-bindings'
 
   export default function output(getComponent) {
@@ -71,7 +80,7 @@ describe('Generators - Template', () => {
         expect(renderExpr('true')).to.be.equal('true')
         expect(renderExpr('1 > 2')).to.be.equal('1 > 2')
         expect(renderExpr('null')).to.be.equal('null')
-        expect(renderExpr('\'hello\'')).to.be.equal('\'hello\'')
+        expect(renderExpr("'hello'")).to.be.equal("'hello'")
         expect(renderExpr('undefined')).to.be.equal('undefined')
         expect(renderExpr('RegExp')).to.be.equal('RegExp')
         expect(renderExpr('Number')).to.be.equal('Number')
@@ -80,12 +89,24 @@ describe('Generators - Template', () => {
       })
 
       it('primitive calls', () => {
-        expect(renderExpr('Array.from(foo.bar)')).to.be.equal('Array.from(_scope.foo.bar)')
-        expect(renderExpr('window.isNaN(foo.bar)')).to.be.equal('window.isNaN(_scope.foo.bar)')
-        expect(renderExpr('new RegExp(foo.bar, "g")')).to.be.equal('new RegExp(_scope.foo.bar, "g")')
-        expect(renderExpr('(new Date()).getFullYear()')).to.be.equal('(new Date()).getFullYear()')
-        expect(renderExpr('(new Date(state.test)).getFullYear()')).to.be.equal('(new Date(_scope.state.test)).getFullYear()')
-        expect(renderExpr('"this".toUpperCase().toLowerCase()')).to.be.equal('"this".toUpperCase().toLowerCase()')
+        expect(renderExpr('Array.from(foo.bar)')).to.be.equal(
+          'Array.from(_scope.foo.bar)',
+        )
+        expect(renderExpr('window.isNaN(foo.bar)')).to.be.equal(
+          'window.isNaN(_scope.foo.bar)',
+        )
+        expect(renderExpr('new RegExp(foo.bar, "g")')).to.be.equal(
+          'new RegExp(_scope.foo.bar, "g")',
+        )
+        expect(renderExpr('(new Date()).getFullYear()')).to.be.equal(
+          '(new Date()).getFullYear()',
+        )
+        expect(renderExpr('(new Date(state.test)).getFullYear()')).to.be.equal(
+          '(new Date(_scope.state.test)).getFullYear()',
+        )
+        expect(renderExpr('"this".toUpperCase().toLowerCase()')).to.be.equal(
+          '"this".toUpperCase().toLowerCase()',
+        )
       })
 
       it('simple sum', () => {
@@ -93,43 +114,69 @@ describe('Generators - Template', () => {
       })
 
       it('scoped functions', () => {
-        expect(renderExpr('foo.toUppercase()')).to.be.equal('_scope.foo.toUppercase()')
+        expect(renderExpr('foo.toUppercase()')).to.be.equal(
+          '_scope.foo.toUppercase()',
+        )
         expect(renderExpr('foo()')).to.be.equal('_scope.foo()')
-        expect(renderExpr('props.messageTypes.get(message.type).hue')).to.be.equal('_scope.props.messageTypes.get(_scope.message.type).hue')
+        expect(
+          renderExpr('props.messageTypes.get(message.type).hue'),
+        ).to.be.equal('_scope.props.messageTypes.get(_scope.message.type).hue')
       })
 
       it('global scope objects', () => {
-        expect(renderExpr('window.foo.toUppercase()')).to.be.equal('window.foo.toUppercase()')
+        expect(renderExpr('window.foo.toUppercase()')).to.be.equal(
+          'window.foo.toUppercase()',
+        )
         expect(renderExpr('CSS')).to.be.equal('_scope.CSS')
         expect(renderExpr('window.CSS')).to.be.equal('window.CSS')
         expect(renderExpr('window.foo')).to.be.equal('window.foo')
         expect(renderExpr('window["foo"].bar')).to.be.equal('window["foo"].bar')
-        expect(renderExpr('console.log("hello")')).to.be.equal('console.log("hello")')
-        expect(renderExpr('console.log(item)')).to.be.equal('console.log(_scope.item)')
+        expect(renderExpr('console.log("hello")')).to.be.equal(
+          'console.log("hello")',
+        )
+        expect(renderExpr('console.log(item)')).to.be.equal(
+          'console.log(_scope.item)',
+        )
       })
 
       it('context transform', () => {
-        expect(renderExpr('this.foo + this.bar')).to.be.equal('_scope.foo + _scope.bar')
+        expect(renderExpr('this.foo + this.bar')).to.be.equal(
+          '_scope.foo + _scope.bar',
+        )
         expect(renderExpr('this.state.foo')).to.be.equal('_scope.state.foo')
         expect(renderExpr('this["bar"].foo')).to.be.equal('_scope["bar"].foo')
         expect(renderExpr('this + this')).to.be.equal('_scope + _scope')
       })
 
       it('objects', () => {
-        expect(renderExpr('{ foo: bar, buz: baz }')).to.be.equal('({  foo: _scope.bar,  buz: _scope.baz})')
-        expect(renderExpr('{ foo, buz }')).to.be.equal('({  foo: _scope.foo,  buz: _scope.buz})')
+        expect(renderExpr('{ foo: bar, buz: baz }')).to.be.equal(
+          '({  foo: _scope.bar,  buz: _scope.baz})',
+        )
+        expect(renderExpr('{ foo, buz }')).to.be.equal(
+          '({  foo: _scope.foo,  buz: _scope.buz})',
+        )
         expect(renderExpr('{ foo: i%2 }')).to.be.equal('({  foo: _scope.i%2})')
-        expect(renderExpr('{ foo: { foo: bar, buz: baz }, buz: baz }')).to.be.equal('({  foo: { foo: _scope.bar, buz: _scope.baz },  buz: _scope.baz})')
+        expect(
+          renderExpr('{ foo: { foo: bar, buz: baz }, buz: baz }'),
+        ).to.be.equal(
+          '({  foo: { foo: _scope.bar, buz: _scope.baz },  buz: _scope.baz})',
+        )
       })
 
       it('arrays', () => {
-        expect(renderExpr('[foo, \'bar\', baz]')).to.be.equal('[_scope.foo, \'bar\', _scope.baz]')
-        expect(renderExpr('[foo, \'bar\', baz].join(\' \')')).to.be.equal('[_scope.foo, \'bar\', _scope.baz].join(\' \')')
+        expect(renderExpr("[foo, 'bar', baz]")).to.be.equal(
+          "[_scope.foo, 'bar', _scope.baz]",
+        )
+        expect(renderExpr("[foo, 'bar', baz].join(' ')")).to.be.equal(
+          "[_scope.foo, 'bar', _scope.baz].join(' ')",
+        )
       })
 
       it('classes declaration', () => {
         expect(renderExpr('class Foo {}')).to.be.equal('class Foo {}')
-        expect(renderExpr('class Foo extends Bar {}')).to.be.equal('class Foo extends Bar {}')
+        expect(renderExpr('class Foo extends Bar {}')).to.be.equal(
+          'class Foo extends Bar {}',
+        )
       })
 
       it('classes instances', () => {
@@ -138,35 +185,67 @@ describe('Generators - Template', () => {
 
       it('computed member expressions', () => {
         expect(renderExpr('foo[bar]')).to.be.equal('_scope.foo[_scope.bar]')
-        expect(renderExpr('foo[bar][baz]')).to.be.equal('_scope.foo[_scope.bar][_scope.baz]')
-        expect(renderExpr('foo.bar[baz]')).to.be.equal('_scope.foo.bar[_scope.baz]')
-        expect(renderExpr('foo.bar[baz].buz')).to.be.equal('_scope.foo.bar[_scope.baz].buz')
-        expect(renderExpr('foo.bar[Symbol]')).to.be.equal('_scope.foo.bar[Symbol]')
+        expect(renderExpr('foo[bar][baz]')).to.be.equal(
+          '_scope.foo[_scope.bar][_scope.baz]',
+        )
+        expect(renderExpr('foo.bar[baz]')).to.be.equal(
+          '_scope.foo.bar[_scope.baz]',
+        )
+        expect(renderExpr('foo.bar[baz].buz')).to.be.equal(
+          '_scope.foo.bar[_scope.baz].buz',
+        )
+        expect(renderExpr('foo.bar[Symbol]')).to.be.equal(
+          '_scope.foo.bar[Symbol]',
+        )
       })
 
       it('functions declaration', () => {
-        expect(renderExpr('(foo) => bar + foo')).to.be.equal('(foo) => _scope.bar + foo')
-        expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal('(foo) => (bar) => foo + bar + _scope.baz')
-        expect(renderExpr('(foo) => (event) => foo + event.target.value + baz')).to.be.equal('(foo) => (event) => foo + event.target.value + _scope.baz')
-        expect(renderExpr('() => update({ message: \'hello\' })')).to.be.equal('() => _scope.update({ message: \'hello\' })')
-        expect(renderExpr(`() => {
+        expect(renderExpr('(foo) => bar + foo')).to.be.equal(
+          '(foo) => _scope.bar + foo',
+        )
+        expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal(
+          '(foo) => (bar) => foo + bar + _scope.baz',
+        )
+        expect(
+          renderExpr('(foo) => (event) => foo + event.target.value + baz'),
+        ).to.be.equal(
+          '(foo) => (event) => foo + event.target.value + _scope.baz',
+        )
+        expect(renderExpr("() => update({ message: 'hello' })")).to.be.equal(
+          "() => _scope.update({ message: 'hello' })",
+        )
+        expect(
+          renderExpr(`() => {
         update({ message: "ok" })
-        }`)).to.be.equal('() => {        _scope.update({ message: "ok" })        }')
+        }`),
+        ).to.be.equal(
+          '() => {        _scope.update({ message: "ok" })        }',
+        )
       })
 
       it('functions object arguments', () => {
-        expect(renderExpr('classNames({active: item.isActive})')).to.be.equal('_scope.classNames({active: _scope.item.isActive})')
+        expect(renderExpr('classNames({active: item.isActive})')).to.be.equal(
+          '_scope.classNames({active: _scope.item.isActive})',
+        )
       })
 
       it('parenthesis precedence expressions', () => {
-        expect(renderExpr('(!state.property).toString()')).to.be.equal('(!_scope.state.property).toString()')
-        expect(renderExpr('(props.name+"foo").toUpperCase()')).to.be.equal('(_scope.props.name+"foo").toUpperCase()')
+        expect(renderExpr('(!state.property).toString()')).to.be.equal(
+          '(!_scope.state.property).toString()',
+        )
+        expect(renderExpr('(props.name+"foo").toUpperCase()')).to.be.equal(
+          '(_scope.props.name+"foo").toUpperCase()',
+        )
       })
 
       it('support for optional chaining and null coalescing', () => {
-        expect(renderExpr('state?.message')).to.be.equal('_scope.state?.message')
+        expect(renderExpr('state?.message')).to.be.equal(
+          '_scope.state?.message',
+        )
         expect(renderExpr('state.fn?.()')).to.be.equal('_scope.state.fn?.()')
-        expect(renderExpr('state.name ?? state.surname')).to.be.equal('_scope.state.name ?? _scope.state.surname')
+        expect(renderExpr('state.name ?? state.surname')).to.be.equal(
+          '_scope.state.name ?? _scope.state.surname',
+        )
       })
     })
   })
@@ -176,7 +255,9 @@ describe('Generators - Template', () => {
       const source = '<p>{foo} + {bar}</p>'
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  _scope.foo,\n  \' + \',\n  _scope.bar\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal(
+        "[\n  _scope.foo,\n  ' + ',\n  _scope.bar\n]",
+      )
     })
 
     it('Complex single expression will be merged with the plain text', () => {
@@ -186,7 +267,9 @@ describe('Generators - Template', () => {
       bar</p>`
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  _scope.foo,\n  \'\\n      foo bar\\n      bar\'\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal(
+        "[\n  _scope.foo,\n  '\\n      foo bar\\n      bar'\n]",
+      )
     })
 
     it('Escaped expression will be unescaped', () => {
@@ -197,7 +280,9 @@ describe('Generators - Template', () => {
       bar</p>`
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  \'{foo}\\n      \',\n  _scope.bar,\n  \'\\n      foo bar\\n      bar\'\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal(
+        "[\n  '{foo}\\n      ',\n  _scope.bar,\n  '\\n      foo bar\\n      bar'\n]",
+      )
     })
 
     it('Complex multiple expressions will be merged with the plain text', () => {
@@ -208,23 +293,29 @@ describe('Generators - Template', () => {
       bar</p>`
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  _scope.foo,\n  \' + \',\n  _scope.bar,\n  \'\\n      foo bar   \',\n  _scope.baz,\n  \'\\n      bar\'\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal(
+        "[\n  _scope.foo,\n  ' + ',\n  _scope.bar,\n  '\\n      foo bar   ',\n  _scope.baz,\n  '\\n      bar'\n]",
+      )
     })
 
     it('Simple expressions will be left untouchted', () => {
       const source = '<p>{foo}</p>'
       const { template } = parse(source)
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('_scope.foo')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal(
+        '_scope.foo',
+      )
     })
 
     it('Different template brakets will be merged with the plain text', () => {
       const source = '<p>[[[[foo]]]] + [[[[bar]]]]</p>'
       const { template } = parse(source, {
-        brackets: ['[[[[', ']]]]']
+        brackets: ['[[[[', ']]]]'],
       })
 
-      expect(renderTextNode(template.nodes[0], source)).to.be.equal('[\n  _scope.foo,\n  \' + \',\n  _scope.bar\n]')
+      expect(renderTextNode(template.nodes[0], source)).to.be.equal(
+        "[\n  _scope.foo,\n  ' + ',\n  _scope.bar\n]",
+      )
     })
 
     it('Simple attribute expression', () => {
@@ -237,20 +328,30 @@ describe('Generators - Template', () => {
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(expression[BINDING_NAME_KEY]).to.be.equal('class')
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'foo',
+      )
     })
 
     it('Custom boolean attribute on root tag', () => {
       const source = '<my-tag data-foo></my-tag>'
       const { template } = parse(source)
-      const [, bindings] = builder(createRootNode(template), FAKE_SRC_FILE, source)
+      const [, bindings] = builder(
+        createRootNode(template),
+        FAKE_SRC_FILE,
+        source,
+      )
       const output = evaluateOutput(bindings[0])
       const expression = output.expressions[0]
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(expression[BINDING_IS_BOOLEAN_ATTRIBUTE]).to.be.equal(false)
       expect(expression[BINDING_NAME_KEY]).to.be.equal('data-foo')
       expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal('')
@@ -259,12 +360,18 @@ describe('Generators - Template', () => {
     it('Known boolean attribute on root tag', () => {
       const source = '<my-tag checked></my-tag>'
       const { template } = parse(source)
-      const [, bindings] = builder(createRootNode(template), FAKE_SRC_FILE, source)
+      const [, bindings] = builder(
+        createRootNode(template),
+        FAKE_SRC_FILE,
+        source,
+      )
       const output = evaluateOutput(bindings[0])
       const expression = output.expressions[0]
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(expression[BINDING_IS_BOOLEAN_ATTRIBUTE]).to.be.equal(true)
       expect(expression[BINDING_NAME_KEY]).to.be.equal('checked')
       expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal('checked')
@@ -273,7 +380,11 @@ describe('Generators - Template', () => {
     it('Custom boolean attribute on a child node', () => {
       const source = '<my-tag><input data-foo={undefined}/></my-tag>'
       const { template } = parse(source)
-      const [, bindings] = builder(createRootNode(template), FAKE_SRC_FILE, source)
+      const [, bindings] = builder(
+        createRootNode(template),
+        FAKE_SRC_FILE,
+        source,
+      )
       const output = evaluateOutput(bindings[0])
       const expression = output.expressions[0]
 
@@ -283,7 +394,11 @@ describe('Generators - Template', () => {
     it('Known boolean attribute on a child node', () => {
       const source = '<my-tag><input checked={undefined}/></my-tag>'
       const { template } = parse(source)
-      const [, bindings] = builder(createRootNode(template), FAKE_SRC_FILE, source)
+      const [, bindings] = builder(
+        createRootNode(template),
+        FAKE_SRC_FILE,
+        source,
+      )
       const output = evaluateOutput(bindings[0])
       const expression = output.expressions[0]
 
@@ -300,9 +415,13 @@ describe('Generators - Template', () => {
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(expression[BINDING_NAME_KEY]).to.be.not.ok
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: { bar: 'bar' } })).to.be.deep.equal({ bar: 'bar' })
+      expect(
+        expression[BINDING_EVALUATE_KEY]({ foo: { bar: 'bar' } }),
+      ).to.be.deep.equal({ bar: 'bar' })
     })
 
     it('Object attribute expression', () => {
@@ -315,9 +434,13 @@ describe('Generators - Template', () => {
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(expression[BINDING_NAME_KEY]).to.be.ok
-      expect(expression[BINDING_EVALUATE_KEY]({ store: { foo: 'foo' } })).to.be.deep.equal({ foo: 'foo' })
+      expect(
+        expression[BINDING_EVALUATE_KEY]({ store: { foo: 'foo' } }),
+      ).to.be.deep.equal({ foo: 'foo' })
     })
 
     it('Merge attribute expression with strings', () => {
@@ -330,20 +453,27 @@ describe('Generators - Template', () => {
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(expression[BINDING_NAME_KEY]).to.be.equal('class')
 
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('red foo bar')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'red foo bar',
+      )
     })
 
     it('Attribute expression containing html entities will be encoded', () => {
-      const source = '<li class="&#x222; &euro; {foo} {\'&#222;\'} &#222;"></li>'
+      const source =
+        '<li class="&#x222; &euro; {foo} {\'&#222;\'} &#222;"></li>'
       const { template } = parse(source)
       const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
 
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('Ȣ € foo &#222; Þ')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'Ȣ € foo &#222; Þ',
+      )
     })
 
     it('Merge attribute expression with strings (static text at the end)', () => {
@@ -353,7 +483,9 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
 
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo bar')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'foo bar',
+      )
     })
 
     it('Merge multiple attribute expressions', () => {
@@ -363,7 +495,9 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
 
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo', bar: 'bar' })).to.be.equal('bar__red foo')
+      expect(
+        expression[BINDING_EVALUATE_KEY]({ foo: 'foo', bar: 'bar' }),
+      ).to.be.equal('bar__red foo')
     })
 
     it('Merge multiple attribute expressions with spaces in expressions', () => {
@@ -373,7 +507,9 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
 
-      expect(expression[BINDING_EVALUATE_KEY]({ scope: { foo: 'foo', bar: 'bar' } })).to.be.equal('bar-foo')
+      expect(
+        expression[BINDING_EVALUATE_KEY]({ scope: { foo: 'foo', bar: 'bar' } }),
+      ).to.be.equal('bar-foo')
     })
 
     it('Multiple attribute expressions', () => {
@@ -386,14 +522,22 @@ describe('Generators - Template', () => {
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(classExpression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(classExpression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(classExpression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(classExpression[BINDING_NAME_KEY]).to.be.equal('class')
-      expect(classExpression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(classExpression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'foo',
+      )
 
       expect(idExpression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(idExpression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(idExpression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(idExpression[BINDING_NAME_KEY]).to.be.equal('id')
-      expect(idExpression[BINDING_EVALUATE_KEY]({ bar: 'bar' })).to.be.equal('bar')
+      expect(idExpression[BINDING_EVALUATE_KEY]({ bar: 'bar' })).to.be.equal(
+        'bar',
+      )
     })
 
     it('Multiple mixed attribute expressions', () => {
@@ -406,13 +550,21 @@ describe('Generators - Template', () => {
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(classExpression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(classExpression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(classExpression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(classExpression[BINDING_NAME_KEY]).to.be.equal('class')
-      expect(classExpression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(classExpression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'foo',
+      )
 
       expect(valueExpression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(valueExpression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.VALUE)
-      expect(valueExpression[BINDING_EVALUATE_KEY]({ bar: 'bar' })).to.be.equal('bar')
+      expect(valueExpression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.VALUE,
+      )
+      expect(valueExpression[BINDING_EVALUATE_KEY]({ bar: 'bar' })).to.be.equal(
+        'bar',
+      )
     })
 
     it('Simple value expression', () => {
@@ -426,7 +578,9 @@ describe('Generators - Template', () => {
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.VALUE)
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'foo',
+      )
     })
 
     it('Value expression on a div', () => {
@@ -439,8 +593,12 @@ describe('Generators - Template', () => {
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'foo',
+      )
     })
 
     it('Value expression on a progress tag will be transformed into an attribute', () => {
@@ -453,8 +611,12 @@ describe('Generators - Template', () => {
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'foo',
+      )
     })
 
     it('Simple event expression', () => {
@@ -469,7 +631,9 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(expression[BINDING_NAME_KEY]).to.be.equal('oninput')
       expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.EVENT)
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'foo',
+      )
     })
 
     it('Complex event expression', () => {
@@ -479,7 +643,9 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
 
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })()).to.be.equal('foo')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })()).to.be.equal(
+        'foo',
+      )
     })
 
     it('Simple text expression', () => {
@@ -493,7 +659,9 @@ describe('Generators - Template', () => {
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.TEXT)
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'foo',
+      )
     })
 
     it('Simple text expression (static text at the end)', () => {
@@ -503,7 +671,9 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
 
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foobar')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'foobar',
+      )
     })
 
     it('Simple text expression (static text at the beginning)', () => {
@@ -512,7 +682,9 @@ describe('Generators - Template', () => {
       const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('barfoo')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'barfoo',
+      )
     })
 
     it('Simple text expression (static text at the beginning and at the end)', () => {
@@ -521,16 +693,20 @@ describe('Generators - Template', () => {
       const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('barfoobaz')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'barfoobaz',
+      )
     })
 
     it('HTML entities in text expressions will be encoded', () => {
-      const source = '<div>&#x222; &euro; {foo} {\'&#222;\'} &#222;</div>'
+      const source = "<div>&#x222; &euro; {foo} {'&#222;'} &#222;</div>"
       const { template } = parse(source)
       const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
       const expression = output.expressions[0]
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('Ȣ € foo &#222; Þ')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal(
+        'Ȣ € foo &#222; Þ',
+      )
     })
 
     it('Multiple text expressions', () => {
@@ -543,10 +719,11 @@ describe('Generators - Template', () => {
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
       expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.TEXT)
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'foo', bar: 'bar' })).to.be.equal('foo + bar')
+      expect(
+        expression[BINDING_EVALUATE_KEY]({ foo: 'foo', bar: 'bar' }),
+      ).to.be.equal('foo + bar')
     })
   })
-
 
   describe('Tag bindings', () => {
     it('Simple tag binding without slots', () => {
@@ -560,14 +737,16 @@ describe('Generators - Template', () => {
       expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
       expect(output.slots).to.have.length(0)
       expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
-      expect(output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(
+        output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({ foo: 'foo' }),
+      ).to.be.equal('foo')
     })
 
     it('Children tags do not inherit "expr" and "is" attributes', () => {
       const source = '<div><p is="my-tag" class={foo} id="my-id"></p></div>'
       const { template } = parse(source)
       const bindings = evaluateOutput(
-        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1])
+        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1]),
       )
       const tagBinding = bindings[0]
 
@@ -576,18 +755,24 @@ describe('Generators - Template', () => {
       expect(tagBinding[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
       expect(tagBinding.slots).to.have.length(0)
       expect(tagBinding[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
-      expect(tagBinding[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(
+        tagBinding[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({
+          foo: 'foo',
+        }),
+      ).to.be.equal('foo')
     })
 
     it('Tag bindings can be computed', () => {
       const source = '<div><p is={tagName}/></div>'
       const { template } = parse(source)
       const bindings = evaluateOutput(
-        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1])
+        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1]),
       )
       const tagBinding = bindings[0]
 
-      expect(tagBinding[BINDING_EVALUATE_KEY]({ tagName: 'my-tag' })).to.be.equal('my-tag')
+      expect(
+        tagBinding[BINDING_EVALUATE_KEY]({ tagName: 'my-tag' }),
+      ).to.be.equal('my-tag')
     })
 
     it('Tag bindings can be computed (bug https://github.com/riot/riot/issues/2935)', () => {
@@ -595,12 +780,14 @@ describe('Generators - Template', () => {
       const { template } = parse(source)
 
       const bindings = evaluateOutput(
-        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1])
+        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1]),
       )
 
       const tagBinding = bindings[0]
 
-      expect(tagBinding[BINDING_EVALUATE_KEY]({ tagName: 'tag' })).to.be.equal('my-tag')
+      expect(tagBinding[BINDING_EVALUATE_KEY]({ tagName: 'tag' })).to.be.equal(
+        'my-tag',
+      )
     })
 
     it('Simple tag binding with default slot', () => {
@@ -618,7 +805,9 @@ describe('Generators - Template', () => {
       expect(defaultSlot[BINDING_BINDINGS_KEY]).to.be.deep.equal([])
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
       expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
-      expect(output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({ foo: 'foo' })).to.be.equal('foo')
+      expect(
+        output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({ foo: 'foo' }),
+      ).to.be.equal('foo')
     })
 
     it('Tag binding with default slot with expressions', () => {
@@ -632,10 +821,12 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
       expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
 
-      expect(removeIdFromExpessionBindings(defaultSlot[BINDING_HTML_KEY]))
-        .to.be.equal('<p expr> </p>')
+      expect(
+        removeIdFromExpessionBindings(defaultSlot[BINDING_HTML_KEY]),
+      ).to.be.equal('<p expr> </p>')
       expect(defaultSlot[BINDING_BINDINGS_KEY]).to.have.length(1)
-      expect(defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_SELECTOR_KEY]).to.be.ok
+      expect(defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_SELECTOR_KEY]).to.be
+        .ok
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
       expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(0)
     })
@@ -653,7 +844,8 @@ describe('Generators - Template', () => {
 
       expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal(' ')
       expect(defaultSlot[BINDING_BINDINGS_KEY]).to.have.length(1)
-      expect(defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_SELECTOR_KEY]).to.be.not.ok
+      expect(defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_SELECTOR_KEY]).to.be
+        .not.ok
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
       expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(0)
     })
@@ -685,23 +877,32 @@ describe('Generators - Template', () => {
       const footerSlot = getSlot('footer')
       const defaultSlot = getSlot('default')
 
-      expect(removeIdFromExpessionBindings(headerSlot[BINDING_HTML_KEY]))
-        .to.be.equal('<p expr slot="header"> </p>')
       expect(
-        headerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({ greeting: 'hi' }))
-        .to.have.be.equal('hi')
+        removeIdFromExpessionBindings(headerSlot[BINDING_HTML_KEY]),
+      ).to.be.equal('<p expr slot="header"> </p>')
+      expect(
+        headerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][
+          BINDING_EVALUATE_KEY
+        ]({ greeting: 'hi' }),
+      ).to.have.be.equal('hi')
 
-      expect(removeIdFromExpessionBindings(footerSlot[BINDING_HTML_KEY]))
-        .to.be.equal('<div expr slot="footer"> </div>')
       expect(
-        footerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({ footer: 'hi' }))
-        .to.have.be.equal('hi')
+        removeIdFromExpessionBindings(footerSlot[BINDING_HTML_KEY]),
+      ).to.be.equal('<div expr slot="footer"> </div>')
+      expect(
+        footerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][
+          BINDING_EVALUATE_KEY
+        ]({ footer: 'hi' }),
+      ).to.have.be.equal('hi')
 
-      expect(removeIdFromExpessionBindings(defaultSlot[BINDING_HTML_KEY]))
-        .to.be.equal('<b>hey</b><i expr> </i>')
       expect(
-        defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_EVALUATE_KEY]({ there: 'hi' }))
-        .to.have.be.equal('hi')
+        removeIdFromExpessionBindings(defaultSlot[BINDING_HTML_KEY]),
+      ).to.be.equal('<b>hey</b><i expr> </i>')
+      expect(
+        defaultSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][
+          BINDING_EVALUATE_KEY
+        ]({ there: 'hi' }),
+      ).to.have.be.equal('hi')
     })
 
     it('Slot <template> tags do not need selectors', () => {
@@ -716,11 +917,14 @@ describe('Generators - Template', () => {
       const getSlot = curry(getSlotById)(output.slots)
       const headerSlot = getSlot('header')
 
-      expect(removeIdFromExpessionBindings(headerSlot[BINDING_HTML_KEY]))
-        .to.be.equal(' ')
       expect(
-        headerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][BINDING_SELECTOR_KEY])
-        .to.be.not.ok
+        removeIdFromExpessionBindings(headerSlot[BINDING_HTML_KEY]),
+      ).to.be.equal(' ')
+      expect(
+        headerSlot[BINDING_BINDINGS_KEY][0][BINDING_EXPRESSIONS_KEY][0][
+          BINDING_SELECTOR_KEY
+        ],
+      ).to.be.not.ok
     })
   })
 
@@ -738,14 +942,18 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] })).to.be.deep.equal([1, 2, 3])
+      expect(
+        output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] }),
+      ).to.be.deep.equal([1, 2, 3])
     })
 
     it('Wrong each formats can not be parsed', () => {
       const source = '<li expr0 each={...items}>{item}</li>'
       const { template } = parse(source)
 
-      expect(() => eachBinding(template, 'expr0', FAKE_SRC_FILE, source)).to.throw()
+      expect(() =>
+        eachBinding(template, 'expr0', FAKE_SRC_FILE, source),
+      ).to.throw()
     })
 
     it('Each expression with index', () => {
@@ -760,11 +968,14 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] })).to.be.deep.equal([1, 2, 3])
+      expect(
+        output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] }),
+      ).to.be.deep.equal([1, 2, 3])
     })
 
     it('Each expression with condition index', () => {
-      const source = '<li expr0 each={(item, index) in items} if={item > 1}>{item}</li>'
+      const source =
+        '<li expr0 each={(item, index) in items} if={item > 1}>{item}</li>'
       const { template } = parse(source)
       const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
@@ -776,11 +987,14 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] })).to.be.deep.equal([1, 2, 3])
+      expect(
+        output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] }),
+      ).to.be.deep.equal([1, 2, 3])
     })
 
     it('Each expression with key attribute', () => {
-      const source = '<li expr0 each={(item, index) in items} key={item} if={item > 1}>{item}</li>'
+      const source =
+        '<li expr0 each={(item, index) in items} key={item} if={item > 1}>{item}</li>'
       const { template } = parse(source)
       const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
@@ -793,7 +1007,9 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] })).to.be.deep.equal([1, 2, 3])
+      expect(
+        output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] }),
+      ).to.be.deep.equal([1, 2, 3])
     })
 
     it('Each complex expression', () => {
@@ -809,11 +1025,14 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(output[BINDING_EVALUATE_KEY]({ items })).to.be.deep.equal([1, 2, 3])
+      expect(output[BINDING_EVALUATE_KEY]({ items })).to.be.deep.equal([
+        1, 2, 3,
+      ])
     })
 
     it('Each cast a string attribute to expression', () => {
-      const source = '<li expr0 each="(item, index) in items" if="item > 1">{item}</li>'
+      const source =
+        '<li expr0 each="(item, index) in items" if="item > 1">{item}</li>'
       const { template } = parse(source)
       const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
@@ -825,11 +1044,14 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] })).to.be.deep.equal([1, 2, 3])
+      expect(
+        output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] }),
+      ).to.be.deep.equal([1, 2, 3])
     })
 
     it('Each binding on custom tag', () => {
-      const source = '<my-tag expr0 each="(item, index) in items">{item}</my-tag>'
+      const source =
+        '<my-tag expr0 each="(item, index) in items">{item}</my-tag>'
       const { template } = parse(source)
       const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
@@ -839,7 +1061,9 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.EACH)
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] })).to.be.deep.equal([1, 2, 3])
+      expect(
+        output[BINDING_EVALUATE_KEY]({ items: [1, 2, 3] }),
+      ).to.be.deep.equal([1, 2, 3])
     })
 
     it('Spread + each attribute expression', () => {
@@ -853,9 +1077,13 @@ describe('Generators - Template', () => {
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(expression[BINDING_NAME_KEY]).to.be.not.ok
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: { bar: 'bar' } })).to.be.deep.equal({ bar: 'bar' })
+      expect(
+        expression[BINDING_EVALUATE_KEY]({ foo: { bar: 'bar' } }),
+      ).to.be.deep.equal({ bar: 'bar' })
     })
 
     it('Spread + each attribute on custom node', () => {
@@ -865,30 +1093,41 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
       const expression = output.template.bindingsData[0].attributes[0]
 
-
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(expression[BINDING_NAME_KEY]).to.be.not.ok
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: { bar: 'bar' } })).to.be.deep.equal({ bar: 'bar' })
+      expect(
+        expression[BINDING_EVALUATE_KEY]({ foo: { bar: 'bar' } }),
+      ).to.be.deep.equal({ bar: 'bar' })
     })
 
     it('Expression attributes + each attribute on custom node', () => {
-      const source = '<my-tag each={item in items} foo={foo} bar="bar"></my-tag>'
+      const source =
+        '<my-tag each={item in items} foo={foo} bar="bar"></my-tag>'
       const { template } = parse(source)
       const input = eachBinding(template, 'expr0', FAKE_SRC_FILE, source)
       const output = evaluateOutput(input)
 
       const expression = output.template.bindingsData[0].attributes[0]
 
-      expect(output.template.bindingsData[0].attributes, 'static attributes should\'t be parsed as expressions').to.have.length(1)
+      expect(
+        output.template.bindingsData[0].attributes,
+        "static attributes should't be parsed as expressions",
+      ).to.have.length(1)
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
-      expect(expression[BINDING_TYPE_KEY]).to.be.equal(expressionTypes.ATTRIBUTE)
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
       expect(expression[BINDING_NAME_KEY]).to.be.ok
-      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'bar' })).to.be.deep.equal('bar')
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: 'bar' })).to.be.deep.equal(
+        'bar',
+      )
     })
   })
 
@@ -946,11 +1185,13 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TEMPLATE_KEY]).to.be.a('object')
       expect(output[BINDING_EVALUATE_KEY]).to.be.a('function')
 
-      expect(output[BINDING_EVALUATE_KEY]({
-        opts: {
-          isVisible: false
-        }
-      })).to.be.equal(false)
+      expect(
+        output[BINDING_EVALUATE_KEY]({
+          opts: {
+            isVisible: false,
+          },
+        }),
+      ).to.be.equal(false)
     })
 
     it('If expressions should not have redundant expression attributes', () => {
@@ -1106,7 +1347,7 @@ describe('Generators - Template', () => {
       expect(html).to.be.equal(source)
     })
 
-    it('You don\'t know HTML, void tags correction', () => {
+    it("You don't know HTML, void tags correction", () => {
       const source = '<img></img>'
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
@@ -1178,7 +1419,7 @@ describe('Generators - Template', () => {
       expect(html).to.be.equal('<template expr></template>')
     })
 
-    it('Slot shouldn\'t be considered custom tags', () => {
+    it("Slot shouldn't be considered custom tags", () => {
       const source = '<slot/>'
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, FAKE_SRC_FILE, source)
@@ -1214,14 +1455,19 @@ describe('Generators - Template', () => {
       const source = '<input type="text" name="txt" is="binding" value="1"/>'
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, 'expr0', FAKE_SRC_FILE, source)
-      expect(html).to.be.equal('<input expr type="text" name="txt" is="binding" value="1"/>')
+      expect(html).to.be.equal(
+        '<input expr type="text" name="txt" is="binding" value="1"/>',
+      )
     })
 
     it('Event attributes on custom tags do not break the compiler (issue #124)', () => {
-      const source = '<input type="text" name="txt" is="binding" onclick="void"/>'
+      const source =
+        '<input type="text" name="txt" is="binding" onclick="void"/>'
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, 'expr0', FAKE_SRC_FILE, source)
-      expect(html).to.be.equal('<input expr type="text" name="txt" is="binding" onclick="void"/>')
+      expect(html).to.be.equal(
+        '<input expr type="text" name="txt" is="binding" onclick="void"/>',
+      )
     })
   })
 })

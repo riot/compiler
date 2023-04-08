@@ -4,8 +4,8 @@ import {
   generateSlotsFromString,
   generateTemplateFunctionFromString,
   registerPreprocessor,
-} from '../src'
-import { evaluateScript, getFixture, sassPreprocessor } from './helpers'
+} from '../src/index.js'
+import { evaluateScript, getFixture, sassPreprocessor } from './helpers.js'
 import { SourceMapConsumer } from 'source-map'
 import { expect } from 'chai'
 import pug from 'pug'

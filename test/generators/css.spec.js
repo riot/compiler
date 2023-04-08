@@ -1,5 +1,5 @@
 import compileCSS, { addScopeToSelectorList } from '../../src/generators/css'
-import { evaluateScript, sassPreprocessor } from '../helpers'
+import { evaluateScript, sassPreprocessor } from '../helpers.js'
 import { register, unregister } from '../../src/preprocessors'
 import { createInitialInput } from '../../src/index'
 import { expect } from 'chai'

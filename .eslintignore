@@ -2,3 +2,6 @@
 **/dist/
 **/test/expected/
 **/test/fixtures/
+# import assertions are not yet supported by eslint
+src/utils/ast-nodes-checks.js
+src/utils/html-entities/encode.js
