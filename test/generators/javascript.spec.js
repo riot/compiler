@@ -1,6 +1,6 @@
 import compileJavascript from '../../src/generators/javascript'
 import { createInitialInput } from '../../src/index'
-import { evaluateScript } from '../helpers'
+import { evaluateScript } from '../helpers.js'
 import { expect } from 'chai'
 import parser from '@riotjs/parser'
 import { print } from 'recast'

@@ -4,7 +4,7 @@ import {
   register,
   unregister,
 } from '../src/preprocessors'
-import { babelPreprocessor } from './helpers'
+import { babelPreprocessor } from './helpers.js'
 import { expect } from 'chai'
 
 describe('Preprocessors', () => {
