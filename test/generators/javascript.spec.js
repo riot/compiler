@@ -1,5 +1,5 @@
-import compileJavascript from '../../src/generators/javascript'
-import { createInitialInput } from '../../src/index'
+import compileJavascript from '../../src/generators/javascript/index.js'
+import { createInitialInput } from '../../src/index.js'
 import { evaluateScript } from '../helpers.js'
 import { expect } from 'chai'
 import parser from '@riotjs/parser'

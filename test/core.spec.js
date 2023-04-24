@@ -9,7 +9,7 @@ import { evaluateScript, getFixture, sassPreprocessor } from './helpers.js'
 import { SourceMapConsumer } from 'source-map'
 import { expect } from 'chai'
 import pug from 'pug'
-import { unregister } from '../src/preprocessors'
+import { unregister } from '../src/preprocessors.js'
 
 describe('Core specs', () => {
   describe('Simple tags', () => {

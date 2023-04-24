@@ -14,26 +14,26 @@ import {
   BINDING_TEMPLATE_KEY,
   BINDING_TYPE_KEY,
   NAME_ATTRIBUTE,
-} from '../../src/generators/template/constants'
+} from '../../src/generators/template/constants.js'
 import { bindingTypes, expressionTypes } from '@riotjs/dom-bindings'
 import {
   createRootNode,
   toScopedFunction,
-} from '../../src/generators/template/utils'
+} from '../../src/generators/template/utils.js'
 import { evaluateScript, renderExpression } from '../helpers.js'
-import builder from '../../src/generators/template/builder'
-import { builders } from '../../src/utils/build-types'
+import builder from '../../src/generators/template/builder.js'
+import { builders } from '../../src/utils/build-types.js'
 import compose from 'cumpa'
 import curry from 'curri'
-import eachBinding from '../../src/generators/template/bindings/each'
+import eachBinding from '../../src/generators/template/bindings/each.js'
 import { expect } from 'chai'
-import generateJavascript from '../../src/utils/generate-javascript'
-import ifBinding from '../../src/generators/template/bindings/if'
-import { mergeNodeExpressions } from '../../src/generators/template/expressions/text'
+import generateJavascript from '../../src/utils/generate-javascript.js'
+import ifBinding from '../../src/generators/template/bindings/if.js'
+import { mergeNodeExpressions } from '../../src/generators/template/expressions/text.js'
 import riotParser from '@riotjs/parser'
-import simpleBinding from '../../src/generators/template/bindings/simple'
-import slotBinding from '../../src/generators/template/bindings/slot'
-import tagBinding from '../../src/generators/template/bindings/tag'
+import simpleBinding from '../../src/generators/template/bindings/simple.js'
+import slotBinding from '../../src/generators/template/bindings/slot.js'
+import tagBinding from '../../src/generators/template/bindings/tag.js'
 
 const FAKE_SRC_FILE = 'fake-file.js'
 const renderExpr = compose(renderExpression, toScopedFunction, (expr) => ({
