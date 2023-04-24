@@ -1,9 +1,10 @@
 import { join, relative } from 'path'
 import { print } from 'recast'
-import { compileString } from 'sass'
+import sass from 'sass'
 import sh from 'shelljs'
 import { transformSync } from '@babel/core'
 
+const { compileString } = sass
 const FIXTURES_DIR = './test/fixtures/'
 const EXPECTED_DIR = './test/expected/'
 const uid = (() => {
