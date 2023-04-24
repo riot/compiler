@@ -22,7 +22,7 @@
     "build": "rollup -c build/rollup.node.config.js && rollup -c build/rollup.browser.config.js && rollup -c build/rollup.essential.config.js",
     "postest": "npm run cov-html",
     "test-types": "tsc -p test",
-    "test-runtime": "karma start test/karma.conf.js",
+    "test-runtime": "karma start test/karma.conf.cjs",
     "test": "c8 mocha test/*.spec.js test/**/*.spec.js && npm run test-types",
     "debug": "mocha --inspect --inspect-brk test/*.spec.js test/**/*.spec.js",
     "prepublishOnly": "npm run build && npm run lint && npm run test && npm run test-runtime"
