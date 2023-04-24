@@ -10,7 +10,10 @@ import {
   transformExpression,
   wrapASTInFunctionWithScope,
 } from '../utils.js'
-import { nullNode, simplePropertyNode } from '../../../utils/custom-ast-nodes.js'
+import {
+  nullNode,
+  simplePropertyNode,
+} from '../../../utils/custom-ast-nodes.js'
 import { builders } from '../../../utils/build-types.js'
 import encodeHTMLEntities from '../../../utils/html-entities/encode.js'
 import { isCommentString } from '../checks.js'

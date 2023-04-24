@@ -1,4 +1,5 @@
-dist
-coverage
-node_modules
-.nyc_output
+/dist
+/coverage
+/node_modules
+/.nyc_output
+/stats.html

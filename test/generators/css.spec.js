@@ -1,4 +1,6 @@
-import compileCSS, { addScopeToSelectorList } from '../../src/generators/css/index.js'
+import compileCSS, {
+  addScopeToSelectorList,
+} from '../../src/generators/css/index.js'
 import { evaluateScript, sassPreprocessor } from '../helpers.js'
 import { register, unregister } from '../../src/preprocessors.js'
 import { createInitialInput } from '../../src/index.js'
