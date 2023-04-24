@@ -1,9 +1,13 @@
-import { join, relative } from 'path'
+import { join, relative, dirname } from 'path'
 import { print } from 'recast'
 import sass from 'sass'
 import sh from 'shelljs'
+import { createRequire } from 'node:module'
+import { fileURLToPath } from 'node:url'
 import { transformSync } from '@babel/core'
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const require = createRequire(import.meta.url)
 const { compileString } = sass
 const FIXTURES_DIR = './test/fixtures/'
 const EXPECTED_DIR = './test/expected/'
@@ -33,8 +37,8 @@ export function babelPreprocessor(source, meta) {
             ie: '11',
           },
           loose: true,
-          modules: false,
-          useBuiltIns: 'usage',
+          modules: 'commonjs',
+          useBuiltIns: false,
         },
       ],
     ],
@@ -54,9 +58,15 @@ export function sassPreprocessor(source) {
 }
 
 export function evaluateScript(code) {
-  const TMP_FILE_NAME = `${uid()}-tmp-file.js`
+  const TMP_FILE_NAME = `${uid()}-tmp-file.cjs`
   const filePath = join(EXPECTED_DIR, TMP_FILE_NAME)
-  sh.ShellString(code).to(filePath)
+  sh.ShellString(
+    babelPreprocessor(code, {
+      options: {
+        file: TMP_FILE_NAME,
+      },
+    }).code,
+  ).to(filePath)
 
   try {
     const content = require(`./${relative(__dirname, filePath)}`)
