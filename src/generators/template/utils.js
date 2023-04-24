@@ -2,8 +2,11 @@ import {
   BINDING_REDUNDANT_ATTRIBUTE_KEY,
   BINDING_SELECTOR_KEY,
   BINDING_SELECTOR_PREFIX,
-  BINDING_TEMPLATE_KEY, BINDING_TYPES,
-  EACH_DIRECTIVE, EXPRESSION_TYPES, GET_COMPONENT_FN,
+  BINDING_TEMPLATE_KEY,
+  BINDING_TYPES,
+  EACH_DIRECTIVE,
+  EXPRESSION_TYPES,
+  GET_COMPONENT_FN,
   IF_DIRECTIVE,
   IS_BOOLEAN_ATTRIBUTE,
   IS_DIRECTIVE,
@@ -11,33 +14,33 @@ import {
   SCOPE,
   SLOT_ATTRIBUTE,
   TEMPLATE_FN,
-  TEXT_NODE_EXPRESSION_PLACEHOLDER
+  TEXT_NODE_EXPRESSION_PLACEHOLDER,
 } from './constants.js'
-import {builders, types} from '../../utils/build-types.js'
-import {findIsAttribute, findStaticAttributes} from './find.js'
+import { builders, types } from '../../utils/build-types.js'
+import { findIsAttribute, findStaticAttributes } from './find.js'
 import {
   hasExpressions,
   isGlobal,
   isTagNode,
   isTextNode,
-  isVoidNode
+  isVoidNode,
 } from './checks.js'
 import {
   isIdentifier,
   isLiteral,
   isMemberExpression,
-  isObjectExpression
+  isObjectExpression,
 } from '../../utils/ast-nodes-checks.js'
-import {nullNode, simplePropertyNode} from '../../utils/custom-ast-nodes.js'
+import { nullNode, simplePropertyNode } from '../../utils/custom-ast-nodes.js'
 import addLinesOffset from '../../utils/add-lines-offset.js'
 import compose from 'cumpa'
-import {createExpression} from './expressions/index.js'
+import { createExpression } from './expressions/index.js'
 import encodeHTMLEntities from '../../utils/html-entities/encode.js'
 import generateAST from '../../utils/generate-ast.js'
 import unescapeChar from '../../utils/unescape-char.js'
 
 const scope = builders.identifier(SCOPE)
-export const getName = node => node && node.name ? node.name : node
+export const getName = (node) => (node && node.name ? node.name : node)
 
 /**
  * Replace the path scope with a member Expression
@@ -46,11 +49,7 @@ export const getName = node => node && node.name ? node.name : node
  * @returns {undefined} this is a void function
  */
 function replacePathScope(path, property) {
-  path.replace(builders.memberExpression(
-    scope,
-    property,
-    false
-  ))
+  path.replace(builders.memberExpression(scope, property, false))
 }
 
 /**
@@ -79,19 +78,16 @@ function visitMemberExpression(path) {
   const currentObject = path.node.object
 
   switch (true) {
-  case isGlobal(path):
-    if (currentObject.arguments && currentObject.arguments.length) {
-      traversePathObject()
-    }
-    break
-  case !path.value.computed && isIdentifier(currentObject):
-    replacePathScope(
-      path,
-      path.node
-    )
-    break
-  default:
-    this.traverse(path)
+    case isGlobal(path):
+      if (currentObject.arguments && currentObject.arguments.length) {
+        traversePathObject()
+      }
+      break
+    case !path.value.computed && isIdentifier(currentObject):
+      replacePathScope(path, path.node)
+      break
+    default:
+      this.traverse(path)
   }
 
   return false
@@ -156,7 +152,7 @@ export function updateNodesScope(ast) {
     visitMemberExpression,
     visitObjectProperty,
     visitThisExpression,
-    visitClassExpression: ignorePath
+    visitClassExpression: ignorePath,
   })
 
   return ast
@@ -170,12 +166,12 @@ export function updateNodesScope(ast) {
  * @returns { Object } the ast generated
  */
 export function createASTFromExpression(expression, sourceFile, sourceCode) {
-  const code = sourceFile ?
-    addLinesOffset(expression.text, sourceCode, expression) :
-    expression.text
+  const code = sourceFile
+    ? addLinesOffset(expression.text, sourceCode, expression)
+    : expression.text
 
   return generateAST(`(${code})`, {
-    sourceFileName: sourceFile
+    sourceFileName: sourceFile,
   })
 }
 
@@ -187,7 +183,7 @@ export function createASTFromExpression(expression, sourceFile, sourceCode) {
 export function createTemplateProperty(args) {
   return simplePropertyNode(
     BINDING_TEMPLATE_KEY,
-    args ? callTemplateFunction(...args) : nullNode()
+    args ? callTemplateFunction(...args) : nullNode(),
   )
 }
 
@@ -197,11 +193,13 @@ export function createTemplateProperty(args) {
  * @returns { RiotParser.Node.Expression } attribute expression value
  */
 export function getAttributeExpression(attribute) {
-  return attribute.expressions ? attribute.expressions[0] : {
-    // if no expression was found try to typecast the attribute value
-    ...attribute,
-    text: attribute.value
-  }
+  return attribute.expressions
+    ? attribute.expressions[0]
+    : {
+        // if no expression was found try to typecast the attribute value
+        ...attribute,
+        text: attribute.value,
+      }
 }
 
 /**
@@ -219,7 +217,7 @@ export function wrapASTInFunctionWithScope(ast) {
     // doing a small hack here
     // trying to figure out how the recast printer works internally
     ast.extra = {
-      parenthesized: true
+      parenthesized: true,
     }
   }
 
@@ -240,10 +238,11 @@ export function wrapASTInFunctionWithScope(ast) {
  *  toScopedFunction('foo.baz + bar') // scope.foo.baz + scope.bar
  */
 export function toScopedFunction(expression, sourceFile, sourceCode) {
-  return compose(
-    wrapASTInFunctionWithScope,
-    transformExpression
-  )(expression, sourceFile, sourceCode)
+  return compose(wrapASTInFunctionWithScope, transformExpression)(
+    expression,
+    sourceFile,
+    sourceCode,
+  )
 }
 
 /**
@@ -254,11 +253,11 @@ export function toScopedFunction(expression, sourceFile, sourceCode) {
  * @returns {ASTExpression} ast expression generated from the riot parser expression node
  */
 export function transformExpression(expression, sourceFile, sourceCode) {
-  return compose(
-    getExpressionAST,
-    updateNodesScope,
-    createASTFromExpression
-  )(expression, sourceFile, sourceCode)
+  return compose(getExpressionAST, updateNodesScope, createASTFromExpression)(
+    expression,
+    sourceFile,
+    sourceCode,
+  )
 }
 
 /**
@@ -281,7 +280,7 @@ export function getExpressionAST(sourceAST) {
 export function callTemplateFunction(template, bindings) {
   return builders.callExpression(builders.identifier(TEMPLATE_FN), [
     template ? builders.literal(template) : nullNode(),
-    bindings ? builders.arrayExpression(bindings) : nullNode()
+    bindings ? builders.arrayExpression(bindings) : nullNode(),
   ])
 }
 
@@ -290,22 +289,21 @@ export function callTemplateFunction(template, bindings) {
  * @param {Array<AST.Nodes>|AST.BlockStatement} body - function body
  * @returns {AST.Node} arrow function expression
  */
-export const createTemplateDependenciesInjectionWrapper = (body) => builders.arrowFunctionExpression(
-  [
-    TEMPLATE_FN,
-    EXPRESSION_TYPES,
-    BINDING_TYPES,
-    GET_COMPONENT_FN
-  ].map(builders.identifier),
-  body
-)
+export const createTemplateDependenciesInjectionWrapper = (body) =>
+  builders.arrowFunctionExpression(
+    [TEMPLATE_FN, EXPRESSION_TYPES, BINDING_TYPES, GET_COMPONENT_FN].map(
+      builders.identifier,
+    ),
+    body,
+  )
 
 /**
  * Convert any DOM attribute into a valid DOM selector useful for the querySelector API
  * @param   { string } attributeName - name of the attribute to query
  * @returns { string } the attribute transformed to a query selector
  */
-export const attributeNameToDOMQuerySelector = attributeName => `[${attributeName}]`
+export const attributeNameToDOMQuerySelector = (attributeName) =>
+  `[${attributeName}]`
 
 /**
  * Create the properties to query a DOM node
@@ -313,12 +311,21 @@ export const attributeNameToDOMQuerySelector = attributeName => `[${attributeNam
  * @returns { Array<AST.Node> } array containing the selector properties needed for the binding
  */
 export function createSelectorProperties(attributeName) {
-  return attributeName ? [
-    simplePropertyNode(BINDING_REDUNDANT_ATTRIBUTE_KEY, builders.literal(attributeName)),
-    simplePropertyNode(BINDING_SELECTOR_KEY,
-      compose(builders.literal, attributeNameToDOMQuerySelector)(attributeName)
-    )
-  ] : []
+  return attributeName
+    ? [
+        simplePropertyNode(
+          BINDING_REDUNDANT_ATTRIBUTE_KEY,
+          builders.literal(attributeName),
+        ),
+        simplePropertyNode(
+          BINDING_SELECTOR_KEY,
+          compose(
+            builders.literal,
+            attributeNameToDOMQuerySelector,
+          )(attributeName),
+        ),
+      ]
+    : []
 }
 
 /**
@@ -330,10 +337,12 @@ export function createSelectorProperties(attributeName) {
 export function cloneNodeWithoutSelectorAttribute(node, selectorAttribute) {
   return {
     ...node,
-    attributes: getAttributesWithoutSelector(getNodeAttributes(node), selectorAttribute)
+    attributes: getAttributesWithoutSelector(
+      getNodeAttributes(node),
+      selectorAttribute,
+    ),
   }
 }
-
 
 /**
  * Get the node attributes without the selector one
@@ -343,7 +352,9 @@ export function cloneNodeWithoutSelectorAttribute(node, selectorAttribute) {
  */
 export function getAttributesWithoutSelector(attributes, selectorAttribute) {
   if (selectorAttribute)
-    return attributes.filter(attribute => attribute.name !== selectorAttribute)
+    return attributes.filter(
+      (attribute) => attribute.name !== selectorAttribute,
+    )
 
   return attributes
 }
@@ -354,13 +365,16 @@ export function getAttributesWithoutSelector(attributes, selectorAttribute) {
  * @returns {Array<RiotParser.Node.Attr>} only the attributes that are not bindings or directives
  */
 export function cleanAttributes(node) {
-  return getNodeAttributes(node).filter(attribute => ![
-    IF_DIRECTIVE,
-    EACH_DIRECTIVE,
-    KEY_ATTRIBUTE,
-    SLOT_ATTRIBUTE,
-    IS_DIRECTIVE
-  ].includes(attribute.name))
+  return getNodeAttributes(node).filter(
+    (attribute) =>
+      ![
+        IF_DIRECTIVE,
+        EACH_DIRECTIVE,
+        KEY_ATTRIBUTE,
+        SLOT_ATTRIBUTE,
+        IS_DIRECTIVE,
+      ].includes(attribute.name),
+  )
 }
 
 /**
@@ -371,7 +385,7 @@ export function cleanAttributes(node) {
 export function rootNodeFactory(node) {
   return {
     nodes: getChildrenNodes(node),
-    isRoot: true
+    isRoot: true,
   }
 }
 
@@ -387,8 +401,8 @@ export function createRootNode(node) {
       // root nodes should always have attribute expressions
       transformStaticAttributesIntoExpressions,
       // root nodes shouldn't have directives
-      cleanAttributes
-    )(node)
+      cleanAttributes,
+    )(node),
   }
 }
 
@@ -400,7 +414,7 @@ export function createRootNode(node) {
 export function createNestedRootNode(node) {
   return {
     ...rootNodeFactory(node),
-    attributes: cleanAttributes(node)
+    attributes: cleanAttributes(node),
   }
 }
 
@@ -410,20 +424,25 @@ export function createNestedRootNode(node) {
  * @returns {Array<RiotParser.Node.Attr>} all the attributes received as attribute expressions
  */
 export function transformStaticAttributesIntoExpressions(attributes) {
-  return attributes.map(attribute => {
+  return attributes.map((attribute) => {
     if (attribute.expressions) return attribute
 
     return {
       ...attribute,
-      expressions: [{
-        start: attribute.valueStart,
-        end: attribute.end,
-        text: `'${attribute.value ? 
-          attribute.value : 
-          // boolean attributes should be treated differently
-          attribute[IS_BOOLEAN_ATTRIBUTE] ? attribute.name : ''
-        }'`
-      }]
+      expressions: [
+        {
+          start: attribute.valueStart,
+          end: attribute.end,
+          text: `'${
+            attribute.value
+              ? attribute.value
+              : // boolean attributes should be treated differently
+              attribute[IS_BOOLEAN_ATTRIBUTE]
+              ? attribute.name
+              : ''
+          }'`,
+        },
+      ],
     }
   })
 }
@@ -453,21 +472,34 @@ export function getNodeAttributes(node) {
  * @param   {string} sourceCode - original tag source code
  * @returns {RiotParser.Node.Attr} the node name as expression attribute
  */
-export function createCustomNodeNameEvaluationFunction(node, sourceFile, sourceCode) {
+export function createCustomNodeNameEvaluationFunction(
+  node,
+  sourceFile,
+  sourceCode,
+) {
   const isAttribute = findIsAttribute(node)
-  const toRawString = val => `'${val}'`
+  const toRawString = (val) => `'${val}'`
 
   if (isAttribute) {
-    return isAttribute.expressions ? wrapASTInFunctionWithScope(
-      mergeAttributeExpressions(isAttribute, sourceFile, sourceCode)
-    ) :
-      toScopedFunction({
-        ...isAttribute,
-        text: toRawString(isAttribute.value)
-      }, sourceFile, sourceCode)
+    return isAttribute.expressions
+      ? wrapASTInFunctionWithScope(
+          mergeAttributeExpressions(isAttribute, sourceFile, sourceCode),
+        )
+      : toScopedFunction(
+          {
+            ...isAttribute,
+            text: toRawString(isAttribute.value),
+          },
+          sourceFile,
+          sourceCode,
+        )
   }
 
-  return toScopedFunction({ ...node, text: toRawString(getName(node)) }, sourceFile, sourceCode)
+  return toScopedFunction(
+    { ...node, text: toRawString(getName(node)) },
+    sourceFile,
+    sourceCode,
+  )
 }
 
 /**
@@ -477,10 +509,12 @@ export function createCustomNodeNameEvaluationFunction(node, sourceFile, sourceC
  */
 export function staticAttributesToString(node) {
   return findStaticAttributes(node)
-    .map(attribute => attribute[IS_BOOLEAN_ATTRIBUTE] || !attribute.value ?
-      attribute.name :
-      `${attribute.name}="${unescapeNode(attribute, 'value').value}"`
-    ).join(' ')
+    .map((attribute) =>
+      attribute[IS_BOOLEAN_ATTRIBUTE] || !attribute.value
+        ? attribute.name
+        : `${attribute.name}="${unescapeNode(attribute, 'value').value}"`,
+    )
+    .join(' ')
 }
 
 /**
@@ -493,7 +527,7 @@ export function unescapeNode(node, key) {
   if (node.unescape) {
     return {
       ...node,
-      [key]: unescapeChar(node[key], node.unescape)
+      [key]: unescapeChar(node[key], node.unescape),
     }
   }
 
@@ -509,12 +543,16 @@ export function nodeToString(node) {
   const attributes = staticAttributesToString(node)
 
   switch (true) {
-  case isTagNode(node):
-    return `<${node.name}${attributes ? ` ${attributes}` : ''}${isVoidNode(node) ? '/' : ''}>`
-  case isTextNode(node):
-    return hasExpressions(node) ? TEXT_NODE_EXPRESSION_PLACEHOLDER : unescapeNode(node, 'text').text
-  default:
-    return node.text || ''
+    case isTagNode(node):
+      return `<${node.name}${attributes ? ` ${attributes}` : ''}${
+        isVoidNode(node) ? '/' : ''
+      }>`
+    case isTextNode(node):
+      return hasExpressions(node)
+        ? TEXT_NODE_EXPRESSION_PLACEHOLDER
+        : unescapeNode(node, 'text').text
+    default:
+      return node.text || ''
   }
 }
 
@@ -537,9 +575,9 @@ export function createArrayString(stringsArray) {
     builders.memberExpression(
       builders.arrayExpression(stringsArray),
       builders.identifier('join'),
-      false
+      false,
     ),
-    [builders.literal('')]
+    [builders.literal('')],
   )
 }
 
@@ -557,17 +595,16 @@ export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
   }
   const stringsArray = [
     ...node.parts.reduce((acc, str) => {
-      const expression = node.expressions.find(e => e.text.trim() === str)
+      const expression = node.expressions.find((e) => e.text.trim() === str)
 
       return [
         ...acc,
-        expression ?
-          transformExpression(expression, sourceFile, sourceCode) :
-          builders.literal(encodeHTMLEntities(str))
+        expression
+          ? transformExpression(expression, sourceFile, sourceCode)
+          : builders.literal(encodeHTMLEntities(str)),
       ]
-    }, [])
-  ].filter(expr => !isLiteral(expr) || expr.value)
-
+    }, []),
+  ].filter((expr) => !isLiteral(expr) || expr.value)
 
   return createArrayString(stringsArray)
 }
@@ -579,7 +616,7 @@ export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
  */
 export const createBindingSelector = (function createSelector(id = 0) {
   return () => `${BINDING_SELECTOR_PREFIX}${id++}`
-}())
+})()
 
 /**
  * Create the AST array containing the attributes to bind to this node
@@ -589,14 +626,23 @@ export const createBindingSelector = (function createSelector(id = 0) {
  * @param   { string } sourceCode - original source
  * @returns {AST.ArrayExpression} array containing the slot objects
  */
-export function createBindingAttributes(sourceNode, selectorAttribute, sourceFile, sourceCode) {
+export function createBindingAttributes(
+  sourceNode,
+  selectorAttribute,
+  sourceFile,
+  sourceCode,
+) {
   return builders.arrayExpression([
     ...compose(
-      attributes => attributes.map(attribute => createExpression(attribute, sourceFile, sourceCode, 0, sourceNode)),
-      attributes => attributes.filter(hasExpressions),
-      attributes => getAttributesWithoutSelector(attributes, selectorAttribute),
-      cleanAttributes
-    )(sourceNode)
+      (attributes) =>
+        attributes.map((attribute) =>
+          createExpression(attribute, sourceFile, sourceCode, 0, sourceNode),
+        ),
+      (attributes) => attributes.filter(hasExpressions),
+      (attributes) =>
+        getAttributesWithoutSelector(attributes, selectorAttribute),
+      cleanAttributes,
+    )(sourceNode),
   ])
 }
 
@@ -607,6 +653,12 @@ export function createBindingAttributes(sourceNode, selectorAttribute, sourceFil
  * @param   {string} sourceCode - original tag source code
  * @returns { AST.Node } an AST function expression to evaluate the attribute value
  */
-export function createAttributeEvaluationFunction(sourceNode, sourceFile, sourceCode) {
-  return wrapASTInFunctionWithScope(mergeAttributeExpressions(sourceNode, sourceFile, sourceCode))
+export function createAttributeEvaluationFunction(
+  sourceNode,
+  sourceFile,
+  sourceCode,
+) {
+  return wrapASTInFunctionWithScope(
+    mergeAttributeExpressions(sourceNode, sourceFile, sourceCode),
+  )
 }
