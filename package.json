@@ -1,6 +1,6 @@
 {
   "name": "@riotjs/compiler",
-  "version": "6.4.2",
+  "version": "7.0.0-rc.1",
   "description": "Compiler for Riot.js .riot files",
   "main": "./dist/index.cjs",
   "types": "./compiler.d.ts",
@@ -40,8 +40,8 @@
     "compiler"
   ],
   "devDependencies": {
-    "@babel/core": "^7.21.4",
-    "@babel/preset-env": "^7.21.4",
+    "@babel/core": "^7.21.5",
+    "@babel/preset-env": "^7.21.5",
     "@riotjs/dom-bindings": "^6.0.7",
     "@riotjs/prettier-config": "^1.0.1",
     "@rollup/plugin-alias": "^5.0.0",
@@ -65,7 +65,7 @@
     "rollup": "^3.21.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-visualizer": "^5.9.0",
-    "sass": "^1.62.0",
+    "sass": "^1.62.1",
     "shelljs": "^0.8.5",
     "typescript": "^5.0.4"
   },
@@ -76,8 +76,8 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
-    "@babel/parser": "^7.21.4",
-    "@riotjs/parser": "^5.0.0",
+    "@babel/parser": "^7.21.5",
+    "@riotjs/parser": "^5.0.1",
     "@riotjs/util": "2.2.1",
     "cssesc": "^3.0.0",
     "cumpa": "^2.0.1",
