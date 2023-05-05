@@ -1,6 +1,6 @@
 {
   "name": "@riotjs/compiler",
-  "version": "7.0.0-rc.1",
+  "version": "9.0.0-rc.1",
   "description": "Compiler for Riot.js .riot files",
   "main": "./dist/index.cjs",
   "types": "./compiler.d.ts",
@@ -40,7 +40,7 @@
     "compiler"
   ],
   "devDependencies": {
-    "@babel/core": "^7.21.5",
+    "@babel/core": "^7.21.8",
     "@babel/preset-env": "^7.21.5",
     "@riotjs/dom-bindings": "^6.0.7",
     "@riotjs/prettier-config": "^1.0.1",
@@ -51,7 +51,7 @@
     "acorn": "^8.8.2",
     "c8": "^7.13.0",
     "chai": "^4.3.7",
-    "eslint": "^8.39.0",
+    "eslint": "^8.40.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-riot": "^4.0.0",
     "eslint-plugin-fp": "^2.3.0",
@@ -62,7 +62,7 @@
     "mocha": "^10.2.0",
     "prettier": "^2.8.8",
     "pug": "^3.0.2",
-    "rollup": "^3.21.0",
+    "rollup": "^3.21.5",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-visualizer": "^5.9.0",
     "sass": "^1.62.1",
@@ -76,7 +76,7 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
-    "@babel/parser": "^7.21.5",
+    "@babel/parser": "^7.21.8",
     "@riotjs/parser": "^5.0.1",
     "@riotjs/util": "2.2.1",
     "cssesc": "^3.0.0",
