@@ -1,14 +1,22 @@
 {
   "name": "@riotjs/compiler",
-  "version": "9.0.0-rc.1",
+  "version": "9.0.0-rc.2",
   "description": "Compiler for Riot.js .riot files",
   "main": "./dist/index.cjs",
   "types": "./compiler.d.ts",
   "type": "module",
   "exports": {
-    "types": "./compiler.d.ts",
-    "require": "./dist/index.cjs",
-    "import": "./dist/index.js"
+    ".": {
+      "types": "./compiler.d.ts",
+      "require": "./dist/index.cjs",
+      "browser": "./dist/compiler.js",
+      "import": "./dist/index.js"
+    },
+    "./essential": {
+      "types": "./compiler.d.ts",
+      "require": "./dist/compiler.essential.cjs",
+      "import": "./dist/compiler.essential.js"
+    }
   },
   "files": [
     "dist",
