@@ -11,7 +11,7 @@ export default ['umd', 'esm'].map((format) => ({
   ...defaultConfig,
   output: {
     name: 'compiler',
-    file: `./dist/compiler.essential${format === 'umd' ? '.js' : '.cjs'}`,
+    file: `./dist/compiler.essential${format === 'esm' ? '.js' : '.cjs'}`,
     format: format,
     globals: ignoredModules.reduce(
       (acc, dep) => ({
@@ -43,8 +43,8 @@ export default ['umd', 'esm'].map((format) => ({
           replacement: './src/utils/mock/os-mock-api.js',
         },
         {
-          find: 'recast/parsers/typescript',
-          replacement: 'recast/parsers/acorn',
+          find: 'recast/parsers/typescript.js',
+          replacement: 'recast/parsers/acorn.js',
         },
       ],
     }),
