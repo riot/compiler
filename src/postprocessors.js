@@ -49,13 +49,16 @@ export function unregister(postprocessor) {
  * @returns { Output } object containing output code and source map
  */
 export function execute(compilerOutput, meta) {
-  return Array.from(postprocessors).reduce(function (acc, postprocessor) {
-    const { code, map } = acc
-    const output = postprocessor(code, meta)
+  return Array.from(postprocessors).reduce(
+    function (acc, postprocessor) {
+      const { code, map } = acc
+      const output = postprocessor(code, meta)
 
-    return {
-      code: output.code,
-      map: composeSourcemaps(map, output.map),
-    }
-  }, createOutput(compilerOutput, meta))
+      return {
+        code: output.code,
+        map: composeSourcemaps(map, output.map),
+      }
+    },
+    createOutput(compilerOutput, meta),
+  )
 }
