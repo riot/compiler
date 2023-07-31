@@ -30,7 +30,7 @@ export function createExpression(
     case isEventAttribute(sourceNode):
       return eventExpression(sourceNode, sourceFile, sourceCode)
     default:
-      return attributeExpression(sourceNode, sourceFile, sourceCode)
+      return attributeExpression(sourceNode, parentNode, sourceFile, sourceCode)
   }
 }
 

@@ -355,7 +355,7 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal('')
     })
 
-    it('Known boolean attribute on root tag', () => {
+    it('Known boolean attribute on root tag disable the BINDING_IS_BOOLEAN_ATTRIBUTE flag', () => {
       const source = '<my-tag checked></my-tag>'
       const { template } = parse(source)
       const [, bindings] = builder(
@@ -370,9 +370,27 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_TYPE_KEY]).to.be.equal(
         expressionTypes.ATTRIBUTE,
       )
-      expect(expression[BINDING_IS_BOOLEAN_ATTRIBUTE]).to.be.equal(true)
+      expect(expression[BINDING_IS_BOOLEAN_ATTRIBUTE]).to.be.equal(false)
       expect(expression[BINDING_NAME_KEY]).to.be.equal('checked')
       expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal('checked')
+    })
+
+    it('Known boolean attribute on custom tag disable the BINDING_IS_BOOLEAN_ATTRIBUTE flag', () => {
+      const source = '<div><my-tag checked={true}></my-tag></div>'
+      const { template } = parse(source)
+      const [, bindings] = builder(
+        createRootNode(template),
+        FAKE_SRC_FILE,
+        source,
+      )
+      const output = evaluateOutput(bindings[0])
+      const expression = output.attributes[0]
+
+      expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
+      expect(expression[BINDING_IS_BOOLEAN_ATTRIBUTE]).to.be.equal(false)
     })
 
     it('Custom boolean attribute on a child node', () => {
