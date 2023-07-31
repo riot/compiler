@@ -49,6 +49,8 @@ export const getName = (node) => (node && node.name ? node.name : node)
  * @returns {undefined} this is a void function
  */
 function replacePathScope(path, property) {
+  // make sure that for the scope injection the extra parenthesis get removed
+  removeExtraParenthesis(property)
   path.replace(builders.memberExpression(scope, property, false))
 }
 
@@ -210,7 +212,7 @@ export function getAttributeExpression(attribute) {
 export function wrapASTInFunctionWithScope(ast) {
   const fn = builders.arrowFunctionExpression([scope], ast)
 
-  // object expressions need to be wrapped in parenthesis
+  // object expressions need to be wrapped in parentheses
   // recast doesn't allow it
   // see also https://github.com/benjamn/recast/issues/985
   if (isObjectExpression(ast)) {
@@ -253,11 +255,23 @@ export function toScopedFunction(expression, sourceFile, sourceCode) {
  * @returns {ASTExpression} ast expression generated from the riot parser expression node
  */
 export function transformExpression(expression, sourceFile, sourceCode) {
-  return compose(getExpressionAST, updateNodesScope, createASTFromExpression)(
-    expression,
-    sourceFile,
-    sourceCode,
-  )
+  return compose(
+    removeExtraParenthesis,
+    getExpressionAST,
+    updateNodesScope,
+    createASTFromExpression,
+  )(expression, sourceFile, sourceCode)
+}
+
+/**
+ * Remove the extra parents from the compiler generated expressions
+ * @param  {AST.Expression} expr - ast expression
+ * @returns {*}
+ */
+export function removeExtraParenthesis(expr) {
+  if (expr.extra) expr.extra.parenthesized = false
+
+  return expr
 }
 
 /**

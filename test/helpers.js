@@ -1,10 +1,11 @@
 import { join, relative, dirname } from 'path'
-import { print } from 'recast'
+
 import sass from 'sass'
 import sh from 'shelljs'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { transformSync } from '@babel/core'
+import generateJavascript from '../src/utils/generate-javascript.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(import.meta.url)
@@ -79,10 +80,15 @@ export function evaluateScript(code) {
   }
 }
 
+// recast might generate weird strings
+// this transformation simplifies the readability of the unit test
 export function renderExpression(ast) {
-  return print(ast)
+  return generateJavascript(ast)
     .code.replace('_scope => ', '')
     .replace(/\n/g, '')
+    .replace(/([([])\s+/g, '$1')
+    .replace(/,\s+/g, ', ')
+    .replace(/\((class[\s\S]+)\)/g, '$1')
     .replace(';', '')
     .trim()
 }

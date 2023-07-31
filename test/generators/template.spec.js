@@ -150,16 +150,16 @@ describe('Generators - Template', () => {
 
       it('objects', () => {
         expect(renderExpr('{ foo: bar, buz: baz }')).to.be.equal(
-          '({  foo: _scope.bar,  buz: _scope.baz})',
+          '({  foo: _scope.bar, buz: _scope.baz})',
         )
         expect(renderExpr('{ foo, buz }')).to.be.equal(
-          '({  foo: _scope.foo,  buz: _scope.buz})',
+          '({  foo: _scope.foo, buz: _scope.buz})',
         )
         expect(renderExpr('{ foo: i%2 }')).to.be.equal('({  foo: _scope.i%2})')
         expect(
           renderExpr('{ foo: { foo: bar, buz: baz }, buz: baz }'),
         ).to.be.equal(
-          '({  foo: { foo: _scope.bar, buz: _scope.baz },  buz: _scope.baz})',
+          '({  foo: { foo: _scope.bar, buz: _scope.baz }, buz: _scope.baz})',
         )
       })
 
@@ -201,16 +201,14 @@ describe('Generators - Template', () => {
 
       it('functions declaration', () => {
         expect(renderExpr('(foo) => bar + foo')).to.be.equal(
-          '(foo) => _scope.bar + foo',
+          'foo => _scope.bar + foo',
         )
         expect(renderExpr('(foo) => (bar) => foo + bar + baz')).to.be.equal(
-          '(foo) => (bar) => foo + bar + _scope.baz',
+          'foo => (bar) => foo + bar + _scope.baz',
         )
         expect(
           renderExpr('(foo) => (event) => foo + event.target.value + baz'),
-        ).to.be.equal(
-          '(foo) => (event) => foo + event.target.value + _scope.baz',
-        )
+        ).to.be.equal('foo => (event) => foo + event.target.value + _scope.baz')
         expect(renderExpr("() => update({ message: 'hello' })")).to.be.equal(
           "() => _scope.update({ message: 'hello' })",
         )
