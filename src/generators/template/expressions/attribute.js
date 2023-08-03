@@ -42,12 +42,14 @@ export default function createAttributeExpression(
     simplePropertyNode(
       BINDING_IS_BOOLEAN_ATTRIBUTE,
       builders.literal(
-        // Custom nodes can't handle boolean attrs
-        // Riot.js will handle the bool attrs logic only on native html tags
-        !parentNode[IS_CUSTOM_NODE] &&
-          !isRootNode(parentNode) &&
-          !isSpread &&
-          !!sourceNode[IS_BOOLEAN_ATTRIBUTE],
+        // the hidden attribute is always a boolean and can be applied to any DOM node
+        sourceNode.name === 'hidden' ||
+          // Custom nodes can't handle boolean attrs
+          // Riot.js will handle the bool attrs logic only on native html tags
+          (!parentNode[IS_CUSTOM_NODE] &&
+            !isRootNode(parentNode) &&
+            !isSpread &&
+            !!sourceNode[IS_BOOLEAN_ATTRIBUTE]),
       ),
     ),
     simplePropertyNode(
