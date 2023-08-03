@@ -266,7 +266,7 @@ export function transformExpression(expression, sourceFile, sourceCode) {
 /**
  * Remove the extra parents from the compiler generated expressions
  * @param  {AST.Expression} expr - ast expression
- * @returns {*}
+ * @returns {AST.Expression} program expression output without parenthesis
  */
 export function removeExtraParenthesis(expr) {
   if (expr.extra) expr.extra.parenthesized = false
