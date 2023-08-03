@@ -6,10 +6,12 @@ import nodeResolve from '@rollup/plugin-node-resolve'
 export default {
   ...defaultConfig,
   plugins: [
+    // bundle only the json files
     json(),
     nodeResolve({
       extensions: ['.js', '.js', '.json'],
-      modulesOnly: true,
+      // globals.json is the only file that we don't want to import
+      resolveOnly: ['globals'],
     }),
     commonjs(),
   ],

@@ -1,6 +1,6 @@
 import { join, relative, dirname } from 'path'
 
-import sass from 'sass'
+import * as sass from 'sass'
 import sh from 'shelljs'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
