@@ -30,8 +30,6 @@ import {
   isLiteral,
   isMemberExpression,
   isObjectExpression,
-  isObjectProperty,
-  isProperty,
 } from '../../utils/ast-nodes-checks.js'
 import { nullNode, simplePropertyNode } from '../../utils/custom-ast-nodes.js'
 import addLinesOffset from '../../utils/add-lines-offset.js'
