@@ -86,7 +86,7 @@
   "dependencies": {
     "@babel/parser": "^7.22.11",
     "@riotjs/parser": "^5.0.1",
-    "@riotjs/util": "2.2.2",
+    "@riotjs/util": "2.2.3",
     "cssesc": "^3.0.0",
     "cumpa": "^2.0.1",
     "curri": "^2.0.3",
