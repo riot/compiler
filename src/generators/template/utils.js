@@ -30,6 +30,8 @@ import {
   isLiteral,
   isMemberExpression,
   isObjectExpression,
+  isObjectProperty,
+  isProperty,
 } from '../../utils/ast-nodes-checks.js'
 import { nullNode, simplePropertyNode } from '../../utils/custom-ast-nodes.js'
 import addLinesOffset from '../../utils/add-lines-offset.js'
@@ -134,7 +136,13 @@ function visitThisExpression(path) {
 function visitIdentifier(path) {
   const parentValue = path.parent.value
 
-  if (!isMemberExpression(parentValue) || parentValue.computed) {
+  if (
+    (!isMemberExpression(parentValue) &&
+      // Esprima seem to behave differently from the default recast ast parser
+      // fix for https://github.com/riot/riot/issues/2983
+      parentValue.key !== path.node) ||
+    parentValue.computed
+  ) {
     updateNodeScope.call(this, path)
   }
 

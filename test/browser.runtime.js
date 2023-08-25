@@ -19,6 +19,16 @@ describe('Browser runtime compilation', () => {
     expect(code).to.match(/new Date\(\)/)
   })
 
+  it('object arguments are properly scoped', () => {
+    const { code } = compiler.compile(
+      `<time>{ test({ foo: 'foo', bar: 'bar', baz: baz })}</time>`,
+    )
+
+    expect(code).to.match(/ baz: _scope\.baz/)
+    expect(code).to.match(/ foo: 'foo'/)
+    expect(code).to.match(/ bar: 'bar'/)
+  })
+
   it('object spread operator is supported', () => {
     expect(() =>
       compiler.compile(`

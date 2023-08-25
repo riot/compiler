@@ -20,6 +20,8 @@ export const isSequenceExpression = (n) =>
 export const isExportDefaultStatement = (n) =>
   namedTypes.ExportDefaultDeclaration.check(n)
 export const isMemberExpression = (n) => namedTypes.MemberExpression.check(n)
+export const isObjectProperty = (n) => namedTypes.ObjectProperty.check(n)
+export const isProperty = (n) => namedTypes.Property.check(n)
 export const isImportDeclaration = (n) => namedTypes.ImportDeclaration.check(n)
 export const isTypeAliasDeclaration = (n) =>
   namedTypes.TSTypeAliasDeclaration.check(n)
