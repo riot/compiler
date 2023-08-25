@@ -33,7 +33,7 @@ import { builders } from '../../../utils/build-types.js'
 import compose from 'cumpa'
 import { createNestedBindings } from '../builder.js'
 import generateJavascript from '../../../utils/generate-javascript.js'
-import { panic } from '@riotjs/util/misc.js'
+import { panic } from '@riotjs/util/misc'
 
 const getEachItemName = (expression) =>
   isSequenceExpression(expression.left)

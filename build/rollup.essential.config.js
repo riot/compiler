@@ -49,7 +49,7 @@ export default ['umd', 'esm'].map((format) => ({
       ],
     }),
     nodeResolve({
-      extensions: ['.js', '.js', '.json'],
+      extensions: ['.js', '.json'],
       browser: true,
     }),
     commonjs({

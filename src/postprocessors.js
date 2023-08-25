@@ -1,6 +1,6 @@
 import composeSourcemaps from './utils/compose-sourcemaps.js'
 import { createOutput } from './transformer.js'
-import { panic } from '@riotjs/util/misc.js'
+import { panic } from '@riotjs/util/misc'
 
 export const postprocessors = new Set()
 

@@ -23,7 +23,7 @@ import {
 import cloneDeep from '../../utils/clone-deep.js'
 import eachBinding from './bindings/each.js'
 import ifBinding from './bindings/if.js'
-import { panic } from '@riotjs/util/misc.js'
+import { panic } from '@riotjs/util/misc'
 import simpleBinding from './bindings/simple.js'
 import slotBinding from './bindings/slot.js'
 import tagBinding from './bindings/tag.js'

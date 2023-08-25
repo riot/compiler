@@ -22,7 +22,7 @@ import {
   isRaw,
 } from '../../utils/ast-nodes-checks.js'
 import compose from 'cumpa'
-import { isNil } from '@riotjs/util/checks.js'
+import { isNil } from '@riotjs/util/checks'
 import { nodeTypes } from '@riotjs/parser'
 import { types } from '../../utils/build-types.js'
 
