@@ -31,8 +31,8 @@
     "postest": "npm run cov-html",
     "test-types": "tsc -p test",
     "test-runtime": "karma start test/karma.conf.cjs",
-    "test": "c8 mocha test/*.spec.js test/**/*.spec.js && npm run test-types",
-    "debug": "mocha --inspect --inspect-brk test/*.spec.js test/**/*.spec.js",
+    "test": "c8 mocha 'test/**/*.spec.{js,cjs}' && npm run test-types",
+    "debug": "mocha --inspect --inspect-brk 'test/**/*.spec.{js,cjs}'",
     "prepublishOnly": "npm run build && npm run lint && npm run test && npm run test-runtime"
   },
   "repository": {

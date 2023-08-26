@@ -9,7 +9,7 @@ export default {
     // bundle only the json files
     json(),
     nodeResolve({
-      extensions: ['.js', '.js', '.json'],
+      extensions: ['.js', '.json'],
       // globals.json is the only file that we don't want to import
       resolveOnly: ['globals'],
     }),
@@ -20,6 +20,7 @@ export default {
       file: './dist/index.cjs',
       name: 'compiler',
       format: 'cjs',
+      interop: 'auto',
       ...defaultConfig.output,
     },
     {
