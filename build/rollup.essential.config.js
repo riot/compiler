@@ -4,8 +4,24 @@ import defaultConfig from './rollup.config.js'
 import json from '@rollup/plugin-json'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import { visualizer } from 'rollup-plugin-visualizer'
+import path from 'node:path'
 
 const ignoredModules = ['fs', 'path', 'esprima', 'babylon']
+const emptyFile = 'export default undefined'
+
+// ignore builtin requires
+function ignore() {
+  return {
+    transform(code, id) {
+      if (!id.includes('commonjs-external')) return
+
+      return {
+        code: emptyFile,
+        map: null,
+      }
+    },
+  }
+}
 
 export default ['umd', 'esm'].map((format) => ({
   ...defaultConfig,
@@ -24,6 +40,7 @@ export default ['umd', 'esm'].map((format) => ({
   },
   external: ignoredModules.concat(format === 'esm' ? [/@riotjs\/(util)/] : []),
   plugins: [
+    ignore(),
     json({
       namedExports: true,
       preferConst: true,
@@ -32,15 +49,15 @@ export default ['umd', 'esm'].map((format) => ({
       entries: [
         {
           find: 'source-map',
-          replacement: './src/utils/mock/sourcemap-mock-api.js',
+          replacement: path.resolve('./src/utils/mock/sourcemap-mock-api.js'),
         },
         {
           find: 'assert',
-          replacement: './src/utils/mock/assert-mock-api.js',
+          replacement: path.resolve('./src/utils/mock/assert-mock-api.js'),
         },
         {
           find: 'os',
-          replacement: './src/utils/mock/os-mock-api.js',
+          replacement: path.resolve('./src/utils/mock/os-mock-api.js'),
         },
         {
           find: 'recast/parsers/typescript.js',
@@ -54,9 +71,9 @@ export default ['umd', 'esm'].map((format) => ({
     }),
     commonjs({
       include: 'node_modules/**',
+      transformMixedEsModules: true,
       ignoreTryCatch: false,
       ignoreDynamicRequires: true,
-      ignore: format === 'esm' ? ignoredModules : null,
       exclude: ignoredModules,
       ignoreGlobal: true,
     }),
