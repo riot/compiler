@@ -457,9 +457,9 @@ export function transformStaticAttributesIntoExpressions(attributes) {
             attribute.value
               ? attribute.value
               : // boolean attributes should be treated differently
-              attribute[IS_BOOLEAN_ATTRIBUTE]
-              ? attribute.name
-              : ''
+                attribute[IS_BOOLEAN_ATTRIBUTE]
+                ? attribute.name
+                : ''
           }'`,
         },
       ],
