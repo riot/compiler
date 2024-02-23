@@ -24,10 +24,12 @@ jobs:
       - run: |
           npm run lint
           npm test
-      - name: Runtime test
+      - name: Setup chrome
+        if: ${{ success() && github.event_name != 'pull_request' && matrix.node-version == '20.x' }}
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: 120
+      - name: Runtime test
         if: ${{ success() && github.event_name != 'pull_request' && matrix.node-version == '20.x' }}
         run: |
           npm run build
