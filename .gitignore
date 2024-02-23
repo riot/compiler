@@ -73,3 +73,7 @@ pids
 .nyc_output/
 .reify-cache/
 stats.html
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

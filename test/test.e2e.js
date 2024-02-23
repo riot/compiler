@@ -1,14 +1,8 @@
-import { browser, expect } from '@wdio/globals'
+import { test, expect } from '@playwright/test'
 
-describe('Run the mocha tests', function () {
-  it('All the mocha tests passed', async () => {
-    await browser.url('http://localhost:3000/test/e2e.runtime.html')
-    await browser.waitUntil(async () =>
-      browser.execute(() => typeof window.testFailures === 'number'),
-    )
-    const testFailures = await browser.execute(() => window.testFailures)
+test('All the mocha tests passed', async ({ page }) => {
+  await page.goto('http://localhost:3000/test/e2e.runtime.html')
+  const testFailures = await page.evaluate('window.testFailures')
 
-    expect(testFailures).toBe(0)
-    expect(true).toBe(true)
-  })
+  expect(testFailures).toBe(0)
 })

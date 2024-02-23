@@ -24,6 +24,9 @@ jobs:
       - run: |
           npm run lint
           npm test
+      - name: Install Playwright Browsers
+        if: ${{ success() && github.event_name != 'pull_request' && matrix.node-version == '20.x' }}
+        run: npx playwright install --with-deps
       - name: Runtime test
         if: ${{ success() && github.event_name != 'pull_request' && matrix.node-version == '20.x' }}
         run: |
