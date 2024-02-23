@@ -1,5 +1,5 @@
 import alias from '@rollup/plugin-alias'
-import builtins from 'rollup-plugin-polyfill-node'
+import builtins from 'rollup-plugin-node-builtins'
 import commonjs from '@rollup/plugin-commonjs'
 import defaultConfig from './rollup.config.js'
 import json from '@rollup/plugin-json'
