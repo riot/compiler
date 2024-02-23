@@ -1,6 +1,5 @@
 /* global chai, compiler */
-
-const { expect } = chai
+import { expect } from '../node_modules/chai/chai.js'
 
 describe('Browser runtime compilation', () => {
   it('it compiles tags in the browser', () => {
