@@ -1,3 +1,7 @@
+import path from 'node:path'
+import url from 'node:url'
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
+
 export const config = {
   //
   // ====================
@@ -49,8 +53,13 @@ export const config = {
   //
   capabilities: [
     {
-      // capabilities for local browser web tests
-      browserName: 'chrome', // or "firefox", "microsoftedge", "safari"
+      browserName: 'chrome',
+      'goog:chromeOptions': {
+        args: ['headless', 'disable-gpu'],
+        prefs: {
+          'download.default_directory': __dirname,
+        },
+      },
     },
   ],
 
