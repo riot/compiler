@@ -1,4 +1,4 @@
-/* global chai, compiler */
+/* global compiler */
 import { expect } from '../node_modules/chai/chai.js'
 
 describe('Browser runtime compilation', () => {
