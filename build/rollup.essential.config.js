@@ -2,6 +2,7 @@ import alias from '@rollup/plugin-alias'
 import commonjs from '@rollup/plugin-commonjs'
 import defaultConfig from './rollup.config.js'
 import json from '@rollup/plugin-json'
+import replace from '@rollup/plugin-replace'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import { visualizer } from 'rollup-plugin-visualizer'
 import path from 'node:path'
@@ -41,6 +42,12 @@ export default ['umd', 'esm'].map((format) => ({
   external: ignoredModules.concat(format === 'esm' ? [/@riotjs\/(util)/] : []),
   plugins: [
     ignore(),
+    replace({
+      preventAssignment: true,
+      values: {
+        'process.env.NODE_ENV': JSON.stringify('production'),
+      },
+    }),
     json({
       namedExports: true,
       preferConst: true,

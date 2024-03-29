@@ -58,6 +58,7 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.5",
     "acorn": "^8.11.3",
     "c8": "^9.1.0",
     "chai": "^5.1.0",

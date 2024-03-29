@@ -1,4 +1,5 @@
 import alias from '@rollup/plugin-alias'
+import replace from '@rollup/plugin-replace'
 import builtins from 'rollup-plugin-node-builtins'
 import commonjs from '@rollup/plugin-commonjs'
 import defaultConfig from './rollup.config.js'
@@ -28,6 +29,12 @@ export default {
   },
   external: ignoredModules,
   plugins: [
+    replace({
+      preventAssignment: true,
+      values: {
+        'process.env.NODE_ENV': JSON.stringify('production'),
+      },
+    }),
     builtins(),
     json(),
     alias({
