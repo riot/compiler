@@ -439,6 +439,25 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_IS_BOOLEAN_ATTRIBUTE]).to.be.equal(true)
     })
 
+    it('Known boolean attribute on a select node https://github.com/riot/riot/issues/3000', () => {
+      const source = `<my-tag>
+<select name="customer">
+    <option each={ customer in state.customers } value="{ customer.id }" selected="{ state.current.id === customer.id }">
+       { customer.name }
+    </option> 
+</select></my-tag>`
+      const { template } = parse(source)
+      const [, bindings] = builder(
+        createRootNode(template),
+        FAKE_SRC_FILE,
+        source,
+      )
+      const output = evaluateOutput(bindings[0])
+      const expression = output.template.bindingsData[0].expressions[2]
+
+      expect(expression[BINDING_IS_BOOLEAN_ATTRIBUTE]).to.be.equal(true)
+    })
+
     it('Spread attribute expression', () => {
       const source = '<li {...foo}></li>'
       const { template } = parse(source)

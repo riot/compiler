@@ -147,12 +147,21 @@ export function isTextNode(node) {
 }
 
 /**
- * True if the node parsed is the root one
+ * True if the node parsed any of the root nodes (each, tag bindings create root nodes as well...)
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {boolean} true only for the root nodes
  */
 export function isRootNode(node) {
   return node.isRoot
+}
+
+/**
+ * True if the node parsed is the absolute root node (nested root nodes are not considered)
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true only for the root nodes
+ */
+export function isAbsoluteRootNode(node) {
+  return node.isRoot && !node.isNestedRoot
 }
 
 /**

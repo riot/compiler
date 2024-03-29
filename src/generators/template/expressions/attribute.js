@@ -13,6 +13,7 @@ import {
   simplePropertyNode,
 } from '../../../utils/custom-ast-nodes.js'
 import { builders } from '../../../utils/build-types.js'
+import { isAbsoluteRootNode, isSpreadAttribute } from '../checks.js'
 import { createAttributeEvaluationFunction } from '../utils.js'
 /**
  * Create a simple attribute expression
@@ -47,7 +48,7 @@ export default function createAttributeExpression(
           // Custom nodes can't handle boolean attrs
           // Riot.js will handle the bool attrs logic only on native html tags
           (!parentNode[IS_CUSTOM_NODE] &&
-            !isRootNode(parentNode) &&
+            !isAbsoluteRootNode(parentNode) &&
             !isSpread &&
             !!sourceNode[IS_BOOLEAN_ATTRIBUTE]),
       ),
@@ -62,5 +63,3 @@ export default function createAttributeExpression(
     ),
   ])
 }
-
-import { isRootNode, isSpreadAttribute } from '../checks.js'
