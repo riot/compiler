@@ -234,5 +234,23 @@ describe('Generators - CSS', () => {
     ).to.be.equal(
       'my-tag .foo:is(.bar,.baz),[is="my-tag"] .foo:is(.bar,.baz),my-tag .bar,[is="my-tag"] .bar',
     )
+
+    expect(
+      addScopeToSelectorList('my-tag', '.foo:hover:active, .bar'),
+    ).to.be.equal(
+      'my-tag .foo:hover:active,[is="my-tag"] .foo:hover:active,my-tag .bar,[is="my-tag"] .bar',
+    )
+
+    expect(
+      addScopeToSelectorList('my-tag', '.foo:hover:is(.bar, .baz), .bar'),
+    ).to.be.equal(
+      'my-tag .foo:hover:is(.bar, .baz),[is="my-tag"] .foo:hover:is(.bar, .baz),my-tag .bar,[is="my-tag"] .bar',
+    )
+
+    expect(
+      addScopeToSelectorList('my-tag', `:host[color='blue'] span, :host[color='red'] span`),
+    ).to.be.equal(
+      'my-tag[color=\'blue\'] span,[is="my-tag"][color=\'blue\'] span,my-tag[color=\'red\'] span,[is="my-tag"][color=\'red\'] span',
+    )
   })
 })
