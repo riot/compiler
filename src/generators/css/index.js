@@ -37,7 +37,8 @@ const CSS_SELECTOR = RegExp(
  * @const {RegExp}
  */
 
-const CSS_SELECTOR_LIST = /([^,]+)(?::(?!host)\w+(?:[\s|\S]*?\))?(?:[^,:]*)?)+|([^,]+)/g
+const CSS_SELECTOR_LIST =
+  /([^,]+)(?::(?!host)\w+(?:[\s|\S]*?\))?(?:[^,:]*)?)+|([^,]+)/g
 
 /**
  * Scope the css selectors prefixing them with the tag name

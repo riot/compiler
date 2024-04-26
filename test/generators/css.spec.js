@@ -248,9 +248,12 @@ describe('Generators - CSS', () => {
     )
 
     expect(
-      addScopeToSelectorList('my-tag', `:host[color='blue'] span, :host[color='red'] span`),
+      addScopeToSelectorList(
+        'my-tag',
+        `:host[color='blue'] span, :host[color='red'] span`,
+      ),
     ).to.be.equal(
-      'my-tag[color=\'blue\'] span,[is="my-tag"][color=\'blue\'] span,my-tag[color=\'red\'] span,[is="my-tag"][color=\'red\'] span',
+      "my-tag[color='blue'] span,[is=\"my-tag\"][color='blue'] span,my-tag[color='red'] span,[is=\"my-tag\"][color='red'] span",
     )
   })
 })
