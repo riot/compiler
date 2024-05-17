@@ -203,6 +203,12 @@ describe('Core specs', () => {
       expect(() => compile(getFixture('dynamic-import.riot'))).to.not.throw()
     })
 
+    it("Riot.js 3008 - template doesn't throw", () => {
+      expect(() =>
+        compile(getFixture('sourcemap-issue-3008.riot')),
+      ).to.not.throw()
+    })
+
     it('Multiline expressions are supported - https://github.com/riot/riot/issues/2889', function () {
       expect(() =>
         compile(getFixture('multiline-expressions.riot')),
