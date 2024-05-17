@@ -1,0 +1,14 @@
+<my-tag>
+  <h1>{ state.message }</h1>
+  <button onclick={ () => {
+    update({ message: "test" });
+  } }>Test</button>
+
+  <script>
+    export default wrapper({
+      state: {
+        message: 'hello there'
+      }
+    });
+  </script>
+</my-tag>
