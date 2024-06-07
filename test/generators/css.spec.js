@@ -1,5 +1,6 @@
 import compileCSS, {
   addScopeToSelectorList,
+  generateScopedCss,
 } from '../../src/generators/css/index.js'
 import { evaluateScript, sassPreprocessor } from '../helpers.js'
 import { register, unregister } from '../../src/preprocessors.js'
@@ -254,6 +255,73 @@ describe('Generators - CSS', () => {
       ),
     ).to.be.equal(
       "my-tag[color='blue'] span,[is=\"my-tag\"][color='blue'] span,my-tag[color='red'] span,[is=\"my-tag\"][color='red'] span",
+    )
+  })
+  it('nested css can be generated', () => {
+    expect(
+      generateScopedCss(
+        'my-tag',
+        `
+.selector {
+  &.something {}
+  &:hover {}
+}`,
+      ),
+    ).to.be.equal(
+      `my-tag .selector,[is="my-tag"] .selector{
+  &.something {}
+  &:hover {}
+}`,
+    )
+  })
+  it('nested media queries do not affect the selectors scoping', () => {
+    expect(
+      generateScopedCss(
+        'my-tag',
+        `
+@media (orientation: landscape) {
+  .selector {
+    &.something {}
+    &:hover {}
+  }
+}
+`,
+      ),
+    ).to.be.equal(
+      `
+@media (orientation: landscape) {my-tag .selector,[is="my-tag"] .selector{
+    &.something {}
+    &:hover {}
+  }
+}
+`,
+    )
+  })
+  it('nested @ css directives do not affect the selectors scoping', () => {
+    expect(
+      generateScopedCss(
+        'my-tag',
+        `
+@media (orientation: landscape) {
+  @supports (display:flex) {
+    .selector {
+      &.something {}
+      &:hover {}
+    }
+  }
+}
+`,
+      ),
+    ).to.be.equal(
+      `
+@media (orientation: landscape) {
+  @supports (display:flex) {my-tag .selector,[is="my-tag"] .selector{
+      &.something {}
+      &:hover {}
+    }
+  }
+}
+`,
     )
   })
 })

@@ -15,22 +15,12 @@ const DISABLED_SELECTORS = ['from', 'to']
 const R_MLCOMMS = /\/\*[^*]*\*+(?:[^*/][^*]*\*+)*\//g
 
 /**
- * Source for creating regexes matching valid quoted, single-line JavaScript strings.
- * It recognizes escape characters, including nested quotes and line continuation.
- * @const {string}
- */
-const S_LINESTR =
-  /"[^"\n\\]*(?:\\[\S\s][^"\n\\]*)*"|'[^'\n\\]*(?:\\[\S\s][^'\n\\]*)*'/.source
-
-/**
- * Matches CSS selectors, excluding those beginning with '@' and quoted strings.
+ * Regular expression for matching CSS selectors and their associated rulesets, including nested selectors.
  * @const {RegExp}
+ * @type {RegExp}
  */
-
-const CSS_SELECTOR = RegExp(
-  `([{}]|^)[; ]*((?:[^@ ;{}][^{}]*)?[^@ ;{}:] ?)(?={)|${S_LINESTR}`,
-  'g',
-)
+const CSS_SELECTOR =
+  /([^{]+)\s*\{((?:[^{}]*\{(?:[^{}]*\{[^{}]*\}|[^{}]*)*\}[^{}]*)*|[^{}]*?)\}/g
 
 /**
  * Matches the list of css selectors excluding the pseudo selectors
@@ -87,15 +77,14 @@ export function addScopeToSelectorList(tag, selectorList) {
  * @returns {string} CSS with the styles scoped to the root element
  */
 export function generateScopedCss(tag, css) {
-  return css.replace(CSS_SELECTOR, function (m, cssChunk, selectorList) {
-    // skip quoted strings
-    if (!selectorList) return m
+  return css.replace(CSS_SELECTOR, function (m, selector, cssChunk) {
+    // no selector was found so we return the match as it is
+    if (!selector) return m
+    // if its a @ css directive we go recursive on the children selectors adding the css scope
+    if (selector.trim().startsWith('@'))
+      return `${selector}{${generateScopedCss(tag, cssChunk)}}`
 
-    // we have a selector list, parse each individually
-    const scopedSelectorList = addScopeToSelectorList(tag, selectorList)
-
-    // add the danling bracket char and return the processed selector list
-    return cssChunk ? `${cssChunk} ${scopedSelectorList}` : scopedSelectorList
+    return `${addScopeToSelectorList(tag, selector)}{${cssChunk}}`
   })
 }
 
