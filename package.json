@@ -1,6 +1,6 @@
 {
   "name": "@riotjs/compiler",
-  "version": "9.1.0",
+  "version": "9.1.1",
   "description": "Compiler for Riot.js .riot files",
   "main": "./dist/index.cjs",
   "types": "./compiler.d.ts",
