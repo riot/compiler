@@ -7,7 +7,7 @@ import { print } from 'recast'
 
 const simpleJS = `
 <script>
-import assert from 'assert'
+import assert from 'node:assert'
 
 export function noop () {}
 
@@ -28,7 +28,7 @@ function foo() {
 
 const rootThisExpressions = `
 <script>
-import 'assert';
+import 'node:assert';
 
 let internalVar = 'internalVar'
 
