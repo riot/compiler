@@ -90,14 +90,17 @@ export function generateScopedCss(tag, css) {
 
   traverse(ast, (node) => {
     if (!node.selector.trim().startsWith('@')) {
-      // replace the selector
-      node.selector = addScopeToSelectorList(tag, node.selector)
+      // replace the selector and override the original css
+      css = css.replace(
+        node.selector.trim(),
+        addScopeToSelectorList(tag, node.selector),
+      )
       // stop the recurstion
       return false
     }
   })
 
-  return CSSParser.stringify(ast)
+  return css
 }
 
 /**

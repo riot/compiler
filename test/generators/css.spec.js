@@ -164,9 +164,10 @@ describe('Generators - CSS', () => {
     const { code } = print(ast)
     const output = evaluateScript(code)
 
+    console.log(code)
     expect(ast).to.be.ok
     expect(code).to.have.string('[is="my-tag"]')
-    expect(code).to.have.string('my-tag h1,[is="my-tag"] h1{ color: green;')
+    expect(code).to.have.string('my-tag h1,[is="my-tag"] h1 { color: green;')
     expect(output.default.css).to.be.ok
     expect(output.default.tag).to.be.not.ok
     expect(output.default.template).to.be.not.ok
@@ -268,9 +269,11 @@ describe('Generators - CSS', () => {
 }`,
       ),
     ).to.be.equal(
-      `my-tag .selector,[is="my-tag"] .selector{
+      `
+my-tag .selector,[is="my-tag"] .selector {
   &.something {}
-  &:hover {}}`,
+  &:hover {}
+}`,
     )
   })
   it('nested media queries do not affect the selectors scoping', () => {
@@ -288,9 +291,12 @@ describe('Generators - CSS', () => {
       ),
     ).to.be.equal(
       `
-@media (orientation: landscape) {my-tag .selector,[is="my-tag"] .selector{
+@media (orientation: landscape) {
+  my-tag .selector,[is="my-tag"] .selector {
     &.something {}
-    &:hover {}}}
+    &:hover {}
+  }
+}
 `,
     )
   })
@@ -312,9 +318,13 @@ describe('Generators - CSS', () => {
     ).to.be.equal(
       `
 @media (orientation: landscape) {
-  @supports (display:flex) {my-tag .selector,[is="my-tag"] .selector{
+  @supports (display:flex) {
+    my-tag .selector,[is="my-tag"] .selector {
       &.something {}
-      &:hover {}}}}
+      &:hover {}
+    }
+  }
+}
 `,
     )
   })
@@ -335,9 +345,10 @@ import 'style.css';
       `
 import 'style.css';
 
-my-tag .selector,[is="my-tag"] .selector{
+my-tag .selector,[is="my-tag"] .selector {
   &.something {}
-  &:hover {}}
+  &:hover {}
+}
 `,
     )
   })
