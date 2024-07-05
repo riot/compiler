@@ -1,6 +1,7 @@
 import { builders, types } from '../../utils/build-types.js'
 import { TAG_CSS_PROPERTY } from '../../constants.js'
 import cssEscape from 'cssesc'
+import CSSParser from 'css-simple-parser'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute.js'
 import preprocess from '../../utils/preprocess-node.js'
 
@@ -13,14 +14,6 @@ const DISABLED_SELECTORS = ['from', 'to']
  * @static
  */
 const R_MLCOMMS = /\/\*[^*]*\*+(?:[^*/][^*]*\*+)*\//g
-
-/**
- * Regular expression for matching CSS selectors and their associated rulesets, including nested selectors.
- * @const {RegExp}
- * @type {RegExp}
- */
-const CSS_SELECTOR =
-  /([^{]+)\s*\{((?:[^{}]*\{(?:[^{}]*\{[^{}]*\}|[^{}]*)*\}[^{}]*)*|[^{}]*?)\}/g
 
 /**
  * Matches the list of css selectors excluding the pseudo selectors
@@ -40,7 +33,6 @@ export function addScopeToSelectorList(tag, selectorList) {
   return selectorList.replace(CSS_SELECTOR_LIST, (match, selector) => {
     const trimmedMatch = match.trim()
     const trimmedSelector = selector ? selector.trim() : trimmedMatch
-
     // skip selectors already using the tag name
     if (trimmedSelector.indexOf(tag) === 0) {
       return match
@@ -69,6 +61,23 @@ export function addScopeToSelectorList(tag, selectorList) {
 }
 
 /**
+ * Traverse the ast children
+ * @param {CSSParser.AST | CSSParser.NODE} ast - css parser node or ast
+ * @param {Function} fn - function that is needed to parse the single nodes
+ * @returns {CSSParser.AST | CSSParser.NODE} the original ast received
+ */
+const traverse = (ast, fn) => {
+  const { children } = ast
+
+  children.forEach((child) => {
+    // if fn returns false we stop the recurstion
+    if (fn(child) !== false) traverse(child, fn)
+  })
+
+  return ast
+}
+
+/**
  * Parses styles enclosed in a "scoped" tag
  * The "css" string is received without comments or surrounding spaces.
  *
@@ -77,15 +86,18 @@ export function addScopeToSelectorList(tag, selectorList) {
  * @returns {string} CSS with the styles scoped to the root element
  */
 export function generateScopedCss(tag, css) {
-  return css.replace(CSS_SELECTOR, function (m, selector, cssChunk) {
-    // no selector was found so we return the match as it is
-    if (!selector) return m
-    // if its a @ css directive we go recursive on the children selectors adding the css scope
-    if (selector.trim().startsWith('@'))
-      return `${selector}{${generateScopedCss(tag, cssChunk)}}`
+  const ast = CSSParser.parse(css)
 
-    return `${addScopeToSelectorList(tag, selector)}{${cssChunk}}`
+  traverse(ast, (node) => {
+    if (!node.selector.trim().startsWith('@')) {
+      // replace the selector
+      node.selector = addScopeToSelectorList(tag, node.selector)
+      // stop the recurstion
+      return false
+    }
   })
+
+  return CSSParser.stringify(ast)
 }
 
 /**

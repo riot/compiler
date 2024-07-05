@@ -270,8 +270,7 @@ describe('Generators - CSS', () => {
     ).to.be.equal(
       `my-tag .selector,[is="my-tag"] .selector{
   &.something {}
-  &:hover {}
-}`,
+  &:hover {}}`,
     )
   })
   it('nested media queries do not affect the selectors scoping', () => {
@@ -291,9 +290,7 @@ describe('Generators - CSS', () => {
       `
 @media (orientation: landscape) {my-tag .selector,[is="my-tag"] .selector{
     &.something {}
-    &:hover {}
-  }
-}
+    &:hover {}}}
 `,
     )
   })
@@ -317,10 +314,30 @@ describe('Generators - CSS', () => {
 @media (orientation: landscape) {
   @supports (display:flex) {my-tag .selector,[is="my-tag"] .selector{
       &.something {}
-      &:hover {}
-    }
-  }
+      &:hover {}}}}
+`,
+    )
+  })
+  it('nested @ css directives do not affect the selectors scoping', () => {
+    expect(
+      generateScopedCss(
+        'my-tag',
+        `
+import 'style.css';
+
+.selector {
+  &.something {}
+  &:hover {}
 }
+`,
+      ),
+    ).to.be.equal(
+      `
+import 'style.css';
+
+my-tag .selector,[is="my-tag"] .selector{
+  &.something {}
+  &:hover {}}
 `,
     )
   })
