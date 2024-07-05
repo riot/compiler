@@ -17,8 +17,8 @@ export default {
     json(),
     nodeResolve({
       extensions: ['.js', '.json'],
-      // globals.json is the only file that we don't want to import
-      resolveOnly: ['globals'],
+      // bundle only the node modules that are problematic
+      resolveOnly: ['globals', 'string-indexes', 'css-simple-parser'],
     }),
     commonjs(),
   ],
