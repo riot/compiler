@@ -4,7 +4,6 @@ import cssEscape from 'cssesc'
 import CSSParser from 'css-simple-parser'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute.js'
 import preprocess from '../../utils/preprocess-node.js'
-import { watch } from 'rollup'
 
 const HOST = ':host'
 const DISABLED_SELECTORS = ['from', 'to']
