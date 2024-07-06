@@ -4,6 +4,7 @@ import cssEscape from 'cssesc'
 import CSSParser from 'css-simple-parser'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute.js'
 import preprocess from '../../utils/preprocess-node.js'
+import { watch } from 'rollup'
 
 const HOST = ':host'
 const DISABLED_SELECTORS = ['from', 'to']
@@ -90,11 +91,11 @@ export function generateScopedCss(tag, css) {
 
   traverse(ast, (node) => {
     if (!node.selector.trim().startsWith('@')) {
+      // the css parser doesn't detect the comments so we manually remove them
+      const selector = node.selector.replace(R_MLCOMMS, '')
+
       // replace the selector and override the original css
-      css = css.replace(
-        node.selector.trim(),
-        addScopeToSelectorList(tag, node.selector),
-      )
+      css = css.replace(node.selector, addScopeToSelectorList(tag, selector))
       // stop the recurstion
       return false
     }

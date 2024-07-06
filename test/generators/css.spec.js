@@ -167,7 +167,7 @@ describe('Generators - CSS', () => {
     console.log(code)
     expect(ast).to.be.ok
     expect(code).to.have.string('[is="my-tag"]')
-    expect(code).to.have.string('my-tag h1,[is="my-tag"] h1 { color: green;')
+    expect(code).to.have.string('my-tag h1,[is="my-tag"] h1{ color: green;')
     expect(output.default.css).to.be.ok
     expect(output.default.tag).to.be.not.ok
     expect(output.default.template).to.be.not.ok
@@ -269,8 +269,7 @@ describe('Generators - CSS', () => {
 }`,
       ),
     ).to.be.equal(
-      `
-my-tag .selector,[is="my-tag"] .selector {
+      `my-tag .selector,[is="my-tag"] .selector{
   &.something {}
   &:hover {}
 }`,
@@ -291,8 +290,7 @@ my-tag .selector,[is="my-tag"] .selector {
       ),
     ).to.be.equal(
       `
-@media (orientation: landscape) {
-  my-tag .selector,[is="my-tag"] .selector {
+@media (orientation: landscape) {my-tag .selector,[is="my-tag"] .selector{
     &.something {}
     &:hover {}
   }
@@ -318,8 +316,7 @@ my-tag .selector,[is="my-tag"] .selector {
     ).to.be.equal(
       `
 @media (orientation: landscape) {
-  @supports (display:flex) {
-    my-tag .selector,[is="my-tag"] .selector {
+  @supports (display:flex) {my-tag .selector,[is="my-tag"] .selector{
       &.something {}
       &:hover {}
     }
@@ -343,11 +340,44 @@ import 'style.css';
       ),
     ).to.be.equal(
       `
-import 'style.css';
-
-my-tag .selector,[is="my-tag"] .selector {
+import 'style.css';my-tag .selector,[is="my-tag"] .selector{
   &.something {}
   &:hover {}
+}
+`,
+    )
+  })
+  it('the scoped selectors are properly replaced also in case of simple selectors', () => {
+    expect(
+      generateScopedCss(
+        'my-tag',
+        `
+import 'style.css';
+
+i {
+  color: yellow;
+}
+
+/*
+* this is a comment 
+*/
+p {
+    color: yellow;
+}
+
+b {
+    color: yellow;
+}
+`,
+      ),
+    ).to.be.equal(
+      `
+import 'style.css';my-tag i,[is="my-tag"] i{
+  color: yellow;
+}my-tag p,[is="my-tag"] p{
+    color: yellow;
+}my-tag b,[is="my-tag"] b{
+    color: yellow;
 }
 `,
     )
