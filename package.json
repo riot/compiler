@@ -49,8 +49,8 @@
     "compiler"
   ],
   "devDependencies": {
-    "@babel/core": "^7.24.7",
-    "@babel/preset-env": "^7.24.7",
+    "@babel/core": "^7.24.8",
+    "@babel/preset-env": "^7.24.8",
     "@playwright/test": "^1.45.1",
     "@riotjs/dom-bindings": "^9.0.4",
     "@riotjs/prettier-config": "^1.1.0",
@@ -69,10 +69,10 @@
     "mocha": "^10.6.0",
     "prettier": "^3.3.2",
     "pug": "^3.0.3",
-    "rollup": "^4.18.0",
+    "rollup": "^4.18.1",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-visualizer": "^5.12.0",
-    "sass": "^1.77.6",
+    "sass": "^1.77.8",
     "serve": "^14.2.3",
     "shelljs": "^0.8.5",
     "start-server-and-test": "^2.0.4",
@@ -85,7 +85,7 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
-    "@babel/parser": "^7.24.7",
+    "@babel/parser": "^7.24.8",
     "@riotjs/parser": "^5.0.1",
     "@riotjs/util": "2.4.0",
     "css-simple-parser": "^3.0.0",
