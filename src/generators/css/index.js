@@ -4,6 +4,7 @@ import cssEscape from 'cssesc'
 import CSSParser from 'css-simple-parser'
 import getPreprocessorTypeByAttribute from '../../utils/get-preprocessor-type-by-attribute.js'
 import preprocess from '../../utils/preprocess-node.js'
+import replaceInRange from '../../utils/replace-in-range.js'
 
 const HOST = ':host'
 const DISABLED_SELECTORS = ['from', 'to']
@@ -18,9 +19,10 @@ const R_MLCOMMS = /\/\*[^*]*\*+(?:[^*/][^*]*\*+)*\//g
 /**
  * Matches the list of css selectors excluding the pseudo selectors
  * @const {RegExp}
+ * @static
  */
 
-const CSS_SELECTOR_LIST =
+const R_CSS_SELECTOR_LIST =
   /([^,]+)(?::(?!host)\w+(?:[\s|\S]*?\))?(?:[^,:]*)?)+|([^,]+)/g
 
 /**
@@ -30,7 +32,7 @@ const CSS_SELECTOR_LIST =
  * @returns {string} scoped selectors
  */
 export function addScopeToSelectorList(tag, selectorList) {
-  return selectorList.replace(CSS_SELECTOR_LIST, (match, selector) => {
+  return selectorList.replace(R_CSS_SELECTOR_LIST, (match, selector) => {
     const trimmedMatch = match.trim()
     const trimmedSelector = selector ? selector.trim() : trimmedMatch
     // skip selectors already using the tag name
@@ -70,7 +72,7 @@ const traverse = (ast, fn) => {
   const { children } = ast
 
   children.forEach((child) => {
-    // if fn returns false we stop the recurstion
+    // if fn returns false we stop the recursion
     if (fn(child) !== false) traverse(child, fn)
   })
 
@@ -87,15 +89,25 @@ const traverse = (ast, fn) => {
  */
 export function generateScopedCss(tag, css) {
   const ast = CSSParser.parse(css)
+  const originalCssLength = css.length
 
   traverse(ast, (node) => {
+    // calculate the selector offset from the original css length
+    const newSelectorOffset = css.length - originalCssLength
+
     if (!node.selector.trim().startsWith('@')) {
       // the css parser doesn't detect the comments so we manually remove them
       const selector = node.selector.replace(R_MLCOMMS, '')
 
       // replace the selector and override the original css
-      css = css.replace(node.selector, addScopeToSelectorList(tag, selector))
-      // stop the recurstion
+      css = replaceInRange(
+        css,
+        node.selectorIndex + newSelectorOffset,
+        node.selectorIndexEnd + newSelectorOffset,
+        addScopeToSelectorList(tag, selector),
+      )
+
+      // stop the recursion
       return false
     }
   })
