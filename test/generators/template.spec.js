@@ -34,7 +34,6 @@ import riotParser from '@riotjs/parser'
 import simpleBinding from '../../src/generators/template/bindings/simple.js'
 import slotBinding from '../../src/generators/template/bindings/slot.js'
 import tagBinding from '../../src/generators/template/bindings/tag.js'
-import build from '../../src/generators/template/builder.js'
 
 const FAKE_SRC_FILE = 'fake-file.js'
 const renderExpr = compose(renderExpression, toScopedFunction, (expr) => ({
