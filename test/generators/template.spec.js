@@ -11,7 +11,6 @@ import {
   BINDING_IS_BOOLEAN_ATTRIBUTE,
   BINDING_NAME_KEY,
   BINDING_SELECTOR_KEY,
-  BINDING_SLOT_FALLBACK_KEY,
   BINDING_TEMPLATE_KEY,
   BINDING_TYPE_KEY,
   NAME_ATTRIBUTE,
@@ -1295,7 +1294,7 @@ describe('Generators - Template', () => {
       expect(output[NAME_ATTRIBUTE]).to.be.equal('default')
     })
 
-    it.only('Slot fallback html', () => {
+    it('Slot fallback html', () => {
       const source =
         '<div><slot><ul><li each={item in items}>{item}</li></ul></slot></div>'
       const { template } = parse(source)
@@ -1307,7 +1306,7 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(bindings[0])
 
       // the fallback template is defined
-      expect(output[BINDING_SLOT_FALLBACK_KEY]).to.be.ok()
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.ok
       // the each binding should be part of the fallback template
       expect(bindings).to.have.length(1)
     })

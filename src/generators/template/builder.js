@@ -110,7 +110,10 @@ function createTagWithBindings(sourceNode, sourceFile, sourceCode) {
       ]
     case isSlotNode(cloneNode):
       // slot tag
-      return [tagOpeningHTML, [slotBinding(cloneNode, bindingsSelector)]]
+      return [
+        tagOpeningHTML,
+        [slotBinding(cloneNode, bindingsSelector, sourceFile, sourceCode)],
+      ]
     default:
       // this node has expressions bound to it
       return [
