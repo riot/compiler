@@ -32,6 +32,7 @@ export const BINDING_SLOTS_KEY = 'slots'
 export const BINDING_EXPRESSIONS_KEY = 'expressions'
 export const BINDING_IS_BOOLEAN_ATTRIBUTE = 'isBoolean'
 export const BINDING_CHILD_NODE_INDEX_KEY = 'childNodeIndex'
+export const BINDING_SLOT_FALLBACK_KEY = 'fallback'
 // slots keys
 export const BINDING_BINDINGS_KEY = 'bindings'
 export const BINDING_ID_KEY = 'id'

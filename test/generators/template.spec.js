@@ -11,6 +11,7 @@ import {
   BINDING_IS_BOOLEAN_ATTRIBUTE,
   BINDING_NAME_KEY,
   BINDING_SELECTOR_KEY,
+  BINDING_SLOT_FALLBACK_KEY,
   BINDING_TEMPLATE_KEY,
   BINDING_TYPE_KEY,
   NAME_ATTRIBUTE,
@@ -34,6 +35,7 @@ import riotParser from '@riotjs/parser'
 import simpleBinding from '../../src/generators/template/bindings/simple.js'
 import slotBinding from '../../src/generators/template/bindings/slot.js'
 import tagBinding from '../../src/generators/template/bindings/tag.js'
+import build from '../../src/generators/template/builder.js'
 
 const FAKE_SRC_FILE = 'fake-file.js'
 const renderExpr = compose(renderExpression, toScopedFunction, (expr) => ({
@@ -1291,6 +1293,23 @@ describe('Generators - Template', () => {
       expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.SLOT)
       expect(output[NAME_ATTRIBUTE]).to.be.equal('default')
+    })
+
+    it.only('Slot fallback html', () => {
+      const source =
+        '<div><slot><ul><li each={item in items}>{item}</li></ul></slot></div>'
+      const { template } = parse(source)
+      const [, bindings] = builder(
+        createRootNode(template),
+        FAKE_SRC_FILE,
+        source,
+      )
+      const output = evaluateOutput(bindings[0])
+
+      // the fallback template is defined
+      expect(output[BINDING_SLOT_FALLBACK_KEY]).to.be.ok()
+      // the each binding should be part of the fallback template
+      expect(bindings).to.have.length(1)
     })
   })
 
