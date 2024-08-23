@@ -236,13 +236,13 @@ export function hasExpressions(node) {
 }
 
 /**
- * True if the node is a directive having its own template
+ * True if the node is a directive having its own template or it's a slot node
  * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true only for the IF EACH and TAG bindings
+ * @returns {boolean} true only for the IF EACH and TAG bindings or it's a slot node
  */
 export function hasItsOwnTemplate(node) {
-  return [findEachAttribute, findIfAttribute, isCustomNode].some((test) =>
-    test(node),
+  return [findEachAttribute, findIfAttribute, isCustomNode, isSlotNode].some(
+    (test) => test(node),
   )
 }
 

@@ -10,12 +10,14 @@ import {
 import {
   createBindingAttributes,
   createSelectorProperties,
+  createTemplateProperty,
   getName,
   getNodeAttributes,
 } from '../utils.js'
 import { builders } from '../../../utils/build-types.js'
 import { findAttribute } from '../find.js'
 import { simplePropertyNode } from '../../../utils/custom-ast-nodes.js'
+import { createNestedBindings } from '../builder.js'
 
 /**
  * Transform a RiotParser.Node.Tag of type slot into a slot binding
@@ -61,6 +63,14 @@ export default function createSlotBinding(
       ),
     ),
     simplePropertyNode(BINDING_NAME_KEY, builders.literal(slotName)),
+    createTemplateProperty(
+      createNestedBindings(
+        sourceNode,
+        sourceFile,
+        sourceCode,
+        selectorAttribute,
+      ),
+    ),
     ...createSelectorProperties(selectorAttribute),
   ])
 }
