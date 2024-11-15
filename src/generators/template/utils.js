@@ -124,6 +124,8 @@ function visitObjectProperty(path) {
 function visitThisExpression(path) {
   path.replace(scope)
   this.traverse(path)
+
+  return false
 }
 
 /**
