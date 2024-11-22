@@ -78,7 +78,7 @@
     "start-server-and-test": "^2.0.8",
     "typescript": "^5.7.2"
   },
-  "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (http://gianlucaguarini.com)",
+  "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (https://gianlucaguarini.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/riot/compiler/issues"
