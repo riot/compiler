@@ -16,7 +16,8 @@
       "types": "./compiler.d.ts",
       "require": "./dist/compiler.essential.cjs",
       "import": "./dist/compiler.essential.js"
-    }
+    },
+    "./src/*": "./src/*"
   },
   "files": [
     "dist",
