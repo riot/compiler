@@ -68,7 +68,8 @@ export default function createSlotBinding(
     getChildrenNodes(sourceNode).length
       ? createTemplateProperty(
           createNestedBindings(
-            sourceNode,
+            // the root attributes should be removed
+            { ...sourceNode, attributes: [] },
             sourceFile,
             sourceCode,
             selectorAttribute,

@@ -1302,6 +1302,18 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TEMPLATE_KEY]).to.be.not.ok
     })
 
+    it('Slot with fallback (avoid duplicate attributes)', () => {
+      const source = '<slot message={ message }><p>hi</p></slot>'
+
+      const { template } = parse(source)
+      const input = slotBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = generateJavascript(input).code
+
+      // no expressions should be generated in the template fallback
+      // the slot root attributes should be removed
+      expect(output).to.not.match(/expressions/)
+    })
+
     it('Slot fallback html', () => {
       const source =
         '<div><slot><ul><li each={item in items}>{item}</li></ul></slot></div>'
