@@ -1,6 +1,7 @@
 import {
   BINDING_ATTRIBUTES_KEY,
   BINDING_NAME_KEY,
+  BINDING_TEMPLATE_KEY,
   BINDING_TYPES,
   BINDING_TYPE_KEY,
   DEFAULT_SLOT_NAME,
@@ -11,6 +12,7 @@ import {
   createBindingAttributes,
   createSelectorProperties,
   createTemplateProperty,
+  getChildrenNodes,
   getName,
   getNodeAttributes,
 } from '../utils.js'
@@ -63,14 +65,16 @@ export default function createSlotBinding(
       ),
     ),
     simplePropertyNode(BINDING_NAME_KEY, builders.literal(slotName)),
-    createTemplateProperty(
-      createNestedBindings(
-        sourceNode,
-        sourceFile,
-        sourceCode,
-        selectorAttribute,
-      ),
-    ),
+    getChildrenNodes(sourceNode).length
+      ? createTemplateProperty(
+          createNestedBindings(
+            sourceNode,
+            sourceFile,
+            sourceCode,
+            selectorAttribute,
+          ),
+        )
+      : simplePropertyNode(BINDING_TEMPLATE_KEY, builders.nullLiteral()),
     ...createSelectorProperties(selectorAttribute),
   ])
 }

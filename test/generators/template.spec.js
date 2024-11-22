@@ -1293,6 +1293,15 @@ describe('Generators - Template', () => {
       expect(output[NAME_ATTRIBUTE]).to.be.equal('default')
     })
 
+    it('Slot without fallback', () => {
+      const source = '<slot message={ message } />'
+      const { template } = parse(source)
+      const input = slotBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+
+      expect(output[BINDING_TEMPLATE_KEY]).to.be.not.ok
+    })
+
     it('Slot fallback html', () => {
       const source =
         '<div><slot><ul><li each={item in items}>{item}</li></ul></slot></div>'
