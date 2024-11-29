@@ -1,3 +1,5 @@
+[![Compiler logo](https://raw.githubusercontent.com/riot/branding/main/compiler/compiler-horizontal.svg)](https://github.com/riot/compiler/)
+
 [![Build Status][ci-image]][ci-url]
 [![Issue Count][codeclimate-image]][codeclimate-url]
 [![Coverage Status][coverage-image]][coverage-url]
