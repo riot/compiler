@@ -54,7 +54,13 @@ export function generateSlotsFromString(
 ): string
 
 export function compile(
-  source: string,
+  source:
+    | string
+    // TODO: re use the parser types as soon as they will be available
+    | {
+        output: { template: unknonw; script: unknown; style: unknown }
+        data: string
+      },
   options?: CompilerOptions,
 ): CompilerOutput
 

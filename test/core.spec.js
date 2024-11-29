@@ -43,7 +43,7 @@ describe('Core specs', () => {
     it('The compiler accepts also parsed components AST', async function () {
       const { parse } = riotParser()
       const parserResult = parse(getFixture('my-component.riot'))
-      const result = compile(parserResult.output)
+      const result = compile(parserResult)
       const output = evaluateScript(result.code)
 
       expect(result.code).to.be.a('string')
