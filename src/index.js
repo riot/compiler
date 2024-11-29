@@ -24,13 +24,13 @@ import { createSlotsArray } from './generators/template/bindings/tag.js'
 import cssGenerator from './generators/css/index.js'
 import curry from 'curri'
 import generateJavascript from './utils/generate-javascript.js'
-import hasHTMLOutsideRootNode from './utils/has-html-outside-root-node.js'
 import isEmptyArray from './utils/is-empty-array.js'
 import isEmptySourcemap from './utils/is-empty-sourcemap.js'
 import javascriptGenerator from './generators/javascript/index.js'
 import riotParser from '@riotjs/parser'
 import sourcemapAsJSON from './utils/sourcemap-as-json.js'
 import templateGenerator from './generators/template/index.js'
+import preProcessSource from './utils/pre-process-source.js'
 
 const DEFAULT_OPTIONS = {
   template: 'default',
@@ -156,26 +156,17 @@ export function generateTemplateFunctionFromString(source, parserOptions) {
 
 /**
  * Generate the output code source together with the sourcemap
- * @param { string } source - source code of the tag we will need to compile
+ * @param { string | ParserResult } source - source code of the tag we will need to compile or a parsed Component AST
  * @param { Object } opts - compiling options
  * @returns { Output } object containing output code and source map
  */
 export function compile(source, opts = {}) {
   const meta = createMeta(source, opts)
   const { options } = meta
-  const { code, map } = runPreprocessor(
-    'template',
-    options.template,
-    meta,
+  const { template, css, javascript, map, code } = preProcessSource(
     source,
+    meta,
   )
-  const { parse } = riotParser(options)
-  const { template, css, javascript } = parse(code).output
-
-  // see also https://github.com/riot/compiler/issues/130
-  if (hasHTMLOutsideRootNode(template || css || javascript, code, parse)) {
-    throw new Error('Multiple HTML root nodes are not supported')
-  }
 
   // extend the meta object with the result of the parsing
   Object.assign(meta, {

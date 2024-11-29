@@ -9,6 +9,7 @@ import { evaluateScript, getFixture, sassPreprocessor } from './helpers.js'
 import { SourceMapConsumer } from 'source-map'
 import { expect } from 'chai'
 import pug from 'pug'
+import riotParser from '@riotjs/parser'
 import { unregister } from '../src/preprocessors.js'
 
 describe('Core specs', () => {
@@ -33,10 +34,28 @@ describe('Core specs', () => {
       sourcemapConsumer.destroy()
     })
 
-    it('TypeScript script syntax are supported', function () {
+    it('TypeScript script syntax is supported', function () {
       expect(() =>
         compile(getFixture('typescript-script-type.riot')),
       ).to.not.throw()
+    })
+
+    it('The compiler accepts also parsed components AST', async function () {
+      const { parse } = riotParser()
+      const parserResult = parse(getFixture('my-component.riot'))
+      const result = compile(parserResult.output)
+      const output = evaluateScript(result.code)
+
+      expect(result.code).to.be.a('string')
+      expect(result.map).to.be.not.an('undefined')
+      expect(result.meta).to.be.an('object')
+      expect(result.meta.tagName).to.be.equal('my-component')
+      expect(output.default).to.have.all.keys(
+        'exports',
+        'css',
+        'template',
+        'name',
+      )
     })
 
     it('String attributes should not be removed from the root node (https://github.com/riot/riot/issues/2761)', () => {
