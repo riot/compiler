@@ -13,10 +13,7 @@ import {
   register as registerPostproc,
   execute as runPostprocessors,
 } from './postprocessors.js'
-import {
-  register as registerPreproc,
-  execute as runPreprocessor,
-} from './preprocessors.js'
+import { register as registerPreproc } from './preprocessors.js'
 import build from './generators/template/builder.js'
 import { builders } from './utils/build-types.js'
 import compose from 'cumpa'
