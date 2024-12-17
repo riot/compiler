@@ -58,7 +58,7 @@ export function compile(
     | string
     // TODO: re use the parser types as soon as they will be available
     | {
-        output: { template: unknonw; script: unknown; style: unknown }
+        output: { template: unknown; script: unknown; style: unknown }
         data: string
       },
   options?: CompilerOptions,
