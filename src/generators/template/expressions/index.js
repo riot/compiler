@@ -1,6 +1,7 @@
 import {
   isEventAttribute,
   isProgressNode,
+  isRefAttribute,
   isTextNode,
   isValueAttribute,
 } from '../checks.js'
@@ -10,6 +11,7 @@ import { findDynamicAttributes } from '../find.js'
 import { hasValueAttribute } from 'dom-nodes'
 import textExpression from './text.js'
 import valueExpression from './value.js'
+import refExpression from './ref.js'
 
 export function createExpression(
   sourceNode,
@@ -27,6 +29,8 @@ export function createExpression(
       hasValueAttribute(parentNode.name) &&
       !isProgressNode(parentNode):
       return valueExpression(sourceNode, sourceFile, sourceCode)
+    case isRefAttribute(sourceNode):
+      return refExpression(sourceNode, sourceFile, sourceCode)
     case isEventAttribute(sourceNode):
       return eventExpression(sourceNode, sourceFile, sourceCode)
     default:

@@ -3,9 +3,11 @@ import {
   IS_SPREAD_ATTRIBUTE,
   IS_VOID_NODE,
   PROGRESS_TAG_NODE_NAME,
+  REF_ATTRIBUTE,
   SLOT_ATTRIBUTE,
   SLOT_TAG_NODE_NAME,
   TEMPLATE_TAG_NODE_NAME,
+  VALUE_ATTRIBUTE,
 } from './constants.js'
 import {
   findAttribute,
@@ -179,7 +181,16 @@ export function isSpreadAttribute(node) {
  * @returns {boolean} true only for value attribute nodes
  */
 export function isValueAttribute(node) {
-  return node.name === 'value'
+  return node.name === VALUE_ATTRIBUTE
+}
+
+/**
+ * True if the node is an attribute and its name is "ref"
+ * @param   {RiotParser.Node} node - riot parser node
+ * @returns {boolean} true only for ref attribute nodes
+ */
+export function isRefAttribute(node) {
+  return node.name === REF_ATTRIBUTE
 }
 
 /**
