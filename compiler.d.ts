@@ -1,10 +1,11 @@
+import { ParserOptions, ParserOutput } from '@riotjs/parser'
 import { RawSourceMap } from 'source-map'
 
 export type CompilerOptions = {
   template?: string
   file?: string
   scopedCss?: boolean
-}
+} & ParserOptions
 
 export type CompilerOutput = {
   code: string
@@ -54,13 +55,7 @@ export function generateSlotsFromString(
 ): string
 
 export function compile(
-  source:
-    | string
-    // TODO: re use the parser types as soon as they will be available
-    | {
-        output: { template: unknown; script: unknown; style: unknown }
-        data: string
-      },
+  source: string | ParserOutput,
   options?: CompilerOptions,
 ): CompilerOutput
 
