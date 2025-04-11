@@ -919,6 +919,21 @@ describe('Generators - Template', () => {
       expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(0)
     })
 
+    it('Tag inheriting the slot from its parent', () => {
+      const source = '<my-tag><slot/></my-tag>'
+      const { template } = parse(source)
+      const input = tagBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const defaultSlot = output.slots[0]
+
+      expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
+      expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
+      expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
+
+      expect(defaultSlot[BINDING_HTML_KEY]).to.be.not.ok
+      expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
+    })
+
     it('Tag binding on a custom input element', () => {
       const source = '<input is="bar" value="1"/>'
       const { template } = parse(source)
