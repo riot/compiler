@@ -23,10 +23,7 @@ import {
 import build from '../builder.js'
 import { builders } from '../../../utils/build-types.js'
 import compose from 'cumpa'
-import {
-  nullNode,
-  simplePropertyNode,
-} from '../../../utils/custom-ast-nodes.js'
+import { simplePropertyNode } from '../../../utils/custom-ast-nodes.js'
 import { isSlotNode } from '../checks.js'
 
 /**
