@@ -52,7 +52,7 @@
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
-    "@playwright/test": "^1.51.0",
+    "@playwright/test": "^1.51.1",
     "@riotjs/dom-bindings": "^9.2.6",
     "@riotjs/prettier-config": "^1.1.0",
     "@rollup/plugin-alias": "^5.1.1",
@@ -70,14 +70,14 @@
     "mocha": "^11.1.0",
     "prettier": "^3.5.3",
     "pug": "^3.0.3",
-    "rollup": "^4.35.0",
+    "rollup": "^4.39.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-visualizer": "^5.14.0",
-    "sass": "^1.85.1",
+    "sass": "^1.86.3",
     "serve": "^14.2.4",
-    "shelljs": "^0.9.1",
+    "shelljs": "^0.9.2",
     "start-server-and-test": "^2.0.11",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   },
   "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (https://gianlucaguarini.com)",
   "license": "MIT",
@@ -86,7 +86,7 @@
   },
   "homepage": "https://github.com/riot/compiler#readme",
   "dependencies": {
-    "@babel/parser": "^7.26.10",
+    "@babel/parser": "^7.27.0",
     "@riotjs/parser": "^9.1.1",
     "@riotjs/util": "2.5.0",
     "css-simple-parser": "^3.0.2",
