@@ -24,6 +24,7 @@ import build from '../builder.js'
 import { builders } from '../../../utils/build-types.js'
 import compose from 'cumpa'
 import { simplePropertyNode } from '../../../utils/custom-ast-nodes.js'
+import { hasChildrenNodes, isSlotNode } from '../checks.js'
 
 /**
  * Find the slots in the current component and group them under the same id
@@ -64,16 +65,27 @@ function buildSlot(id, sourceNode, sourceFile, sourceCode) {
     ...sourceNode,
     attributes: getNodeAttributes(sourceNode),
   }
-  const [html, bindings] = build(cloneNode, sourceFile, sourceCode)
 
-  return builders.objectExpression([
-    simplePropertyNode(BINDING_ID_KEY, builders.literal(id)),
-    simplePropertyNode(BINDING_HTML_KEY, builders.literal(html)),
-    simplePropertyNode(
-      BINDING_BINDINGS_KEY,
-      builders.arrayExpression(bindings),
-    ),
-  ])
+  // If the node is an empty slot we do not create the html key (https://github.com/riot/riot/issues/3055)
+  const [html, bindings] =
+    isSlotNode(cloneNode) && !hasChildrenNodes(cloneNode)
+      ? [null, null]
+      : build(cloneNode, sourceFile, sourceCode)
+
+  return builders.objectExpression(
+    [
+      simplePropertyNode(BINDING_ID_KEY, builders.literal(id)),
+      html
+        ? simplePropertyNode(BINDING_HTML_KEY, builders.literal(html))
+        : null,
+      bindings
+        ? simplePropertyNode(
+            BINDING_BINDINGS_KEY,
+            builders.arrayExpression(bindings),
+          )
+        : null,
+    ].filter(Boolean),
+  )
 }
 
 /**

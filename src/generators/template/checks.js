@@ -261,3 +261,4 @@ export const hasIfAttribute = compose(Boolean, findIfAttribute)
 export const hasEachAttribute = compose(Boolean, findEachAttribute)
 export const hasIsAttribute = compose(Boolean, findIsAttribute)
 export const hasKeyAttribute = compose(Boolean, findKeyAttribute)
+export const hasChildrenNodes = (node) => node?.nodes?.length > 0
