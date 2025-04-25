@@ -626,16 +626,18 @@ export function createArrayString(stringsArray) {
 
 /**
  * Simple expression bindings might contain multiple expressions like for example: "class="{foo} red {bar}""
- * This helper aims to merge them in a template literal if it's necessary
+ * This helper aims to merge them into a template literal if it's necessary
  * @param   {RiotParser.Attr} node - riot parser node
  * @param   {string} sourceFile - original tag file
  * @param   {string} sourceCode - original tag source code
  * @returns { Object } a template literal expression object
  */
 export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
+  // static attributes don't need to be merged, nor expression transformations are needed
   if (!node.expressions)
     return createArrayString(node.parts.map(builders.literal))
 
+  // if there are no node parts or there is just one item we just create a simple expression literal
   if (!node.parts || node.parts.length === 1)
     return transformExpression(node.expressions[0], sourceFile, sourceCode)
 
