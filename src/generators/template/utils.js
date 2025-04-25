@@ -633,28 +633,34 @@ export function createArrayString(stringsArray) {
  * @returns { Object } a template literal expression object
  */
 export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
-  // static attributes don't need to be merged, nor expression transformations are needed
-  if (!node.expressions && node.parts.length === 1)
-    return builders.literal(node.parts[0])
+  switch (true) {
+    // static attributes don't need to be merged, nor expression transformations are needed
+    case !hasExpressions(node) && node.parts.length === 1:
+      return builders.literal(node.parts[0])
+    // if there are no node parts or there is just one item we just create a simple expression literal
+    case !node.parts || node.parts.length === 1:
+      return transformExpression(node.expressions[0], sourceFile, sourceCode)
+    default:
+      // merge the siblings expressions into a single array literal
+      return createArrayString(
+        [
+          // fold the expression parts into a single array
+          ...node.parts.reduce((acc, str) => {
+            const expression = node.expressions.find(
+              (e) => e.text.trim() === str,
+            )
 
-  // if there are no node parts or there is just one item we just create a simple expression literal
-  if (!node.parts || node.parts.length === 1)
-    return transformExpression(node.expressions[0], sourceFile, sourceCode)
-
-  const stringsArray = [
-    ...node.parts.reduce((acc, str) => {
-      const expression = node.expressions.find((e) => e.text.trim() === str)
-
-      return [
-        ...acc,
-        expression
-          ? transformExpression(expression, sourceFile, sourceCode)
-          : builders.literal(encodeHTMLEntities(str)),
-      ]
-    }, []),
-  ].filter((expr) => !isLiteral(expr) || expr.value)
-
-  return createArrayString(stringsArray)
+            return [
+              ...acc,
+              expression
+                ? transformExpression(expression, sourceFile, sourceCode)
+                : builders.literal(encodeHTMLEntities(str)),
+            ]
+          }, []),
+          // filter out invalid items that are not literal or have no value
+        ].filter((expr) => !isLiteral(expr) || expr.value),
+      )
+  }
 }
 
 /**
