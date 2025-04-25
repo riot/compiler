@@ -87,7 +87,7 @@ function createTagWithBindings(sourceNode, sourceFile, sourceCode) {
     ? null
     : createBindingSelector()
   const cloneNode = createBindingsTag(sourceNode, bindingsSelector)
-  const tagOpeningHTML = nodeToString(cloneNode)
+  const tagOpeningHTML = nodeToString(cloneNode, bindingsSelector)
 
   switch (true) {
     case hasEachAttribute(cloneNode):

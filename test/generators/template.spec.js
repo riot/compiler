@@ -805,10 +805,14 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
       expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
       expect(output.slots).to.have.length(0)
-      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
+      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
       expect(
         output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({ foo: 'foo' }),
       ).to.be.equal('foo')
+
+      expect(
+        output[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY](),
+      ).to.be.equal('my-id')
     })
 
     it('Children tags do not inherit "expr" and "is" attributes', () => {
@@ -823,12 +827,15 @@ describe('Generators - Template', () => {
       expect(tagBinding[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
       expect(tagBinding[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
       expect(tagBinding.slots).to.have.length(0)
-      expect(tagBinding[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
+      expect(tagBinding[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
       expect(
         tagBinding[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({
           foo: 'foo',
         }),
       ).to.be.equal('foo')
+      expect(
+        tagBinding[BINDING_ATTRIBUTES_KEY][1][BINDING_EVALUATE_KEY](),
+      ).to.be.equal('my-id')
     })
 
     it('Tag bindings can be computed', () => {
@@ -873,7 +880,7 @@ describe('Generators - Template', () => {
       expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal('<p>hello</p>')
       expect(defaultSlot[BINDING_BINDINGS_KEY]).to.be.deep.equal([])
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
-      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(1)
+      expect(output[BINDING_ATTRIBUTES_KEY]).to.have.length(2)
       expect(
         output[BINDING_ATTRIBUTES_KEY][0][BINDING_EVALUATE_KEY]({ foo: 'foo' }),
       ).to.be.equal('foo')
@@ -961,7 +968,7 @@ describe('Generators - Template', () => {
       const output = evaluateOutput(input)
 
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
-      expect(output.attributes).to.have.length(0)
+      expect(output.attributes).to.have.length(1)
     })
 
     it('Tag binding with multiple slots with expressions', () => {
@@ -1220,8 +1227,8 @@ describe('Generators - Template', () => {
 
       expect(
         output.template.bindingsData[0].attributes,
-        "static attributes should't be parsed as expressions",
-      ).to.have.length(1)
+        'static attributes should also be parsed as expressions',
+      ).to.have.length(2)
       expect(output[BINDING_SELECTOR_KEY]).to.be.equal('[expr0]')
 
       expect(expression[BINDING_EVALUATE_KEY]).to.be.a('function')
@@ -1597,9 +1604,7 @@ describe('Generators - Template', () => {
       const source = '<input type="text" name="txt" is="binding" value="1"/>'
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, 'expr0', FAKE_SRC_FILE, source)
-      expect(html).to.be.equal(
-        '<input expr type="text" name="txt" is="binding" value="1"/>',
-      )
+      expect(html).to.be.equal('<input expr is="binding"/>')
     })
 
     it('Event attributes on custom tags do not break the compiler (issue #124)', () => {
@@ -1607,9 +1612,7 @@ describe('Generators - Template', () => {
         '<input type="text" name="txt" is="binding" onclick="void"/>'
       const { template } = parse(source)
       const html = buildSimpleTemplate(template, 'expr0', FAKE_SRC_FILE, source)
-      expect(html).to.be.equal(
-        '<input expr type="text" name="txt" is="binding" onclick="void"/>',
-      )
+      expect(html).to.be.equal('<input expr is="binding"/>')
     })
   })
 })
