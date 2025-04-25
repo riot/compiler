@@ -20,6 +20,7 @@ import { builders, types } from '../../utils/build-types.js'
 import { findIsAttribute, findStaticAttributes } from './find.js'
 import {
   hasExpressions,
+  isCustomNode,
   isGlobal,
   isTagNode,
   isTextNode,
@@ -558,12 +559,31 @@ export function unescapeNode(node, key) {
 }
 
 /**
+ * Custom nodes can only render a small subset of their static attributes
+ * only the is and the expr attribute can be rendered as static attributes
+ * @param {RiotParser.Node} node - a custom element node
+ * @param   {string} bindingsSelector - temporary string to identify the current node
+ * @returns {Array} list of the attributes that can be statically rendered
+ */
+export function filterCustomNodeStaticAttributes(node, bindingsSelector) {
+  return node.attributes.filter(
+    (attribute) =>
+      attribute.name === bindingsSelector || attribute.name === IS_DIRECTIVE,
+  )
+}
+
+/**
  * Convert a riot parser opening node into a string
  * @param   {RiotParser.Node} node - riot parser node
+ * @param   {string} bindingsSelector - temporary string to identify the current node
  * @returns {string} the node as string
  */
-export function nodeToString(node) {
-  const attributes = staticAttributesToString(node)
+export function nodeToString(node, bindingsSelector) {
+  const attributes = staticAttributesToString(
+    isCustomNode(node)
+      ? { attributes: filterCustomNodeStaticAttributes(node, bindingsSelector) }
+      : node,
+  )
 
   switch (true) {
     case isTagNode(node):
@@ -613,9 +633,12 @@ export function createArrayString(stringsArray) {
  * @returns { Object } a template literal expression object
  */
 export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
-  if (!node.parts || node.parts.length === 1) {
+  if (!node.expressions)
+    return createArrayString(node.parts.map(builders.literal))
+
+  if (!node.parts || node.parts.length === 1)
     return transformExpression(node.expressions[0], sourceFile, sourceCode)
-  }
+
   const stringsArray = [
     ...node.parts.reduce((acc, str) => {
       const expression = node.expressions.find((e) => e.text.trim() === str)
@@ -661,7 +684,6 @@ export function createBindingAttributes(
         attributes.map((attribute) =>
           createExpression(attribute, sourceFile, sourceCode, 0, sourceNode),
         ),
-      (attributes) => attributes.filter(hasExpressions),
       (attributes) =>
         getAttributesWithoutSelector(attributes, selectorAttribute),
       cleanAttributes,
