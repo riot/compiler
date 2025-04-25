@@ -634,8 +634,8 @@ export function createArrayString(stringsArray) {
  */
 export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
   // static attributes don't need to be merged, nor expression transformations are needed
-  if (!node.expressions)
-    return createArrayString(node.parts.map(builders.literal))
+  if (!node.expressions && node.parts.length === 1)
+    return builders.literal(node.parts[0])
 
   // if there are no node parts or there is just one item we just create a simple expression literal
   if (!node.parts || node.parts.length === 1)
