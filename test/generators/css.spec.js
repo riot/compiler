@@ -164,7 +164,6 @@ describe('Generators - CSS', () => {
     const { code } = print(ast)
     const output = evaluateScript(code)
 
-    console.log(code)
     expect(ast).to.be.ok
     expect(code).to.have.string('[is="my-tag"]')
     expect(code).to.have.string('my-tag h1,[is="my-tag"] h1{ color: green;')
