@@ -13,19 +13,17 @@ import {
   simplePropertyNode,
 } from '../../../utils/custom-ast-nodes.js'
 import { builders } from '../../../utils/build-types.js'
-import { isAbsoluteRootNode, isSpreadAttribute } from '../checks.js'
+import { isSpreadAttribute } from '../checks.js'
 import { createAttributeEvaluationFunction } from '../utils.js'
 /**
  * Create a simple attribute expression
  * @param   {RiotParser.Node.Attr} sourceNode - the custom tag
- * @param   {RiotParser.Node} parentNode - the html node that has received the attribute expression
  * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
  * @returns {AST.Node} object containing the expression binding keys
  */
 export default function createAttributeExpression(
   sourceNode,
-  parentNode,
   sourceFile,
   sourceCode,
 ) {
@@ -42,16 +40,7 @@ export default function createAttributeExpression(
     ),
     simplePropertyNode(
       BINDING_IS_BOOLEAN_ATTRIBUTE,
-      builders.literal(
-        // the hidden attribute is always a boolean and can be applied to any DOM node
-        sourceNode.name === 'hidden' ||
-          // Custom nodes can't handle boolean attrs
-          // Riot.js will handle the bool attrs logic only on native html tags
-          (!parentNode[IS_CUSTOM_NODE] &&
-            !isAbsoluteRootNode(parentNode) &&
-            !isSpread &&
-            !!sourceNode[IS_BOOLEAN_ATTRIBUTE]),
-      ),
+      builders.literal(!isSpread && !!sourceNode[IS_BOOLEAN_ATTRIBUTE]),
     ),
     simplePropertyNode(
       BINDING_NAME_KEY,
