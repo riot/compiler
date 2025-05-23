@@ -158,15 +158,6 @@ export function isRootNode(node) {
 }
 
 /**
- * True if the node parsed is the absolute root node (nested root nodes are not considered)
- * @param   {RiotParser.Node} node - riot parser node
- * @returns {boolean} true only for the root nodes
- */
-export function isAbsoluteRootNode(node) {
-  return node.isRoot && !node.isNestedRoot
-}
-
-/**
  * True if the attribute parsed is of type spread one
  * @param   {RiotParser.Node} node - riot parser node
  * @returns {boolean} true if the attribute node is of type spread
