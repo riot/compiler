@@ -6,7 +6,6 @@ import {
   BINDING_TYPE_KEY,
   EXPRESSION_TYPES,
   IS_BOOLEAN_ATTRIBUTE,
-  IS_CUSTOM_NODE,
 } from '../constants.js'
 import {
   nullNode,
