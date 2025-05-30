@@ -73,7 +73,7 @@ export function evaluateScript(code) {
     const content = require(`./${relative(__dirname, filePath)}`)
     return content
   } catch (error) {
-    console.error(error) // eslint-disable-line
+    console.error(error)
     return {}
   } finally {
     sh.rm(filePath)

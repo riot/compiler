@@ -25,7 +25,7 @@ export default function hasHTMLOutsideRootNode(root, code, parse) {
       const { template, javascript, css } = parse(additionalCode).output
 
       return [template, javascript, css].some(isObject)
-    } catch (error) {
+    } catch {
       return false
     }
   }

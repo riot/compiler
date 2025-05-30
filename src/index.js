@@ -39,7 +39,6 @@ const DEFAULT_OPTIONS = {
  * Create the initial AST
  * @param {string} tagName - the name of the component we have compiled
  * @returns { AST } the initial AST
- *
  * @example
  * // the output represents the following string in AST
  */
@@ -67,7 +66,7 @@ export function createInitialInput({ tagName }) {
 /**
  * Make sure the input sourcemap is valid otherwise we ignore it
  * @param   {SourceMapGenerator} map - preprocessor source map
- * @returns {Object} sourcemap as json or nothing
+ * @returns {object} sourcemap as json or nothing
  */
 function normaliseInputSourceMap(map) {
   const inputSourceMap = sourcemapAsJSON(map)
@@ -76,9 +75,9 @@ function normaliseInputSourceMap(map) {
 
 /**
  * Override the sourcemap content making sure it will always contain the tag source code
- * @param   {Object} map - sourcemap as json
+ * @param   {object} map - sourcemap as json
  * @param   {string} source - component source code
- * @returns {Object} original source map with the "sourcesContent" property overridden
+ * @returns {object} original source map with the "sourcesContent" property overridden
  */
 function overrideSourcemapContent(map, source) {
   return {
@@ -91,7 +90,7 @@ function overrideSourcemapContent(map, source) {
  * Create the compilation meta object
  * @param { string } source - source code of the tag we will need to compile
  * @param { string } options - compiling options
- * @returns {Object} meta object
+ * @returns {object} meta object
  */
 function createMeta(source, options) {
   return {
@@ -108,8 +107,8 @@ function createMeta(source, options) {
 /**
  * Parse a string to simply get its template AST
  * @param { string } source - string to parse
- * @param { Object } options - parser options
- * @returns {Object} riot parser template output
+ * @param {object} options - parser options
+ * @returns {object} riot parser template output
  */
 const parseSimpleString = (source, options) => {
   const { parse } = riotParser(options)
@@ -119,7 +118,7 @@ const parseSimpleString = (source, options) => {
 /**
  * Generate the component slots creation function from the root node
  * @param { string } source - component outer html
- * @param { Object } parserOptions - riot parser options
+ * @param {object} parserOptions - riot parser options
  * @returns { string } content of the function that can be used to crate the slots in runtime
  */
 export function generateSlotsFromString(source, parserOptions) {
@@ -134,7 +133,7 @@ export function generateSlotsFromString(source, parserOptions) {
 /**
  * Generate the Riot.js binding template function from a template string
  * @param { string } source - template string
- * @param { Object } parserOptions - riot parser options
+ * @param {object} parserOptions - riot parser options
  * @returns { string } Riot.js bindings template function generated
  */
 export function generateTemplateFunctionFromString(source, parserOptions) {
@@ -154,7 +153,7 @@ export function generateTemplateFunctionFromString(source, parserOptions) {
 /**
  * Generate the output code source together with the sourcemap
  * @param { string | ParserResult } source - source code of the tag we will need to compile or a parsed Component AST
- * @param { Object } opts - compiling options
+ * @param {object} opts - compiling options
  * @returns { Output } object containing output code and source map
  */
 export function compile(source, opts = {}) {
@@ -194,9 +193,9 @@ export function compile(source, opts = {}) {
 /**
  * Prepare the riot parser node transformers
  * @param   { Function } transformer - transformer function
- * @param   { Object } sourceNode - riot parser node
+ * @param   {object} sourceNode - riot parser node
  * @param   { string } source - component source code
- * @param   { Object } meta - compilation meta information
+ * @param   {object} meta - compilation meta information
  * @returns { function(): Promise<Output> } Function what resolves to object containing output code and source map
  */
 function hookGenerator(transformer, sourceNode, source, meta) {

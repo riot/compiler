@@ -2,7 +2,7 @@ import { SourceMapGenerator } from 'source-map'
 
 /**
  * Create a new sourcemap generator
- * @param   { Object } options - sourcemap options
+ * @param   {object} options - sourcemap options
  * @returns { SourceMapGenerator } SourceMapGenerator instance
  */
 export default function createSourcemap(options) {

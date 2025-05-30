@@ -59,7 +59,6 @@ function replacePathScope(path, property) {
  * Change the nodes scope adding the `scope` prefix
  * @param   { types.NodePath } path - containing the current node visited
  * @returns { boolean } return false if we want to stop the tree traversal
- * @context { types.visit }
  */
 function updateNodeScope(path) {
   if (!isGlobal(path)) {
@@ -68,7 +67,7 @@ function updateNodeScope(path) {
     return false
   }
 
-  this.traverse(path)
+  return this.traverse(path)
 }
 
 /**
@@ -152,8 +151,8 @@ function visitIdentifier(path) {
 
 /**
  * Update the scope of the global nodes
- * @param   { Object } ast - ast program
- * @returns { Object } the ast program with all the global nodes updated
+ * @param   {object} ast - ast program
+ * @returns {object} the ast program with all the global nodes updated
  */
 export function updateNodesScope(ast) {
   const ignorePath = () => false
@@ -171,10 +170,10 @@ export function updateNodesScope(ast) {
 
 /**
  * Convert any expression to an AST tree
- * @param   { Object } expression - expression parsed by the riot parser
+ * @param   {object} expression - expression parsed by the riot parser
  * @param   { string } sourceFile - original tag file
  * @param   { string } sourceCode - original tag source code
- * @returns { Object } the ast generated
+ * @returns {object} the ast generated
  */
 export function createASTFromExpression(expression, sourceFile, sourceCode) {
   const code = sourceFile
@@ -215,7 +214,7 @@ export function getAttributeExpression(attribute) {
 
 /**
  * Wrap the ast generated in a function call providing the scope argument
- * @param   {Object} ast - function body
+ * @param   {object} ast - function body
  * @returns {FunctionExpresion} function having the scope argument injected
  */
 export function wrapASTInFunctionWithScope(ast) {
@@ -240,11 +239,9 @@ export function wrapASTInFunctionWithScope(ast) {
  * @param   { RiotParser.Node.Expression } expression - expression parsed by the riot parser
  * @param   { string } sourceFile - original tag file
  * @param   { string } sourceCode - original tag source code
- * @returns { Object } a FunctionExpression object
- *
+ * @returns {object} a FunctionExpression object
  * @example
  *  toScopedFunction('foo + bar') // scope.foo + scope.bar
- *
  * @example
  *  toScopedFunction('foo.baz + bar') // scope.foo.baz + scope.bar
  */
@@ -630,7 +627,7 @@ export function createArrayString(stringsArray) {
  * @param   {RiotParser.Attr} node - riot parser node
  * @param   {string} sourceFile - original tag file
  * @param   {string} sourceCode - original tag source code
- * @returns { Object } a template literal expression object
+ * @returns {object} a template literal expression object
  */
 export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
   switch (true) {

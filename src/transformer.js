@@ -9,11 +9,11 @@ export const Output = Object.freeze({
 
 /**
  * Create the right output data result of a parsing
- * @param   { Object } data - output data
+ * @param   {object} data - output data
  * @param   { string } data.code - code generated
  * @param   { AST } data.ast - ast representing the code
  * @param   { SourceMapGenerator } data.map - source map generated along with the code
- * @param   { Object } meta - compilation meta infomration
+ * @param   {object} meta - compilation meta infomration
  * @returns { Output } output container object
  */
 export function createOutput(data, meta) {
@@ -35,7 +35,7 @@ export function createOutput(data, meta) {
 /**
  * Transform the source code received via a compiler function
  * @param   { Function } compiler - function needed to generate the output code
- * @param   { Object } meta - compilation meta information
+ * @param   {object} meta - compilation meta information
  * @param   { string } source - source code
  * @returns { Output } output - the result of the compiler
  */

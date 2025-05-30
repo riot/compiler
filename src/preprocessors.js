@@ -2,7 +2,7 @@ import { panic } from '@riotjs/util/misc'
 import { transform } from './transformer.js'
 /**
  * Parsers that can be registered by users to preparse components fragments
- * @type { Object }
+ * @type {object}
  */
 export const preprocessors = Object.freeze({
   javascript: new Map(),
@@ -72,7 +72,7 @@ export function unregister(type, name) {
  * Exec the compilation of a preprocessor
  * @param   { string } type - preprocessor type either 'js', 'css' or 'template'
  * @param   { string } name - unique preprocessor id
- * @param   { Object } meta - preprocessor meta information
+ * @param   {object} meta - preprocessor meta information
  * @param   { string } source - source code
  * @returns { Output } object containing a sourcemap and a code string
  */
