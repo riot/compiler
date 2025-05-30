@@ -1,4 +1,4 @@
-import globals from 'globals/globals.json' assert { type: 'json' }
+import globals from 'globals/globals.json' with { type: 'json' }
 import { namedTypes } from './build-types.js'
 
 const browserAPIs = ['window', 'document', 'console']
