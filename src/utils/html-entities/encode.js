@@ -10,7 +10,7 @@ const DECIMAL_NUMBER = /^\d+$/
  * @returns {string} encoded string
  */
 export function encodeHex(string) {
-  const hex = string.substr(2)
+  const hex = string.substring(2)
 
   return HEX_NUMBER.test(hex) ? String.fromCodePoint(parseInt(hex, 16)) : string
 }
@@ -21,7 +21,7 @@ export function encodeHex(string) {
  * @returns {string} encoded string
  */
 export function encodeDecimal(string) {
-  const nr = string.substr(1)
+  const nr = string.substring(1)
 
   return DECIMAL_NUMBER.test(nr)
     ? String.fromCodePoint(parseInt(nr, 10))

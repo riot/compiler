@@ -10,9 +10,9 @@ export default function hasHTMLOutsideRootNode(root, code, parse) {
   const additionalCode = root
     ? [
         // head
-        code.substr(0, root.start),
+        code.substring(0, root.start),
         // tail
-        code.substr(root.end, code.length),
+        code.substring(root.end, code.length),
       ]
         .join('')
         .trim()
