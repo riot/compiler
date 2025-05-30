@@ -21,6 +21,7 @@ import { findIsAttribute, findStaticAttributes } from './find.js'
 import {
   hasExpressions,
   isGlobal,
+  isRefAttribute,
   isTagNode,
   isTextNode,
   isVoidNode,
@@ -662,6 +663,8 @@ export function createBindingAttributes(
           createExpression(attribute, sourceFile, sourceCode, 0, sourceNode),
         ),
       (attributes) => attributes.filter(hasExpressions),
+      // filter out the ref attributes
+      (attributes) => attributes.filter((node) => !isRefAttribute(node)),
       (attributes) =>
         getAttributesWithoutSelector(attributes, selectorAttribute),
       cleanAttributes,
