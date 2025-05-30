@@ -1,4 +1,4 @@
-import entities from './entities.json' assert { type: 'json' }
+import entities from './entities.json' with { type: 'json' }
 
 const HTMLEntityRe = /&(\S+);/g
 const HEX_NUMBER = /^[\da-fA-F]+$/
