@@ -79,7 +79,6 @@ function createDynamicNode(sourceNode, sourceFile, sourceCode, state) {
  * @param   {RiotParser.Node} sourceNode - any kind of node parsed via riot parser
  * @param   {string} sourceFile - source file path
  * @param   {string} sourceCode - original source
- * @param   {BuildingState} state - state representing the current building tree state during the recursion
  * @returns {Array} array containing the html output and bindings for the current node
  */
 function createTagWithBindings(sourceNode, sourceFile, sourceCode) {

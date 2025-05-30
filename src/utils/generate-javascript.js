@@ -3,8 +3,8 @@ import { print } from 'recast'
 /**
  * Generate the javascript from an ast source
  * @param   {AST} ast - ast object
- * @param   {Object} options - printer options
- * @returns {Object} code + map
+ * @param   {object} options - printer options
+ * @returns {object} code + map
  */
 export default function generateJavascript(ast, options) {
   return print(ast, {

@@ -62,7 +62,7 @@ function generateLiteralStringChunksFromNode(node, sourceCode) {
  * @param   {RiotParser.Node} node - riot parser node
  * @param   {string} sourceFile - original tag file
  * @param   {string} sourceCode - original tag source code
- * @returns { Object } a template literal expression object
+ * @returns {object} a template literal expression object
  */
 export function mergeNodeExpressions(node, sourceFile, sourceCode) {
   if (node.parts.length === 1)

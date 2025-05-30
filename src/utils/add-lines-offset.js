@@ -5,7 +5,7 @@ import getLineAndColumnByPosition from './get-line-and-column-by-position.js'
  * @param {string} input - input string
  * @param {string} source - original source code
  * @param {RiotParser.Node} node - node that we are going to transform
- * @return {string} the input string with the offset properly set
+ * @returns {string} the input string with the offset properly set
  */
 export default function addLineOffset(input, source, node) {
   const { column, line } = getLineAndColumnByPosition(source, node.start)

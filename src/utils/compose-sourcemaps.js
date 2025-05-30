@@ -6,7 +6,7 @@ import { isNode } from '@riotjs/util/checks'
  * Compose two sourcemaps
  * @param   { SourceMapGenerator } formerMap - original sourcemap
  * @param   { SourceMapGenerator } latterMap - target sourcemap
- * @returns { Object } sourcemap json
+ * @returns {object} sourcemap json
  */
 export default function composeSourcemaps(formerMap, latterMap) {
   if (isNode() && formerMap && latterMap && latterMap.mappings) {

@@ -29,7 +29,7 @@ import { hasChildrenNodes, isSlotNode } from '../checks.js'
 /**
  * Find the slots in the current component and group them under the same id
  * @param   {RiotParser.Node.Tag} sourceNode - the custom tag
- * @returns {Object} object containing all the slots grouped by name
+ * @returns {object} object containing all the slots grouped by name
  */
 function groupSlots(sourceNode) {
   return getChildrenNodes(sourceNode).reduce(
