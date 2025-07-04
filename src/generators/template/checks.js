@@ -24,7 +24,10 @@ import {
   isRaw,
 } from '../../utils/ast-nodes-checks.js'
 import compose from 'cumpa'
-import { isNil } from '@riotjs/util/checks'
+import {
+  isNil,
+  isEventAttribute as _isEventAttribute,
+} from '@riotjs/util/checks'
 import { nodeTypes } from '@riotjs/parser'
 import { types } from '../../utils/build-types.js'
 
@@ -208,8 +211,7 @@ export function isTemplateNode(node) {
  * @returns {boolean} true only for dom listener attribute nodes
  */
 export const isEventAttribute = (() => {
-  const EVENT_ATTR_RE = /^on/
-  return (node) => EVENT_ATTR_RE.test(node.name)
+  return (node) => _isEventAttribute(node.name)
 })()
 
 /**
