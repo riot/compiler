@@ -44,10 +44,13 @@ export const IF_DIRECTIVE = 'if'
 export const EACH_DIRECTIVE = 'each'
 export const KEY_ATTRIBUTE = 'key'
 export const SLOT_ATTRIBUTE = 'slot'
-export const VALUE_ATTRIBUTE = 'value'
-export const REF_ATTRIBUTE = 'ref'
 export const NAME_ATTRIBUTE = 'name'
-export const IS_DIRECTIVE = 'is'
+// the following constants are shared between the compiler and the dom-bindings package
+export {
+  REF_ATTRIBUTE,
+  VALUE_ATTRIBUTE,
+  IS_DIRECTIVE,
+} from '@riotjs/util/constants'
 
 // Misc
 export const DEFAULT_SLOT_NAME = 'default'
