@@ -1,7 +1,7 @@
 [![Compiler logo](https://raw.githubusercontent.com/riot/branding/main/compiler/compiler-horizontal.svg)](https://github.com/riot/compiler/)
 
 [![Build Status][ci-image]][ci-url]
-[![Issue Count][codeclimate-image]][codeclimate-url]
+[![Issue Count][qlty-image]][qlty-url]
 [![Coverage Status][coverage-image]][coverage-url]
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-url]
@@ -117,7 +117,7 @@ in the tag source code for example
 [npm-version-image]: https://img.shields.io/npm/v/@riotjs/compiler.svg?style=flat-square
 [npm-downloads-image]: https://img.shields.io/npm/dm/@riotjs/compiler.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/@riotjs/compiler
-[coverage-image]: https://img.shields.io/coveralls/riot/compiler/main.svg?style=flat-square
-[coverage-url]: https://coveralls.io/r/riot/compiler?branch=main
-[codeclimate-image]: https://api.codeclimate.com/v1/badges/37de24282e8d113bb0cc/maintainability
-[codeclimate-url]: https://codeclimate.com/github/riot/compiler
+[coverage-image]: https://qlty.sh/gh/riot/projects/compiler/coverage.svg
+[coverage-url]: https://qlty.sh/gh/riot/projects/compiler
+[qlty-image]: https://qlty.sh/gh/riot/projects/compiler/maintainability.svg
+[qlty-url]: https://qlty.sh/gh/riot/projects/compiler
