@@ -38,4 +38,4 @@ jobs:
       - uses: qltysh/qlty-action/coverage@v1
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
-          files: target/lcov.info
+          files: ./coverage/lcov.info
