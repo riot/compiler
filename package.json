@@ -53,7 +53,7 @@
     "@babel/core": "^7.28.0",
     "@babel/preset-env": "^7.28.0",
     "@playwright/test": "^1.54.1",
-    "@riotjs/dom-bindings": "^9.2.8",
+    "@riotjs/dom-bindings": "^10.0.0",
     "@riotjs/prettier-config": "^1.1.0",
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-commonjs": "^28.0.6",
