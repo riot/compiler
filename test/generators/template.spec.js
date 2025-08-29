@@ -425,6 +425,24 @@ describe('Generators - Template', () => {
       expect(expression[BINDING_IS_BOOLEAN_ATTRIBUTE]).to.be.equal(false)
     })
 
+    it('Custom boolean attribute without value on a child node', () => {
+      const source = '<parent><my-tag enabled></my-tag></parent>'
+      const { template } = parse(source)
+      const [, bindings] = builder(
+        createRootNode(template),
+        FAKE_SRC_FILE,
+        source,
+      )
+      const output = evaluateOutput(bindings[0])
+      const expression = output.attributes[0]
+
+      expect(expression[BINDING_EVALUATE_KEY]()).to.be.equal('')
+      expect(expression[BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
+      expect(expression[BINDING_IS_BOOLEAN_ATTRIBUTE]).to.be.equal(false)
+    })
+
     it('Known boolean attribute on a child node', () => {
       const source = '<my-tag><input checked={undefined}/></my-tag>'
       const { template } = parse(source)
@@ -956,7 +974,7 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
       expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
       expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal(
-        '<slot expr34="expr34" name="default" slot="default"></slot>',
+        '<slot expr35="expr35" name="default" slot="default"></slot>',
       )
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
     })

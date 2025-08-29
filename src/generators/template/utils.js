@@ -631,6 +631,10 @@ export function createArrayString(stringsArray) {
  */
 export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
   switch (true) {
+    // If the node has no value we early return either an empty string or its name
+    // https://github.com/riot/riot/issues/3068
+    case node.value === '':
+      return builders.literal(node[IS_BOOLEAN_ATTRIBUTE] ? node.name : '')
     // static attributes don't need to be merged, nor expression transformations are needed
     case !hasExpressions(node) && node.parts.length === 1:
       return builders.literal(node.parts[0])
