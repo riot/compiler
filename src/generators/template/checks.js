@@ -75,10 +75,10 @@ export function isGlobal({ scope, node }) {
 
   return Boolean(
     isRaw(node) ||
-      isBuiltinAPI(node) ||
-      isBrowserAPI(node) ||
-      isNewExpression(node) ||
-      isNodeInScope(scope, node),
+    isBuiltinAPI(node) ||
+    isBrowserAPI(node) ||
+    isNewExpression(node) ||
+    isNodeInScope(scope, node),
   )
 }
 
