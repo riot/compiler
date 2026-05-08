@@ -856,6 +856,39 @@ describe('Generators - Template', () => {
       ).to.be.equal('my-id')
     })
 
+    it('Inputs with conditional handle the value expression properly (https://github.com/riot/riot/issues/3076)', () => {
+      const source = '<div><input if={true} value={foo} class={bar} /></div>'
+      const { template } = parse(source)
+      const bindings = evaluateOutput(
+        builders.arrayExpression(builder(template, FAKE_SRC_FILE, source)[1]),
+      )
+      const tagBinding = bindings[0]
+      const { expressions } = tagBinding.template.bindingsData[0]
+
+      expect(tagBinding[BINDING_SELECTOR_KEY]).to.be.ok
+      expect(tagBinding[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.IF)
+
+      expect(
+        expressions[0][BINDING_EVALUATE_KEY]({
+          foo: 'foo',
+        }),
+      ).to.be.equal('foo')
+
+      expect(expressions[0][BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.VALUE,
+      )
+
+      expect(
+        expressions[1][BINDING_EVALUATE_KEY]({
+          bar: 'bar',
+        }),
+      ).to.be.equal('bar')
+
+      expect(expressions[1][BINDING_TYPE_KEY]).to.be.equal(
+        expressionTypes.ATTRIBUTE,
+      )
+    })
+
     it('Tag bindings can be computed', () => {
       const source = '<div><p is={tagName}/></div>'
       const { template } = parse(source)
@@ -974,7 +1007,7 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
       expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
       expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal(
-        '<slot expr35="expr35" name="default" slot="default"></slot>',
+        '<slot expr36="expr36" name="default" slot="default"></slot>',
       )
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
     })
