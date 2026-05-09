@@ -435,6 +435,7 @@ export function createNestedRootNode(node) {
   return {
     ...rootNodeFactory(node),
     isNestedRoot: true,
+    name: node.name,
     attributes: cleanAttributes(node),
   }
 }

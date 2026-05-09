@@ -153,7 +153,8 @@ export function createNestedBindings(
   const mightBeARiotComponent = isCustomNode(sourceNode)
   const node = cloneNodeWithoutSelectorAttribute(sourceNode, selector)
 
-  return mightBeARiotComponent
+  // slot nodes and riot components do not need to build html
+  return mightBeARiotComponent || isSlotNode(sourceNode)
     ? [null, [tagBinding(node, null, sourceFile, sourceCode)]]
     : build(createNestedRootNode(node), sourceFile, sourceCode)
 }
