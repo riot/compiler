@@ -583,6 +583,38 @@ describe('Generators - Template', () => {
       ).to.be.equal('bar-foo')
     })
 
+    it('Merge attribute expression spanning multiple lines with strings', () => {
+      const source = `<li class="base {foo
+  ? 'a'
+  : 'b'}"></li>`
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: true })).to.be.equal(
+        'base a',
+      )
+      expect(expression[BINDING_EVALUATE_KEY]({ foo: false })).to.be.equal(
+        'base b',
+      )
+    })
+
+    it('Merge attribute expression containing a backslash with strings', () => {
+      const source = "<li class=\"base {/\\d/.test(value) ? 'y' : 'n'}\"></li>"
+      const { template } = parse(source)
+      const input = simpleBinding(template, 'expr0', FAKE_SRC_FILE, source)
+      const output = evaluateOutput(input)
+      const expression = output.expressions[0]
+
+      expect(expression[BINDING_EVALUATE_KEY]({ value: '5' })).to.be.equal(
+        'base y',
+      )
+      expect(expression[BINDING_EVALUATE_KEY]({ value: 'x' })).to.be.equal(
+        'base n',
+      )
+    })
+
     it('Multiple attribute expressions', () => {
       const source = '<li class={foo} id={bar}></li>'
       const { template } = parse(source)
