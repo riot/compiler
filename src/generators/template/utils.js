@@ -623,6 +623,36 @@ export function createArrayString(stringsArray) {
 }
 
 /**
+ * Generate the pure immutable string chunks from a RiotParser.Attr value.
+ * Mirrors generateLiteralStringChunksFromNode for text nodes, but slices the
+ * attribute value span and keeps its whitespace (no trimming, unlike text nodes
+ * where the outer whitespace is insignificant).
+ * @param   {RiotParser.Attr} node - riot parser attribute node
+ * @param   {string} sourceCode - original tag source code
+ * @returns {Array} array containing the immutable string chunks
+ */
+function generateLiteralStringChunksFromAttributeNode(node, sourceCode) {
+  const valueEnd = node.valueStart + node.value.length
+
+  return node.expressions
+    .reduce((chunks, expression, index) => {
+      const start = index ? node.expressions[index - 1].end : node.valueStart
+      chunks.push(
+        encodeHTMLEntities(sourceCode.substring(start, expression.start)),
+      )
+
+      // add the static tail that follows the last expression
+      if (index === node.expressions.length - 1)
+        chunks.push(
+          encodeHTMLEntities(sourceCode.substring(expression.end, valueEnd)),
+        )
+
+      return chunks
+    }, [])
+    .map((str) => (node.unescape ? unescapeChar(str, node.unescape) : str))
+}
+
+/**
  * Simple expression bindings might contain multiple expressions like for example: "class="{foo} red {bar}""
  * This helper aims to merge them into a template literal if it's necessary
  * @param   {RiotParser.Attr} node - riot parser node
@@ -642,26 +672,28 @@ export function mergeAttributeExpressions(node, sourceFile, sourceCode) {
     // if there are no node parts or there is just one item we just create a simple expression literal
     case !node.parts || node.parts.length === 1:
       return transformExpression(node.expressions[0], sourceFile, sourceCode)
-    default:
-      // merge the siblings expressions into a single array literal
-      return createArrayString(
-        [
-          // fold the expression parts into a single array
-          ...node.parts.reduce((acc, str) => {
-            const expression = node.expressions.find(
-              (e) => e.text.trim() === str,
-            )
-
-            return [
-              ...acc,
-              expression
-                ? transformExpression(expression, sourceFile, sourceCode)
-                : builders.literal(encodeHTMLEntities(str)),
-            ]
-          }, []),
-          // filter out invalid items that are not literal or have no value
-        ].filter((expr) => !isLiteral(expr) || expr.value),
+    default: {
+      const stringChunks = generateLiteralStringChunksFromAttributeNode(
+        node,
+        sourceCode,
       )
+      const stringsArray = stringChunks
+        .reduce((acc, str, index) => {
+          const expression = node.expressions[index]
+
+          return [
+            ...acc,
+            builders.literal(str),
+            expression
+              ? transformExpression(expression, sourceFile, sourceCode)
+              : nullNode(),
+          ]
+        }, [])
+        // filter out the empty literals and the trailing null expression
+        .filter((expr) => !isLiteral(expr) || expr.value)
+
+      return createArrayString(stringsArray)
+    }
   }
 }
 
