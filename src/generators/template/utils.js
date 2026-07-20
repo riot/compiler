@@ -633,6 +633,8 @@ export function createArrayString(stringsArray) {
  */
 function generateLiteralStringChunksFromAttributeNode(node, sourceCode) {
   const valueEnd = node.valueStart + node.value.length
+  const chunk = (start, end) =>
+    encodeHTMLEntities(sourceCode.substring(start, end))
 
   return node.expressions
     .reduce((chunks, expression, index) => {
@@ -640,10 +642,10 @@ function generateLiteralStringChunksFromAttributeNode(node, sourceCode) {
 
       return [
         ...chunks,
-        encodeHTMLEntities(sourceCode.substring(start, expression.start)),
+        chunk(start, expression.start),
         // add the static tail that follows the last expression
         ...(index === node.expressions.length - 1
-          ? [encodeHTMLEntities(sourceCode.substring(expression.end, valueEnd))]
+          ? [chunk(expression.end, valueEnd)]
           : []),
       ]
     }, [])
