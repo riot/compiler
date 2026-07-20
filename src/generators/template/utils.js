@@ -637,17 +637,15 @@ function generateLiteralStringChunksFromAttributeNode(node, sourceCode) {
   return node.expressions
     .reduce((chunks, expression, index) => {
       const start = index ? node.expressions[index - 1].end : node.valueStart
-      chunks.push(
+
+      return [
+        ...chunks,
         encodeHTMLEntities(sourceCode.substring(start, expression.start)),
-      )
-
-      // add the static tail that follows the last expression
-      if (index === node.expressions.length - 1)
-        chunks.push(
-          encodeHTMLEntities(sourceCode.substring(expression.end, valueEnd)),
-        )
-
-      return chunks
+        // add the static tail that follows the last expression
+        ...(index === node.expressions.length - 1
+          ? [encodeHTMLEntities(sourceCode.substring(expression.end, valueEnd))]
+          : []),
+      ]
     }, [])
     .map((str) => (node.unescape ? unescapeChar(str, node.unescape) : str))
 }
