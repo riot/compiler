@@ -28,7 +28,7 @@ function preprocessorNameNotFoundError(name) {
  * Register a custom preprocessor
  * @param   { string } type - preprocessor type either 'js', 'css' or 'template'
  * @param   { string } name - unique preprocessor id
- * @param   { Function } preprocessor - preprocessor function
+ * @param   { function(string, object): Output } preprocessor - preprocessor function
  * @returns { Map } - the preprocessors map
  */
 export function register(type, name, preprocessor) {

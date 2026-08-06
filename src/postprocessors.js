@@ -6,7 +6,7 @@ export const postprocessors = new Set()
 
 /**
  * Register a postprocessor that will be used after the parsing and compilation of the riot tags
- * @param { Function } postprocessor - transformer that will receive the output code ans sourcemap
+ * @param { function(string, object): Output } postprocessor - transformer that will receive the output code ans sourcemap
  * @returns { Set } the postprocessors collection
  */
 export function register(postprocessor) {
@@ -25,7 +25,7 @@ export function register(postprocessor) {
 
 /**
  * Unregister a postprocessor
- * @param { Function } postprocessor - possibly a postprocessor previously registered
+ * @param { function(string, object): Output } postprocessor - possibly a postprocessor previously registered
  * @returns { Set } the postprocessors collection
  */
 export function unregister(postprocessor) {

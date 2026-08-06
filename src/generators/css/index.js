@@ -65,7 +65,7 @@ export function addScopeToSelectorList(tag, selectorList) {
 /**
  * Traverse the ast children
  * @param {CSSParser.AST | CSSParser.NODE} ast - css parser node or ast
- * @param {Function} fn - function that is needed to parse the single nodes
+ * @param {function(CSSParser.NODE): boolean|void} fn - function that is needed to parse the single nodes
  * @returns {CSSParser.AST | CSSParser.NODE} the original ast received
  */
 const traverse = (ast, fn) => {

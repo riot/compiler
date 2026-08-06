@@ -192,7 +192,7 @@ export function compile(source, opts = {}) {
 
 /**
  * Prepare the riot parser node transformers
- * @param   { Function } transformer - transformer function
+ * @param   { function(object, string, object, AST): AST } transformer - transformer function
  * @param   {object} sourceNode - riot parser node
  * @param   { string } source - component source code
  * @param   {object} meta - compilation meta information

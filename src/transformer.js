@@ -34,7 +34,7 @@ export function createOutput(data, meta) {
 
 /**
  * Transform the source code received via a compiler function
- * @param   { Function } compiler - function needed to generate the output code
+ * @param   { function(string, object): object } compiler - function needed to generate the output code
  * @param   {object} meta - compilation meta information
  * @param   { string } source - source code
  * @returns { Output } output - the result of the compiler
