@@ -1039,7 +1039,7 @@ describe('Generators - Template', () => {
       expect(output[BINDING_TYPE_KEY]).to.be.equal(bindingTypes.TAG)
       expect(output[BINDING_EVALUATE_KEY]()).to.be.equal('my-tag')
       expect(defaultSlot[BINDING_HTML_KEY]).to.be.equal(
-        '<slot expr36="expr36" name="default" slot="default"></slot>',
+        '<slot expr38="expr38" name="default" slot="default"></slot>',
       )
       expect(defaultSlot[BINDING_ID_KEY]).to.be.equal('default')
     })
