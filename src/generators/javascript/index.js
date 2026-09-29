@@ -31,7 +31,7 @@ export default function javascript(sourceNode, source, meta, ast) {
   const javascriptNode = addLinesOffset(
     sourceNode.text.text,
     source,
-    sourceNode,
+    sourceNode.text.start,
   )
   const { options } = meta
   const preprocessorOutput = preprocess('javascript', preprocessorName, meta, {

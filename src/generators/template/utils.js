@@ -176,11 +176,12 @@ export function updateNodesScope(ast) {
  * @returns {object} the ast generated
  */
 export function createASTFromExpression(expression, sourceFile, sourceCode) {
+  // the wrapping parenthesis takes the place of the opening curly brace
   const code = sourceFile
-    ? addLinesOffset(expression.text, sourceCode, expression)
-    : expression.text
+    ? addLinesOffset(`(${expression.text})`, sourceCode, expression.start)
+    : `(${expression.text})`
 
-  return generateAST(`(${code})`, {
+  return generateAST(code, {
     sourceFileName: sourceFile,
   })
 }
