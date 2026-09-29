@@ -199,4 +199,36 @@ describe('Sourcemap specs', () => {
 
     unregister('javascript', 'babel')
   })
+
+  describe('Code starting on the same line of its tag', () => {
+    // every token appears only once in the fixture, template expressions use
+    // it as a property because `_scope` replaces the identifiers
+    const tokens = {
+      'root node attribute on the first line': 'rootAttribute',
+      'quoted attribute on the first line': 'quotedAttribute',
+      'text node on the first line': 'textNode',
+      'second expression of an attribute on the first line': 'secondExpression',
+      'script starting on the same line of its tag': 'scriptCode',
+    }
+
+    Object.entries(tokens).forEach(([name, token]) => {
+      it(`Sourcemaps map properly the ${name}`, async function () {
+        const source = getFixture('sourcemap-offsets.riot')
+        const result = compile(source, {
+          file: 'sourcemap-offsets.riot',
+        })
+        const output = result.code
+        const sourcemapConsumer = await new SourceMapConsumer(result.map)
+        const { line, column } = sourcemapConsumer.originalPositionFor(
+          getLineAndColumnByPosition(output, output.indexOf(token)),
+        )
+
+        expect({ line, column }).to.be.deep.equal(
+          getLineAndColumnByPosition(source, source.indexOf(token)),
+        )
+
+        sourcemapConsumer.destroy()
+      })
+    })
+  })
 })
